@@ -1,0 +1,62 @@
+# Flutter
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+*.ipr
+*.iws
+.idea/
+.DS_Store
+.vscode/
+*.lock
+
+# Firebase (если добавите позже)
+google-services.json
+GoogleService-Info.plist
+firebase_options.dart
+
+# Secrets
+*.env
+.env.*
+
+# Coverage
+coverage/
+*.lcov
+
+# Android
+*.keystore
+key.properties
+
+# iOS
+*.mode1v3
+*.mode2v3
+*.moved-aside
+*.pbxuser
+*.perspectivev3
+**/*sync/
+.sconsign.dblite
+.tags*
+**/.vagrant/
+**/DerivedData/
+Icon?
+**/Pods/
+**/.symlinks/
+profile
+xcuserdata
+**/.generated/
+Flutter/App.framework
+Flutter/Flutter.framework
+Flutter/Generated.xcconfig
+Flutter/ephemeral/
+Flutter/app.flx
+Flutter/app.zip
+Flutter/flutter_assets/
+ServiceDefinitions.json
+Runner/GeneratedPluginRegistrant.*
+
+# Web
+web/favicon.png
+web/icons/
+web/manifest.json
