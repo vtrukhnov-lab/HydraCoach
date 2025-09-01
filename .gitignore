@@ -60,3 +60,4 @@ Runner/GeneratedPluginRegistrant.*
 web/favicon.png
 web/icons/
 web/manifest.json
+.metadata
