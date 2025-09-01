@@ -17,6 +17,7 @@ class WeatherCard extends StatefulWidget {
 class _WeatherCardState extends State<WeatherCard> {
   WeatherData? _weather;
   bool _loading = true;
+  String? _errorMessage;
   
   @override
   void initState() {
@@ -25,26 +26,41 @@ class _WeatherCardState extends State<WeatherCard> {
   }
   
   Future<void> _loadWeather() async {
-    setState(() => _loading = true);
+    setState(() {
+      _loading = true;
+      _errorMessage = null;
+    });
     
-    final weather = await WeatherService.getCurrentWeather();
-    
-    if (weather != null && mounted) {
-      setState(() {
-        _weather = weather;
-        _loading = false;
-      });
+    try {
+      final weather = await WeatherService.getCurrentWeather();
       
-      // Передаем корректировки в родительский виджет
-      final waterAdjustment = WeatherService.getWaterAdjustment(weather.heatIndex);
-      final sodiumAdjustment = WeatherService.getSodiumAdjustment(
-        weather.heatIndex, 
-        'medium', // TODO: получать из провайдера
-      );
-      
-      widget.onWeatherUpdate(waterAdjustment, sodiumAdjustment);
-    } else {
-      setState(() => _loading = false);
+      if (weather != null && mounted) {
+        setState(() {
+          _weather = weather;
+          _loading = false;
+        });
+        
+        // Передаем корректировки в родительский виджет
+        final waterAdjustment = WeatherService.getWaterAdjustment(weather.heatIndex);
+        final sodiumAdjustment = WeatherService.getSodiumAdjustment(
+          weather.heatIndex, 
+          'medium', // TODO: получать из провайдера
+        );
+        
+        widget.onWeatherUpdate(waterAdjustment, sodiumAdjustment);
+      } else {
+        setState(() {
+          _loading = false;
+          _errorMessage = 'Не удалось загрузить погоду';
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _errorMessage = 'Ошибка: ${e.toString()}';
+        });
+      }
     }
   }
   
@@ -65,16 +81,80 @@ class _WeatherCardState extends State<WeatherCard> {
             ),
           ],
         ),
-        child: const Center(
-          child: CircularProgressIndicator(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(width: 12),
+            const Text('Загрузка погоды...'),
+          ],
         ),
       );
     }
     
+    // ИСПРАВЛЕНО: Показываем карточку с ошибкой вместо пустоты
     if (_weather == null) {
-      return const SizedBox.shrink();
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.orange.shade50,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.orange.shade200),
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Icon(Icons.location_off, color: Colors.orange.shade700),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Погода недоступна',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange.shade900,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _errorMessage ?? 'Проверьте разрешения геолокации и интернет',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.orange.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton.icon(
+                onPressed: _loadWeather,
+                icon: const Icon(Icons.refresh, size: 18),
+                label: const Text('Повторить'),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.orange.shade700,
+                  backgroundColor: Colors.orange.shade100,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ).animate().fadeIn(duration: 300.ms);
     }
     
+    // Если данные загружены успешно - показываем полную карточку
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
@@ -270,6 +350,19 @@ class _WeatherCardState extends State<WeatherCard> {
                     ],
                   ),
                 ],
+                
+                // Кнопка обновления (маленькая)
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: IconButton(
+                    onPressed: _loadWeather,
+                    icon: const Icon(Icons.refresh, size: 20),
+                    color: Colors.white.withOpacity(0.6),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ),
               ],
             ),
           ),

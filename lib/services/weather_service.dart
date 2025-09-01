@@ -6,35 +6,77 @@ import 'package:flutter/material.dart';
 
 class WeatherService {
   // Используем бесплатный API OpenWeatherMap
-  static const String apiKey = 'YOUR_API_KEY'; // Получите на openweathermap.org
+  static const String apiKey = 'c460f153f615a343e0fe5158eae73121';
   static const String baseUrl = 'https://api.openweathermap.org/data/2.5/weather';
   
-  // Для демо используем фиксированные данные
-  static const bool useDemo = true;
+  // ИЗМЕНЕНО: Отключаем демо-режим для реальной геолокации
+  static const bool useDemo = false;
   
   static Future<WeatherData?> getCurrentWeather() async {
     try {
-      // Для демо возвращаем тестовые данные
+      // Если нет API ключа, используем демо-данные
       if (useDemo) {
+        // Демо-данные для Бенидорма (типичная погода)
+        final now = DateTime.now();
+        final hour = now.hour;
+        
+        // Имитируем изменение температуры в течение дня
+        double temp = 22.0;
+        if (hour >= 6 && hour < 10) {
+          temp = 18 + (hour - 6);
+        } else if (hour >= 10 && hour < 14) {
+          temp = 22 + (hour - 10) * 1.5;
+        } else if (hour >= 14 && hour < 18) {
+          temp = 28 - (hour - 14) * 0.5;
+        } else if (hour >= 18 && hour < 22) {
+          temp = 26 - (hour - 18) * 1.5;
+        } else {
+          temp = 20;
+        }
+        
+        final humidity = 60.0 + (hour < 12 ? 10 : -5);
+        final heatIndex = _calculateHeatIndex(temp, humidity);
+        
         return WeatherData(
-          temperature: 28,
-          humidity: 65,
-          heatIndex: 32,
-          description: 'Ясно',
-          city: 'Москва',
+          temperature: temp,
+          humidity: humidity,
+          heatIndex: heatIndex,
+          description: hour >= 6 && hour <= 20 ? 'Солнечно' : 'Ясно',
+          city: 'Бенидорм',
         );
       }
       
-      // Реальный запрос к API (когда будет ключ)
+      // Реальный запрос к API
       Position? position = await _getCurrentLocation();
-      if (position == null) return null;
+      
+      // Если не удалось получить локацию, показываем ошибку
+      if (position == null) {
+        print('Could not get location - check permissions');
+        // Возвращаем демо-данные с указанием проблемы
+        return WeatherData(
+          temperature: 22,
+          humidity: 60,
+          heatIndex: 24,
+          description: 'Нет доступа к геолокации',
+          city: 'Локация неизвестна',
+        );
+      }
+      
+      // Используем реальные координаты пользователя
+      double lat = position.latitude;
+      double lon = position.longitude;
+      
+      print('Got location: $lat, $lon');
       
       final url = Uri.parse(
-        '$baseUrl?lat=${position.latitude}&lon=${position.longitude}'
+        '$baseUrl?lat=$lat&lon=$lon'
         '&appid=$apiKey&units=metric&lang=ru'
       );
       
-      final response = await http.get(url);
+      final response = await http.get(url).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => throw Exception('Timeout'),
+      );
       
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -48,6 +90,7 @@ class WeatherService {
         await prefs.setDouble('lastTemp', temp);
         await prefs.setDouble('lastHumidity', humidity);
         await prefs.setDouble('lastHeatIndex', heatIndex);
+        await prefs.setString('lastCity', data['name']);
         await prefs.setString('lastWeatherTime', DateTime.now().toIso8601String());
         
         return WeatherData(
@@ -60,8 +103,18 @@ class WeatherService {
       }
     } catch (e) {
       print('Weather error: $e');
-      // Возвращаем кэшированные данные
-      return await _getCachedWeather();
+      // Возвращаем кэшированные данные или демо для Бенидорма
+      final cached = await _getCachedWeather();
+      if (cached != null) return cached;
+      
+      // Если нет кэша, возвращаем типичную погоду Бенидорма
+      return WeatherData(
+        temperature: 24,
+        humidity: 65,
+        heatIndex: 26,
+        description: 'Данные недоступны',
+        city: 'Бенидорм',
+      );
     }
     
     return null;
@@ -69,26 +122,42 @@ class WeatherService {
   
   static Future<Position?> _getCurrentLocation() async {
     try {
+      // Проверяем доступность сервиса геолокации
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
+        print('Location services disabled - asking user to enable');
+        // Просим пользователя включить геолокацию
+        await Geolocator.openLocationSettings();
         return null;
       }
       
+      // Проверяем разрешения
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
+        print('Requesting location permission from user...');
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
+          print('User denied location permission');
           return null;
         }
       }
       
       if (permission == LocationPermission.deniedForever) {
+        print('Location permission permanently denied - opening settings');
+        // Открываем настройки приложения для изменения разрешений
+        await Geolocator.openAppSettings();
         return null;
       }
       
-      return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.low,
+      print('Getting current position...');
+      // Получаем текущую позицию с таймаутом
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium, // Изменено на medium для баланса скорости/точности
+        timeLimit: const Duration(seconds: 10),
       );
+      
+      print('Successfully got position: ${position.latitude}, ${position.longitude}');
+      return position;
     } catch (e) {
       print('Location error: $e');
       return null;
@@ -124,6 +193,7 @@ class WeatherService {
     final temp = prefs.getDouble('lastTemp');
     final humidity = prefs.getDouble('lastHumidity');
     final heatIndex = prefs.getDouble('lastHeatIndex');
+    final city = prefs.getString('lastCity') ?? 'Кэш';
     
     if (temp != null && humidity != null && heatIndex != null) {
       return WeatherData(
@@ -131,7 +201,7 @@ class WeatherService {
         humidity: humidity,
         heatIndex: heatIndex,
         description: 'Кэшированные данные',
-        city: '',
+        city: city,
       );
     }
     

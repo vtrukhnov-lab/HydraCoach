@@ -200,7 +200,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                 ),
                 child: Column(
                   children: _getFilteredIntakes(provider)
-                      .map((intake) => _buildIntakeDetailItem(intake))
+                      .map((intake) => _buildIntakeDetailItem(intake, provider))
                       .toList(),
                 ),
               ),
@@ -410,7 +410,8 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
     );
   }
   
-  Widget _buildIntakeDetailItem(Intake intake) {
+  // ИСПРАВЛЕННАЯ ФУНКЦИЯ С РАБОЧИМ УДАЛЕНИЕМ
+  Widget _buildIntakeDetailItem(Intake intake, HydrationProvider provider) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -479,8 +480,68 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
           IconButton(
             icon: const Icon(Icons.delete_outline, size: 20),
             color: Colors.red.shade400,
-            onPressed: () {
-              // TODO: Удалить запись
+            onPressed: () async {
+              // Показываем диалог подтверждения
+              final shouldDelete = await showDialog<bool>(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Удалить запись?'),
+                    content: Text('Удалить ${_getIntakeName(intake.type)} ${intake.volume} мл?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Отмена'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.red,
+                        ),
+                        child: const Text('Удалить'),
+                      ),
+                    ],
+                  );
+                },
+              );
+              
+              if (shouldDelete == true) {
+                // Сохраняем данные для возможной отмены
+                final deletedIntake = intake;
+                
+                // Удаляем запись
+                provider.removeIntake(intake.id);
+                
+                // Показываем снекбар с возможностью отмены
+                if (mounted) {
+                  ScaffoldMessenger.of(context).clearSnackBars();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${_getIntakeName(intake.type)} удален'),
+                      duration: const Duration(seconds: 3),
+                      action: SnackBarAction(
+                        label: 'Отменить',
+                        textColor: Colors.white,
+                        onPressed: () {
+                          // Восстанавливаем удаленную запись
+                          provider.addIntake(
+                            deletedIntake.type,
+                            deletedIntake.volume,
+                            sodium: deletedIntake.sodium,
+                            potassium: deletedIntake.potassium,
+                            magnesium: deletedIntake.magnesium,
+                          );
+                        },
+                      ),
+                      behavior: SnackBarBehavior.floating,
+                      backgroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  );
+                }
+              }
             },
           ),
         ],
@@ -824,10 +885,12 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
   
   List<Intake> _getFilteredIntakes(HydrationProvider provider) {
     if (_selectedFilter == 'all') {
-      return provider.todayIntakes;
+      return provider.todayIntakes.reversed.toList();
     }
     return provider.todayIntakes
         .where((intake) => intake.type == _selectedFilter)
+        .toList()
+        .reversed
         .toList();
   }
   
