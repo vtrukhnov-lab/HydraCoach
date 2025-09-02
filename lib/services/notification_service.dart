@@ -7,7 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tz;
 import 'dart:io';
 import 'dart:math';
 
@@ -24,6 +24,9 @@ class NotificationService {
   static const String channelId = 'hydracoach_notifications';
   static const String channelName = 'HydraCoach Напоминания';
   static const String channelDescription = 'Напоминания о воде и электролитах';
+  
+  // Флаг для проверки инициализации
+  bool _isInitialized = false;
 
   // ==================== ИНИЦИАЛИЗАЦИЯ ====================
   
@@ -33,17 +36,36 @@ class NotificationService {
     await service._initializeFirebaseMessaging();
     await service._initializeTimezone();
     
+    // Запрашиваем разрешения для Android 12+
+    await service._requestExactAlarmPermission();
+    
     print('✅ NotificationService инициализирован');
   }
 
   Future<void> _initializeTimezone() async {
+    // ВАЖНО: Используем latest_all для полной поддержки timezone
     tz.initializeTimeZones();
-    // Устанавливаем локальную временную зону
-    tz.setLocalLocation(tz.getLocation('Europe/Moscow')); // Измените на вашу зону
+    
+    // Определяем локальную timezone
+    final String timeZoneName = await _getTimeZoneName();
+    print('📍 Используем timezone: $timeZoneName');
+    
+    try {
+      tz.setLocalLocation(tz.getLocation(timeZoneName));
+    } catch (e) {
+      print('⚠️ Не удалось установить timezone $timeZoneName, используем Moscow');
+      tz.setLocalLocation(tz.getLocation('Europe/Moscow'));
+    }
+  }
+  
+  Future<String> _getTimeZoneName() async {
+    // Можно определить автоматически или использовать фиксированную
+    // Для России обычно Europe/Moscow
+    return 'Europe/Moscow';
   }
 
   Future<void> _initializeLocalNotifications() async {
-    // Настройки для Android
+    // Настройки для Android с правильной иконкой
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
     
     // Настройки для iOS
@@ -51,6 +73,7 @@ class NotificationService {
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
+      requestCriticalPermission: false,
       defaultPresentAlert: true,
       defaultPresentBadge: true,
       defaultPresentSound: true,
@@ -63,21 +86,35 @@ class NotificationService {
     );
     
     // Инициализация с callback для обработки нажатий
-    await _localNotifications.initialize(
+    final bool? initialized = await _localNotifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
       onDidReceiveBackgroundNotificationResponse: _onBackgroundNotificationTapped,
     );
     
-    // Создаем Android канал для уведомлений
-    if (Platform.isAndroid) {
-      await _createAndroidNotificationChannel();
+    if (initialized == true) {
+      _isInitialized = true;
+      print('✅ Локальные уведомления инициализированы');
+      
+      // Создаем Android каналы для уведомлений
+      if (Platform.isAndroid) {
+        await _createAndroidNotificationChannels();
+      }
+      
+      // Проверяем pending уведомления
+      await checkNotificationStatus();
+    } else {
+      print('❌ Ошибка инициализации локальных уведомлений');
     }
-    
-    print('✅ Локальные уведомления инициализированы');
   }
 
-  Future<void> _createAndroidNotificationChannel() async {
+  Future<void> _createAndroidNotificationChannels() async {
+    final androidPlugin = _localNotifications
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    
+    if (androidPlugin == null) return;
+    
+    // Основной канал
     const channel = AndroidNotificationChannel(
       channelId,
       channelName,
@@ -86,11 +123,43 @@ class NotificationService {
       enableVibration: true,
       playSound: true,
       showBadge: true,
+      enableLights: false,  // Отключаем LED
     );
     
-    await _localNotifications
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
+    await androidPlugin.createNotificationChannel(channel);
+    
+    // Канал для срочных уведомлений
+    const urgentChannel = AndroidNotificationChannel(
+      'hydracoach_urgent',
+      'Срочные напоминания',
+      description: 'Важные уведомления о гидратации',
+      importance: Importance.max,
+      enableVibration: true,
+      playSound: true,
+      showBadge: true,
+    );
+    
+    await androidPlugin.createNotificationChannel(urgentChannel);
+    
+    print('📢 Android каналы уведомлений созданы');
+  }
+  
+  // Запрашиваем разрешение на точные алармы для Android 12+
+  Future<void> _requestExactAlarmPermission() async {
+    if (Platform.isAndroid) {
+      final androidPlugin = _localNotifications
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      
+      if (androidPlugin != null) {
+        // Запрашиваем разрешение на уведомления (Android 13+)
+        final notificationGranted = await androidPlugin.requestNotificationsPermission();
+        print('🔐 Разрешение на уведомления: $notificationGranted');
+        
+        // Запрашиваем разрешение на точные алармы (Android 12+)
+        final exactAlarmGranted = await androidPlugin.requestExactAlarmsPermission();
+        print('🔐 Разрешение на точные алармы: $exactAlarmGranted');
+      }
+    }
   }
 
   Future<void> _initializeFirebaseMessaging() async {
@@ -105,7 +174,7 @@ class NotificationService {
       sound: true,
     );
     
-    print('📱 Разрешения уведомлений: ${settings.authorizationStatus}');
+    print('📱 Разрешения FCM: ${settings.authorizationStatus}');
     
     // Получаем и сохраняем FCM токен
     await _saveFCMToken();
@@ -212,15 +281,12 @@ class NotificationService {
     
     switch (action) {
       case 'drink_water':
-        // Логика для напоминания о воде
         print('Action: Выпить воду');
         break;
       case 'add_electrolytes':
-        // Логика для электролитов
         print('Action: Добавить электролиты');
         break;
       case 'daily_report':
-        // Открыть дневной отчет
         print('Action: Показать отчет');
         break;
       default:
@@ -228,7 +294,7 @@ class NotificationService {
     }
   }
 
-  // ==================== ЛОКАЛЬНЫЕ УВЕДОМЛЕНИЯ ====================
+  // ==================== ЛОКАЛЬНЫЕ УВЕДОМЛЕНИЯ (ИСПРАВЛЕНО) ====================
   
   Future<void> showNotification({
     required int id,
@@ -237,6 +303,12 @@ class NotificationService {
     String? payload,
     DateTime? scheduledTime,
   }) async {
+    // Убеждаемся что сервис инициализирован
+    if (!_isInitialized) {
+      print('⚠️ NotificationService не инициализирован, инициализируем...');
+      await initialize();
+    }
+    
     final androidDetails = AndroidNotificationDetails(
       channelId,
       channelName,
@@ -248,11 +320,18 @@ class NotificationService {
       color: const Color.fromARGB(255, 33, 150, 243),
       enableVibration: true,
       playSound: true,
+      enableLights: false,  // Отключаем LED чтобы избежать ошибки
+      showWhen: true,
       styleInformation: BigTextStyleInformation(
         body,
         contentTitle: title,
         summaryText: 'HydraCoach',
       ),
+      // Важные параметры для Android
+      fullScreenIntent: true,
+      category: AndroidNotificationCategory.reminder,
+      visibility: NotificationVisibility.public,
+      autoCancel: true,
     );
     
     const iosDetails = DarwinNotificationDetails(
@@ -261,6 +340,7 @@ class NotificationService {
       presentSound: true,
       sound: 'default',
       badgeNumber: 1,
+      interruptionLevel: InterruptionLevel.timeSensitive,
     );
     
     final details = NotificationDetails(
@@ -269,21 +349,62 @@ class NotificationService {
     );
     
     if (scheduledTime != null) {
-      // Планируем уведомление
-      await _localNotifications.zonedSchedule(
-        id,
-        title,
-        body,
-        tz.TZDateTime.from(scheduledTime, tz.local),
-        details,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        payload: payload,
-      );
-      print('⏰ Уведомление запланировано на $scheduledTime');
+      // ИСПРАВЛЕНИЕ: Проверяем что время в будущем
+      if (scheduledTime.isBefore(DateTime.now())) {
+        print('⚠️ Время уже прошло, показываем уведомление сразу');
+        await _localNotifications.show(id, title, body, details, payload: payload);
+        return;
+      }
+      
+      try {
+        // Конвертируем в TZDateTime правильно
+        final tz.TZDateTime tzScheduledTime = tz.TZDateTime.from(
+          scheduledTime,
+          tz.local,
+        );
+        
+        print('📅 Планируем уведомление:');
+        print('   ID: $id');
+        print('   Заголовок: $title');
+        print('   Текущее время: ${DateTime.now()}');
+        print('   Запланировано на: $scheduledTime');
+        print('   TZ время: $tzScheduledTime');
+        print('   Через: ${scheduledTime.difference(DateTime.now()).inMinutes} минут');
+        
+        // Планируем уведомление с правильными параметрами
+        await _localNotifications.zonedSchedule(
+          id,
+          title,
+          body,
+          tzScheduledTime,
+          details,
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, // Важно для Android!
+          payload: payload,
+        );
+        
+        print('✅ Уведомление успешно запланировано с ID: $id');
+        
+        // Проверяем что оно действительно запланировано
+        final pending = await getPendingNotifications();
+        final found = pending.any((n) => n.id == id);
+        if (found) {
+          print('✅ Подтверждено: уведомление $id в очереди');
+        } else {
+          print('❌ ВНИМАНИЕ: уведомление $id НЕ найдено в очереди!');
+        }
+        
+      } catch (e, stackTrace) {
+        print('❌ Ошибка планирования уведомления: $e');
+        print('Stack trace: $stackTrace');
+        
+        // Если не удалось запланировать, показываем сразу
+        print('Показываем уведомление немедленно как fallback');
+        await _localNotifications.show(id, title, body, details, payload: payload);
+      }
     } else {
       // Показываем сразу
       await _localNotifications.show(id, title, body, details, payload: payload);
-      print('📬 Уведомление показано: $title');
+      print('📬 Мгновенное уведомление показано: $title');
     }
   }
 
@@ -297,7 +418,6 @@ class NotificationService {
     
     final prefs = await SharedPreferences.getInstance();
     final dietMode = prefs.getString('dietMode') ?? 'normal';
-    // Убираем неиспользуемую переменную activityLevel
     
     // Получаем текущий прогресс
     final waterProgress = prefs.getDouble('waterProgress') ?? 0;
@@ -379,27 +499,28 @@ class NotificationService {
     return 'Поддерживайте водный баланс в течение дня';
   }
 
-  // ==================== СПЕЦИАЛЬНЫЕ НАПОМИНАНИЯ ====================
+  // ==================== СПЕЦИАЛЬНЫЕ НАПОМИНАНИЯ (ИСПРАВЛЕНО) ====================
   
   Future<void> schedulePostCoffeeReminder() async {
+    // Планируем уведомление через 20 минут от текущего времени
     final reminderTime = DateTime.now().add(const Duration(minutes: 20));
     
     await showNotification(
-      id: Random().nextInt(1000),
+      id: 2000 + Random().nextInt(1000), // Уникальный ID для кофе-напоминаний
       title: '☕ После кофе',
       body: 'Выпейте 250-300 мл воды для восстановления баланса',
       scheduledTime: reminderTime,
       payload: 'post_coffee',
     );
     
-    print('☕ Напоминание после кофе запланировано');
+    print('☕ Напоминание после кофе запланировано на ${reminderTime.hour}:${reminderTime.minute.toString().padLeft(2, '0')}');
   }
 
   Future<void> schedulePostWorkoutReminder() async {
     final reminderTime = DateTime.now().add(const Duration(minutes: 30));
     
     await showNotification(
-      id: Random().nextInt(1000),
+      id: 3000 + Random().nextInt(1000),
       title: '💪 После тренировки',
       body: 'Восстановите электролиты: 500 мл воды + щепотка соли',
       scheduledTime: reminderTime,
@@ -407,6 +528,26 @@ class NotificationService {
     );
     
     print('💪 Напоминание после тренировки запланировано');
+  }
+  
+  Future<void> scheduleEveningReport() async {
+    final now = DateTime.now();
+    var scheduledTime = DateTime(now.year, now.month, now.day, 21, 0);
+    
+    // Если уже после 21:00, планируем на завтра
+    if (now.hour >= 21) {
+      scheduledTime = scheduledTime.add(const Duration(days: 1));
+    }
+    
+    await showNotification(
+      id: 999999, // Фиксированный ID для вечернего отчета
+      title: '📊 Дневной отчет готов',
+      body: 'Посмотрите, как прошел ваш день гидратации',
+      scheduledTime: scheduledTime,
+      payload: 'evening_report',
+    );
+    
+    print('📊 Вечерний отчет запланирован на ${scheduledTime.day}.${scheduledTime.month} в 21:00');
   }
 
   Future<void> sendHeatWarning(double heatIndex) async {
@@ -431,6 +572,7 @@ class NotificationService {
   
   Future<void> cancelNotification(int id) async {
     await _localNotifications.cancel(id);
+    print('🚫 Уведомление $id отменено');
   }
 
   Future<void> cancelAllNotifications() async {
@@ -455,9 +597,9 @@ class NotificationService {
     
     // Перезапускаем напоминания если включены
     if (settings.enabled) {
-      await NotificationService().scheduleSmartReminders();
+      await scheduleSmartReminders();
     } else {
-      await NotificationService().cancelAllNotifications();
+      await cancelAllNotifications();
     }
     
     print('✅ Настройки напоминаний сохранены');
@@ -481,37 +623,106 @@ class NotificationService {
     
     switch (payload) {
       case 'smart_reminder':
-        // Открыть главный экран
         print('Открыть главный экран');
         break;
       case 'post_coffee':
-        // Добавить воду
         print('Добавить воду после кофе');
         break;
       case 'post_workout':
-        // Добавить электролиты
         print('Добавить электролиты после тренировки');
         break;
       case 'daily_report':
-        // Показать отчет
+      case 'evening_report':
         print('Показать дневной отчет');
         break;
       case 'heat_warning':
-        // Показать рекомендации
         print('Показать рекомендации для жары');
+        break;
+      case 'test':
+      case 'test_scheduled':
+        print('Тестовое уведомление обработано');
         break;
     }
   }
 
-  // ==================== ТЕСТИРОВАНИЕ ====================
+  // ==================== ТЕСТИРОВАНИЕ (РАСШИРЕНО) ====================
   
+  // Мгновенное тестовое уведомление
   Future<void> sendTestNotification() async {
     await showNotification(
       id: 999,
       title: '🧪 Тест уведомления',
-      body: 'Если вы видите это - уведомления работают правильно!',
+      body: 'Если вы видите это - мгновенные уведомления работают!',
       payload: 'test',
     );
+  }
+  
+  // Тестовое уведомление через 1 минуту
+  Future<void> scheduleTestNotificationIn1Minute() async {
+    final scheduledTime = DateTime.now().add(const Duration(minutes: 1));
+    
+    await showNotification(
+      id: 998,
+      title: '⏰ Тест планирования (1 мин)',
+      body: 'Это уведомление было запланировано 1 минуту назад. Планирование работает!',
+      scheduledTime: scheduledTime,
+      payload: 'test_scheduled',
+    );
+    
+    print('⏰ Тестовое уведомление запланировано на ${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}');
+  }
+  
+  // Тестовое уведомление через 10 секунд (для быстрой проверки)
+  Future<void> scheduleTestNotificationIn10Seconds() async {
+    final scheduledTime = DateTime.now().add(const Duration(seconds: 10));
+    
+    await showNotification(
+      id: 997,
+      title: '⚡ Быстрый тест (10 сек)',
+      body: 'Если вы это видите - планирование работает отлично!',
+      scheduledTime: scheduledTime,
+      payload: 'test_scheduled',
+    );
+    
+    print('⚡ Быстрое тестовое уведомление запланировано через 10 секунд');
+  }
+  
+  // Проверка статуса уведомлений
+  Future<void> checkNotificationStatus() async {
+    final pending = await getPendingNotifications();
+    print('');
+    print('📋 ===== СТАТУС УВЕДОМЛЕНИЙ =====');
+    print('📋 Запланировано уведомлений: ${pending.length}');
+    if (pending.isNotEmpty) {
+      print('📋 Список:');
+      for (var notification in pending) {
+        print('   - ID: ${notification.id}');
+        print('     Title: ${notification.title}');
+        print('     Body: ${notification.body}');
+        print('     Payload: ${notification.payload}');
+      }
+    }
+    print('📋 =============================');
+    print('');
+  }
+  
+  // Комплексный тест всех типов уведомлений
+  Future<void> runFullTest() async {
+    print('🧪 ЗАПУСК ПОЛНОГО ТЕСТА УВЕДОМЛЕНИЙ');
+    
+    // 1. Мгновенное
+    await sendTestNotification();
+    
+    // 2. Через 10 секунд
+    await scheduleTestNotificationIn10Seconds();
+    
+    // 3. Через 1 минуту
+    await scheduleTestNotificationIn1Minute();
+    
+    // 4. Проверяем статус
+    await checkNotificationStatus();
+    
+    print('🧪 ТЕСТ ЗАПУЩЕН: ожидайте 3 уведомления');
   }
 }
 

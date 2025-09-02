@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart'; // Для kDebugMode
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // Добавлен импорт
 import 'dart:math' as math;
 // Firebase imports
 import 'package:firebase_core/firebase_core.dart';
@@ -31,6 +32,47 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // ТЕСТ: Простейшая инициализация уведомлений
+  try {
+    final FlutterLocalNotificationsPlugin testPlugin = FlutterLocalNotificationsPlugin();
+    const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const InitializationSettings initSettings = InitializationSettings(android: androidSettings);
+    
+    await testPlugin.initialize(initSettings);
+    
+    // Создаем канал
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'test_channel',
+      'Test Channel',
+      importance: Importance.max,
+    );
+    
+    await testPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+    
+    // Показываем тестовое уведомление
+    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+      'test_channel',
+      'Test Channel',
+      importance: Importance.max,
+      priority: Priority.max,
+    );
+    
+    const NotificationDetails details = NotificationDetails(android: androidDetails);
+    
+    await testPlugin.show(
+      12345,
+      'Тест запуска',
+      'Если вы это видите - уведомления работают!',
+      details,
+    );
+    
+    print('✅ Тестовое уведомление отправлено при запуске');
+  } catch (e) {
+    print('❌ Ошибка тестового уведомления: $e');
+  }
   
   // Инициализируем Firebase
   await Firebase.initializeApp(
@@ -314,19 +356,8 @@ class HydrationProvider extends ChangeNotifier {
           prefs.setString(lastResetKey, now.toIso8601String());
           notifyListeners();
           
-          // Планируем вечерний отчет (можно сделать через Cloud Functions или локально)
-          final evening = DateTime(now.year, now.month, now.day, 21, 0);
-          if (now.isBefore(evening)) {
-            final delay = evening.difference(now);
-            Future.delayed(delay, () {
-              notif.NotificationService().showNotification(
-                id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-                title: '📊 Дневной отчет готов',
-                body: 'Посмотрите, как прошел ваш день гидратации',
-                payload: 'evening_report',
-              );
-            });
-          }
+          // Планируем вечерний отчет
+          notif.NotificationService().scheduleEveningReport();
         }
       } else {
         prefs.setString(lastResetKey, now.toIso8601String());
@@ -373,15 +404,12 @@ class HydrationProvider extends ChangeNotifier {
     
     // Проверяем, нужно ли отправить напоминание после кофе
     if (type == 'coffee') {
-      // Используем локальное уведомление через 20 минут
-      Future.delayed(const Duration(minutes: 20), () {
-        notif.NotificationService().showNotification(
-          id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-          title: '☕ После кофе',
-          body: 'Выпейте 250-300 мл воды для баланса',
-          payload: 'post_coffee',
-        );
-      });
+      // Используем правильное планирование через NotificationService
+      notif.NotificationService().schedulePostCoffeeReminder();
+      
+      if (kDebugMode) {
+        print('☕ Напоминание после кофе запланировано');
+      }
     }
   }
   
@@ -539,68 +567,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
   }
-  
-  // Метод для показа FCM токена (для отладки)
-  // Раскомментируйте при необходимости отладки
-  /*
-  Future<void> _showFCMToken() async {
-    final token = await FirebaseMessaging.instance.getToken();
-    if (mounted && token != null) {
-      // Копируем в буфер обмена
-      await Clipboard.setData(ClipboardData(text: token));
-      
-      // Показываем уведомление
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Row(
-                children: [
-                  Icon(Icons.check_circle, color: Colors.white, size: 20),
-                  SizedBox(width: 8),
-                  Text('FCM Token скопирован в буфер!'),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: SelectableText(
-                  token,
-                  style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
-                ),
-              ),
-            ],
-          ),
-          duration: const Duration(seconds: 60),
-          backgroundColor: Colors.blue.shade600,
-          action: SnackBarAction(
-            label: 'OK',
-            textColor: Colors.white,
-            onPressed: () {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            },
-          ),
-        ),
-      );
-      
-      // Также выводим в консоль
-      if (kDebugMode) {
-        print('');
-        print('🔑 ═══════════════════════════════════════════');
-        print('FCM TOKEN (скопирован в буфер обмена):');
-        print(token);
-        print('═══════════════════════════════════════════');
-        print('');
-      }
-    }
-  }
- */  
+    
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<HydrationProvider>(context);
@@ -655,6 +622,221 @@ class _HomeScreenState extends State<HomeScreen> {
                               onPressed: () {
                                 Navigator.pushNamed(context, '/settings');
                               },
+                            ),
+                            // КНОПКА ДЛЯ ТЕСТИРОВАНИЯ УВЕДОМЛЕНИЙ
+                            IconButton(
+                              icon: const Icon(Icons.notifications_active, color: Colors.orange),
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                                  ),
+                                  builder: (context) => Container(
+                                    padding: const EdgeInsets.all(20),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          width: 40,
+                                          height: 4,
+                                          margin: const EdgeInsets.only(bottom: 20),
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[300],
+                                            borderRadius: BorderRadius.circular(2),
+                                          ),
+                                        ),
+                                        const Text(
+                                          '🧪 Тестирование уведомлений',
+                                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Проверьте работу разных типов уведомлений',
+                                          style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                                        ),
+                                        const SizedBox(height: 20),
+                                        
+                                        // Мгновенное уведомление
+                                        Card(
+                                          child: ListTile(
+                                            leading: const CircleAvatar(
+                                              backgroundColor: Colors.blue,
+                                              child: Icon(Icons.flash_on, color: Colors.white),
+                                            ),
+                                            title: const Text('Мгновенное'),
+                                            subtitle: const Text('Появится сразу'),
+                                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                                            onTap: () async {
+                                              await notif.NotificationService().sendTestNotification();
+                                              Navigator.pop(context);
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text('✅ Мгновенное уведомление отправлено'),
+                                                  backgroundColor: Colors.green,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        
+                                        const SizedBox(height: 8),
+                                        
+                                        // Быстрый тест (10 секунд)
+                                        Card(
+                                          child: ListTile(
+                                            leading: const CircleAvatar(
+                                              backgroundColor: Colors.purple,
+                                              child: Icon(Icons.timer_10, color: Colors.white),
+                                            ),
+                                            title: const Text('Быстрый тест'),
+                                            subtitle: const Text('Через 10 секунд'),
+                                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                                            onTap: () async {
+                                              await notif.NotificationService().scheduleTestNotificationIn10Seconds();
+                                              Navigator.pop(context);
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text('⚡ Уведомление запланировано через 10 секунд'),
+                                                  backgroundColor: Colors.purple,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        
+                                        const SizedBox(height: 8),
+                                        
+                                        // Уведомление через 1 минуту
+                                        Card(
+                                          child: ListTile(
+                                            leading: const CircleAvatar(
+                                              backgroundColor: Colors.orange,
+                                              child: Icon(Icons.timer, color: Colors.white),
+                                            ),
+                                            title: const Text('Тест планирования'),
+                                            subtitle: const Text('Через 1 минуту'),
+                                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                                            onTap: () async {
+                                              await notif.NotificationService().scheduleTestNotificationIn1Minute();
+                                              Navigator.pop(context);
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text('⏰ Уведомление запланировано через 1 минуту'),
+                                                  backgroundColor: Colors.orange,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        
+                                        const SizedBox(height: 8),
+                                        
+                                        // Полный тест
+                                        Card(
+                                          child: ListTile(
+                                            leading: const CircleAvatar(
+                                              backgroundColor: Colors.teal,
+                                              child: Icon(Icons.rocket_launch, color: Colors.white),
+                                            ),
+                                            title: const Text('Полный тест'),
+                                            subtitle: const Text('3 уведомления: сразу, 10 сек, 1 мин'),
+                                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                                            onTap: () async {
+                                              await notif.NotificationService().runFullTest();
+                                              Navigator.pop(context);
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text('🚀 Запущен полный тест (3 уведомления)'),
+                                                  backgroundColor: Colors.teal,
+                                                  duration: Duration(seconds: 5),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        
+                                        const Divider(height: 24),
+                                        
+                                        // Проверка статуса
+                                        Card(
+                                          color: Colors.grey[50],
+                                          child: ListTile(
+                                            leading: const CircleAvatar(
+                                              backgroundColor: Colors.grey,
+                                              child: Icon(Icons.list_alt, color: Colors.white),
+                                            ),
+                                            title: const Text('Статус очереди'),
+                                            subtitle: const Text('Список запланированных'),
+                                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                                            onTap: () async {
+                                              await notif.NotificationService().checkNotificationStatus();
+                                              Navigator.pop(context);
+                                              if (kDebugMode) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text('📋 Смотрите консоль для списка запланированных'),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                        
+                                        const SizedBox(height: 8),
+                                        
+                                        // Отменить все
+                                        Card(
+                                          color: Colors.red[50],
+                                          child: ListTile(
+                                            leading: const CircleAvatar(
+                                              backgroundColor: Colors.red,
+                                              child: Icon(Icons.cancel, color: Colors.white),
+                                            ),
+                                            title: const Text('Отменить все'),
+                                            subtitle: const Text('Очистить очередь уведомлений'),
+                                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                                            onTap: () async {
+                                              // Показываем диалог подтверждения
+                                              showDialog(
+                                                context: context,
+                                                builder: (dialogContext) => AlertDialog(
+                                                  title: const Text('Подтверждение'),
+                                                  content: const Text('Отменить все запланированные уведомления?'),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () => Navigator.pop(dialogContext),
+                                                      child: const Text('Нет'),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () async {
+                                                        await notif.NotificationService().cancelAllNotifications();
+                                                        Navigator.pop(dialogContext);
+                                                        Navigator.pop(context);
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          const SnackBar(
+                                                            content: Text('🗑️ Все уведомления отменены'),
+                                                            backgroundColor: Colors.red,
+                                                          ),
+                                                        );
+                                                      },
+                                                      child: const Text('Да', style: TextStyle(color: Colors.red)),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        
+                                        const SizedBox(height: 20),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                              tooltip: 'Тест уведомлений',
                             ),
                           ],
                         ),
