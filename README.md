@@ -2,6 +2,8 @@
 
 Smart water and electrolyte tracking app optimized for keto, fasting, and active lifestyle.
 
+**Version:** 0.1.1 | **Status:** Production Ready | **[Changelog](CHANGELOG.md)**
+
 ## 🎯 Features
 
 ### Core Functionality
@@ -9,6 +11,7 @@ Smart water and electrolyte tracking app optimized for keto, fasting, and active
 - **Electrolyte Balance** - Track sodium, potassium, and magnesium intake
 - **Weather Integration** - Automatic goal adjustments based on Heat Index
 - **Hydration Status** - Real-time monitoring with risk assessment
+- **Push Notifications** - Firebase Cloud Messaging integration ✨
 - **Smart Reminders** - Context-aware notifications (post-coffee, heat warnings)
 
 ### Advanced Features
@@ -36,13 +39,14 @@ Smart water and electrolyte tracking app optimized for keto, fasting, and active
 - Flutter SDK (3.0 or higher)
 - Dart SDK (3.0 or higher)
 - iOS/Android development environment
+- Firebase project (for push notifications)
 
 ### Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/vtrukhnov-lab/HydraCoach.git
-cd HydraCoach
+git clone https://github.com/vtrukhnov-lab/hydracoach.git
+cd hydracoach
 ```
 
 2. Install dependencies:
@@ -50,7 +54,13 @@ cd HydraCoach
 flutter pub get
 ```
 
-3. Run the app:
+3. Configure Firebase:
+   - Create a project in [Firebase Console](https://console.firebase.google.com)
+   - Add Android/iOS apps
+   - Download `google-services.json` (Android) and `GoogleService-Info.plist` (iOS)
+   - Place files in respective directories
+
+4. Run the app:
 ```bash
 # For iOS
 flutter run -d ios
@@ -58,7 +68,7 @@ flutter run -d ios
 # For Android
 flutter run -d android
 
-# For Web
+# For Web (limited functionality)
 flutter run -d chrome
 ```
 
@@ -67,30 +77,35 @@ flutter run -d chrome
 ```
 hydracoach/
 ├── lib/
-│   ├── main.dart              # App entry point and core logic
-│   ├── screens/               # App screens
+│   ├── main.dart                    # App entry point and core logic
+│   ├── screens/                     # App screens
 │   │   ├── onboarding_screen.dart
 │   │   ├── history_screen.dart
 │   │   └── settings_screen.dart
-│   ├── services/              # Business logic
+│   ├── services/                    # Business logic
 │   │   ├── weather_service.dart
 │   │   └── notification_service.dart
-│   └── widgets/               # Reusable components
+│   └── widgets/                     # Reusable components
 │       ├── weather_card.dart
 │       └── daily_report.dart
-├── pubspec.yaml               # Dependencies
-└── README.md                  # Documentation
+├── android/                         # Android specific files
+├── ios/                            # iOS specific files
+├── pubspec.yaml                    # Dependencies
+├── CHANGELOG.md                    # Version history
+└── README.md                       # Documentation
 ```
 
 ## 📊 Tech Stack
 
-- **Framework**: Flutter
+- **Framework**: Flutter 3.x
 - **State Management**: Provider
+- **Backend**: Firebase (Auth, Firestore, Cloud Messaging)
 - **Local Storage**: SharedPreferences
 - **Charts**: fl_chart
 - **Animations**: flutter_animate
-- **Notifications**: flutter_local_notifications
+- **Notifications**: flutter_local_notifications + FCM
 - **Location**: geolocator
+- **Weather API**: OpenWeatherMap
 
 ## 🎨 Key Algorithms
 
@@ -120,18 +135,22 @@ waterMax = 36 ml × weight(kg)
 - [x] Electrolyte monitoring
 - [x] Weather integration
 - [x] Daily reports
+- [x] Push notifications via Firebase
+- [x] Local notifications
 
-### Phase 2: Enhanced Features (In Progress)
-- [ ] Firebase integration for cloud sync
+### Phase 2: Enhanced Features (Current)
+- [ ] Cloud sync via Firestore
 - [ ] Export data (CSV/PDF)
 - [ ] Dark theme
 - [ ] Widget support
+- [ ] Weekly analytics
 
 ### Phase 3: Advanced Features
 - [ ] Apple Watch / WearOS apps
 - [ ] AI-powered recommendations
 - [ ] Social features and challenges
-- [ ] Integration with fitness apps
+- [ ] Integration with fitness apps (Google Fit, Apple Health)
+- [ ] Pro subscription model
 
 ## 🤝 Contributing
 
@@ -156,6 +175,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Inspired by the need for better hydration tracking on keto/fasting diets
 - Weather data from OpenWeatherMap API
 - Icons and design inspiration from Material Design
+- AI-assisted development methodology
 
 ## 📧 Contact
 
