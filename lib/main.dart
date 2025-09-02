@@ -1,23 +1,107 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart'; // Для kDebugMode
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:math' as math;
+// Firebase imports
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'firebase_options.dart';
+// App imports
 import 'screens/onboarding_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/settings_screen.dart';
-import 'services/weather_service.dart';
-import 'services/notification_service.dart';
+import 'services/notification_service.dart' as notif; // Префикс для избежания конфликта
 import 'widgets/weather_card.dart';
 import 'widgets/daily_report.dart';
+
+// Background message handler (должен быть top-level функцией)
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Обрабатываем уведомления в фоне
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  if (kDebugMode) {
+    print('Background message: ${message.messageId}');
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Инициализируем уведомления
-  await NotificationService.initialize();
+  // Инициализируем Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
+  // Настраиваем Firebase Messaging
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  
+  // Запрашиваем разрешения для iOS
+  final messaging = FirebaseMessaging.instance;
+  await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+  
+  // Получаем FCM токен
+  final fcmToken = await messaging.getToken();
+  
+  // Выводим токен в консоль разными способами
+  if (kDebugMode) {
+    print('════════════════════════════════════════════════════════════');
+    print('FCM TOKEN (скопируйте для тестирования):');
+    print(fcmToken ?? 'Token not available');
+    print('════════════════════════════════════════════════════════════');
+    
+    debugPrint('FCM Token получен: ${fcmToken?.substring(0, 20)}...');
+  }
+  
+  // Показываем токен через 3 секунды после запуска
+  if (fcmToken != null && kDebugMode) {
+    Future.delayed(const Duration(seconds: 3), () {
+      print('');
+      print('🔑 FCM TOKEN для Firebase Console:');
+      print(fcmToken);
+      print('');
+    });
+  }
+  
+  // Инициализируем локальные уведомления (для отображения push в foreground)
+  await notif.NotificationService.initialize();
+  
+  // Обрабатываем foreground сообщения
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+    if (kDebugMode) {
+      print('Foreground message: ${message.notification?.title}');
+    }
+    
+    // Показываем локальное уведомление
+    if (message.notification != null) {
+      await notif.NotificationService().showNotification(
+        id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        title: message.notification?.title ?? 'HydraCoach',
+        body: message.notification?.body ?? '',
+        payload: message.data.toString(),
+      );
+    }
+  });
+  
+  // Обрабатываем нажатия на уведомления
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    if (kDebugMode) {
+      print('Message clicked: ${message.messageId}');
+    }
+    // TODO: Навигация к нужному экрану
+  });
   
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -115,6 +199,25 @@ class HydrationProvider extends ChangeNotifier {
     _calculateGoals();
     _loadData();
     _checkAndResetDaily();
+    _subscribeFCMTopics();
+  }
+  
+  // Подписываемся на FCM топики на основе настроек
+  void _subscribeFCMTopics() async {
+    final messaging = FirebaseMessaging.instance;
+    
+    // Подписываемся на общие уведомления
+    await messaging.subscribeToTopic('all_users');
+    
+    // Подписываемся на топики по режиму питания
+    if (dietMode == 'keto') {
+      await messaging.subscribeToTopic('keto_users');
+    } else if (dietMode == 'fasting') {
+      await messaging.subscribeToTopic('fasting_users');
+    }
+    
+    // Подписываемся на погодные предупреждения
+    await messaging.subscribeToTopic('weather_alerts');
   }
   
   void _calculateGoals() {
@@ -211,8 +314,19 @@ class HydrationProvider extends ChangeNotifier {
           prefs.setString(lastResetKey, now.toIso8601String());
           notifyListeners();
           
-          // Планируем вечерний отчет
-          NotificationService.scheduleEveningReport();
+          // Планируем вечерний отчет (можно сделать через Cloud Functions или локально)
+          final evening = DateTime(now.year, now.month, now.day, 21, 0);
+          if (now.isBefore(evening)) {
+            final delay = evening.difference(now);
+            Future.delayed(delay, () {
+              notif.NotificationService().showNotification(
+                id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+                title: '📊 Дневной отчет готов',
+                body: 'Посмотрите, как прошел ваш день гидратации',
+                payload: 'evening_report',
+              );
+            });
+          }
         }
       } else {
         prefs.setString(lastResetKey, now.toIso8601String());
@@ -231,6 +345,7 @@ class HydrationProvider extends ChangeNotifier {
     this.activityLevel = activityLevel;
     _calculateGoals();
     _saveProfile();
+    _subscribeFCMTopics(); // Обновляем подписки
     notifyListeners();
   }
   
@@ -252,24 +367,22 @@ class HydrationProvider extends ChangeNotifier {
       magnesium: magnesium,
     ));
     
-    // Вибрация для обратной связи (работает на мобильных устройствах)
     HapticFeedback.lightImpact();
     _saveIntakes();
     notifyListeners();
     
     // Проверяем, нужно ли отправить напоминание после кофе
     if (type == 'coffee') {
-      NotificationService.schedulePostCoffeeReminder();
+      // Используем локальное уведомление через 20 минут
+      Future.delayed(const Duration(minutes: 20), () {
+        notif.NotificationService().showNotification(
+          id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          title: '☕ После кофе',
+          body: 'Выпейте 250-300 мл воды для баланса',
+          payload: 'post_coffee',
+        );
+      });
     }
-    
-    // Отладочный вывод
-    final progress = getProgress();
-    print('===== INTAKE ADDED =====');
-    print('Type: $type, Volume: $volume ml');
-    print('Water progress: ${progress['water']!.toInt()}/${goals.waterOpt} ml (${progress['waterPercent']!.toInt()}%)');
-    print('New HRI: ${getHRI()}');
-    print('Status: ${getHydrationStatus()}');
-    print('=======================');
   }
   
   void removeIntake(String id) {
@@ -310,12 +423,11 @@ class HydrationProvider extends ChangeNotifier {
     final waterRatio = progress['water']! / goals.waterOpt;
     final sodiumRatio = progress['sodium']! / goals.sodium;
     
-    // Упрощенная логика для более раннего достижения "Нормы"
     if (waterRatio > 1.15 && sodiumRatio < 0.6) {
       return 'Разбавляешь';
-    } else if (waterRatio < 0.5) {  // Изменено с 0.9 на 0.5
+    } else if (waterRatio < 0.9) {
       return 'Недобор воды';
-    } else if (sodiumRatio < 0.3) {  // Изменено с 0.5 на 0.3
+    } else if (sodiumRatio < 0.5) {
       return 'Мало соли';
     } else {
       return 'Норма';
@@ -323,60 +435,22 @@ class HydrationProvider extends ChangeNotifier {
   }
   
   int getHRI() {
-    // ИСПРАВЛЕННАЯ ФУНКЦИЯ - теперь динамически рассчитывает HRI
-    final progress = getProgress();
-    final waterPercent = progress['waterPercent']!;
-    final sodiumPercent = progress['sodiumPercent']!;
+    final status = getHydrationStatus();
+    int baseHRI = 0;
     
-    int risk = 0;
-    
-    // Основной фактор - процент выпитой воды (0-40 баллов)
-    if (waterPercent >= 80) {
-      risk += 0;  // Отлично
-    } else if (waterPercent >= 60) {
-      risk += 10;  // Хорошо
-    } else if (waterPercent >= 40) {
-      risk += 20;  // Средне
-    } else if (waterPercent >= 20) {
-      risk += 30;  // Плохо
-    } else {
-      risk += 40;  // Критично
+    switch (status) {
+      case 'Норма': baseHRI = 15; break;
+      case 'Мало соли': baseHRI = 45; break;
+      case 'Недобор воды': baseHRI = 55; break;
+      case 'Разбавляешь': baseHRI = 65; break;
     }
     
-    // Фактор электролитов (0-20 баллов)
-    if (sodiumPercent < 20) {
-      risk += 20;
-    } else if (sodiumPercent < 40) {
-      risk += 10;
-    } else if (sodiumPercent < 60) {
-      risk += 5;
-    }
-    
-    // Фактор времени суток (0-15 баллов)
-    final hour = DateTime.now().hour;
-    if (hour >= 14 && hour <= 17) {
-      risk += 15;  // Пик дня
-    } else if (hour >= 11 && hour <= 18) {
-      risk += 10;
-    } else if (hour >= 9 && hour <= 20) {
-      risk += 5;
-    }
-    
-    // Фактор активности (0-15 баллов)
-    if (activityLevel == 'high') {
-      risk += 15;
-    } else if (activityLevel == 'medium') {
-      risk += 8;
-    }
-    
-    // Фактор погоды (0-10 баллов)
+    // Добавляем риск от погоды
     if (weatherWaterAdjustment > 0.1) {
-      risk += 10;
-    } else if (weatherWaterAdjustment > 0.05) {
-      risk += 5;
+      baseHRI += 10;
     }
     
-    return math.min(risk, 100);
+    return math.min(baseHRI, 100);
   }
 }
 
@@ -439,7 +513,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-// Главный экран - ИСПРАВЛЕННАЯ ВЕРСИЯ
+// Главный экран
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -454,6 +528,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _checkDailyReport();
+    // _showFCMToken(); // Отключено в production
   }
   
   void _checkDailyReport() {
@@ -465,6 +540,67 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
   
+  // Метод для показа FCM токена (для отладки)
+  // Раскомментируйте при необходимости отладки
+  /*
+  Future<void> _showFCMToken() async {
+    final token = await FirebaseMessaging.instance.getToken();
+    if (mounted && token != null) {
+      // Копируем в буфер обмена
+      await Clipboard.setData(ClipboardData(text: token));
+      
+      // Показываем уведомление
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.white, size: 20),
+                  SizedBox(width: 8),
+                  Text('FCM Token скопирован в буфер!'),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: SelectableText(
+                  token,
+                  style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+                ),
+              ),
+            ],
+          ),
+          duration: const Duration(seconds: 60),
+          backgroundColor: Colors.blue.shade600,
+          action: SnackBarAction(
+            label: 'OK',
+            textColor: Colors.white,
+            onPressed: () {
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
+          ),
+        ),
+      );
+      
+      // Также выводим в консоль
+      if (kDebugMode) {
+        print('');
+        print('🔑 ═══════════════════════════════════════════');
+        print('FCM TOKEN (скопирован в буфер обмена):');
+        print(token);
+        print('═══════════════════════════════════════════');
+        print('');
+      }
+    }
+  }
+ */  
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<HydrationProvider>(context);
@@ -843,8 +979,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             child: Column(
                               children: provider.todayIntakes
-                                  .reversed  // Изменено: показываем последние записи первыми
                                   .take(5)
+                                  .toList()
+                                  .reversed
                                   .map((intake) => _buildIntakeItem(intake, provider))
                                   .toList(),
                             ),
@@ -909,15 +1046,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                    child: Row(
+                    child: const Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.analytics,
                           color: Colors.white,
                           size: 28,
                         ),
-                        const SizedBox(width: 12),
-                        const Expanded(
+                        SizedBox(width: 12),
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -939,7 +1076,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-                        const Icon(
+                        Icon(
                           Icons.chevron_right,
                           color: Colors.white,
                         ),
@@ -1019,40 +1156,31 @@ class _HomeScreenState extends State<HomeScreen> {
   
   Widget _buildQuickButton(BuildContext context, String icon, String label, 
       String volume, Color color, VoidCallback onPress) {
-    // Используем Material и InkWell для эффекта нажатия (работает в вебе)
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      elevation: 2,
-      shadowColor: color.withOpacity(0.3),
-      child: InkWell(
-        onTap: onPress,
-        borderRadius: BorderRadius.circular(16),
-        splashColor: color.withOpacity(0.2),
-        highlightColor: color.withOpacity(0.1),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color, width: 2),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(icon, style: const TextStyle(fontSize: 28)),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-              ),
-              Text(
-                volume,
-                style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-              ),
-            ],
-          ),
+    return GestureDetector(
+      onTap: onPress,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color, width: 2),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(icon, style: const TextStyle(fontSize: 28)),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+            ),
+            Text(
+              volume,
+              style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+            ),
+          ],
         ),
       ),
-    );
+    ).animate().scale(delay: 100.ms);
   }
   
   Widget _buildIntakeItem(Intake intake, HydrationProvider provider) {
@@ -1078,27 +1206,62 @@ class _HomeScreenState extends State<HomeScreen> {
         break;
     }
     
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[200]!),
+    return Dismissible(
+      key: Key(intake.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        decoration: const BoxDecoration(
+          color: Colors.red,
+        ),
+        child: const Icon(
+          Icons.delete,
+          color: Colors.white,
         ),
       ),
-      child: Row(
-        children: [
-          Text(
-            '${intake.timestamp.hour.toString().padLeft(2, '0')}:${intake.timestamp.minute.toString().padLeft(2, '0')}',
-            style: TextStyle(color: Colors.grey[600]),
+      onDismissed: (direction) {
+        provider.removeIntake(intake.id);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$typeName удален'),
+            action: SnackBarAction(
+              label: 'Отменить',
+              onPressed: () {
+                provider.addIntake(
+                  intake.type,
+                  intake.volume,
+                  sodium: intake.sodium,
+                  potassium: intake.potassium,
+                  magnesium: intake.magnesium,
+                );
+              },
+            ),
           ),
-          const SizedBox(width: 16),
-          Text('$typeIcon $typeName'),
-          const Spacer(),
-          Text(
-            '${intake.volume} мл',
-            style: const TextStyle(fontWeight: FontWeight.w600),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Colors.grey[200]!),
           ),
-        ],
+        ),
+        child: Row(
+          children: [
+            Text(
+              '${intake.timestamp.hour.toString().padLeft(2, '0')}:${intake.timestamp.minute.toString().padLeft(2, '0')}',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            const SizedBox(width: 16),
+            Text('$typeIcon $typeName'),
+            const Spacer(),
+            Text(
+              '${intake.volume} мл',
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
       ),
     );
   }

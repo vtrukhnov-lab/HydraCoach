@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../main.dart';
-import '../services/notification_service.dart';
+import '../services/notification_service.dart' as notif; // Добавляем префикс
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -51,9 +51,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.setString('eveningTime', _eveningTime);
     await prefs.setInt('reminderFrequency', _reminderFrequency);
     
-    // Обновляем настройки уведомлений
-    await NotificationService.saveSettings(
-      ReminderSettings(
+    // Обновляем настройки уведомлений с префиксом
+    await notif.NotificationService().saveSettings(
+      notif.ReminderSettings(
         enabled: _notificationsEnabled,
         frequency: _reminderFrequency,
         morningTime: _morningTime,
@@ -246,7 +246,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       _buildListTile(
                         'Версия',
-                        '1.0.0',
+                        '0.1.0',
                         Icons.info_outline,
                         null,
                       ),
