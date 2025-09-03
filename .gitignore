@@ -65,3 +65,14 @@ web/manifest.json
 ios/Flutter/Generated*.xcconfig
 ios/Flutter/flutter_export_environment*.sh
 project_code.txt
+
+# Flutter build files
+/build/
+**/build/
+
+# Dependencies 
+.flutter-plugins-dependencies*
+.dart_tool*
+build*
+.flutter-plugins*
+
