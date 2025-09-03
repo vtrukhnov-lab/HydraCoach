@@ -6,15 +6,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // Добавлен импорт
 import 'dart:math' as math;
+
 // Firebase imports
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
+
 // App imports
 import 'screens/onboarding_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/settings_screen.dart';
 import 'services/notification_service.dart' as notif; // Префикс для избежания конфликта
+import 'services/subscription_service.dart'; // НОВОЕ: сервис подписки
+import 'services/remote_config_service.dart'; // НОВОЕ: Remote Config
 import 'widgets/weather_card.dart';
 import 'widgets/daily_report.dart';
 
@@ -64,8 +68,8 @@ void main() async {
     
     await testPlugin.show(
       12345,
-      'Тест запуска',
-      'Если вы это видите - уведомления работают!',
+      'HydraCoach запущен!',
+      'Приложение готово к работе с PRO функциями!',
       details,
     );
     
@@ -78,6 +82,12 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  // 📊 НОВОЕ: Инициализируем Remote Config
+  await RemoteConfigService.instance.initialize();
+  
+  // 💰 НОВОЕ: Инициализируем RevenueCat (подписки)
+  await SubscriptionService.instance.initialize();
   
   // Настраиваем Firebase Messaging
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -150,9 +160,13 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
   
+  // НОВОЕ: MultiProvider для управления состоянием подписки
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => HydrationProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => HydrationProvider()),
+        ChangeNotifierProvider(create: (context) => SubscriptionProvider()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -224,7 +238,7 @@ class Intake {
   });
 }
 
-// Провайдер состояния
+// Обновленный провайдер состояния с Remote Config
 class HydrationProvider extends ChangeNotifier {
   double weight = 70;
   String dietMode = 'normal';
@@ -236,6 +250,9 @@ class HydrationProvider extends ChangeNotifier {
   int weatherSodiumAdjustment = 0;
   
   late DailyGoals goals;
+  
+  // НОВОЕ: доступ к Remote Config
+  final RemoteConfigService _remoteConfig = RemoteConfigService.instance;
   
   HydrationProvider() {
     _calculateGoals();
@@ -262,10 +279,12 @@ class HydrationProvider extends ChangeNotifier {
     await messaging.subscribeToTopic('weather_alerts');
   }
   
+  // ОБНОВЛЕНО: используем Remote Config для формул
   void _calculateGoals() {
-    int waterMin = (22 * weight).round();
-    int waterOpt = (30 * weight).round();
-    int waterMax = (36 * weight).round();
+    // Используем коэффициенты из Remote Config вместо хардкода
+    int waterMin = (_remoteConfig.waterMinPerKg * weight).round();
+    int waterOpt = (_remoteConfig.waterOptPerKg * weight).round();
+    int waterMax = (_remoteConfig.waterMaxPerKg * weight).round();
     
     // Применяем корректировку от погоды
     if (weatherWaterAdjustment > 0) {
@@ -274,9 +293,16 @@ class HydrationProvider extends ChangeNotifier {
       waterMax = (waterMax * (1 + weatherWaterAdjustment)).round();
     }
     
-    int sodium = dietMode == 'keto' || dietMode == 'fasting' ? 3500 : 2500;
-    int potassium = dietMode == 'keto' || dietMode == 'fasting' ? 3500 : 3000;
-    int magnesium = dietMode == 'keto' || dietMode == 'fasting' ? 400 : 350;
+    // Электролиты из Remote Config
+    int sodium = dietMode == 'keto' || dietMode == 'fasting' 
+        ? _remoteConfig.sodiumKeto 
+        : _remoteConfig.sodiumNormal;
+    int potassium = dietMode == 'keto' || dietMode == 'fasting' 
+        ? _remoteConfig.potassiumKeto 
+        : _remoteConfig.potassiumNormal;
+    int magnesium = dietMode == 'keto' || dietMode == 'fasting' 
+        ? _remoteConfig.magnesiumKeto 
+        : _remoteConfig.magnesiumNormal;
     
     // Добавляем корректировку соли от погоды
     sodium += weatherSodiumAdjustment;
@@ -344,7 +370,7 @@ class HydrationProvider extends ChangeNotifier {
   void _checkAndResetDaily() {
     // Проверяем, нужно ли сбросить данные за день
     final now = DateTime.now();
-    final lastResetKey = 'lastReset';
+    const lastResetKey = 'lastReset';
     
     SharedPreferences.getInstance().then((prefs) {
       final lastResetStr = prefs.getString(lastResetKey);
@@ -446,16 +472,19 @@ class HydrationProvider extends ChangeNotifier {
     };
   }
   
+  // ОБНОВЛЕНО: используем пороги из Remote Config
   String getHydrationStatus() {
     final progress = getProgress();
     final waterRatio = progress['water']! / goals.waterOpt;
     final sodiumRatio = progress['sodium']! / goals.sodium;
     
-    if (waterRatio > 1.15 && sodiumRatio < 0.6) {
+    // Используем пороги из Remote Config вместо хардкода
+    if (waterRatio > _remoteConfig.dilutionWaterThreshold && 
+        sodiumRatio < _remoteConfig.dilutionSodiumThreshold) {
       return 'Разбавляешь';
-    } else if (waterRatio < 0.9) {
+    } else if (waterRatio < _remoteConfig.dehydrationThreshold) {
       return 'Недобор воды';
-    } else if (sodiumRatio < 0.5) {
+    } else if (sodiumRatio < _remoteConfig.lowSaltThreshold) {
       return 'Мало соли';
     } else {
       return 'Норма';
@@ -494,10 +523,16 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _checkOnboarding();
+    _initializeApp();
   }
   
-  Future<void> _checkOnboarding() async {
+  // ОБНОВЛЕНО: инициализируем подписку при запуске
+  Future<void> _initializeApp() async {
+    // Инициализируем подписку
+    final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+    await subscriptionProvider.initialize();
+    
+    // Проверяем онбординг
     final prefs = await SharedPreferences.getInstance();
     final completed = prefs.getBool('onboardingCompleted') ?? false;
     
@@ -534,6 +569,18 @@ class _SplashScreenState extends State<SplashScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ).animate().fadeIn(delay: 300.ms),
+            const SizedBox(height: 20),
+            // НОВОЕ: показываем индикатор загрузки подписки
+            Consumer<SubscriptionProvider>(
+              builder: (context, subscription, child) {
+                if (subscription.isLoading) {
+                  return const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  );
+                }
+                return Container();
+              },
+            ),
           ],
         ),
       ),
@@ -541,7 +588,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-// Главный экран
+// Главный экран (ОБНОВЛЕН с PRO индикатором и пейволом)
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -556,7 +603,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _checkDailyReport();
-    // _showFCMToken(); // Отключено в production
   }
   
   void _checkDailyReport() {
@@ -571,6 +617,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<HydrationProvider>(context);
+    final subscriptionProvider = Provider.of<SubscriptionProvider>(context); // НОВОЕ
     final progress = provider.getProgress();
     final status = provider.getHydrationStatus();
     final hri = provider.getHRI();
@@ -582,7 +629,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             CustomScrollView(
               slivers: [
-                // Заголовок с меню
+                // ОБНОВЛЕН: заголовок с PRO индикатором
                 SliverToBoxAdapter(
                   child: Container(
                     padding: const EdgeInsets.all(20),
@@ -592,13 +639,38 @@ class _HomeScreenState extends State<HomeScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'HydraCoach',
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ).animate().fadeIn(duration: 500.ms),
+                            Row(
+                              children: [
+                                const Text(
+                                  'HydraCoach',
+                                  style: TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ).animate().fadeIn(duration: 500.ms),
+                                // НОВОЕ: PRO бейдж
+                                if (subscriptionProvider.isPro) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [Colors.amber.shade400, Colors.amber.shade600],
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Text(
+                                      'PRO',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
                             const SizedBox(height: 4),
                             Text(
                               _getFormattedDate(),
@@ -611,6 +683,24 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         Row(
                           children: [
+                            // НОВОЕ: кнопка PRO (если не подписан)
+                            if (!subscriptionProvider.isPro)
+                              IconButton(
+                                icon: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [Colors.purple.shade400, Colors.purple.shade600],
+                                    ),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.star, color: Colors.white, size: 20),
+                                ),
+                                onPressed: () {
+                                  _showPaywall(context, subscriptionProvider);
+                                },
+                                tooltip: 'Получить PRO',
+                              ),
                             IconButton(
                               icon: const Icon(Icons.history),
                               onPressed: () {
@@ -1275,6 +1365,172 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
   
+  // НОВОЕ: пейвол для подписки
+  void _showPaywall(BuildContext context, SubscriptionProvider subscriptionProvider) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.8,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+        ),
+        child: Column(
+          children: [
+            // Handle
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            
+            // Заголовок
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Text(
+                    RemoteConfigService.instance.paywallTitle,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    RemoteConfigService.instance.paywallSubtitle,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+            
+            // PRO возможности
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                children: [
+                  _buildFeatureItem('🧠', 'Умные напоминания', 'Контекстные уведомления по погоде и активности'),
+                  _buildFeatureItem('📊', 'Недельные отчеты', 'Детальная аналитика и рекомендации'),
+                  _buildFeatureItem('📁', 'Экспорт данных', 'Сохранение истории в CSV формате'),
+                  _buildFeatureItem('☁️', 'Облачная синхронизация', 'Доступ с любого устройства'),
+                  _buildFeatureItem('🍽️', 'Режим поста', 'Специальные напоминания для IF/OMAD'),
+                  _buildFeatureItem('🔥', 'Протоколы жары', 'Подготовка к экстремальным условиям'),
+                ],
+              ),
+            ),
+            
+            // Кнопки
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  // Кнопка подписки
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: subscriptionProvider.isLoading ? null : () async {
+                        // TODO: Показать выбор тарифа и купить
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Функция покупки будет добавлена в следующем обновлении')),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.purple,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      child: subscriptionProvider.isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              'Получить PRO',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 12),
+                  
+                  // Восстановить покупки
+                  TextButton(
+                    onPressed: () async {
+                      final success = await subscriptionProvider.restorePurchases();
+                      Navigator.pop(context);
+                      
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(success 
+                            ? 'Покупки восстановлены!' 
+                            : 'Активных покупок не найдено'
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text('Восстановить покупки'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildFeatureItem(String icon, String title, String description) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Text(icon, style: const TextStyle(fontSize: 24)),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
   Widget _buildProgressRing(String label, double percent, Color color, String current, String goal) {
     return Column(
       children: [
@@ -1470,9 +1726,9 @@ class _HomeScreenState extends State<HomeScreen> {
   
   String _getFormattedDate() {
     final now = DateTime.now();
-    final months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+    const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
                    'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-    final weekDays = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда',
+    const weekDays = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда',
                      'Четверг', 'Пятница', 'Суббота'];
     
     return '${weekDays[now.weekday % 7]}, ${now.day} ${months[now.month - 1]}';

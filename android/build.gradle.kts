@@ -1,3 +1,18 @@
+buildscript {
+    val kotlinVersion = "1.8.10"
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        // Firebase Google Services plugin
+        classpath("com.google.gms:google-services:4.4.2")
+        // Firebase Crashlytics plugin (для будущего использования)
+        classpath("com.google.firebase:firebase-crashlytics-gradle:3.0.2")
+    }
+}
+
 allprojects {
     repositories {
         google()

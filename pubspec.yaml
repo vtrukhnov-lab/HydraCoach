@@ -2,8 +2,8 @@ name: hydracoach
 description: "Smart hydration tracking with electrolyte balance"
 publish_to: 'none'
 
-# Версия приложения: 0.1.0 (MVP) + номер сборки 1
-version: 0.1.2+3
+# Версия приложения: 0.2.0 (Релиз 2 - Подписка) + номер сборки 4
+version: 0.2.0+4
 
 environment:
   sdk: ^3.9.0
@@ -12,28 +12,79 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # UI и иконки
   cupertino_icons: ^1.0.8
+  
+  # Стейт менеджмент
   provider: ^6.1.5+1
+  
+  # Локальное хранение
   shared_preferences: ^2.5.3
+  
+  # Утилиты
   intl: ^0.20.2
+  http: ^1.5.0
+  timezone: ^0.10.0
+  
+  # UI компоненты
   fl_chart: ^1.0.0
+  flutter_animate: ^4.5.2
+  
+  # Разрешения и уведомления
   flutter_local_notifications: ^19.4.1
   geolocator: ^14.0.2
-  http: ^1.5.0
-  flutter_animate: ^4.5.2
   permission_handler: ^12.0.1
   
-  # FIREBASE - ИСПОЛЬЗУЙТЕ ЭТИ СОВМЕСТИМЫЕ ВЕРСИИ:
+  # 🔥 FIREBASE - для Релиза 2
   firebase_core: ^3.15.0
   firebase_messaging: ^15.0.0
   firebase_auth: ^5.6.0
   cloud_firestore: ^5.6.0
-  timezone: ^0.10.0
+  firebase_analytics: ^11.3.0
+  firebase_remote_config: ^5.1.0
+  firebase_crashlytics: ^4.1.0
+  
+  # 💰 REVENUECAT - для подписки (Релиз 2)
+  purchases_flutter: ^9.4.0
+  
+  # 📁 ФАЙЛЫ - экспорт CSV
+  path_provider: ^2.1.5
+  csv: ^6.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  
+  # 🎨 Для генерации иконок
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
+  
+  # 🎨 Assets и иконки
+  assets:
+    - assets/images/
+  
+# 🎨 КОНФИГУРАЦИЯ ИКОНОК
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/app_icon.png"
+  min_sdk_android: 21 # Android 5.0 и выше
+  web:
+    generate: true
+    image_path: "assets/images/app_icon.png"
+    background_color: "#00A693"
+    theme_color: "#00A693"
+  windows:
+    generate: true
+    image_path: "assets/images/app_icon.png"
+    icon_size: 48
+  macos:
+    generate: true
+    image_path: "assets/images/app_icon.png"
+  
+  # 🎨 Адаптивная иконка для Android
+  adaptive_icon_background: "#00A693"
+  adaptive_icon_foreground: "assets/images/app_icon.png"
