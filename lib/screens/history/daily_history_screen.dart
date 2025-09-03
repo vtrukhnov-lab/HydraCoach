@@ -4,6 +4,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../main.dart';
+import '../../models/alcohol_intake.dart';
+import '../../services/alcohol_service.dart';
 
 class DailyHistoryScreen extends StatefulWidget {
   const DailyHistoryScreen({super.key});
@@ -16,21 +18,20 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
   DateTime _selectedDate = DateTime.now();
   String _selectedFilter = 'all';
   
-  // Данные для выбранного дня (не сегодня)
+  // Данные для выбранного дня
   List<Intake> selectedDayIntakes = [];
+  List<AlcoholIntake> selectedDayAlcoholIntakes = [];
   bool isLoadingDayData = false;
-  String _loadedDateKey = '';  // Отслеживаем загруженную дату
+  String _loadedDateKey = '';
   
   @override
   void initState() {
     super.initState();
-    // Загружаем данные для текущей даты при инициализации
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadDayDataSafe();
     });
   }
   
-  // Безопасная загрузка данных (не вызывается в build)
   Future<void> _loadDayDataSafe() async {
     if (!mounted) return;
     
@@ -38,11 +39,9 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     await _loadDayData(provider);
   }
   
-  // Загрузка данных за конкретный день
   Future<void> _loadDayData(HydrationProvider provider) async {
     final dateKey = _selectedDate.toIso8601String().split('T')[0];
     
-    // Если данные уже загружены для этой даты, не перезагружаем
     if (_loadedDateKey == dateKey) {
       return;
     }
@@ -53,10 +52,11 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
         selectedDayIntakes = provider.todayIntakes;
         _loadedDateKey = dateKey;
       });
+      // Загружаем алкоголь для сегодня
+      await _loadAlcoholData();
       return;
     }
     
-    // Иначе загружаем из SharedPreferences
     if (isLoadingDayData) return;
     
     setState(() {
@@ -87,9 +87,12 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
           }
         } catch (e) {
           print('Ошибка парсинга записи: $json, ошибка: $e');
-          continue; // Пропускаем поврежденную запись
+          continue;
         }
       }
+      
+      // Загружаем алкоголь
+      await _loadAlcoholData();
       
       if (mounted) {
         setState(() {
@@ -110,16 +113,43 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     }
   }
   
-  // Изменение выбранной даты
+  Future<void> _loadAlcoholData() async {
+    if (!mounted) return;
+    
+    final alcoholService = Provider.of<AlcoholService>(context, listen: false);
+    final alcoholIntakes = await alcoholService.getIntakesForDate(_selectedDate);
+    
+    if (mounted) {
+      setState(() {
+        selectedDayAlcoholIntakes = alcoholIntakes;
+      });
+    }
+  }
+  
   void _changeDate(DateTime newDate) {
-    if (newDate == _selectedDate) return;
+    // Защита от будущих дат
+    if (newDate.isAfter(DateTime.now())) {
+      return;
+    }
+    
+    // Защита от слишком старых дат (больше года назад)
+    final yearAgo = DateTime.now().subtract(const Duration(days: 365));
+    if (newDate.isBefore(yearAgo)) {
+      return;
+    }
+    
+    if (newDate.year == _selectedDate.year && 
+        newDate.month == _selectedDate.month && 
+        newDate.day == _selectedDate.day) {
+      return;
+    }
     
     setState(() {
       _selectedDate = newDate;
       _loadedDateKey = ''; // Сбрасываем кэш
+      selectedDayAlcoholIntakes = []; // Очищаем алкоголь
     });
     
-    // Загружаем данные для новой даты
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadDayDataSafe();
     });
@@ -127,8 +157,8 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
   
   @override
   Widget build(BuildContext context) {
-    return Consumer<HydrationProvider>(
-      builder: (context, provider, child) {
+    return Consumer2<HydrationProvider, AlcoholService>(
+      builder: (context, provider, alcoholService, child) {
         return SingleChildScrollView(
           child: Column(
             children: [
@@ -154,8 +184,8 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                       icon: const Icon(Icons.chevron_left),
                       onPressed: () {
                         final newDate = _selectedDate.subtract(const Duration(days: 1));
-                        // Ограничиваем максимум годом назад
-                        if (newDate.isAfter(DateTime.now().subtract(const Duration(days: 365)))) {
+                        final yearAgo = DateTime.now().subtract(const Duration(days: 365));
+                        if (newDate.isAfter(yearAgo)) {
                           _changeDate(newDate);
                         }
                       },
@@ -189,9 +219,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.chevron_right),
-                      onPressed: _selectedDate.isBefore(
-                        DateTime.now().subtract(const Duration(days: 1))
-                      ) ? () {
+                      onPressed: _canGoForward() ? () {
                         _changeDate(_selectedDate.add(const Duration(days: 1)));
                       } : null,
                     ),
@@ -237,6 +265,63 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                   ),
                 ).animate().slideX(delay: 100.ms),
               
+              // Статистика алкоголя (если есть данные и не включен трезвый режим)
+              if (!isLoadingDayData && 
+                  selectedDayAlcoholIntakes.isNotEmpty && 
+                  !alcoholService.soberModeEnabled)
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.orange.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.local_bar, color: Colors.orange),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Алкоголь: ${_getTotalAlcoholSD().toStringAsFixed(1)} SD',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      ...selectedDayAlcoholIntakes.map((intake) => 
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            children: [
+                              Icon(intake.type.icon, size: 20, color: Colors.orange),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  '${intake.type.label}: ${intake.volumeMl.toInt()} мл, ${intake.abv}%',
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              ),
+                              Text(
+                                intake.formattedTime,
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ).toList(),
+                    ],
+                  ),
+                ).animate().fadeIn(delay: 150.ms),
+              
               const SizedBox(height: 20),
               
               // Фильтр типов
@@ -255,6 +340,10 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                     _buildFilterChip('Бульон', 'broth'),
                     const SizedBox(width: 8),
                     _buildFilterChip('Кофе', 'coffee'),
+                    if (!alcoholService.soberModeEnabled && selectedDayAlcoholIntakes.isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      _buildFilterChip('Алкоголь', 'alcohol'),
+                    ],
                   ],
                 ),
               ),
@@ -268,7 +357,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: _buildIntakesList(provider),
+                child: _buildIntakesList(provider, alcoholService),
               ),
               
               const SizedBox(height: 100),
@@ -279,8 +368,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     );
   }
   
-  // Построение списка приемов с защитой от ошибок
-  Widget _buildIntakesList(HydrationProvider provider) {
+  Widget _buildIntakesList(HydrationProvider provider, AlcoholService alcoholService) {
     if (isLoadingDayData) {
       return const Padding(
         padding: EdgeInsets.all(32.0),
@@ -291,8 +379,10 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     }
     
     final filteredIntakes = _getFilteredIntakesForDay();
+    final filteredAlcohol = _selectedFilter == 'alcohol' ? selectedDayAlcoholIntakes : 
+                            _selectedFilter == 'all' ? selectedDayAlcoholIntakes : [];
     
-    if (filteredIntakes.isEmpty) {
+    if (filteredIntakes.isEmpty && filteredAlcohol.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(32.0),
         child: Center(
@@ -315,14 +405,157 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
       );
     }
     
+    // Объединяем обычные приемы и алкоголь, сортируем по времени
+    final List<Widget> allItems = [];
+    
+    // Добавляем обычные приемы
+    for (var intake in filteredIntakes) {
+      allItems.add(_IntakeItemWrapper(
+        timestamp: intake.timestamp,
+        child: _buildIntakeDetailItem(intake, provider),
+      ));
+    }
+    
+    // Добавляем алкогольные приемы
+    if (!alcoholService.soberModeEnabled) {
+      for (var alcohol in filteredAlcohol) {
+        allItems.add(_IntakeItemWrapper(
+          timestamp: alcohol.timestamp,
+          child: _buildAlcoholItem(alcohol, alcoholService),
+        ));
+      }
+    }
+    
+    // Сортируем по времени (новые сверху)
+    allItems.sort((a, b) => (b as _IntakeItemWrapper).timestamp
+        .compareTo((a as _IntakeItemWrapper).timestamp));
+    
     return Column(
-      children: filteredIntakes
-          .map((intake) => _buildIntakeDetailItem(intake, provider))
-          .toList(),
+      children: allItems.map((item) => 
+        (item as _IntakeItemWrapper).child).toList(),
     );
   }
   
-  // Вычисляем статистику для выбранного дня
+  Widget _buildAlcoholItem(AlcoholIntake intake, AlcoholService alcoholService) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Colors.grey.shade200),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.orange.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: Icon(intake.type.icon, color: Colors.orange, size: 24),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  intake.type.label,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  '${intake.volumeMl.toInt()} мл, ${intake.abv}%, ${intake.standardDrinks.toStringAsFixed(1)} SD',
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            intake.formattedTime,
+            style: const TextStyle(
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(width: 8),
+          
+          // Показываем кнопку удаления только для текущего дня
+          if (_isToday())
+            IconButton(
+              icon: const Icon(Icons.delete_outline, size: 20),
+              color: Colors.red.shade400,
+              onPressed: () async {
+                final shouldDelete = await showDialog<bool>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Удалить запись?'),
+                      content: Text('Удалить ${intake.type.label} ${intake.volumeMl.toInt()} мл?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text('Отмена'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.red,
+                          ),
+                          child: const Text('Удалить'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+                
+                if (shouldDelete == true) {
+                  await alcoholService.removeIntake(intake.id);
+                  await _loadAlcoholData(); // Перезагружаем данные
+                  
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Запись удалена'),
+                        duration: const Duration(seconds: 2),
+                        backgroundColor: Colors.red,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+        ],
+      ),
+    );
+  }
+  
+  double _getTotalAlcoholSD() {
+    double total = 0;
+    for (var intake in selectedDayAlcoholIntakes) {
+      total += intake.standardDrinks;
+    }
+    return total;
+  }
+  
+  bool _canGoForward() {
+    final now = DateTime.now();
+    return _selectedDate.year < now.year ||
+           (_selectedDate.year == now.year && _selectedDate.month < now.month) ||
+           (_selectedDate.year == now.year && _selectedDate.month == now.month && _selectedDate.day < now.day);
+  }
+  
   Map<String, int> _calculateDayStats() {
     int totalWater = 0;
     int totalSodium = 0;
@@ -348,7 +581,6 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     };
   }
   
-  // Проверяем, выбран ли сегодняшний день
   bool _isToday() {
     final now = DateTime.now();
     return _selectedDate.day == now.day && 
@@ -356,7 +588,6 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
            _selectedDate.year == now.year;
   }
   
-  // Получаем приемы для выбранного дня
   List<Intake> _getIntakesForSelectedDay() {
     if (_isToday()) {
       return Provider.of<HydrationProvider>(context, listen: false).todayIntakes;
@@ -364,8 +595,11 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     return selectedDayIntakes;
   }
   
-  // Получаем отфильтрованные приемы для выбранного дня
   List<Intake> _getFilteredIntakesForDay() {
+    if (_selectedFilter == 'alcohol') {
+      return [];
+    }
+    
     final intakes = _getIntakesForSelectedDay();
     
     if (_selectedFilter == 'all') {
@@ -576,7 +810,15 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     } else if (date.day == yesterday.day && date.month == yesterday.month && date.year == yesterday.year) {
       return 'Вчера';
     }
-    return DateFormat('d MMMM', 'ru').format(date);
+    
+    try {
+      return DateFormat('d MMMM', 'ru').format(date);
+    } catch (e) {
+      // Fallback если локаль не загружена
+      const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 
+                      'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+      return '${date.day} ${months[date.month - 1]}';
+    }
   }
   
   Color _getIntakeColor(String type) {
@@ -608,4 +850,18 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
       default: return 'Напиток';
     }
   }
+}
+
+// Вспомогательный класс для сортировки
+class _IntakeItemWrapper extends StatelessWidget {
+  final DateTime timestamp;
+  final Widget child;
+
+  const _IntakeItemWrapper({
+    required this.timestamp,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) => child;
 }

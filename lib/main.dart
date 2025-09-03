@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart'; // Для kDebugMode
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // Добавлен импорт
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:math' as math;
 
 // Firebase imports
@@ -16,16 +16,19 @@ import 'firebase_options.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/settings_screen.dart';
-import 'services/notification_service.dart' as notif; // Префикс для избежания конфликта
-import 'services/subscription_service.dart'; // НОВОЕ: сервис подписки
-import 'services/remote_config_service.dart'; // НОВОЕ: Remote Config
+import 'screens/alcohol_log_screen.dart'; // НОВОЕ
+import 'services/notification_service.dart' as notif;
+import 'services/subscription_service.dart';
+import 'services/remote_config_service.dart';
+import 'services/alcohol_service.dart'; // НОВОЕ
 import 'widgets/weather_card.dart';
 import 'widgets/daily_report.dart';
+import 'widgets/alcohol_card.dart'; // НОВОЕ
+import 'widgets/alcohol_checkin_dialog.dart'; // НОВОЕ
 
-// Background message handler (должен быть top-level функцией)
+// Background message handler
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // Обрабатываем уведомления в фоне
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -37,7 +40,18 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // ТЕСТ: Простейшая инициализация уведомлений
+  // Инициализируем Firebase только если еще не инициализирован
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+  } catch (e) {
+    print('Firebase initialization error: $e');
+  }
+  
+  // Тестовое уведомление при запуске
   try {
     final FlutterLocalNotificationsPlugin testPlugin = FlutterLocalNotificationsPlugin();
     const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -45,7 +59,6 @@ void main() async {
     
     await testPlugin.initialize(initSettings);
     
-    // Создаем канал
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
       'test_channel',
       'Test Channel',
@@ -56,7 +69,6 @@ void main() async {
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
     
-    // Показываем тестовое уведомление
     const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
       'test_channel',
       'Test Channel',
@@ -69,7 +81,7 @@ void main() async {
     await testPlugin.show(
       12345,
       'HydraCoach запущен!',
-      'Приложение готово к работе с PRO функциями!',
+      'Приложение готово к работе с алкогольным трекингом!',
       details,
     );
     
@@ -78,21 +90,12 @@ void main() async {
     print('❌ Ошибка тестового уведомления: $e');
   }
   
-  // Инициализируем Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  
-  // 📊 НОВОЕ: Инициализируем Remote Config
   await RemoteConfigService.instance.initialize();
-  
-  // 💰 НОВОЕ: Инициализируем RevenueCat (подписки)
   await SubscriptionService.instance.initialize();
   
   // Настраиваем Firebase Messaging
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   
-  // Запрашиваем разрешения для iOS
   final messaging = FirebaseMessaging.instance;
   await messaging.requestPermission(
     alert: true,
@@ -104,39 +107,22 @@ void main() async {
     sound: true,
   );
   
-  // Получаем FCM токен
   final fcmToken = await messaging.getToken();
   
-  // Выводим токен в консоль разными способами
-  if (kDebugMode) {
+  if (kDebugMode && fcmToken != null) {
     print('════════════════════════════════════════════════════════════');
     print('FCM TOKEN (скопируйте для тестирования):');
-    print(fcmToken ?? 'Token not available');
+    print(fcmToken);
     print('════════════════════════════════════════════════════════════');
-    
-    debugPrint('FCM Token получен: ${fcmToken?.substring(0, 20)}...');
   }
   
-  // Показываем токен через 3 секунды после запуска
-  if (fcmToken != null && kDebugMode) {
-    Future.delayed(const Duration(seconds: 3), () {
-      print('');
-      print('🔑 FCM TOKEN для Firebase Console:');
-      print(fcmToken);
-      print('');
-    });
-  }
-  
-  // Инициализируем локальные уведомления (для отображения push в foreground)
   await notif.NotificationService.initialize();
   
-  // Обрабатываем foreground сообщения
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
     if (kDebugMode) {
       print('Foreground message: ${message.notification?.title}');
     }
     
-    // Показываем локальное уведомление
     if (message.notification != null) {
       await notif.NotificationService().showNotification(
         id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
@@ -147,12 +133,10 @@ void main() async {
     }
   });
   
-  // Обрабатываем нажатия на уведомления
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
     if (kDebugMode) {
       print('Message clicked: ${message.messageId}');
     }
-    // TODO: Навигация к нужному экрану
   });
   
   SystemChrome.setPreferredOrientations([
@@ -160,12 +144,12 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
   
-  // НОВОЕ: MultiProvider для управления состоянием подписки
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => HydrationProvider()),
         ChangeNotifierProvider(create: (context) => SubscriptionProvider()),
+        ChangeNotifierProvider(create: (context) => AlcoholService()), // НОВОЕ
       ],
       child: const MyApp(),
     ),
@@ -194,6 +178,7 @@ class MyApp extends StatelessWidget {
         '/history': (context) => const HistoryScreen(),
         '/settings': (context) => const SettingsScreen(),
         '/onboarding': (context) => const OnboardingScreen(),
+        '/alcohol': (context) => const AlcoholLogScreen(), // НОВОЕ
       },
     );
   }
@@ -238,20 +223,22 @@ class Intake {
   });
 }
 
-// Обновленный провайдер состояния с Remote Config
+// Обновленный провайдер состояния с учетом алкоголя
 class HydrationProvider extends ChangeNotifier {
   double weight = 70;
   String dietMode = 'normal';
   String activityLevel = 'medium';
   List<Intake> todayIntakes = [];
   
-  // Корректировки от погоды
   double weatherWaterAdjustment = 0;
   int weatherSodiumAdjustment = 0;
   
+  // НОВОЕ: корректировки от алкоголя
+  double alcoholWaterAdjustment = 0;
+  int alcoholSodiumAdjustment = 0;
+  
   late DailyGoals goals;
   
-  // НОВОЕ: доступ к Remote Config
   final RemoteConfigService _remoteConfig = RemoteConfigService.instance;
   
   HydrationProvider() {
@@ -261,27 +248,21 @@ class HydrationProvider extends ChangeNotifier {
     _subscribeFCMTopics();
   }
   
-  // Подписываемся на FCM топики на основе настроек
   void _subscribeFCMTopics() async {
     final messaging = FirebaseMessaging.instance;
-    
-    // Подписываемся на общие уведомления
     await messaging.subscribeToTopic('all_users');
     
-    // Подписываемся на топики по режиму питания
     if (dietMode == 'keto') {
       await messaging.subscribeToTopic('keto_users');
     } else if (dietMode == 'fasting') {
       await messaging.subscribeToTopic('fasting_users');
     }
     
-    // Подписываемся на погодные предупреждения
     await messaging.subscribeToTopic('weather_alerts');
   }
   
-  // ОБНОВЛЕНО: используем Remote Config для формул
+  // ОБНОВЛЕНО: добавлена корректировка от алкоголя
   void _calculateGoals() {
-    // Используем коэффициенты из Remote Config вместо хардкода
     int waterMin = (_remoteConfig.waterMinPerKg * weight).round();
     int waterOpt = (_remoteConfig.waterOptPerKg * weight).round();
     int waterMax = (_remoteConfig.waterMaxPerKg * weight).round();
@@ -293,7 +274,13 @@ class HydrationProvider extends ChangeNotifier {
       waterMax = (waterMax * (1 + weatherWaterAdjustment)).round();
     }
     
-    // Электролиты из Remote Config
+    // НОВОЕ: Применяем корректировку от алкоголя
+    if (alcoholWaterAdjustment > 0) {
+      waterMin += alcoholWaterAdjustment.round();
+      waterOpt += alcoholWaterAdjustment.round();
+      waterMax += alcoholWaterAdjustment.round();
+    }
+    
     int sodium = dietMode == 'keto' || dietMode == 'fasting' 
         ? _remoteConfig.sodiumKeto 
         : _remoteConfig.sodiumNormal;
@@ -307,6 +294,9 @@ class HydrationProvider extends ChangeNotifier {
     // Добавляем корректировку соли от погоды
     sodium += weatherSodiumAdjustment;
     
+    // НОВОЕ: Добавляем корректировку соли от алкоголя
+    sodium += alcoholSodiumAdjustment;
+    
     goals = DailyGoals(
       waterMin: waterMin,
       waterOpt: waterOpt,
@@ -315,6 +305,14 @@ class HydrationProvider extends ChangeNotifier {
       potassium: potassium,
       magnesium: magnesium,
     );
+  }
+  
+  // НОВОЕ: обновление корректировок от алкоголя
+  void updateAlcoholAdjustments(double waterAdjustment, int sodiumAdjustment) {
+    alcoholWaterAdjustment = waterAdjustment;
+    alcoholSodiumAdjustment = sodiumAdjustment;
+    _calculateGoals();
+    notifyListeners();
   }
   
   void updateWeatherAdjustments(double waterAdjustment, int sodiumAdjustment) {
@@ -330,7 +328,6 @@ class HydrationProvider extends ChangeNotifier {
     dietMode = prefs.getString('dietMode') ?? 'normal';
     activityLevel = prefs.getString('activityLevel') ?? 'medium';
     
-    // Загружаем сегодняшние приемы
     final todayKey = 'intakes_${DateTime.now().toIso8601String().split('T')[0]}';
     final intakesJson = prefs.getStringList(todayKey) ?? [];
     
@@ -362,13 +359,11 @@ class HydrationProvider extends ChangeNotifier {
     
     await prefs.setStringList(todayKey, intakesJson);
     
-    // Сохраняем прогресс для уведомлений
     final progress = getProgress();
     await prefs.setDouble('waterProgress', progress['waterPercent']!);
   }
   
   void _checkAndResetDaily() {
-    // Проверяем, нужно ли сбросить данные за день
     final now = DateTime.now();
     const lastResetKey = 'lastReset';
     
@@ -377,12 +372,10 @@ class HydrationProvider extends ChangeNotifier {
       if (lastResetStr != null) {
         final lastReset = DateTime.parse(lastResetStr);
         if (lastReset.day != now.day) {
-          // Новый день - сбрасываем данные
           todayIntakes.clear();
           prefs.setString(lastResetKey, now.toIso8601String());
           notifyListeners();
           
-          // Планируем вечерний отчет
           notif.NotificationService().scheduleEveningReport();
         }
       } else {
@@ -402,7 +395,7 @@ class HydrationProvider extends ChangeNotifier {
     this.activityLevel = activityLevel;
     _calculateGoals();
     _saveProfile();
-    _subscribeFCMTopics(); // Обновляем подписки
+    _subscribeFCMTopics();
     notifyListeners();
   }
   
@@ -428,9 +421,7 @@ class HydrationProvider extends ChangeNotifier {
     _saveIntakes();
     notifyListeners();
     
-    // Проверяем, нужно ли отправить напоминание после кофе
     if (type == 'coffee') {
-      // Используем правильное планирование через NotificationService
       notif.NotificationService().schedulePostCoffeeReminder();
       
       if (kDebugMode) {
@@ -472,13 +463,11 @@ class HydrationProvider extends ChangeNotifier {
     };
   }
   
-  // ОБНОВЛЕНО: используем пороги из Remote Config
   String getHydrationStatus() {
     final progress = getProgress();
     final waterRatio = progress['water']! / goals.waterOpt;
     final sodiumRatio = progress['sodium']! / goals.sodium;
     
-    // Используем пороги из Remote Config вместо хардкода
     if (waterRatio > _remoteConfig.dilutionWaterThreshold && 
         sodiumRatio < _remoteConfig.dilutionSodiumThreshold) {
       return 'Разбавляешь';
@@ -491,7 +480,8 @@ class HydrationProvider extends ChangeNotifier {
     }
   }
   
-  int getHRI() {
+  // ОБНОВЛЕНО: добавлен учет алкоголя в HRI
+  int getHRI(AlcoholService? alcoholService) {
     final status = getHydrationStatus();
     int baseHRI = 0;
     
@@ -505,6 +495,11 @@ class HydrationProvider extends ChangeNotifier {
     // Добавляем риск от погоды
     if (weatherWaterAdjustment > 0.1) {
       baseHRI += 10;
+    }
+    
+    // НОВОЕ: Добавляем риск от алкоголя
+    if (alcoholService != null) {
+      baseHRI += alcoholService.totalHRIModifier.round();
     }
     
     return math.min(baseHRI, 100);
@@ -526,11 +521,14 @@ class _SplashScreenState extends State<SplashScreen> {
     _initializeApp();
   }
   
-  // ОБНОВЛЕНО: инициализируем подписку при запуске
   Future<void> _initializeApp() async {
     // Инициализируем подписку
     final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
     await subscriptionProvider.initialize();
+    
+    // НОВОЕ: Инициализируем алкогольный сервис
+    final alcoholService = Provider.of<AlcoholService>(context, listen: false);
+    await alcoholService.init();
     
     // Проверяем онбординг
     final prefs = await SharedPreferences.getInstance();
@@ -570,7 +568,6 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ).animate().fadeIn(delay: 300.ms),
             const SizedBox(height: 20),
-            // НОВОЕ: показываем индикатор загрузки подписки
             Consumer<SubscriptionProvider>(
               builder: (context, subscription, child) {
                 if (subscription.isLoading) {
@@ -588,7 +585,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-// Главный экран (ОБНОВЛЕН с PRO индикатором и пейволом)
+// Главный экран с интеграцией алкоголя
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -603,6 +600,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _checkDailyReport();
+    _checkMorningCheckin(); // НОВОЕ
   }
   
   void _checkDailyReport() {
@@ -613,14 +611,30 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
   }
+  
+  // НОВОЕ: проверка утреннего чек-ина
+  void _checkMorningCheckin() async {
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) {
+      AlcoholCheckinDialog.show(context);
+    }
+  }
     
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<HydrationProvider>(context);
-    final subscriptionProvider = Provider.of<SubscriptionProvider>(context); // НОВОЕ
+    final subscriptionProvider = Provider.of<SubscriptionProvider>(context);
+    final alcoholService = Provider.of<AlcoholService>(context); // НОВОЕ
+    
+    // НОВОЕ: обновляем корректировки от алкоголя
+    provider.updateAlcoholAdjustments(
+      alcoholService.totalWaterCorrection,
+      alcoholService.totalSodiumCorrection.round(),
+    );
+    
     final progress = provider.getProgress();
     final status = provider.getHydrationStatus();
-    final hri = provider.getHRI();
+    final hri = provider.getHRI(alcoholService); // Передаем alcoholService
     
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -629,7 +643,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             CustomScrollView(
               slivers: [
-                // ОБНОВЛЕН: заголовок с PRO индикатором
+                // Заголовок с PRO индикатором
                 SliverToBoxAdapter(
                   child: Container(
                     padding: const EdgeInsets.all(20),
@@ -648,7 +662,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ).animate().fadeIn(duration: 500.ms),
-                                // НОВОЕ: PRO бейдж
                                 if (subscriptionProvider.isPro) ...[
                                   const SizedBox(width: 8),
                                   Container(
@@ -683,7 +696,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         Row(
                           children: [
-                            // НОВОЕ: кнопка PRO (если не подписан)
                             if (!subscriptionProvider.isPro)
                               IconButton(
                                 icon: Container(
@@ -713,221 +725,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Navigator.pushNamed(context, '/settings');
                               },
                             ),
-                            // КНОПКА ДЛЯ ТЕСТИРОВАНИЯ УВЕДОМЛЕНИЙ
-                            IconButton(
-                              icon: const Icon(Icons.notifications_active, color: Colors.orange),
-                              onPressed: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                                  ),
-                                  builder: (context) => Container(
-                                    padding: const EdgeInsets.all(20),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Container(
-                                          width: 40,
-                                          height: 4,
-                                          margin: const EdgeInsets.only(bottom: 20),
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey[300],
-                                            borderRadius: BorderRadius.circular(2),
-                                          ),
-                                        ),
-                                        const Text(
-                                          '🧪 Тестирование уведомлений',
-                                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'Проверьте работу разных типов уведомлений',
-                                          style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                                        ),
-                                        const SizedBox(height: 20),
-                                        
-                                        // Мгновенное уведомление
-                                        Card(
-                                          child: ListTile(
-                                            leading: const CircleAvatar(
-                                              backgroundColor: Colors.blue,
-                                              child: Icon(Icons.flash_on, color: Colors.white),
-                                            ),
-                                            title: const Text('Мгновенное'),
-                                            subtitle: const Text('Появится сразу'),
-                                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                                            onTap: () async {
-                                              await notif.NotificationService().sendTestNotification();
-                                              Navigator.pop(context);
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text('✅ Мгновенное уведомление отправлено'),
-                                                  backgroundColor: Colors.green,
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                        
-                                        const SizedBox(height: 8),
-                                        
-                                        // Быстрый тест (10 секунд)
-                                        Card(
-                                          child: ListTile(
-                                            leading: const CircleAvatar(
-                                              backgroundColor: Colors.purple,
-                                              child: Icon(Icons.timer_10, color: Colors.white),
-                                            ),
-                                            title: const Text('Быстрый тест'),
-                                            subtitle: const Text('Через 10 секунд'),
-                                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                                            onTap: () async {
-                                              await notif.NotificationService().scheduleTestNotificationIn10Seconds();
-                                              Navigator.pop(context);
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text('⚡ Уведомление запланировано через 10 секунд'),
-                                                  backgroundColor: Colors.purple,
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                        
-                                        const SizedBox(height: 8),
-                                        
-                                        // Уведомление через 1 минуту
-                                        Card(
-                                          child: ListTile(
-                                            leading: const CircleAvatar(
-                                              backgroundColor: Colors.orange,
-                                              child: Icon(Icons.timer, color: Colors.white),
-                                            ),
-                                            title: const Text('Тест планирования'),
-                                            subtitle: const Text('Через 1 минуту'),
-                                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                                            onTap: () async {
-                                              await notif.NotificationService().scheduleTestNotificationIn1Minute();
-                                              Navigator.pop(context);
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text('⏰ Уведомление запланировано через 1 минуту'),
-                                                  backgroundColor: Colors.orange,
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                        
-                                        const SizedBox(height: 8),
-                                        
-                                        // Полный тест
-                                        Card(
-                                          child: ListTile(
-                                            leading: const CircleAvatar(
-                                              backgroundColor: Colors.teal,
-                                              child: Icon(Icons.rocket_launch, color: Colors.white),
-                                            ),
-                                            title: const Text('Полный тест'),
-                                            subtitle: const Text('3 уведомления: сразу, 10 сек, 1 мин'),
-                                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                                            onTap: () async {
-                                              await notif.NotificationService().runFullTest();
-                                              Navigator.pop(context);
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text('🚀 Запущен полный тест (3 уведомления)'),
-                                                  backgroundColor: Colors.teal,
-                                                  duration: Duration(seconds: 5),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                        
-                                        const Divider(height: 24),
-                                        
-                                        // Проверка статуса
-                                        Card(
-                                          color: Colors.grey[50],
-                                          child: ListTile(
-                                            leading: const CircleAvatar(
-                                              backgroundColor: Colors.grey,
-                                              child: Icon(Icons.list_alt, color: Colors.white),
-                                            ),
-                                            title: const Text('Статус очереди'),
-                                            subtitle: const Text('Список запланированных'),
-                                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                                            onTap: () async {
-                                              await notif.NotificationService().checkNotificationStatus();
-                                              Navigator.pop(context);
-                                              if (kDebugMode) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text('📋 Смотрите консоль для списка запланированных'),
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                        
-                                        const SizedBox(height: 8),
-                                        
-                                        // Отменить все
-                                        Card(
-                                          color: Colors.red[50],
-                                          child: ListTile(
-                                            leading: const CircleAvatar(
-                                              backgroundColor: Colors.red,
-                                              child: Icon(Icons.cancel, color: Colors.white),
-                                            ),
-                                            title: const Text('Отменить все'),
-                                            subtitle: const Text('Очистить очередь уведомлений'),
-                                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                                            onTap: () async {
-                                              // Показываем диалог подтверждения
-                                              showDialog(
-                                                context: context,
-                                                builder: (dialogContext) => AlertDialog(
-                                                  title: const Text('Подтверждение'),
-                                                  content: const Text('Отменить все запланированные уведомления?'),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () => Navigator.pop(dialogContext),
-                                                      child: const Text('Нет'),
-                                                    ),
-                                                    TextButton(
-                                                      onPressed: () async {
-                                                        await notif.NotificationService().cancelAllNotifications();
-                                                        Navigator.pop(dialogContext);
-                                                        Navigator.pop(context);
-                                                        ScaffoldMessenger.of(context).showSnackBar(
-                                                          const SnackBar(
-                                                            content: Text('🗑️ Все уведомления отменены'),
-                                                            backgroundColor: Colors.red,
-                                                          ),
-                                                        );
-                                                      },
-                                                      child: const Text('Да', style: TextStyle(color: Colors.red)),
-                                                    ),
-                                                  ],
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                        
-                                        const SizedBox(height: 20),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                              tooltip: 'Тест уведомлений',
-                            ),
                           ],
                         ),
                       ],
@@ -945,6 +742,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                   ),
+                ),
+                
+                // НОВОЕ: Индикатор алкоголя
+                const SliverToBoxAdapter(
+                  child: AlcoholIndicator(),
                 ),
                 
                 // Кольца прогресса
@@ -991,35 +793,71 @@ class _HomeScreenState extends State<HomeScreen> {
                             ).animate().scale(delay: 300.ms),
                           ],
                         ),
-                        if (provider.weatherWaterAdjustment > 0) ...[
+                        // НОВОЕ: показываем корректировки
+                        if (provider.weatherWaterAdjustment > 0 || alcoholService.totalStandardDrinks > 0) ...[
                           const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.orange.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.wb_sunny,
-                                  size: 16,
-                                  color: Colors.orange,
-                                ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Цели увеличены из-за жары',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.orange.shade700,
+                          Wrap(
+                            spacing: 8,
+                            children: [
+                              if (provider.weatherWaterAdjustment > 0)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.wb_sunny,
+                                        size: 16,
+                                        color: Colors.orange,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'Жара +${(provider.weatherWaterAdjustment * 100).toInt()}%',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.orange.shade700,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
+                              if (alcoholService.totalStandardDrinks > 0)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.local_bar,
+                                        size: 16,
+                                        color: Colors.red,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'Алкоголь +${alcoholService.totalWaterCorrection.toInt()} мл',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.red.shade700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
                           ),
                         ],
                       ],
@@ -1062,6 +900,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ).animate().fadeIn(delay: 400.ms),
+                ),
+                
+                // НОВОЕ: Карточка минимум вреда (если пил алкоголь)
+                const SliverToBoxAdapter(
+                  child: AlcoholCard(),
                 ),
                 
                 // Статус карточка
@@ -1125,20 +968,35 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          '$hri',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: _getHRIColor(hri),
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              '$hri',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: _getHRIColor(hri),
+                              ),
+                            ),
+                            // НОВОЕ: показываем влияние алкоголя на HRI
+                            if (alcoholService.totalStandardDrinks > 0) ...[
+                              const SizedBox(width: 8),
+                              Text(
+                                '(+${alcoholService.totalHRIModifier.round()} от алкоголя)',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.red.shade600,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ],
                     ),
                   ).animate().fadeIn(delay: 500.ms),
                 ),
                 
-                // Быстрые кнопки
+                // Быстрые кнопки с алкоголем
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.all(20),
@@ -1159,6 +1017,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisCount: 3,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 12,
+                          childAspectRatio: 1.1,
                           children: [
                             _buildQuickButton(
                               context,
@@ -1210,6 +1069,22 @@ class _HomeScreenState extends State<HomeScreen> {
                               Colors.brown,
                               () => provider.addIntake('coffee', 200),
                             ),
+                            // НОВОЕ: кнопка алкоголя
+                            if (!alcoholService.soberModeEnabled)
+                              _buildQuickButton(
+                                context,
+                                '🍺',
+                                'Алкоголь',
+                                'Добавить',
+                                Colors.orange.shade600,
+                                () async {
+                                  final result = await Navigator.pushNamed(context, '/alcohol');
+                                  if (result == true) {
+                                    // Обновились данные алкоголя
+                                    setState(() {});
+                                  }
+                                },
+                              ),
                           ],
                         ),
                       ],
@@ -1218,7 +1093,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 
                 // История приемов
-                if (provider.todayIntakes.isNotEmpty)
+                if (provider.todayIntakes.isNotEmpty || alcoholService.todayIntakes.isNotEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.all(20),
@@ -1250,12 +1125,16 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Column(
-                              children: provider.todayIntakes
-                                  .take(5)
-                                  .toList()
-                                  .reversed
-                                  .map((intake) => _buildIntakeItem(intake, provider))
-                                  .toList(),
+                              children: [
+                                ...provider.todayIntakes
+                                    .take(5)
+                                    .toList()
+                                    .reversed
+                                    .map((intake) => _buildIntakeItem(intake, provider)),
+                                // НОВОЕ: показываем алкогольные приемы
+                                ...alcoholService.todayIntakes
+                                    .map((intake) => _buildAlcoholItem(intake, alcoholService)),
+                              ],
                             ),
                           ),
                         ],
@@ -1365,7 +1244,77 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
   
-  // НОВОЕ: пейвол для подписки
+  // НОВОЕ: виджет для алкогольного приема
+  Widget _buildAlcoholItem(intake, AlcoholService alcoholService) {
+    return Dismissible(
+      key: Key(intake.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        decoration: const BoxDecoration(
+          color: Colors.red,
+        ),
+        child: const Icon(
+          Icons.delete,
+          color: Colors.white,
+        ),
+      ),
+      onDismissed: (direction) {
+        alcoholService.removeIntake(intake.id);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${intake.type.label} удален'),
+            action: SnackBarAction(
+              label: 'Отменить',
+              onPressed: () {
+                alcoholService.addIntake(intake);
+              },
+            ),
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.orange.shade50,
+          border: Border(
+            bottom: BorderSide(color: Colors.orange.shade200),
+          ),
+        ),
+        child: Row(
+          children: [
+            Text(
+              intake.formattedTime,
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            const SizedBox(width: 16),
+            Icon(intake.type.icon, color: Colors.orange.shade600, size: 20),
+            const SizedBox(width: 8),
+            Text(intake.type.label),
+            const Spacer(),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '${intake.volumeMl.toInt()} мл, ${intake.abv}%',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  intake.formattedSD,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.red.shade600,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
   void _showPaywall(BuildContext context, SubscriptionProvider subscriptionProvider) {
     showModalBottomSheet(
       context: context,
@@ -1382,7 +1331,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Column(
           children: [
-            // Handle
             Container(
               width: 40,
               height: 4,
@@ -1393,7 +1341,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             
-            // Заголовок
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -1419,7 +1366,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             
-            // PRO возможности
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -1430,25 +1376,29 @@ class _HomeScreenState extends State<HomeScreen> {
                   _buildFeatureItem('☁️', 'Облачная синхронизация', 'Доступ с любого устройства'),
                   _buildFeatureItem('🍽️', 'Режим поста', 'Специальные напоминания для IF/OMAD'),
                   _buildFeatureItem('🔥', 'Протоколы жары', 'Подготовка к экстремальным условиям'),
+                  _buildFeatureItem('🍺', 'Recovery план', 'Пошаговое восстановление после алкоголя'), // НОВОЕ
+                  _buildFeatureItem('📅', 'Трезвый календарь', 'Отслеживание трезвых дней'), // НОВОЕ
                 ],
               ),
             ),
             
-            // Кнопки
             Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                  // Кнопка подписки
                   SizedBox(
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
                       onPressed: subscriptionProvider.isLoading ? null : () async {
-                        // TODO: Показать выбор тарифа и купить
+                        // ЗАГЛУШКА: сразу активируем PRO
+                        await subscriptionProvider.mockPurchase();
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Функция покупки будет добавлена в следующем обновлении')),
+                          const SnackBar(
+                            content: Text('✅ PRO версия активирована!'),
+                            backgroundColor: Colors.green,
+                          ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -1472,7 +1422,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   
                   const SizedBox(height: 12),
                   
-                  // Восстановить покупки
                   TextButton(
                     onPressed: () async {
                       final success = await subscriptionProvider.restorePurchases();

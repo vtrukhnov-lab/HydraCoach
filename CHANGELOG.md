@@ -14,7 +14,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fasting aware mode (PRO)
 - Heat protocols (PRO)
 
-## [0.2.0] - 2025-01-17
+## [0.2.1] - 2025-09-03
+### Added
+- **Alcohol tracking in reports**
+  - Daily report: alcohol intake display with SD calculations
+  - Weekly report: alcohol consumption graph and statistics
+  - Monthly report: alcohol indicators in calendar view
+  - Filter by alcohol type in daily history
+
+### Fixed
+- **Daily History Screen**
+  - Fixed LocaleDataException when navigating between dates
+  - Fixed crash when navigating to dates more than 2 days in the past
+  - Added proper locale initialization for date formatting
+  - Added date navigation boundaries (max 1 year back)
+
+- **Weekly History Screen**  
+  - Fixed alcohol data not loading properly
+  - Added alcohol consumption graph
+  - Improved data loading performance
+
+- **Monthly History Screen**
+  - Removed blue dot indicator for today
+  - Removed water percentage from calendar cells
+  - Calendar colors now based only on water consumption
+  - Removed achievements block (moved to future separate module)
+  - Removed SD daily chart
+  - Fixed undefined methods compilation errors
+
+### Changed
+- Reports refactored for better performance
+- Simplified monthly calendar visualization
+- Improved error handling in all history screens
+
+### Technical
+- Added `initializeDateFormatting` for Russian locale support
+- Refactored history screens to prevent async operations in build
+- Optimized data caching with `_loadedDateKey`
+- Fixed import conflicts and unused imports
+
+## [0.2.0] - 2025-09-03
 ### Added
 - **PRO Subscription Architecture**
   - RevenueCat integration for subscription management

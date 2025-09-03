@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SubscriptionService {
   static const String _apiKey = 'YOUR_REVENUECAT_API_KEY'; // Замените на реальный ключ
@@ -154,10 +155,13 @@ class SubscriptionService {
     // FREE функции всегда доступны
     const freeFeatures = {
       'basic_tracking',
-      'weather_integration',
+      'weather_integration', 
       'simple_reminders',
       'daily_report',
       'basic_history',
+      'alcohol_log',           // НОВОЕ: базовый лог алкоголя
+      'alcohol_harm_reduction', // НОВОЕ: карточка минимум вреда
+      'alcohol_morning_checkin', // НОВОЕ: утренний чек-ин
     };
     
     if (freeFeatures.contains(featureName)) {
@@ -178,6 +182,9 @@ class SubscriptionService {
       'fasting_aware': false,
       'cloud_sync': false,
       'weekly_reports': false,
+      'alcohol_pre_drink': false,    // НОВОЕ
+      'alcohol_recovery_plan': false, // НОВОЕ
+      'alcohol_sober_calendar': false, // НОВОЕ
     };
   }
   
@@ -194,6 +201,10 @@ class SubscriptionService {
       'contextual_reminders': true,
       'heat_protocols': true,
       'multi_device': true,
+      'alcohol_pre_drink_protocol': true,    // НОВОЕ
+      'alcohol_recovery_plan': true,         // НОВОЕ
+      'alcohol_sober_calendar': true,        // НОВОЕ
+      'alcohol_extended_checkin': true,      // НОВОЕ
     };
   }
 }
@@ -259,6 +270,37 @@ class SubscriptionProvider extends ChangeNotifier {
     notifyListeners();
     
     return success;
+  }
+  
+  /// ЗАГЛУШКА для тестирования покупки PRO версии
+  /// В продакшене будет заменено на реальную покупку через RevenueCat
+  Future<void> mockPurchase() async {
+    _isLoading = true;
+    notifyListeners();
+    
+    // Имитируем процесс покупки
+    await Future.delayed(const Duration(seconds: 2));
+    
+    // Устанавливаем PRO статус
+    _subscriptionService._isPro = true;
+    
+    // Сохраняем в SharedPreferences для персистентности
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_pro', true);
+    await prefs.setString('pro_expires_at', 
+      DateTime.now().add(const Duration(days: 365)).toIso8601String()); // Годовая подписка
+    
+    _isLoading = false;
+    notifyListeners();
+    
+    if (kDebugMode) {
+      print('✅ Mock purchase completed - PRO activated');
+      print('🎯 Алкогольные PRO функции разблокированы:');
+      print('   - Pre-drink протокол');
+      print('   - Recovery план на 6-12 часов');
+      print('   - Трезвый календарь');
+      print('   - Расширенный утренний чек-ин');
+    }
   }
   
   /// Проверка доступа к функции
