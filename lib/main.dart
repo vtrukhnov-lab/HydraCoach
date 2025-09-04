@@ -21,7 +21,9 @@ import 'screens/alcohol_log_screen.dart';
 import 'services/notification_service.dart' as notif;
 import 'services/subscription_service.dart';
 import 'services/remote_config_service.dart';
+import 'services/weather_service.dart';
 import 'services/alcohol_service.dart';
+import 'services/hri_service.dart';
 import 'widgets/weather_card.dart';
 import 'widgets/daily_report.dart';
 import 'widgets/alcohol_card.dart';
@@ -150,7 +152,9 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => HydrationProvider()),
         ChangeNotifierProvider(create: (context) => SubscriptionProvider()),
+        ChangeNotifierProvider(create: (context) => WeatherService()),
         ChangeNotifierProvider(create: (context) => AlcoholService()),
+        ChangeNotifierProvider(create: (context) => HRIService()),
       ],
       child: const MyApp(),
     ),
@@ -252,6 +256,37 @@ class HydrationProvider extends ChangeNotifier {
     _subscribeFCMTopics();
   }
   
+  // НОВЫЕ ГЕТТЕРЫ ДЛЯ HRI СЕРВИСА
+  double get totalWaterToday {
+    double total = 0;
+    for (var intake in todayIntakes) {
+      if (intake.type == 'water' || 
+          intake.type == 'electrolyte' || 
+          intake.type == 'broth') {
+        total += intake.volume;
+      }
+    }
+    return total;
+  }
+  
+  int get totalSodiumToday {
+    int total = 0;
+    for (var intake in todayIntakes) {
+      total += intake.sodium;
+    }
+    return total;
+  }
+  
+  int get coffeeCupsToday {
+    return todayIntakes.where((intake) => intake.type == 'coffee').length;
+  }
+  
+  DateTime? get lastIntakeTime {
+    if (todayIntakes.isEmpty) return null;
+    return todayIntakes.last.timestamp;
+  }
+  // КОНЕЦ НОВЫХ ГЕТТЕРОВ
+  
   void _subscribeFCMTopics() async {
     final messaging = FirebaseMessaging.instance;
     await messaging.subscribeToTopic('all_users');
@@ -266,33 +301,45 @@ class HydrationProvider extends ChangeNotifier {
   }
   
   void _calculateGoals() {
-    int waterMin = (_remoteConfig.waterMinPerKg * weight).round();
-    int waterOpt = (_remoteConfig.waterOptPerKg * weight).round();
-    int waterMax = (_remoteConfig.waterMaxPerKg * weight).round();
+    // ИСПРАВЛЕНИЕ: Всегда начинаем с БАЗОВЫХ значений
+    int baseWaterMin = (_remoteConfig.waterMinPerKg * weight).round();
+    int baseWaterOpt = (_remoteConfig.waterOptPerKg * weight).round();
+    int baseWaterMax = (_remoteConfig.waterMaxPerKg * weight).round();
     
-    // Применяем корректировку от погоды
+    // Начинаем с базовых значений
+    int waterMin = baseWaterMin;
+    int waterOpt = baseWaterOpt;
+    int waterMax = baseWaterMax;
+    
+    // Применяем корректировку от погоды (процентное увеличение от БАЗЫ)
     if (weatherWaterAdjustment > 0) {
-      waterMin = (waterMin * (1 + weatherWaterAdjustment)).round();
-      waterOpt = (waterOpt * (1 + weatherWaterAdjustment)).round();
-      waterMax = (waterMax * (1 + weatherWaterAdjustment)).round();
+      waterMin = (baseWaterMin * (1 + weatherWaterAdjustment)).round();
+      waterOpt = (baseWaterOpt * (1 + weatherWaterAdjustment)).round();
+      waterMax = (baseWaterMax * (1 + weatherWaterAdjustment)).round();
     }
     
-    // Применяем корректировку от алкоголя
+    // Применяем корректировку от алкоголя (добавление к уже скорректированным значениям)
     if (alcoholWaterAdjustment > 0) {
       waterMin += alcoholWaterAdjustment.round();
       waterOpt += alcoholWaterAdjustment.round();
       waterMax += alcoholWaterAdjustment.round();
     }
     
-    int sodium = dietMode == 'keto' || dietMode == 'fasting' 
+    // БАЗОВЫЕ значения электролитов
+    int baseSodium = dietMode == 'keto' || dietMode == 'fasting' 
         ? _remoteConfig.sodiumKeto 
         : _remoteConfig.sodiumNormal;
-    int potassium = dietMode == 'keto' || dietMode == 'fasting' 
+    int basePotassium = dietMode == 'keto' || dietMode == 'fasting' 
         ? _remoteConfig.potassiumKeto 
         : _remoteConfig.potassiumNormal;
-    int magnesium = dietMode == 'keto' || dietMode == 'fasting' 
+    int baseMagnesium = dietMode == 'keto' || dietMode == 'fasting' 
         ? _remoteConfig.magnesiumKeto 
         : _remoteConfig.magnesiumNormal;
+    
+    // Начинаем с базовых значений
+    int sodium = baseSodium;
+    int potassium = basePotassium;
+    int magnesium = baseMagnesium;
     
     // Добавляем корректировку соли от погоды
     sodium += weatherSodiumAdjustment;
@@ -300,6 +347,7 @@ class HydrationProvider extends ChangeNotifier {
     // Добавляем корректировку соли от алкоголя
     sodium += alcoholSodiumAdjustment;
     
+    // Создаём финальные цели
     goals = DailyGoals(
       waterMin: waterMin,
       waterOpt: waterOpt,
@@ -308,6 +356,21 @@ class HydrationProvider extends ChangeNotifier {
       potassium: potassium,
       magnesium: magnesium,
     );
+    
+    // Отладочная информация
+    if (kDebugMode) {
+      print('=== Goals Calculation Debug ===');
+      print('Weight: $weight kg');
+      print('Base water: $baseWaterOpt ml');
+      print('Weather adjustment: ${(weatherWaterAdjustment * 100).toStringAsFixed(1)}%');
+      print('Alcohol adjustment: ${alcoholWaterAdjustment.toStringAsFixed(0)} ml');
+      print('Final water goal: $waterOpt ml');
+      print('Base sodium: $baseSodium mg');
+      print('Weather sodium adj: $weatherSodiumAdjustment mg');
+      print('Alcohol sodium adj: $alcoholSodiumAdjustment mg');
+      print('Final sodium goal: $sodium mg');
+      print('==============================');
+    }
   }
   
   void updateAlcoholAdjustments(double waterAdjustment, int sodiumAdjustment) {

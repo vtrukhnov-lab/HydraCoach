@@ -14,6 +14,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dark theme support
 - Home screen widgets
 
+## [0.4.0] - 2025-01-04
+### Added
+- **Redesigned Home Screen**
+  - Single water ring with percentage display
+  - Three horizontal electrolyte bars (Na/K/Mg)
+  - Compact weather card with city and Heat Index
+  - Smart Advice card with contextual recommendations
+  - Integrated alcohol corrections display
+
+- **Improved HRI Algorithm**
+  - Water component "mono-clamp" to prevent sudden jumps
+  - Alcohol factor from Remote Config (alc_hri_risk_per_sd)
+  - Better handling of goal changes
+  - Persistent HRI state between app launches
+
+### Changed
+- Weather card increased 2x with more details (city, humidity, description)
+- Removed duplicate alcohol indicator
+- Progress rings replaced with single ring + bars design
+- Morning check-in shows only after alcohol consumption
+- Improved state management for alcohol service
+
+### Fixed
+- HRI sudden jumps when drinking water
+- Weather service property names compatibility
+- Morning check-in conditional logic
+- Alcohol corrections not updating properly
+
+### Technical
+- Refactored home_screen.dart with cleaner component structure
+- Added _buildCompactWeatherCard, _buildMainProgressCard methods
+- Implemented _clampWaterComponent for HRI stability
+
 ## [0.3.0] - 2025-09-04
 ### Added
 - **Complete FREE/PRO Subscription System**

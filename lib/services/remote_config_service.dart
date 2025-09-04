@@ -180,6 +180,18 @@ class RemoteConfigService {
     return defaultValue;
   }
   
+  // Добавьте этот метод для совместимости с HRI сервисом
+  double getDouble(String key) {
+    switch (key) {
+      case 'alc_hri_risk_per_sd':
+        return 5.0;
+      case 'alc_hri_risk_cap':
+        return 15.0;
+      default:
+        return _getValue<double>(key, 0.0);
+    }
+  }
+  
   // 🔥 ФОРМУЛЫ ВОДЫ
   double get waterMinPerKg => _getValue('water_min_per_kg', 22.0);
   double get waterOptPerKg => _getValue('water_opt_per_kg', 30.0);

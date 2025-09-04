@@ -2,8 +2,8 @@ name: hydracoach
 description: "Smart hydration tracking with electrolyte balance"
 publish_to: 'none'
 
-# Версия приложения: 0.3.0 (добавлена подписка и пейвол) + номер сборки 6
-version: 0.3.0+6
+# Версия приложения: 0.4.0 (новый дизайн и улучшенный HRI) + номер сборки 7
+version: 0.4.0+7
 
 environment:
   sdk: ^3.9.0
@@ -35,7 +35,7 @@ dependencies:
   geolocator: ^14.0.2
   permission_handler: ^12.0.1
   
-  # 🔥 FIREBASE - для Релиза 2
+  # 🔥 FIREBASE - основные сервисы
   firebase_core: ^3.15.0
   firebase_messaging: ^15.0.0
   firebase_auth: ^5.6.0
@@ -44,10 +44,10 @@ dependencies:
   firebase_remote_config: ^5.1.0
   firebase_crashlytics: ^4.1.0
   
-  # 💰 REVENUECAT - для подписки (Релиз 2)
+  # 💰 REVENUECAT - система подписок
   purchases_flutter: ^9.4.0
   
-  # 📁 ФАЙЛЫ - экспорт CSV
+  # 📁 ФАЙЛЫ - экспорт данных
   path_provider: ^2.1.5
   csv: ^6.0.0
 
@@ -66,21 +66,35 @@ flutter:
   assets:
     - assets/images/
   
+  # Шрифты (если будем добавлять кастомные)
+  # fonts:
+  #   - family: Montserrat
+  #     fonts:
+  #       - asset: fonts/Montserrat-Regular.ttf
+  #       - asset: fonts/Montserrat-Bold.ttf
+  #         weight: 700
+
 # 🎨 КОНФИГУРАЦИЯ ИКОНОК
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   image_path: "assets/images/app_icon.png"
   min_sdk_android: 21 # Android 5.0 и выше
+  
+  # Web иконка
   web:
     generate: true
     image_path: "assets/images/app_icon.png"
     background_color: "#00A693"
     theme_color: "#00A693"
+  
+  # Windows иконка
   windows:
     generate: true
     image_path: "assets/images/app_icon.png"
     icon_size: 48
+  
+  # macOS иконка
   macos:
     generate: true
     image_path: "assets/images/app_icon.png"
@@ -88,3 +102,6 @@ flutter_launcher_icons:
   # 🎨 Адаптивная иконка для Android
   adaptive_icon_background: "#00A693"
   adaptive_icon_foreground: "assets/images/app_icon.png"
+  
+  # Удаление альфа-канала для iOS
+  remove_alpha_ios: true
