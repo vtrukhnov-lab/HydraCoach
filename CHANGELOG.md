@@ -5,51 +5,59 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-### Planned
+### Next Steps
+- Activate real purchases via RevenueCat
+- Implement restore purchases functionality
+- Add subscription management in settings
 - Cloud sync via Firestore
 - Export data to CSV/PDF
 - Dark theme support
 - Home screen widgets
-- Weekly reports (PRO)
-- Fasting aware mode (PRO)
-- Heat protocols (PRO)
 
 ## [0.3.0] - 2025-09-04
 ### Added
-- **Subscription and Paywall**
-  - Modern paywall screen with three pricing tiers (monthly/annual/lifetime)
-  - Dynamic pricing from Firebase Remote Config
-  - Trial period toggle (7 days)
-  - Paywall shown after onboarding completion
-  - PRO features list with detailed descriptions
+- **Complete FREE/PRO Subscription System**
+  - Full RevenueCat integration for subscription management
+  - Modern paywall screen with three pricing tiers
+  - PRO feature gating with soft restrictions
+  - PRO indicators (stars) on locked features
+  - FREE tier limitations (max 4 notifications/day)
 
-- **Remote Config Enhancements**
-  - Added subscription pricing parameters
-  - Configurable paywall texts and labels
-  - Trial period configuration
-  - Dynamic discount percentages
+- **Subscription Features**
+  - Monthly subscription ($2.99/month)
+  - Annual subscription ($19.99/year with 44% discount)
+  - Lifetime license ($39.99 one-time)
+  - Trial period support (configurable via Remote Config)
+
+- **PRO Features Preparation**
+  - Weekly and monthly history restricted to PRO
+  - Notification counter for FREE users
+  - Smart reminders framework (coffee/heat/alcohol) - PRO only
+  - UI indicators for premium features
 
 - **UI/UX Improvements**
-  - Compact paywall design for better visibility
-  - Sticky discount badge on annual plan
-  - Icon-based feature list
-  - Smooth animations and transitions
+  - Material animations on quick-add buttons
+  - Smooth transitions for PRO gates
+  - Beautiful placeholder screens for locked features
+  - Compact paywall design with clear value proposition
 
 ### Changed
-- Onboarding flow now includes paywall presentation
-- Remote Config service expanded with pricing management
-- Updated paywall to use material Icons.water_drop instead of emoji
+- History screen now shows PRO badges for weekly/monthly tabs
+- Notification service tracks usage for FREE tier limits
+- Settings screen displays current subscription status
+- Quick-add buttons now have ripple and scale animations
+
+### Fixed
+- **Critical Fix:** Water addition not working in release builds
+- Fixed UI update order (notifyListeners timing)
+- Optimized state management for better performance
+- Fixed notification counter persistence
 
 ### Technical
-- Added PaywallScreen widget
-- Integrated subscription flow into onboarding
-- Enhanced Remote Config with pricing parameters
-- Prepared architecture for PRO features gating
-
-### Prepared for Next Release
-- PRO features gating mechanism
-- RevenueCat integration for real purchases
-- Subscription status persistence
+- Implemented SubscriptionService with RevenueCat
+- Added notification usage tracking
+- Enhanced Remote Config with subscription parameters
+- Prepared architecture for cloud sync
 
 ## [0.2.1] - 2025-09-03
 ### Added

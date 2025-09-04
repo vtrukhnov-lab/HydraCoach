@@ -293,8 +293,60 @@ class NotificationService {
         print('Action: ${action ?? "неизвестно"}');
     }
   }
+  
+  // ==================== PRO ПРОВЕРКИ ====================
+  
+  // Счетчик уведомлений для FREE пользователей
+  Future<int> _getTodayNotificationCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lastResetDate = prefs.getString('notification_count_reset_date');
+    final today = DateTime.now().toIso8601String().split('T')[0];
+    
+    if (lastResetDate != today) {
+      // Новый день - сбрасываем счетчик
+      await prefs.setInt('daily_notification_count', 0);
+      await prefs.setString('notification_count_reset_date', today);
+      return 0;
+    }
+    
+    return prefs.getInt('daily_notification_count') ?? 0;
+  }
+  
+  Future<void> _incrementNotificationCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final count = await _getTodayNotificationCount();
+    await prefs.setInt('daily_notification_count', count + 1);
+  }
+  
+  // Проверка лимита для FREE пользователей
+  Future<bool> canSendNotification() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isPro = prefs.getBool('is_pro') ?? false;
+    
+    if (isPro) {
+      return true; // PRO пользователи без лимитов
+    }
+    
+    final count = await _getTodayNotificationCount();
+    return count < 4; // FREE пользователи - максимум 4 уведомления в день
+  }
+  
+  // Проверка доступности PRO функций уведомлений
+  Future<bool> hasProFeature(String feature) async {
+    final prefs = await SharedPreferences.getInstance();
+    final isPro = prefs.getBool('is_pro') ?? false;
+    
+    // FREE функции - всегда доступны
+    const freeFeatures = ['basic_reminder', 'daily_report'];
+    if (freeFeatures.contains(feature)) {
+      return true;
+    }
+    
+    // PRO функции - требуют подписку
+    return isPro;
+  }
 
-  // ==================== ЛОКАЛЬНЫЕ УВЕДОМЛЕНИЯ (ИСПРАВЛЕНО) ====================
+  // ==================== ЛОКАЛЬНЫЕ УВЕДОМЛЕНИЯ ====================
   
   Future<void> showNotification({
     required int id,
@@ -303,6 +355,12 @@ class NotificationService {
     String? payload,
     DateTime? scheduledTime,
   }) async {
+    // Проверяем лимит для FREE пользователей
+    if (!await canSendNotification()) {
+      print('⚠️ Достигнут лимит уведомлений (4/день для FREE)');
+      return;
+    }
+    
     // Убеждаемся что сервис инициализирован
     if (!_isInitialized) {
       print('⚠️ NotificationService не инициализирован, инициализируем...');
@@ -320,14 +378,13 @@ class NotificationService {
       color: const Color.fromARGB(255, 33, 150, 243),
       enableVibration: true,
       playSound: true,
-      enableLights: false,  // Отключаем LED чтобы избежать ошибки
+      enableLights: false,
       showWhen: true,
       styleInformation: BigTextStyleInformation(
         body,
         contentTitle: title,
         summaryText: 'HydraCoach',
       ),
-      // Важные параметры для Android
       fullScreenIntent: true,
       category: AndroidNotificationCategory.reminder,
       visibility: NotificationVisibility.public,
@@ -349,10 +406,11 @@ class NotificationService {
     );
     
     if (scheduledTime != null) {
-      // ИСПРАВЛЕНИЕ: Проверяем что время в будущем
+      // Проверяем что время в будущем
       if (scheduledTime.isBefore(DateTime.now())) {
         print('⚠️ Время уже прошло, показываем уведомление сразу');
         await _localNotifications.show(id, title, body, details, payload: payload);
+        await _incrementNotificationCount();
         return;
       }
       
@@ -366,10 +424,7 @@ class NotificationService {
         print('📅 Планируем уведомление:');
         print('   ID: $id');
         print('   Заголовок: $title');
-        print('   Текущее время: ${DateTime.now()}');
         print('   Запланировано на: $scheduledTime');
-        print('   TZ время: $tzScheduledTime');
-        print('   Через: ${scheduledTime.difference(DateTime.now()).inMinutes} минут');
         
         // Планируем уведомление с правильными параметрами
         await _localNotifications.zonedSchedule(
@@ -378,20 +433,12 @@ class NotificationService {
           body,
           tzScheduledTime,
           details,
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, // Важно для Android!
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           payload: payload,
         );
         
+        await _incrementNotificationCount();
         print('✅ Уведомление успешно запланировано с ID: $id');
-        
-        // Проверяем что оно действительно запланировано
-        final pending = await getPendingNotifications();
-        final found = pending.any((n) => n.id == id);
-        if (found) {
-          print('✅ Подтверждено: уведомление $id в очереди');
-        } else {
-          print('❌ ВНИМАНИЕ: уведомление $id НЕ найдено в очереди!');
-        }
         
       } catch (e, stackTrace) {
         print('❌ Ошибка планирования уведомления: $e');
@@ -400,10 +447,12 @@ class NotificationService {
         // Если не удалось запланировать, показываем сразу
         print('Показываем уведомление немедленно как fallback');
         await _localNotifications.show(id, title, body, details, payload: payload);
+        await _incrementNotificationCount();
       }
     } else {
       // Показываем сразу
       await _localNotifications.show(id, title, body, details, payload: payload);
+      await _incrementNotificationCount();
       print('📬 Мгновенное уведомление показано: $title');
     }
   }
@@ -499,23 +548,32 @@ class NotificationService {
     return 'Поддерживайте водный баланс в течение дня';
   }
 
-  // ==================== СПЕЦИАЛЬНЫЕ НАПОМИНАНИЯ (ИСПРАВЛЕНО) ====================
+  // ==================== PRO НАПОМИНАНИЯ ====================
   
-  Future<void> schedulePostCoffeeReminder() async {
-    // Планируем уведомление через 20 минут от текущего времени
+  // Напоминание после кофе (PRO)
+  Future<bool> schedulePostCoffeeReminder() async {
+    // Проверяем PRO статус
+    if (!await hasProFeature('post_coffee_reminder')) {
+      print('⚠️ Напоминания после кофе - PRO функция');
+      return false;
+    }
+    
+    // Планируем напоминание через 20 минут
     final reminderTime = DateTime.now().add(const Duration(minutes: 20));
     
     await showNotification(
-      id: 2000 + Random().nextInt(1000), // Уникальный ID для кофе-напоминаний
+      id: 2000 + Random().nextInt(1000),
       title: '☕ После кофе',
       body: 'Выпейте 250-300 мл воды для восстановления баланса',
       scheduledTime: reminderTime,
       payload: 'post_coffee',
     );
     
-    print('☕ Напоминание после кофе запланировано на ${reminderTime.hour}:${reminderTime.minute.toString().padLeft(2, '0')}');
+    print('☕ PRO: Напоминание после кофе запланировано');
+    return true;
   }
-
+  
+  // Напоминание после тренировки (базовое)
   Future<void> schedulePostWorkoutReminder() async {
     final reminderTime = DateTime.now().add(const Duration(minutes: 30));
     
@@ -530,6 +588,78 @@ class NotificationService {
     print('💪 Напоминание после тренировки запланировано');
   }
   
+  // Напоминание при жаре (PRO)
+  Future<bool> sendHeatWarning(double heatIndex) async {
+    // Проверяем PRO статус
+    if (!await hasProFeature('heat_warnings')) {
+      print('⚠️ Предупреждения о жаре - PRO функция');
+      return false;
+    }
+    
+    String message;
+    if (heatIndex > 40) {
+      message = 'Экстремальная жара! Увеличьте потребление воды на 15% и добавьте 1г соли';
+    } else if (heatIndex > 32) {
+      message = 'Жарко! Пейте на 10% больше воды и не забывайте про электролиты';
+    } else {
+      message = 'Теплая погода. Следите за гидратацией';
+    }
+    
+    await showNotification(
+      id: Random().nextInt(1000),
+      title: '🌡️ Погодное предупреждение PRO',
+      body: message,
+      payload: 'heat_warning',
+    );
+    
+    print('🌡️ PRO: Предупреждение о жаре отправлено');
+    return true;
+  }
+  
+  // Напоминание после алкоголя (PRO)
+  Future<bool> schedulePostAlcoholReminder() async {
+    // Проверяем PRO статус
+    if (!await hasProFeature('post_alcohol_reminder')) {
+      print('⚠️ Напоминания после алкоголя - PRO функция');
+      return false;
+    }
+    
+    // Планируем серию напоминаний для восстановления
+    final now = DateTime.now();
+    
+    // Через 30 минут - первое напоминание
+    await showNotification(
+      id: 4000 + Random().nextInt(100),
+      title: '🍺 Время восстановления',
+      body: 'Выпейте 300 мл воды с щепоткой соли для баланса',
+      scheduledTime: now.add(const Duration(minutes: 30)),
+      payload: 'post_alcohol_1',
+    );
+    
+    // Через 2 часа - второе напоминание
+    await showNotification(
+      id: 4100 + Random().nextInt(100),
+      title: '💧 Продолжайте гидратацию',
+      body: 'Еще 500 мл воды помогут восстановиться быстрее',
+      scheduledTime: now.add(const Duration(hours: 2)),
+      payload: 'post_alcohol_2',
+    );
+    
+    // Утром следующего дня
+    final tomorrow = DateTime(now.year, now.month, now.day + 1, 8, 0);
+    await showNotification(
+      id: 4200 + Random().nextInt(100),
+      title: '☀️ Утреннее восстановление',
+      body: 'Начните день с 500 мл воды и электролитов',
+      scheduledTime: tomorrow,
+      payload: 'post_alcohol_morning',
+    );
+    
+    print('🍺 PRO: План восстановления после алкоголя запланирован');
+    return true;
+  }
+  
+  // Вечерний отчет (базовый)
   Future<void> scheduleEveningReport() async {
     final now = DateTime.now();
     var scheduledTime = DateTime(now.year, now.month, now.day, 21, 0);
@@ -548,24 +678,6 @@ class NotificationService {
     );
     
     print('📊 Вечерний отчет запланирован на ${scheduledTime.day}.${scheduledTime.month} в 21:00');
-  }
-
-  Future<void> sendHeatWarning(double heatIndex) async {
-    String message;
-    if (heatIndex > 40) {
-      message = 'Экстремальная жара! Увеличьте потребление воды на 15% и добавьте 1г соли';
-    } else if (heatIndex > 32) {
-      message = 'Жарко! Пейте на 10% больше воды и не забывайте про электролиты';
-    } else {
-      message = 'Теплая погода. Следите за гидратацией';
-    }
-    
-    await showNotification(
-      id: Random().nextInt(1000),
-      title: '🌡️ Погодное предупреждение',
-      body: message,
-      payload: 'heat_warning',
-    );
   }
 
   // ==================== УПРАВЛЕНИЕ УВЕДОМЛЕНИЯМИ ====================
@@ -594,6 +706,7 @@ class NotificationService {
     await prefs.setString('eveningTime', settings.eveningTime);
     await prefs.setBool('postCoffeeReminder', settings.postCoffee);
     await prefs.setBool('heatWarnings', settings.heatWarnings);
+    await prefs.setBool('postAlcoholReminder', settings.postAlcohol);
     
     // Перезапускаем напоминания если включены
     if (settings.enabled) {
@@ -603,6 +716,29 @@ class NotificationService {
     }
     
     print('✅ Настройки напоминаний сохранены');
+  }
+  
+  // Получение статистики уведомлений
+  Future<Map<String, dynamic>> getNotificationStats() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isPro = prefs.getBool('is_pro') ?? false;
+    final todayCount = await _getTodayNotificationCount();
+    final pending = await getPendingNotifications();
+    
+    return {
+      'is_pro': isPro,
+      'today_count': todayCount,
+      'daily_limit': isPro ? -1 : 4, // -1 = unlimited
+      'remaining_today': isPro ? -1 : (4 - todayCount),
+      'pending_notifications': pending.length,
+      'features': {
+        'basic_reminders': true,
+        'post_coffee': isPro,
+        'heat_warnings': isPro,
+        'post_alcohol': isPro,
+        'smart_contextual': isPro,
+      }
+    };
   }
 
   // ==================== ОБРАБОТЧИКИ НАЖАТИЙ ====================
@@ -631,6 +767,11 @@ class NotificationService {
       case 'post_workout':
         print('Добавить электролиты после тренировки');
         break;
+      case 'post_alcohol_1':
+      case 'post_alcohol_2':
+      case 'post_alcohol_morning':
+        print('Показать план восстановления после алкоголя');
+        break;
       case 'daily_report':
       case 'evening_report':
         print('Показать дневной отчет');
@@ -645,7 +786,7 @@ class NotificationService {
     }
   }
 
-  // ==================== ТЕСТИРОВАНИЕ (РАСШИРЕНО) ====================
+  // ==================== ТЕСТИРОВАНИЕ ====================
   
   // Мгновенное тестовое уведомление
   Future<void> sendTestNotification() async {
@@ -672,21 +813,6 @@ class NotificationService {
     print('⏰ Тестовое уведомление запланировано на ${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}');
   }
   
-  // Тестовое уведомление через 10 секунд (для быстрой проверки)
-  Future<void> scheduleTestNotificationIn10Seconds() async {
-    final scheduledTime = DateTime.now().add(const Duration(seconds: 10));
-    
-    await showNotification(
-      id: 997,
-      title: '⚡ Быстрый тест (10 сек)',
-      body: 'Если вы это видите - планирование работает отлично!',
-      scheduledTime: scheduledTime,
-      payload: 'test_scheduled',
-    );
-    
-    print('⚡ Быстрое тестовое уведомление запланировано через 10 секунд');
-  }
-  
   // Проверка статуса уведомлений
   Future<void> checkNotificationStatus() async {
     final pending = await getPendingNotifications();
@@ -705,25 +831,6 @@ class NotificationService {
     print('📋 =============================');
     print('');
   }
-  
-  // Комплексный тест всех типов уведомлений
-  Future<void> runFullTest() async {
-    print('🧪 ЗАПУСК ПОЛНОГО ТЕСТА УВЕДОМЛЕНИЙ');
-    
-    // 1. Мгновенное
-    await sendTestNotification();
-    
-    // 2. Через 10 секунд
-    await scheduleTestNotificationIn10Seconds();
-    
-    // 3. Через 1 минуту
-    await scheduleTestNotificationIn1Minute();
-    
-    // 4. Проверяем статус
-    await checkNotificationStatus();
-    
-    print('🧪 ТЕСТ ЗАПУЩЕН: ожидайте 3 уведомления');
-  }
 }
 
 // ==================== КЛАСС ДЛЯ НАСТРОЕК ====================
@@ -735,6 +842,7 @@ class ReminderSettings {
   final String eveningTime;
   final bool postCoffee;
   final bool heatWarnings;
+  final bool postAlcohol;
   
   ReminderSettings({
     required this.enabled,
@@ -743,5 +851,6 @@ class ReminderSettings {
     required this.eveningTime,
     required this.postCoffee,
     required this.heatWarnings,
+    required this.postAlcohol,
   });
 }

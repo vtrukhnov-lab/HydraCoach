@@ -4,7 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../main.dart';
-import '../services/notification_service.dart' as notif; // Добавляем префикс
+import '../services/notification_service.dart' as notif;
+import '../services/subscription_service.dart';
+import '../widgets/pro_badge.dart';
+import '../screens/paywall_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -17,15 +20,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _notificationsEnabled = true;
   bool _postCoffeeReminders = true;
   bool _heatWarnings = true;
-  String _units = 'metric'; // metric или imperial
+  bool _postAlcoholReminders = false; // Новое
+  String _units = 'metric';
   String _morningTime = '07:00';
   String _eveningTime = '22:00';
   int _reminderFrequency = 4;
+  
+  // Статистика уведомлений
+  Map<String, dynamic> _notificationStats = {};
   
   @override
   void initState() {
     super.initState();
     _loadSettings();
+    _loadNotificationStats();
   }
   
   Future<void> _loadSettings() async {
@@ -34,10 +42,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _notificationsEnabled = prefs.getBool('notificationsEnabled') ?? true;
       _postCoffeeReminders = prefs.getBool('postCoffeeReminders') ?? true;
       _heatWarnings = prefs.getBool('heatWarnings') ?? true;
+      _postAlcoholReminders = prefs.getBool('postAlcoholReminder') ?? false;
       _units = prefs.getString('units') ?? 'metric';
       _morningTime = prefs.getString('morningTime') ?? '07:00';
       _eveningTime = prefs.getString('eveningTime') ?? '22:00';
       _reminderFrequency = prefs.getInt('reminderFrequency') ?? 4;
+    });
+  }
+  
+  Future<void> _loadNotificationStats() async {
+    final stats = await notif.NotificationService().getNotificationStats();
+    setState(() {
+      _notificationStats = stats;
     });
   }
   
@@ -46,12 +62,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.setBool('notificationsEnabled', _notificationsEnabled);
     await prefs.setBool('postCoffeeReminders', _postCoffeeReminders);
     await prefs.setBool('heatWarnings', _heatWarnings);
+    await prefs.setBool('postAlcoholReminder', _postAlcoholReminders);
     await prefs.setString('units', _units);
     await prefs.setString('morningTime', _morningTime);
     await prefs.setString('eveningTime', _eveningTime);
     await prefs.setInt('reminderFrequency', _reminderFrequency);
     
-    // Обновляем настройки уведомлений с префиксом
+    // Обновляем настройки уведомлений
     await notif.NotificationService().saveSettings(
       notif.ReminderSettings(
         enabled: _notificationsEnabled,
@@ -60,8 +77,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
         eveningTime: _eveningTime,
         postCoffee: _postCoffeeReminders,
         heatWarnings: _heatWarnings,
+        postAlcohol: _postAlcoholReminders,
       ),
     );
+    
+    // Обновляем статистику
+    await _loadNotificationStats();
+  }
+  
+  void _showPaywall() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const PaywallScreen(showCloseButton: true),
+        fullscreenDialog: true,
+      ),
+    ).then((_) {
+      // После закрытия пейвола обновляем статистику
+      _loadNotificationStats();
+    });
   }
   
   @override
@@ -83,8 +116,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Consumer<HydrationProvider>(
-        builder: (context, provider, child) {
+      body: Consumer2<HydrationProvider, SubscriptionProvider>(
+        builder: (context, hydrationProvider, subscriptionProvider, child) {
+          final isPro = subscriptionProvider.isPro;
+          
           return SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,23 +136,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       _buildProfileTile(
                         'Вес',
-                        '${provider.weight.toInt()} кг',
+                        '${hydrationProvider.weight.toInt()} кг',
                         Icons.monitor_weight_outlined,
-                        () => _showWeightDialog(provider),
+                        () => _showWeightDialog(hydrationProvider),
                       ),
                       _buildDivider(),
                       _buildProfileTile(
                         'Режим питания',
-                        _getDietModeText(provider.dietMode),
+                        _getDietModeText(hydrationProvider.dietMode),
                         Icons.restaurant_menu,
-                        () => _showDietDialog(provider),
+                        () => _showDietDialog(hydrationProvider),
                       ),
                       _buildDivider(),
                       _buildProfileTile(
                         'Активность',
-                        _getActivityText(provider.activityLevel),
+                        _getActivityText(hydrationProvider.activityLevel),
                         Icons.fitness_center,
-                        () => _showActivityDialog(provider),
+                        () => _showActivityDialog(hydrationProvider),
                       ),
                     ],
                   ),
@@ -133,6 +168,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   child: Column(
                     children: [
+                      // Счетчик уведомлений для FREE
+                      if (!isPro && _notificationStats.isNotEmpty) ...[
+                        Container(
+                          margin: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.blue.shade200),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Лимит уведомлений (FREE)',
+                                      style: TextStyle(
+                                        color: Colors.blue.shade900,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Использовано: ${_notificationStats['today_count'] ?? 0} из 4',
+                                      style: TextStyle(
+                                        color: Colors.blue.shade700,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: _showPaywall,
+                                child: const Text('PRO', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          ),
+                        ),
+                        _buildDivider(),
+                      ],
+                      
                       _buildSwitchTile(
                         'Напоминания о воде',
                         'Регулярные напоминания в течение дня',
@@ -143,14 +225,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           });
                           _saveSettings();
                         },
+                        isPro: false, // Доступно всем
                       ),
+                      
                       if (_notificationsEnabled) ...[
                         _buildDivider(),
                         _buildListTile(
                           'Частота напоминаний',
-                          '$_reminderFrequency раз в день',
+                          isPro ? 'Без ограничений' : '$_reminderFrequency раз в день (макс 4)',
                           Icons.access_time,
-                          () => _showFrequencyDialog(),
+                          () => isPro ? _showFrequencyDialog() : _showPaywall(),
+                          isPro: !isPro, // Показываем звездочку для FREE
                         ),
                         _buildDivider(),
                         _buildListTile(
@@ -158,6 +243,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           _morningTime,
                           Icons.wb_sunny_outlined,
                           () => _showTimePicker(true),
+                          isPro: false,
                         ),
                         _buildDivider(),
                         _buildListTile(
@@ -165,35 +251,143 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           _eveningTime,
                           Icons.nightlight_outlined,
                           () => _showTimePicker(false),
+                          isPro: false,
                         ),
                       ],
+                      
                       _buildDivider(),
                       _buildSwitchTile(
                         'Напоминания после кофе',
                         'Напомнить выпить воду через 20 минут',
-                        _postCoffeeReminders,
-                        (value) {
+                        _postCoffeeReminders && isPro,
+                        isPro ? (value) {
                           setState(() {
                             _postCoffeeReminders = value;
                           });
                           _saveSettings();
-                        },
+                        } : (value) => _showPaywall(),
+                        isPro: true, // PRO функция
                       ),
+                      
                       _buildDivider(),
                       _buildSwitchTile(
                         'Предупреждения о жаре',
                         'Уведомления при высокой температуре',
-                        _heatWarnings,
-                        (value) {
+                        _heatWarnings && isPro,
+                        isPro ? (value) {
                           setState(() {
                             _heatWarnings = value;
                           });
                           _saveSettings();
-                        },
+                        } : (value) => _showPaywall(),
+                        isPro: true, // PRO функция
+                      ),
+                      
+                      _buildDivider(),
+                      _buildSwitchTile(
+                        'Напоминания после алкоголя',
+                        'План восстановления на 6-12 часов',
+                        _postAlcoholReminders && isPro,
+                        isPro ? (value) {
+                          setState(() {
+                            _postAlcoholReminders = value;
+                          });
+                          _saveSettings();
+                        } : (value) => _showPaywall(),
+                        isPro: true, // PRO функция
                       ),
                     ],
                   ),
                 ).animate().fadeIn(delay: 100.ms),
+                
+                // PRO функции (если пользователь FREE)
+                if (!isPro) ...[
+                  _buildSectionTitle('PRO возможности'),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFFFFD700).withOpacity(0.1),
+                          const Color(0xFFFFA500).withOpacity(0.05),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: const Color(0xFFFFD700).withOpacity(0.3),
+                      ),
+                    ),
+                    child: InkWell(
+                      onTap: _showPaywall,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 48,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(
+                                    Icons.star,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                const Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Разблокировать PRO',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Безлимитные уведомления и умные напоминания',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 16,
+                                  color: Colors.grey,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            const Column(
+                              children: [
+                                _ProFeatureItem(icon: Icons.all_inclusive, text: 'Без лимита уведомлений'),
+                                _ProFeatureItem(icon: Icons.coffee, text: 'Напоминания после кофе'),
+                                _ProFeatureItem(icon: Icons.wb_sunny, text: 'Предупреждения о жаре'),
+                                _ProFeatureItem(icon: Icons.local_bar, text: 'Восстановление после алкоголя'),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ).animate().fadeIn(delay: 150.ms),
+                ],
                 
                 // Единицы измерения
                 _buildSectionTitle('Единицы измерения'),
@@ -246,7 +440,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       _buildListTile(
                         'Версия',
-                        '0.1.0',
+                        '0.3.0',
                         Icons.info_outline,
                         null,
                       ),
@@ -331,23 +525,86 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
   
-  Widget _buildListTile(String title, String subtitle, IconData icon, VoidCallback? onTap) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.blue),
-      title: Text(title),
-      subtitle: subtitle.isNotEmpty ? Text(subtitle) : null,
-      trailing: onTap != null ? const Icon(Icons.chevron_right) : null,
-      onTap: onTap,
+  Widget _buildListTile(String title, String subtitle, IconData icon, VoidCallback? onTap, {bool isPro = false}) {
+    return Consumer<SubscriptionProvider>(
+      builder: (context, subscriptionProvider, _) {
+        final hasAccess = !isPro || subscriptionProvider.isPro;
+        
+        return ListTile(
+          leading: Icon(icon, color: hasAccess ? Colors.blue : Colors.grey),
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: hasAccess ? null : Colors.grey.shade600,
+                  ),
+                ),
+              ),
+              if (isPro && !subscriptionProvider.isPro) ...[
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.star,
+                  size: 16,
+                  color: Colors.grey.shade400,
+                ),
+              ],
+            ],
+          ),
+          subtitle: subtitle.isNotEmpty ? Text(
+            subtitle,
+            style: TextStyle(
+              color: hasAccess ? null : Colors.grey.shade400,
+            ),
+          ) : null,
+          trailing: onTap != null ? Icon(
+            Icons.chevron_right,
+            color: hasAccess ? null : Colors.grey.shade300,
+          ) : null,
+          onTap: onTap,
+        );
+      },
     );
   }
   
-  Widget _buildSwitchTile(String title, String subtitle, bool value, Function(bool) onChanged) {
-    return SwitchListTile(
-      title: Text(title),
-      subtitle: Text(subtitle),
-      value: value,
-      onChanged: onChanged,
-      activeColor: Colors.blue,
+  Widget _buildSwitchTile(String title, String subtitle, bool value, Function(bool) onChanged, {bool isPro = false}) {
+    return Consumer<SubscriptionProvider>(
+      builder: (context, subscriptionProvider, _) {
+        final hasAccess = !isPro || subscriptionProvider.isPro;
+        
+        return SwitchListTile(
+          title: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: hasAccess ? null : Colors.grey.shade600,
+                  ),
+                ),
+              ),
+              if (isPro && !subscriptionProvider.isPro) ...[
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.star,
+                  size: 16,
+                  color: Colors.grey.shade400,
+                ),
+              ],
+            ],
+          ),
+          subtitle: Text(
+            subtitle,
+            style: TextStyle(
+              color: hasAccess ? null : Colors.grey.shade400,
+            ),
+          ),
+          value: value,
+          onChanged: hasAccess ? onChanged : (value) => onChanged(false),
+          activeThumbColor: Colors.blue,
+        );
+      },
     );
   }
   
@@ -531,24 +788,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
   
   void _showFrequencyDialog() {
+    final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+    final isPro = subscriptionProvider.isPro;
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Частота напоминаний'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [2, 3, 4, 6, 8].map((freq) => 
+          children: (isPro ? [2, 3, 4, 6, 8, 12] : [2, 3, 4]).map((freq) => 
             RadioListTile<int>(
               title: Text('$freq раз в день'),
+              subtitle: !isPro && freq > 4 ? const Text('PRO', style: TextStyle(color: Colors.orange)) : null,
               value: freq,
               groupValue: _reminderFrequency,
-              onChanged: (value) {
+              onChanged: (freq! <= 4 || isPro) ? (value) {
                 setState(() {
                   _reminderFrequency = value!;
                 });
                 _saveSettings();
                 Navigator.pop(context);
-              },
+              } : null,
             ),
           ).toList(),
         ),
@@ -603,6 +864,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Сбросить'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Вспомогательный виджет для PRO функций
+class _ProFeatureItem extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  
+  const _ProFeatureItem({
+    required this.icon,
+    required this.text,
+  });
+  
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: const Color(0xFFFFD700)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 13),
+            ),
           ),
         ],
       ),

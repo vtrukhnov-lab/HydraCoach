@@ -2,8 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
 
 import '../services/remote_config_service.dart';
+import '../services/subscription_service.dart';
 
 enum Plan { lifetime, annual, monthly }
 
@@ -551,10 +553,38 @@ class _PaywallScreenState extends State<PaywallScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // TODO: integrate with RevenueCat offerings & purchases
-      await Future.delayed(const Duration(seconds: 2));
+      // Получаем провайдер подписки
+      final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+      
+      // Определяем ID продукта на основе выбранного плана
+      String productId;
+      switch (_selected) {
+        case Plan.lifetime:
+          productId = 'lifetime_pro';
+          break;
+        case Plan.annual:
+          productId = 'annual_pro';
+          break;
+        case Plan.monthly:
+          productId = 'monthly_pro';
+          break;
+      }
+      
+      // ВРЕМЕННО: Используем mock покупку для тестирования
+      // TODO: Заменить на реальную покупку через RevenueCat когда будет API ключ
+      print('🛍️ Initiating purchase for plan: ${_selected.name}');
+      print('📦 Product ID: $productId');
+      
+      // Активируем PRO через mock покупку
+      await subscriptionProvider.mockPurchase();
+      
+      // В реальной версии будет:
+      // final success = await subscriptionProvider.purchaseSubscription(productId);
+      // if (!success) throw Exception('Purchase failed');
 
       if (!mounted) return;
+      
+      // Показываем успешный диалог
       await showDialog(
         context: context,
         barrierDismissible: false,
@@ -573,27 +603,79 @@ class _PaywallScreenState extends State<PaywallScreen> {
               const Text('Welcome to PRO!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Text('All features are unlocked', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.orange.shade200),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.info_outline, size: 16, color: Colors.orange.shade700),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Test Mode: Using mock purchase',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.orange.shade700,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'PRO status will persist until app restart',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.orange.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // dialog
-                Navigator.of(context).pop(true); // screen
+                Navigator.of(context).pop(); // Закрываем диалог
+                Navigator.of(context).pop(true); // Закрываем пейвол с результатом true
               },
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(12)),
-                child: const Center(child: Text('Start', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+                child: const Center(child: Text('Start using PRO', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
               ),
             )
           ],
         ),
       );
+      
+      print('✅ PRO activated successfully!');
+      print('🎯 Features unlocked:');
+      print('   • Smart reminders');
+      print('   • Alcohol recovery protocols');
+      print('   • Weekly PRO reports');
+      print('   • Unlimited sync');
+      
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+      print('❌ Purchase error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Purchase failed: $e'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -603,24 +685,60 @@ class _PaywallScreenState extends State<PaywallScreen> {
     if (_isLoading) return;
     HapticFeedback.selectionClick();
     setState(() => _isLoading = true);
+    
     try {
-      // TODO: RevenueCat.restorePurchases()
-      await Future.delayed(const Duration(seconds: 1));
+      // Получаем провайдер подписки
+      final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+      
+      print('🔄 Attempting to restore purchases...');
+      
+      // Пытаемся восстановить покупки
+      final restored = await subscriptionProvider.restorePurchases();
+      
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Purchases restored')));
+      
+      if (restored) {
+        print('✅ Purchases restored successfully!');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('PRO subscription restored!'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        // Закрываем пейвол если подписка восстановлена
+        Navigator.of(context).pop(true);
+      } else {
+        print('ℹ️ No purchases to restore');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No purchases found to restore'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Restore failed: $e')));
+      print('❌ Restore error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Restore failed: $e'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
   void _openPrivacy() {
-    // TODO: open URL
+    // TODO: Открыть URL политики конфиденциальности
+    print('📄 Opening Privacy Policy...');
   }
 
   void _openTerms() {
-    // TODO: open URL
+    // TODO: Открыть URL условий использования
+    print('📄 Opening Terms of Use...');
   }
 }

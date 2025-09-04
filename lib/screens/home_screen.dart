@@ -812,33 +812,53 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
   
-  Widget _buildQuickButton(BuildContext context, String icon, String label, 
+Widget _buildQuickButton(BuildContext context, String icon, String label, 
       String volume, Color color, VoidCallback onPress) {
-    return GestureDetector(
-      onTap: onPress,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color, width: 2),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(icon, style: const TextStyle(fontSize: 28)),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-            ),
-            Text(
-              volume,
-              style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-            ),
-          ],
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPress,
+        borderRadius: BorderRadius.circular(16),
+        splashColor: color.withOpacity(0.2),
+        highlightColor: color.withOpacity(0.1),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: color, width: 2),
+          ),
+          child: Stack(
+            children: [
+              // Контент кнопки
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(icon, style: const TextStyle(fontSize: 28)),
+                    const SizedBox(height: 4),
+                    Text(
+                      label,
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                    ),
+                    Text(
+                      volume,
+                      style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    ).animate().scale(delay: 100.ms);
+    ).animate()
+      .scale(
+        begin: const Offset(0.95, 0.95),
+        end: const Offset(1, 1),
+        duration: 200.ms,
+        curve: Curves.easeOutBack,
+      )
+      .fadeIn(duration: 300.ms, delay: 100.ms);
   }
   
   Widget _buildIntakeItem(Intake intake, HydrationProvider provider) {

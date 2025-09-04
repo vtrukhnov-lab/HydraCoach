@@ -14,7 +14,7 @@ import 'firebase_options.dart';
 
 // App imports
 import 'screens/onboarding_screen.dart';
-import 'screens/home_screen.dart';  // ДОБАВЛЕН ИМПОРТ
+import 'screens/home_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/alcohol_log_screen.dart';
@@ -172,6 +172,9 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
         fontFamily: 'SF Pro Display',
+        splashFactory: InkRipple.splashFactory,
+        highlightColor: Colors.transparent,
+        splashColor: Colors.blue.withOpacity(0.2),
       ),
       home: const SplashScreen(),
       routes: {
@@ -347,19 +350,31 @@ class HydrationProvider extends ChangeNotifier {
     notifyListeners();
   }
   
+  // Метод сохранения
   Future<void> _saveIntakes() async {
-    final prefs = await SharedPreferences.getInstance();
-    final todayKey = 'intakes_${DateTime.now().toIso8601String().split('T')[0]}';
-    
-    final intakesJson = todayIntakes.map((intake) {
-      return '${intake.id}|${intake.timestamp.toIso8601String()}|${intake.type}|'
-             '${intake.volume}|${intake.sodium}|${intake.potassium}|${intake.magnesium}';
-    }).toList();
-    
-    await prefs.setStringList(todayKey, intakesJson);
-    
-    final progress = getProgress();
-    await prefs.setDouble('waterProgress', progress['waterPercent']!);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final todayKey = 'intakes_${DateTime.now().toIso8601String().split('T')[0]}';
+      
+      final intakesJson = todayIntakes.map((intake) {
+        return '${intake.id}|${intake.timestamp.toIso8601String()}|${intake.type}|'
+               '${intake.volume}|${intake.sodium}|${intake.potassium}|${intake.magnesium}';
+      }).toList();
+      
+      await prefs.setStringList(todayKey, intakesJson);
+      
+      final progress = getProgress();
+      await prefs.setDouble('waterProgress', progress['waterPercent']!);
+      
+      if (kDebugMode) {
+        print('✅ Сохранено ${todayIntakes.length} записей');
+        print('📊 Прогресс воды: ${progress['waterPercent']?.toStringAsFixed(1)}%');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Ошибка сохранения: $e');
+      }
+    }
   }
   
   void _checkAndResetDaily() {
@@ -405,7 +420,9 @@ class HydrationProvider extends ChangeNotifier {
     await prefs.setString('activityLevel', activityLevel);
   }
   
+  // ИСПРАВЛЕННЫЙ метод добавления воды (синхронная версия с мгновенным UI обновлением)
   void addIntake(String type, int volume, {int sodium = 0, int potassium = 0, int magnesium = 0}) {
+    // Добавляем в список
     todayIntakes.add(Intake(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       timestamp: DateTime.now(),
@@ -416,23 +433,50 @@ class HydrationProvider extends ChangeNotifier {
       magnesium: magnesium,
     ));
     
+    // Вибрация для обратной связи
     HapticFeedback.lightImpact();
-    _saveIntakes();
+    
+    if (kDebugMode) {
+      print('➕ Добавлено: $type, объем: $volume мл');
+      print('📋 Всего записей: ${todayIntakes.length}');
+    }
+    
+    // ВАЖНО: Сначала уведомляем UI об изменениях
     notifyListeners();
     
-    if (type == 'coffee') {
-      notif.NotificationService().schedulePostCoffeeReminder();
-      
+    // Затем сохраняем асинхронно (не ждем завершения)
+    _saveIntakes().then((_) {
       if (kDebugMode) {
-        print('☕ Напоминание после кофе запланировано');
+        print('💾 Данные сохранены в SharedPreferences');
       }
+    }).catchError((error) {
+      if (kDebugMode) {
+        print('❌ Ошибка при сохранении: $error');
+      }
+    });
+    
+    // Планируем напоминание после кофе
+    if (type == 'coffee') {
+      notif.NotificationService().schedulePostCoffeeReminder().then((success) {
+        if (kDebugMode && success) {
+          print('☕ Напоминание после кофе запланировано');
+        }
+      });
     }
   }
   
   void removeIntake(String id) {
     todayIntakes.removeWhere((intake) => intake.id == id);
-    _saveIntakes();
+    
+    // Сначала обновляем UI
     notifyListeners();
+    
+    // Затем сохраняем
+    _saveIntakes().then((_) {
+      if (kDebugMode) {
+        print('➖ Удалена запись: $id');
+      }
+    });
   }
   
   Map<String, double> getProgress() {
