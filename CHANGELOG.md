@@ -14,6 +14,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fasting aware mode (PRO)
 - Heat protocols (PRO)
 
+## [0.3.0] - 2025-09-04
+### Added
+- **Subscription and Paywall**
+  - Modern paywall screen with three pricing tiers (monthly/annual/lifetime)
+  - Dynamic pricing from Firebase Remote Config
+  - Trial period toggle (7 days)
+  - Paywall shown after onboarding completion
+  - PRO features list with detailed descriptions
+
+- **Remote Config Enhancements**
+  - Added subscription pricing parameters
+  - Configurable paywall texts and labels
+  - Trial period configuration
+  - Dynamic discount percentages
+
+- **UI/UX Improvements**
+  - Compact paywall design for better visibility
+  - Sticky discount badge on annual plan
+  - Icon-based feature list
+  - Smooth animations and transitions
+
+### Changed
+- Onboarding flow now includes paywall presentation
+- Remote Config service expanded with pricing management
+- Updated paywall to use material Icons.water_drop instead of emoji
+
+### Technical
+- Added PaywallScreen widget
+- Integrated subscription flow into onboarding
+- Enhanced Remote Config with pricing parameters
+- Prepared architecture for PRO features gating
+
+### Prepared for Next Release
+- PRO features gating mechanism
+- RevenueCat integration for real purchases
+- Subscription status persistence
+
 ## [0.2.1] - 2025-09-03
 ### Added
 - **Alcohol tracking in reports**
