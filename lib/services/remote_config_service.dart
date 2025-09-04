@@ -105,11 +105,36 @@ class RemoteConfigService {
       'fasting_electrolyte_reminder_enabled': true,
       'fasting_refeeding_ladder_enabled': true,
       
-      // 💰 Настройки подписки и пейвола
+      // 💰 НАСТРОЙКИ ПОДПИСКИ И ЦЕН
       'paywall_show_trial': true,
-      'trial_duration_days': 3,
-      'paywall_title': 'Разблокируйте все возможности HydraCoach',
-      'paywall_subtitle': 'Умные напоминания, недельные отчеты и синхронизация',
+      'trial_duration_days': 7,
+      'trial_enabled': true,
+      
+      // Цены для годовой подписки
+      'price_annual': 9.99,
+      'price_annual_original': 16.99,
+      'price_annual_discount': 41,
+      'price_annual_currency': '\$',
+      'price_annual_period': 'в год',
+      
+      // Цены для месячной подписки  
+      'price_monthly': 1.99,
+      'price_monthly_currency': '\$',
+      'price_monthly_period': 'в месяц',
+      
+      // Цена единоразовой покупки
+      'price_lifetime': 24.99,
+      'price_lifetime_currency': '\$',
+      
+      // Тексты пейвола
+      'paywall_title': 'HydraCoach PRO',
+      'paywall_subtitle': 'Стань героем водного баланса!',
+      'paywall_button_text': 'Продолжить',
+      'paywall_trial_text': 'Попробуйте 7 дней бесплатно',
+      'paywall_cancel_text': 'Отменить можно в любое время',
+      'paywall_best_value_text': 'ВЫГОДНО',
+      'paywall_lifetime_text': 'Доступ навсегда',
+      'paywall_lifetime_subtitle': 'без повторных платежей',
       
       // 🔧 Фич флаги для PRO функций
       'feature_smart_reminders': true,
@@ -202,11 +227,34 @@ class RemoteConfigService {
   bool get fastingElectrolyteReminderEnabled => _getValue('fasting_electrolyte_reminder_enabled', true);
   bool get fastingRefeedingLadderEnabled => _getValue('fasting_refeeding_ladder_enabled', true);
   
-  // 💰 ПОДПИСКА
+  // 💰 ПОДПИСКА И ЦЕНЫ
   bool get paywallShowTrial => _getValue('paywall_show_trial', true);
-  int get trialDurationDays => _getValue('trial_duration_days', 3);
-  String get paywallTitle => _getValue('paywall_title', 'Разблокируйте все возможности HydraCoach');
-  String get paywallSubtitle => _getValue('paywall_subtitle', 'Умные напоминания, недельные отчеты и синхронизация');
+  bool get trialEnabled => _getValue('trial_enabled', true);
+  int get trialDurationDays => _getValue('trial_duration_days', 7);
+  
+  // Цены
+  double get priceAnnual => _getValue('price_annual', 9.99);
+  double get priceAnnualOriginal => _getValue('price_annual_original', 16.99);
+  int get priceAnnualDiscount => _getValue('price_annual_discount', 41);
+  String get priceAnnualCurrency => _getValue('price_annual_currency', '\$');
+  String get priceAnnualPeriod => _getValue('price_annual_period', 'в год');
+  
+  double get priceMonthly => _getValue('price_monthly', 1.99);
+  String get priceMonthlyCurrency => _getValue('price_monthly_currency', '\$');
+  String get priceMonthlyPeriod => _getValue('price_monthly_period', 'в месяц');
+  
+  double get priceLifetime => _getValue('price_lifetime', 24.99);
+  String get priceLifetimeCurrency => _getValue('price_lifetime_currency', '\$');
+  
+  // Тексты пейвола
+  String get paywallTitle => _getValue('paywall_title', 'HydraCoach PRO');
+  String get paywallSubtitle => _getValue('paywall_subtitle', 'Стань героем водного баланса!');
+  String get paywallButtonText => _getValue('paywall_button_text', 'Продолжить');
+  String get paywallTrialText => _getValue('paywall_trial_text', 'Попробуйте 7 дней бесплатно');
+  String get paywallCancelText => _getValue('paywall_cancel_text', 'Отменить можно в любое время');
+  String get paywallBestValueText => _getValue('paywall_best_value_text', 'ВЫГОДНО');
+  String get paywallLifetimeText => _getValue('paywall_lifetime_text', 'Доступ навсегда');
+  String get paywallLifetimeSubtitle => _getValue('paywall_lifetime_subtitle', 'без повторных платежей');
   
   // 🔧 ФИЧ ФЛАГИ
   bool get featureSmartReminders => _getValue('feature_smart_reminders', true);

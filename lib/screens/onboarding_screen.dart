@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../main.dart';
+import 'home_screen.dart';
+import 'paywall_screen.dart'; // Добавлен импорт
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -623,10 +625,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         fastingSchedule: _fastingSchedule,
       );
       
-      // Переходим на главный экран
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      // Показываем пейвол после онбординга
+      final bool? purchased = await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const PaywallScreen(showCloseButton: true),
+          fullscreenDialog: true,
+        ),
       );
+      
+      // Переходим на главный экран в любом случае (купил или закрыл)
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
     }
   }
 }
