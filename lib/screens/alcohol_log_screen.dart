@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/alcohol_intake.dart';
 import '../services/alcohol_service.dart';
 
 class AlcoholLogScreen extends StatefulWidget {
-  const AlcoholLogScreen({Key? key}) : super(key: key);
+  const AlcoholLogScreen({super.key});
 
   @override
   State<AlcoholLogScreen> createState() => _AlcoholLogScreenState();
@@ -54,10 +55,11 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
   }
 
   Future<void> _saveIntake() async {
+    final l10n = AppLocalizations.of(context)!;
     final volume = double.tryParse(_volumeController.text);
     if (volume == null || volume <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Введите корректный объем')),
+        SnackBar(content: Text(l10n.enterValidVolume)),
       );
       return;
     }
@@ -80,11 +82,12 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Добавить алкоголь'),
+        title: Text(l10n.addAlcohol),
         elevation: 0,
         backgroundColor: Colors.orange[400],
         foregroundColor: Colors.white,
@@ -95,9 +98,9 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Выбор типа напитка
-            const Text(
-              'Выберите тип напитка:',
-              style: TextStyle(
+            Text(
+              l10n.selectDrinkType,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -135,7 +138,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          type.label,
+                          type.getLabel(context), // ИСПРАВЛЕНО: используем getLabel с context
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
@@ -159,9 +162,9 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
             const SizedBox(height: 24),
             
             // Ввод объема
-            const Text(
-              'Объем (мл):',
-              style: TextStyle(
+            Text(
+              l10n.volume,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -176,7 +179,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
               ],
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
-                hintText: 'Введите объем в мл',
+                hintText: l10n.enterVolume,
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
@@ -191,16 +194,16 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide(color: Colors.orange[400]!, width: 2),
                 ),
-                suffixText: 'мл',
+                suffixText: l10n.ml,
               ),
             ),
             
             const SizedBox(height: 24),
             
             // Слайдер крепости
-            const Text(
-              'Крепость (%):',
-              style: TextStyle(
+            Text(
+              l10n.strength,
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -255,9 +258,9 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
               ),
               child: Column(
                 children: [
-                  const Text(
-                    'Стандартные дринки:',
-                    style: TextStyle(
+                  Text(
+                    l10n.standardDrinks,
+                    style: const TextStyle(
                       fontSize: 14,
                       color: Colors.black54,
                     ),
@@ -278,20 +281,20 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _buildCorrectionItem(
-                        '+${_waterCorrection.toStringAsFixed(0)} мл',
-                        'Доп. вода',
+                        '+${_waterCorrection.toStringAsFixed(0)} ${l10n.ml}',
+                        l10n.additionalWater,
                         Icons.water_drop,
                         Colors.blue,
                       ),
                       _buildCorrectionItem(
-                        '+${_sodiumCorrection.toStringAsFixed(0)} мг',
-                        'Доп. натрий',
+                        '+${_sodiumCorrection.toStringAsFixed(0)} ${l10n.mg}',
+                        l10n.additionalSodium,
                         Icons.grain,
                         Colors.purple,
                       ),
                       _buildCorrectionItem(
                         '+${_hriModifier.toStringAsFixed(1)}',
-                        'HRI риск',
+                        l10n.hriRisk,
                         Icons.warning,
                         Colors.red,
                       ),
@@ -316,9 +319,9 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      'Отмена',
-                      style: TextStyle(fontSize: 16),
+                    child: Text(
+                      l10n.cancel,
+                      style: const TextStyle(fontSize: 16),
                     ),
                   ),
                 ),
@@ -335,9 +338,9 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      'Добавить',
-                      style: TextStyle(
+                    child: Text(
+                      l10n.add,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),

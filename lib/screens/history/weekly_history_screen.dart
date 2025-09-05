@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../l10n/app_localizations.dart';
 
 import '../../main.dart';
 import '../../services/alcohol_service.dart';
@@ -128,13 +129,14 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
       });
     } catch (e) {
       // ignore: avoid_print
-      print('Ошибка загрузки недельных данных: $e');
+      print('Error loading weekly data: $e');
       setState(() => isLoadingWeekData = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (isLoadingWeekData) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -154,12 +156,12 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  '💧 Потребление воды',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                Text(
+                  l10n.waterConsumption,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
-                Expanded(child: _buildWaterChart()),
+                Expanded(child: _buildWaterChart(l10n)),
               ],
             ),
           ).animate().fadeIn(),
@@ -175,12 +177,12 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    '🍺 Алкоголь за неделю',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  Text(
+                    l10n.alcoholWeek,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
-                  Expanded(child: _buildAlcoholChart()),
+                  Expanded(child: _buildAlcoholChart(l10n)),
                 ],
               ),
             ).animate().fadeIn(delay: 50.ms),
@@ -196,12 +198,12 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  '⚡ Электролиты',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                Text(
+                  l10n.electrolytes,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
-                Expanded(child: _buildElectrolytesChart()),
+                Expanded(child: _buildElectrolytesChart(l10n)),
               ],
             ),
           ).animate().fadeIn(delay: 100.ms),
@@ -215,12 +217,12 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  '📊 Средние показатели за неделю',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Text(
+                  l10n.weeklyAverages,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 20),
-                _buildAverageStats(),
+                _buildAverageStats(l10n),
               ],
             ),
           ).animate().slideY(delay: 200.ms),
@@ -236,7 +238,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: Colors.orange.shade200),
               ),
-              child: _buildAlcoholStats(),
+              child: _buildAlcoholStats(l10n),
             ).animate().fadeIn(delay: 250.ms),
 
           if (!alcoholService.soberModeEnabled && _hasAlcoholData())
@@ -254,16 +256,16 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  '💡 Инсайты недели',
-                  style: TextStyle(
+                Text(
+                  l10n.weeklyInsights,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 16),
-                ..._buildWeeklyInsights(),
+                ..._buildWeeklyInsights(l10n),
               ],
             ),
           ).animate().scale(delay: 300.ms),
@@ -284,8 +286,196 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
         ],
       );
 
+  // ===== Инсайты =====
+  List<Widget> _buildWeeklyInsights(AppLocalizations l10n) {
+    final insights = <Widget>[];
+
+    if (weeklyData.isEmpty) {
+      return [
+        Text(l10n.insufficientDataForAnalysis,
+            style: const TextStyle(color: Colors.white70))
+      ];
+    }
+
+    final sorted = weeklyData.values.toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
+
+    DailyData? bestDay;
+    DailyData? worstDay;
+    for (var d in sorted) {
+      if (bestDay == null || d.waterPercent > bestDay.waterPercent) {
+        bestDay = d;
+      }
+      if (worstDay == null || d.waterPercent < worstDay.waterPercent) {
+        worstDay = d;
+      }
+    }
+    if (bestDay != null) {
+      insights.add(_buildInsight(
+        l10n.bestDay,
+        l10n.bestDayMessage(_getWeekdayFull(bestDay.date, l10n), bestDay.waterPercent.toInt()),
+      ));
+    }
+
+    final weekend = sorted.where(
+        (d) => d.date.weekday == 6 || d.date.weekday == 7);
+    final weekdays = sorted.where((d) => d.date.weekday < 6);
+
+    if (weekend.isNotEmpty && weekdays.isNotEmpty) {
+      final avgWeekend =
+          weekend.map((d) => d.waterPercent).reduce((a, b) => a + b) /
+              weekend.length;
+      final avgWeekdays =
+          weekdays.map((d) => d.waterPercent).reduce((a, b) => a + b) /
+              weekdays.length;
+
+      if ((avgWeekdays - avgWeekend).abs() > 15) {
+        if (avgWeekdays > avgWeekend) {
+          insights.add(_buildInsight(
+            l10n.weekends,
+            l10n.drinkLessOnWeekends((avgWeekdays - avgWeekend).toInt()),
+          ));
+        } else {
+          insights.add(_buildInsight(
+            l10n.weekdays,
+            l10n.drinkLessOnWeekdays((avgWeekend - avgWeekdays).toInt()),
+          ));
+        }
+      }
+    }
+
+    if (sorted.length >= 3) {
+      final firstHalf =
+          sorted.take(3).map((d) => d.waterPercent).reduce((a, b) => a + b) /
+              3;
+      final secondHalf = sorted
+              .skip(sorted.length - 3)
+              .map((d) => d.waterPercent)
+              .reduce((a, b) => a + b) /
+          3;
+
+      if (secondHalf > firstHalf + 10) {
+        insights.add(_buildInsight(
+          l10n.positiveTrend,
+          l10n.positiveTrendMessage,
+        ));
+      } else if (firstHalf > secondHalf + 10) {
+        insights.add(_buildInsight(
+          l10n.decliningActivity,
+          l10n.decliningActivityMessage,
+        ));
+      }
+    }
+
+    int daysWithGoodSodium = 0;
+    final provider = Provider.of<HydrationProvider>(context, listen: false);
+    for (var d in sorted) {
+      if (d.sodium >= provider.goals.sodium * 0.7) {
+        daysWithGoodSodium++;
+      }
+    }
+    if (daysWithGoodSodium < 3) {
+      insights.add(_buildInsight(
+        l10n.lowSalt,
+        l10n.lowSaltMessage(daysWithGoodSodium),
+      ));
+    }
+
+    if (_hasAlcoholData()) {
+      int daysWithAlcohol = 0;
+      for (var d in sorted) {
+        if (d.alcoholSD > 0) daysWithAlcohol++;
+      }
+      if (daysWithAlcohol > 3) {
+        insights.add(_buildInsight(
+          l10n.frequentAlcohol,
+          l10n.frequentAlcoholMessage(daysWithAlcohol),
+        ));
+      }
+    }
+
+    return insights.isNotEmpty
+        ? insights
+        : [_buildInsight(l10n.excellentWeek, l10n.continueMessage)];
+  }
+
+  Widget _buildInsight(String title, String description) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                title.split(' ').first,
+                style: const TextStyle(fontSize: 18),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title.substring(title.indexOf(' ') + 1),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  description,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getWeekdayShort(DateTime date, AppLocalizations l10n) {
+    switch (date.weekday) {
+      case 1: return l10n.monday.substring(0, 2);
+      case 2: return l10n.tuesday.substring(0, 2);
+      case 3: return l10n.wednesday.substring(0, 2);
+      case 4: return l10n.thursday.substring(0, 2);
+      case 5: return l10n.friday.substring(0, 2);
+      case 6: return l10n.saturday.substring(0, 2);
+      case 7: return l10n.sunday.substring(0, 2);
+      default: return '';
+    }
+  }
+
+  String _getWeekdayFull(DateTime date, AppLocalizations l10n) {
+    switch (date.weekday) {
+      case 1: return l10n.monday;
+      case 2: return l10n.tuesday;
+      case 3: return l10n.wednesday;
+      case 4: return l10n.thursday;
+      case 5: return l10n.friday;
+      case 6: return l10n.saturday;
+      case 7: return l10n.sunday;
+      default: return '';
+    }
+  }
+
   // ===== Алкоголь: график =====
-  Widget _buildAlcoholChart() {
+  Widget _buildAlcoholChart(AppLocalizations l10n) {
     final List<BarChartGroupData> barGroups = [];
     final sortedEntries = weeklyData.entries.toList()
       ..sort((a, b) => a.value.date.compareTo(b.value.date));
@@ -310,7 +500,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
     }
 
     if (barGroups.isEmpty) {
-      return const Center(child: Text('Нет данных'));
+      return Center(child: Text(l10n.noData));
     }
 
     return BarChart(
@@ -326,7 +516,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               if (groupIndex < sortedData.length) {
                 final d = sortedData[groupIndex];
                 return BarTooltipItem(
-                  '${rod.toY.toStringAsFixed(1)} SD\n${_getWeekdayShort(d.date)}',
+                  '${rod.toY.toStringAsFixed(1)} SD\n${_getWeekdayShort(d.date, l10n)}',
                   const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -358,7 +548,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
                 final idx = value.toInt();
                 if (idx >= 0 && idx < list.length) {
                   return Text(
-                    _getWeekdayShort(list[idx].date),
+                    _getWeekdayShort(list[idx].date, l10n),
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                   );
                 }
@@ -386,7 +576,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
   }
 
   // ===== Алкоголь: статблок =====
-  Widget _buildAlcoholStats() {
+  Widget _buildAlcoholStats(AppLocalizations l10n) {
     double totalSD = 0;
     int daysWithAlcohol = 0;
     int soberDays = 0;
@@ -406,12 +596,12 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          children: const [
-            Icon(Icons.local_bar, color: Colors.orange),
-            SizedBox(width: 8),
+          children: [
+            const Icon(Icons.local_bar, color: Colors.orange),
+            const SizedBox(width: 8),
             Text(
-              'Статистика alkohоля',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              l10n.alcoholStatisticsTitle,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -420,13 +610,13 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
           children: [
             Expanded(
               child:
-                  _buildAlcoholStatCard('Всего SD', totalSD.toStringAsFixed(1),
+                  _buildAlcoholStatCard(l10n.totalSD, totalSD.toStringAsFixed(1),
                       Icons.assessment),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: _buildAlcoholStatCard(
-                  'Дней с алкоголем', '$daysWithAlcohol', Icons.calendar_today),
+                  l10n.daysWithAlcohol, '$daysWithAlcohol', Icons.calendar_today),
             ),
           ],
         ),
@@ -435,12 +625,12 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
           children: [
             Expanded(
               child: _buildAlcoholStatCard(
-                  'Трезвых дней', '$soberDays', Icons.check_circle),
+                  l10n.soberDays, '$soberDays', Icons.check_circle),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: _buildAlcoholStatCard(
-                  'Среднее SD/день', avgSD.toStringAsFixed(1),
+                  l10n.averageSD, avgSD.toStringAsFixed(1),
                   Icons.trending_flat),
             ),
           ],
@@ -488,7 +678,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
   }
 
   // ===== Вода: график =====
-  Widget _buildWaterChart() {
+  Widget _buildWaterChart(AppLocalizations l10n) {
     final List<FlSpot> spots = [];
     final List<String> bottomTitles = [];
 
@@ -498,11 +688,11 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
     for (int i = 0; i < sortedEntries.length; i++) {
       final d = sortedEntries[i].value;
       spots.add(FlSpot(i.toDouble(), d.waterPercent));
-      bottomTitles.add(_getWeekdayShort(d.date));
+      bottomTitles.add(_getWeekdayShort(d.date, l10n));
     }
 
     if (spots.isEmpty) {
-      return const Center(child: Text('Нет данных'));
+      return Center(child: Text(l10n.noData));
     }
 
     return LineChart(
@@ -607,12 +797,11 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
                 ..sort((a, b) => a.date.compareTo(b.date));
               return touchedBarSpots
                   .map<LineTooltipItem?>((barSpot) {
-                    // barIndex: 0 — пунктир цели, 1 — основная линия
                     if (barSpot.barIndex == 1 &&
                         barSpot.x.toInt() < sortedData.length) {
                       final d = sortedData[barSpot.x.toInt()];
                       return LineTooltipItem(
-                        '${d.water} мл\n${barSpot.y.toStringAsFixed(0)}%',
+                        '${d.water} ${l10n.ml}\n${barSpot.y.toStringAsFixed(0)}%',
                         const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -631,7 +820,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
   }
 
   // ===== Электролиты: график =====
-  Widget _buildElectrolytesChart() {
+  Widget _buildElectrolytesChart(AppLocalizations l10n) {
     final List<BarChartGroupData> barGroups = [];
     final sortedEntries = weeklyData.entries.toList()
       ..sort((a, b) => a.value.date.compareTo(b.value.date));
@@ -690,7 +879,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
     }
 
     if (barGroups.isEmpty) {
-      return const Center(child: Text('Нет данных'));
+      return Center(child: Text(l10n.noData));
     }
 
     return BarChart(
@@ -724,7 +913,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
                     return null;
                 }
                 return BarTooltipItem(
-                  '$label: $raw мг\n${rod.toY.toStringAsFixed(0)}%',
+                  '$label: $raw ${l10n.mg}\n${rod.toY.toStringAsFixed(0)}%',
                   const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -733,7 +922,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
                 );
               }
               return null;
-            },
+            }
           ),
         ),
         titlesData: FlTitlesData(
@@ -757,7 +946,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
                 final idx = value.toInt();
                 if (idx >= 0 && idx < list.length) {
                   return Text(
-                    _getWeekdayShort(list[idx].date),
+                    _getWeekdayShort(list[idx].date, l10n),
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                   );
                 }
@@ -785,19 +974,19 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
   }
 
   // ===== Средние показатели =====
-  Widget _buildAverageStats() {
+  Widget _buildAverageStats(AppLocalizations l10n) {
     if (weeklyData.isEmpty) {
-      return const Text('Загрузка данных...');
+      return Text(l10n.loadingData);
     }
 
     final provider = Provider.of<HydrationProvider>(context);
 
-    int totalWater = 0;
-    int totalSodium = 0;
-    int totalPotassium = 0;
-    int totalMagnesium = 0;
+    double totalWater = 0;
+    double totalSodium = 0;
+    double totalPotassium = 0;
+    double totalMagnesium = 0;
     int daysWithGoal = 0;
-    int totalIntakes = 0;
+    double totalIntakes = 0;
 
     for (var d in weeklyData.values) {
       totalWater += d.water;
@@ -814,41 +1003,41 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
       children: [
         _buildStatRow(
           icon: '💧',
-          label: 'Вода в день',
-          value: '${(totalWater / daysCount).round()} мл',
-          target: '${provider.goals.waterOpt} мл',
+          label: l10n.waterPerDay,
+          value: '${(totalWater / daysCount).round()} ${l10n.ml}',
+          target: '${provider.goals.waterOpt} ${l10n.ml}',
           color: Colors.blue,
         ),
         const SizedBox(height: 12),
         _buildStatRow(
           icon: '⚡',
-          label: 'Натрий в день',
-          value: '${(totalSodium / daysCount).round()} мг',
-          target: '${provider.goals.sodium} мг',
+          label: l10n.sodiumPerDay,
+          value: '${(totalSodium / daysCount).round()} ${l10n.mg}',
+          target: '${provider.goals.sodium} ${l10n.mg}',
           color: Colors.orange,
         ),
         const SizedBox(height: 12),
         _buildStatRow(
           icon: '💜',
-          label: 'Калий в день',
-          value: '${(totalPotassium / daysCount).round()} мг',
-          target: '${provider.goals.potassium} мг',
+          label: l10n.potassiumPerDay,
+          value: '${(totalPotassium / daysCount).round()} ${l10n.mg}',
+          target: '${provider.goals.potassium} ${l10n.mg}',
           color: Colors.purple,
         ),
         const SizedBox(height: 12),
         _buildStatRow(
           icon: '💗',
-          label: 'Магний в день',
-          value: '${(totalMagnesium / daysCount).round()} мг',
-          target: '${provider.goals.magnesium} мг',
+          label: l10n.magnesiumPerDay,
+          value: '${(totalMagnesium / daysCount).round()} ${l10n.mg}',
+          target: '${provider.goals.magnesium} ${l10n.mg}',
           color: Colors.pink,
         ),
         const Divider(height: 24),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('✅ Дней с достижением цели',
-                style: TextStyle(fontWeight: FontWeight.w500)),
+            Text(l10n.daysWithGoalAchieved,
+                style: const TextStyle(fontWeight: FontWeight.w500)),
             Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -859,7 +1048,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                '$daysWithGoal из 7',
+                '$daysWithGoal ${l10n.fromDays(7)}',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: daysWithGoal >= 5
@@ -873,18 +1062,14 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Text('📝 Записей в день',
-                style: TextStyle(fontWeight: FontWeight.w500)),
-            // значение ниже считаем в билдере текста
+          children: [
+            Text(l10n.recordsPerDay,
+                style: const TextStyle(fontWeight: FontWeight.w500)),
+            Text(
+              '≈ ${(totalIntakes / daysCount).round()}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
           ],
-        ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Text(
-            '≈ ${(totalIntakes / daysCount).round()}',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
         ),
       ],
     );
@@ -926,7 +1111,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text('Цель',
+            Text('Goal',
                 style:
                     TextStyle(color: Colors.grey.shade500, fontSize: 11)),
             Text(
@@ -941,186 +1126,5 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
         ),
       ],
     );
-  }
-
-  // ===== Инсайты =====
-  List<Widget> _buildWeeklyInsights() {
-    final insights = <Widget>[];
-
-    if (weeklyData.isEmpty) {
-      return const [
-        Text('Недостаточно данных для анализа',
-            style: TextStyle(color: Colors.white70))
-      ];
-    }
-
-    final sorted = weeklyData.values.toList()
-      ..sort((a, b) => a.date.compareTo(b.date));
-
-    DailyData? bestDay;
-    DailyData? worstDay;
-    for (var d in sorted) {
-      if (bestDay == null || d.waterPercent > bestDay.waterPercent) {
-        bestDay = d;
-      }
-      if (worstDay == null || d.waterPercent < worstDay.waterPercent) {
-        worstDay = d;
-      }
-    }
-    if (bestDay != null) {
-      insights.add(_buildInsight(
-        '🏆 Лучший день',
-        '${_getWeekdayFull(bestDay.date)} - ${bestDay.waterPercent.toInt()}% от цели',
-      ));
-    }
-
-    final weekend = sorted.where(
-        (d) => d.date.weekday == 6 || d.date.weekday == 7);
-    final weekdays = sorted.where((d) => d.date.weekday < 6);
-
-    if (weekend.isNotEmpty && weekdays.isNotEmpty) {
-      final avgWeekend =
-          weekend.map((d) => d.waterPercent).reduce((a, b) => a + b) /
-              weekend.length;
-      final avgWeekdays =
-          weekdays.map((d) => d.waterPercent).reduce((a, b) => a + b) /
-              weekdays.length;
-
-      if ((avgWeekdays - avgWeekend).abs() > 15) {
-        if (avgWeekdays > avgWeekend) {
-          insights.add(_buildInsight(
-            '📅 Выходные',
-            'В выходные вы пьете на ${(avgWeekdays - avgWeekend).toInt()}% меньше',
-          ));
-        } else {
-          insights.add(_buildInsight(
-            '📅 Будни',
-            'В будни вы пьете на ${(avgWeekend - avgWeekdays).toInt()}% меньше',
-          ));
-        }
-      }
-    }
-
-    if (sorted.length >= 3) {
-      final firstHalf =
-          sorted.take(3).map((d) => d.waterPercent).reduce((a, b) => a + b) /
-              3;
-      final secondHalf = sorted
-              .skip(sorted.length - 3)
-              .map((d) => d.waterPercent)
-              .reduce((a, b) => a + b) /
-          3;
-
-      if (secondHalf > firstHalf + 10) {
-        insights.add(_buildInsight(
-          '📈 Положительный тренд',
-          'Ваша гидратация улучшается к концу недели',
-        ));
-      } else if (firstHalf > secondHalf + 10) {
-        insights.add(_buildInsight(
-          '📉 Снижение активности',
-          'К концу недели потребление воды снижается',
-        ));
-      }
-    }
-
-    int daysWithGoodSodium = 0;
-    final provider = Provider.of<HydrationProvider>(context, listen: false);
-    for (var d in sorted) {
-      if (d.sodium >= provider.goals.sodium * 0.7) {
-        daysWithGoodSodium++;
-      }
-    }
-    if (daysWithGoodSodium < 3) {
-      insights.add(_buildInsight(
-        '⚠️ Мало соли',
-        'Только $daysWithGoodSodium дней с нормальным уровнем натрия',
-      ));
-    }
-
-    if (_hasAlcoholData()) {
-      int daysWithAlcohol = 0;
-      for (var d in sorted) {
-        if (d.alcoholSD > 0) daysWithAlcohol++;
-      }
-      if (daysWithAlcohol > 3) {
-        insights.add(_buildInsight(
-          '🍺 Частое употребление',
-          'Алкоголь $daysWithAlcohol дней из 7 влияет на гидратацию',
-        ));
-      }
-    }
-
-    return insights.isNotEmpty
-        ? insights
-        : [_buildInsight('✅ Отличная неделя', 'Продолжайте в том же духе!')];
-  }
-
-  Widget _buildInsight(String title, String description) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Кружок с эмодзи
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                title.split(' ').first,
-                style: const TextStyle(fontSize: 18),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title.substring(title.indexOf(' ') + 1),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  description,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _getWeekdayShort(DateTime date) {
-    const days = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-    return days[date.weekday % 7];
-  }
-
-  String _getWeekdayFull(DateTime date) {
-    const days = [
-      'Воскресенье',
-      'Понедельник',
-      'Вторник',
-      'Среда',
-      'Четверг',
-      'Пятница',
-      'Суббота'
-    ];
-    return days[date.weekday % 7];
   }
 }

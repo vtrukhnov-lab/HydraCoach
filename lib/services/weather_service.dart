@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class WeatherService extends ChangeNotifier {
   // OpenWeatherMap
@@ -18,7 +19,7 @@ class WeatherService extends ChangeNotifier {
 
   // Guards
   static bool _fetchInProgress = false;
-  static _PermissionMutex _permMutex = _PermissionMutex();
+  static final _PermissionMutex _permMutex = _PermissionMutex();
 
   WeatherData? get currentWeather => _currentWeather;
   double? get heatIndex => _heatIndex;
@@ -57,8 +58,8 @@ class WeatherService extends ChangeNotifier {
           temperature: 22,
           humidity: 60,
           heatIndex: 24,
-          description: 'Нет доступа к геолокации',
-          city: 'Локация неизвестна',
+          description: 'clear',
+          city: '',
         );
       }
 
@@ -67,9 +68,10 @@ class WeatherService extends ChangeNotifier {
 
       print('Got location: $lat, $lon');
 
+      // Запрашиваем погоду на английском языке для единообразия ключей
       final url = Uri.parse(
         '$baseUrl?lat=$lat&lon=$lon'
-        '&appid=$apiKey&units=metric&lang=ru',
+        '&appid=$apiKey&units=metric&lang=en',
       );
 
       final response = await http.get(url).timeout(
@@ -91,13 +93,45 @@ class WeatherService extends ChangeNotifier {
         await prefs.setString('lastCity', data['name']);
         await prefs.setString('lastWeatherTime', DateTime.now().toIso8601String());
 
+        // Получаем описание погоды и маппим на наши ключи
+        String description = 'clear';
+        if (data['weather'] is List && data['weather'].isNotEmpty) {
+          final mainWeather = data['weather'][0]['main']?.toString().toLowerCase() ?? 'clear';
+          // Маппинг основных типов погоды на наши ключи локализации
+          switch (mainWeather) {
+            case 'clear':
+              description = 'clear';
+              break;
+            case 'clouds':
+              final cloudsDetail = data['clouds']['all'] ?? 0;
+              description = cloudsDetail > 80 ? 'overcast' : 'cloudy';
+              break;
+            case 'rain':
+              description = 'rain';
+              break;
+            case 'drizzle':
+              description = 'drizzle';
+              break;
+            case 'thunderstorm':
+              description = 'storm';
+              break;
+            case 'snow':
+              description = 'snow';
+              break;
+            case 'mist':
+            case 'fog':
+              description = 'fog';
+              break;
+            default:
+              description = 'clear';
+          }
+        }
+
         return WeatherData(
           temperature: temp,
           humidity: humidity,
           heatIndex: heatIndex,
-          description: (data['weather'] is List && data['weather'].isNotEmpty)
-              ? (data['weather'][0]['description'] ?? '—')
-              : '—',
+          description: description,
           city: data['name'],
         );
       }
@@ -110,8 +144,8 @@ class WeatherService extends ChangeNotifier {
         temperature: 24,
         humidity: 65,
         heatIndex: 26,
-        description: 'Данные недоступны',
-        city: 'Бенидорм',
+        description: 'clear',
+        city: '',
       );
     }
 
@@ -187,14 +221,14 @@ class WeatherService extends ChangeNotifier {
     final temp = prefs.getDouble('lastTemp');
     final humidity = prefs.getDouble('lastHumidity');
     final heatIndex = prefs.getDouble('lastHeatIndex');
-    final city = prefs.getString('lastCity') ?? 'Кэш';
+    final city = prefs.getString('lastCity') ?? '';
 
     if (temp != null && humidity != null && heatIndex != null) {
       return WeatherData(
         temperature: temp,
         humidity: humidity,
         heatIndex: heatIndex,
-        description: 'Кэшированные данные',
+        description: 'clear',
         city: city,
       );
     }
@@ -250,8 +284,8 @@ class WeatherService extends ChangeNotifier {
       temperature: temp,
       humidity: humidity,
       heatIndex: heatIndex,
-      description: hour >= 6 && hour <= 20 ? 'Солнечно' : 'Ясно',
-      city: 'Бенидорм',
+      description: hour >= 6 && hour <= 20 ? 'sunny' : 'clear',
+      city: 'Demo City',
     );
   }
 }
@@ -262,7 +296,6 @@ class _PermissionMutex {
 
   Future<void> runIfFree(Future<void> Function() action) async {
     if (_inProgress) {
-      // уже кто-то запросил — просто дождёмся завершения
       await _completer?.future;
       return;
     }
@@ -282,7 +315,7 @@ class WeatherData {
   final double temperature;
   final double humidity;
   final double heatIndex;
-  final String description;
+  final String description; // Ключ для локализации
   final String city;
 
   WeatherData({
@@ -293,17 +326,49 @@ class WeatherData {
     required this.city,
   });
 
-  String getHeatWarning() {
-    if (heatIndex < 27) {
-      return 'Комфортная температура';
-    } else if (heatIndex < 32) {
-      return '⚠️ Повышенная температура';
-    } else if (heatIndex < 39) {
-      return '🔥 Жарко! Пейте больше воды';
-    } else if (heatIndex < 45) {
-      return '🌡️ Очень жарко! Риск обезвоживания';
+  // Метод для получения локализованного описания погоды
+  String getLocalizedDescription(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    // Маппинг ключей на локализованные строки
+    switch (description.toLowerCase()) {
+      case 'clear':
+        return l10n.weatherClear;
+      case 'cloudy':
+        return l10n.weatherCloudy;
+      case 'overcast':
+        return l10n.weatherOvercast;
+      case 'rain':
+        return l10n.weatherRain;
+      case 'snow':
+        return l10n.weatherSnow;
+      case 'storm':
+        return l10n.weatherStorm;
+      case 'fog':
+        return l10n.weatherFog;
+      case 'drizzle':
+        return l10n.weatherDrizzle;
+      case 'sunny':
+        return l10n.weatherSunny;
+      default:
+        return description; // Fallback на оригинальное описание
+    }
+  }
+
+  // Метод для получения локализованного предупреждения о жаре
+  String getLocalizedHeatWarning(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    if (heatIndex >= 45) {
+      return l10n.heatWarningExtreme;
+    } else if (heatIndex >= 39) {
+      return l10n.heatWarningVeryHot;
+    } else if (heatIndex >= 32) {
+      return l10n.heatWarningHot;
+    } else if (heatIndex >= 27) {
+      return l10n.heatWarningElevated;
     } else {
-      return '☀️ Экстремальная жара! Максимальная гидратация';
+      return l10n.heatWarningComfortable;
     }
   }
 

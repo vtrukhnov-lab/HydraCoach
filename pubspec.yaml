@@ -11,6 +11,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  
+  # 🌍 ЛОКАЛИЗАЦИЯ
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
 
   # UI и иконки
   cupertino_icons: ^1.0.8
@@ -22,7 +27,6 @@ dependencies:
   shared_preferences: ^2.5.3
   
   # Утилиты
-  intl: ^0.20.2
   http: ^1.5.0
   timezone: ^0.10.0
   
@@ -61,6 +65,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  
+  # 🌍 ГЕНЕРАЦИЯ ЛОКАЛИЗАЦИИ
+  generate: true
   
   # 🎨 Assets и иконки
   assets:

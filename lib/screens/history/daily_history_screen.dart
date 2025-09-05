@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../l10n/app_localizations.dart';
 import '../../main.dart';
 import '../../models/alcohol_intake.dart';
 import '../../services/alcohol_service.dart';
@@ -86,7 +87,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
             ));
           }
         } catch (e) {
-          print('Ошибка парсинга записи: $json, ошибка: $e');
+          print('Error parsing entry: $json, ошибка: $e');
           continue;
         }
       }
@@ -102,7 +103,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
         });
       }
     } catch (e) {
-      print('Ошибка загрузки данных дня: $e');
+      print('Error loading day data: $e');
       if (mounted) {
         setState(() {
           selectedDayIntakes = [];
@@ -157,6 +158,8 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
   
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Consumer2<HydrationProvider, AlcoholService>(
       builder: (context, provider, alcoholService, child) {
         return SingleChildScrollView(
@@ -197,7 +200,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                           initialDate: _selectedDate,
                           firstDate: DateTime.now().subtract(const Duration(days: 365)),
                           lastDate: DateTime.now(),
-                          locale: const Locale('ru'),
+                          locale: Localizations.localeOf(context),
                         );
                         if (picked != null) {
                           _changeDate(picked);
@@ -208,7 +211,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                           const Icon(Icons.calendar_today, size: 20, color: Colors.blue),
                           const SizedBox(width: 8),
                           Text(
-                            _formatDate(_selectedDate),
+                            _formatDate(_selectedDate, l10n),
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -255,10 +258,10 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          _buildDayStat('💧', 'Вода', '${_calculateDayStats()['water']} мл', Colors.white),
-                          _buildDayStat('🧂', 'Натрий', '${_calculateDayStats()['sodium']} мг', Colors.yellow.shade300),
-                          _buildDayStat('🥑', 'Калий', '${_calculateDayStats()['potassium']} мг', Colors.purple.shade300),
-                          _buildDayStat('💊', 'Магний', '${_calculateDayStats()['magnesium']} мг', Colors.pink.shade300),
+                          _buildDayStat('💧', l10n.water, '${_calculateDayStats()['water']} ${l10n.ml}', Colors.white),
+                          _buildDayStat('🧂', l10n.sodium, '${_calculateDayStats()['sodium']} ${l10n.mg}', Colors.yellow.shade300),
+                          _buildDayStat('🥑', l10n.potassium, '${_calculateDayStats()['potassium']} ${l10n.mg}', Colors.purple.shade300),
+                          _buildDayStat('💊', l10n.magnesium, '${_calculateDayStats()['magnesium']} ${l10n.mg}', Colors.pink.shade300),
                         ],
                       ),
                     ],
@@ -285,7 +288,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                           const Icon(Icons.local_bar, color: Colors.orange),
                           const SizedBox(width: 8),
                           Text(
-                            'Алкоголь: ${_getTotalAlcoholSD().toStringAsFixed(1)} SD',
+                            l10n.alcoholAmount(_getTotalAlcoholSD().toStringAsFixed(1)),
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -303,7 +306,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  '${intake.type.label}: ${intake.volumeMl.toInt()} мл, ${intake.abv}%',
+                                  '${intake.type.getLabel(context)}: ${intake.volumeMl.toInt()} ${l10n.ml}, ${intake.abv}%',
                                   style: const TextStyle(fontSize: 14),
                                 ),
                               ),
@@ -317,7 +320,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                             ],
                           ),
                         ),
-                      ).toList(),
+                      ),
                     ],
                   ),
                 ).animate().fadeIn(delay: 150.ms),
@@ -331,18 +334,18 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
-                    _buildFilterChip('Все', 'all'),
+                    _buildFilterChip(l10n.all, 'all'),
                     const SizedBox(width: 8),
-                    _buildFilterChip('Вода', 'water'),
+                    _buildFilterChip(l10n.water, 'water'),
                     const SizedBox(width: 8),
-                    _buildFilterChip('Электролиты', 'electrolyte'),
+                    _buildFilterChip(l10n.electrolyte, 'electrolyte'),
                     const SizedBox(width: 8),
-                    _buildFilterChip('Бульон', 'broth'),
+                    _buildFilterChip(l10n.broth, 'broth'),
                     const SizedBox(width: 8),
-                    _buildFilterChip('Кофе', 'coffee'),
+                    _buildFilterChip(l10n.coffee, 'coffee'),
                     if (!alcoholService.soberModeEnabled && selectedDayAlcoholIntakes.isNotEmpty) ...[
                       const SizedBox(width: 8),
-                      _buildFilterChip('Алкоголь', 'alcohol'),
+                      _buildFilterChip(l10n.alcohol, 'alcohol'),
                     ],
                   ],
                 ),
@@ -357,7 +360,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: _buildIntakesList(provider, alcoholService),
+                child: _buildIntakesList(provider, alcoholService, l10n),
               ),
               
               const SizedBox(height: 100),
@@ -368,7 +371,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     );
   }
   
-  Widget _buildIntakesList(HydrationProvider provider, AlcoholService alcoholService) {
+  Widget _buildIntakesList(HydrationProvider provider, AlcoholService alcoholService, AppLocalizations l10n) {
     if (isLoadingDayData) {
       return const Padding(
         padding: EdgeInsets.all(32.0),
@@ -393,7 +396,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                    color: Colors.grey.shade400),
               const SizedBox(height: 12),
               Text(
-                _isToday() ? 'Пока нет записей на сегодня' : 'Нет записей за этот день',
+                _isToday() ? l10n.noRecordsToday : l10n.noRecordsThisDay,
                 style: TextStyle(
                   color: Colors.grey.shade600,
                   fontSize: 16,
@@ -412,7 +415,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     for (var intake in filteredIntakes) {
       allItems.add(_IntakeItemWrapper(
         timestamp: intake.timestamp,
-        child: _buildIntakeDetailItem(intake, provider),
+        child: _buildIntakeDetailItem(intake, provider, l10n),
       ));
     }
     
@@ -421,7 +424,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
       for (var alcohol in filteredAlcohol) {
         allItems.add(_IntakeItemWrapper(
           timestamp: alcohol.timestamp,
-          child: _buildAlcoholItem(alcohol, alcoholService),
+          child: _buildAlcoholItem(alcohol, alcoholService, l10n),
         ));
       }
     }
@@ -436,7 +439,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     );
   }
   
-  Widget _buildAlcoholItem(AlcoholIntake intake, AlcoholService alcoholService) {
+  Widget _buildAlcoholItem(AlcoholIntake intake, AlcoholService alcoholService, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -463,14 +466,14 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  intake.type.label,
+                  intake.type.getLabel(context),
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
                   ),
                 ),
                 Text(
-                  '${intake.volumeMl.toInt()} мл, ${intake.abv}%, ${intake.standardDrinks.toStringAsFixed(1)} SD',
+                  '${intake.volumeMl.toInt()} ${l10n.ml}, ${intake.abv}%, ${intake.standardDrinks.toStringAsFixed(1)} SD',
                   style: TextStyle(
                     color: Colors.grey.shade600,
                     fontSize: 14,
@@ -497,19 +500,19 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: const Text('Удалить запись?'),
-                      content: Text('Удалить ${intake.type.label} ${intake.volumeMl.toInt()} мл?'),
+                      title: Text(l10n.deleteRecord),
+                      content: Text(l10n.deleteRecordMessage(intake.type.getLabel(context), intake.volumeMl.toInt())),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text('Отмена'),
+                          child: Text(l10n.cancel),
                         ),
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(true),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.red,
                           ),
-                          child: const Text('Удалить'),
+                          child: Text(l10n.delete),
                         ),
                       ],
                     );
@@ -523,7 +526,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: const Text('Запись удалена'),
+                        content: Text(l10n.recordDeleted),
                         duration: const Duration(seconds: 2),
                         backgroundColor: Colors.red,
                         behavior: SnackBarBehavior.floating,
@@ -666,7 +669,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     );
   }
   
-  Widget _buildIntakeDetailItem(Intake intake, HydrationProvider provider) {
+  Widget _buildIntakeDetailItem(Intake intake, HydrationProvider provider, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -696,14 +699,14 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _getIntakeName(intake.type),
+                  _getIntakeName(intake.type, l10n),
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
                   ),
                 ),
                 Text(
-                  '${intake.volume} мл',
+                  '${intake.volume} ${l10n.ml}',
                   style: TextStyle(
                     color: Colors.grey.shade600,
                     fontSize: 14,
@@ -743,19 +746,19 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      title: const Text('Удалить запись?'),
-                      content: Text('Удалить ${_getIntakeName(intake.type)} ${intake.volume} мл?'),
+                      title: Text(l10n.deleteRecord),
+                      content: Text(l10n.deleteRecordMessage(_getIntakeName(intake.type, l10n), intake.volume)),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text('Отмена'),
+                          child: Text(l10n.cancel),
                         ),
                         TextButton(
                           onPressed: () => Navigator.of(context).pop(true),
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.red,
                           ),
-                          child: const Text('Удалить'),
+                          child: Text(l10n.delete),
                         ),
                       ],
                     );
@@ -770,10 +773,10 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                     ScaffoldMessenger.of(context).clearSnackBars();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('${_getIntakeName(intake.type)} удален'),
+                        content: Text(l10n.itemDeleted(_getIntakeName(intake.type, l10n))),
                         duration: const Duration(seconds: 3),
                         action: SnackBarAction(
-                          label: 'Отменить',
+                          label: l10n.undo,
                           textColor: Colors.white,
                           onPressed: () {
                             provider.addIntake(
@@ -801,24 +804,20 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     );
   }
   
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime date, AppLocalizations l10n) {
     final now = DateTime.now();
     final yesterday = now.subtract(const Duration(days: 1));
     
     if (date.day == now.day && date.month == now.month && date.year == now.year) {
-      return 'Сегодня';
+      return l10n.today;
     } else if (date.day == yesterday.day && date.month == yesterday.month && date.year == yesterday.year) {
-      return 'Вчера';
+      return l10n.yesterday;
     }
     
-    try {
-      return DateFormat('d MMMM', 'ru').format(date);
-    } catch (e) {
-      // Fallback если локаль не загружена
-      const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 
-                      'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-      return '${date.day} ${months[date.month - 1]}';
-    }
+    // Используем локализованный формат даты
+    final locale = Localizations.localeOf(context).toString();
+    final formatter = DateFormat.MMMMd(locale);
+    return formatter.format(date);
   }
   
   Color _getIntakeColor(String type) {
@@ -841,13 +840,13 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     }
   }
   
-  String _getIntakeName(String type) {
+  String _getIntakeName(String type, AppLocalizations l10n) {
     switch (type) {
-      case 'water': return 'Вода';
-      case 'electrolyte': return 'Электролит';
-      case 'broth': return 'Бульон';
-      case 'coffee': return 'Кофе';
-      default: return 'Напиток';
+      case 'water': return l10n.water;
+      case 'electrolyte': return l10n.electrolyte;
+      case 'broth': return l10n.broth;
+      case 'coffee': return l10n.coffee;
+      default: return l10n.drink;
     }
   }
 }

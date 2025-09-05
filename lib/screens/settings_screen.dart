@@ -3,9 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../l10n/app_localizations.dart';
 import '../main.dart';
 import '../services/notification_service.dart' as notif;
 import '../services/subscription_service.dart';
+import '../services/locale_service.dart';
 import '../widgets/pro_badge.dart';
 import '../screens/paywall_screen.dart';
 
@@ -20,13 +22,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _notificationsEnabled = true;
   bool _postCoffeeReminders = true;
   bool _heatWarnings = true;
-  bool _postAlcoholReminders = false; // Новое
+  bool _postAlcoholReminders = false;
   String _units = 'metric';
   String _morningTime = '07:00';
   String _eveningTime = '22:00';
   int _reminderFrequency = 4;
   
-  // Статистика уведомлений
   Map<String, dynamic> _notificationStats = {};
   
   @override
@@ -68,7 +69,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.setString('eveningTime', _eveningTime);
     await prefs.setInt('reminderFrequency', _reminderFrequency);
     
-    // Обновляем настройки уведомлений
     await notif.NotificationService().saveSettings(
       notif.ReminderSettings(
         enabled: _notificationsEnabled,
@@ -81,7 +81,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
     
-    // Обновляем статистику
     await _loadNotificationStats();
   }
   
@@ -92,21 +91,62 @@ class _SettingsScreenState extends State<SettingsScreen> {
         fullscreenDialog: true,
       ),
     ).then((_) {
-      // После закрытия пейвола обновляем статистику
       _loadNotificationStats();
     });
   }
   
+  void _showLanguageDialog() {
+    final l10n = AppLocalizations.of(context)!;
+    final localeService = Provider.of<LocaleService>(context, listen: false);
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.selectLanguage),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: LocaleService.supportedLocales.map((localeInfo) {
+            return RadioListTile<String>(
+              title: Row(
+                children: [
+                  Text(localeInfo.flag, style: const TextStyle(fontSize: 24)),
+                  const SizedBox(width: 12),
+                  Text(localeInfo.name),
+                ],
+              ),
+              value: localeInfo.code,
+              groupValue: localeService.currentLocale.languageCode,
+              onChanged: (value) {
+                if (value != null) {
+                  localeService.setLocale(value);
+                  Navigator.pop(context);
+                }
+              },
+            );
+          }).toList(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
+        ],
+      ),
+    );
+  }
+  
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'Настройки',
-          style: TextStyle(
+        title: Text(
+          l10n.settingsTitle,
+          style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
@@ -116,16 +156,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Consumer2<HydrationProvider, SubscriptionProvider>(
-        builder: (context, hydrationProvider, subscriptionProvider, child) {
+      body: Consumer3<HydrationProvider, SubscriptionProvider, LocaleService>(
+        builder: (context, hydrationProvider, subscriptionProvider, localeService, child) {
           final isPro = subscriptionProvider.isPro;
           
           return SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Профиль
-                _buildSectionTitle('Профиль'),
+                // Language Selector
+                _buildSectionTitle(l10n.languageSection),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: ListTile(
+                    leading: const Icon(Icons.language, color: Colors.blue),
+                    title: Text(l10n.languageSettings),
+                    subtitle: Text(localeService.getCurrentLocaleInfo().name),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          localeService.getCurrentLocaleInfo().flag,
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.chevron_right),
+                      ],
+                    ),
+                    onTap: _showLanguageDialog,
+                  ),
+                ).animate().fadeIn(),
+                
+                // Profile
+                _buildSectionTitle(l10n.profileSection),
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 20),
                   decoration: BoxDecoration(
@@ -135,31 +202,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     children: [
                       _buildProfileTile(
-                        'Вес',
-                        '${hydrationProvider.weight.toInt()} кг',
+                        l10n.weight,
+                        '${hydrationProvider.weight.toInt()} ${l10n.kg}',
                         Icons.monitor_weight_outlined,
-                        () => _showWeightDialog(hydrationProvider),
+                        () => _showWeightDialog(hydrationProvider, l10n),
                       ),
                       _buildDivider(),
                       _buildProfileTile(
-                        'Режим питания',
-                        _getDietModeText(hydrationProvider.dietMode),
+                        l10n.dietMode,
+                        _getDietModeText(hydrationProvider.dietMode, l10n),
                         Icons.restaurant_menu,
-                        () => _showDietDialog(hydrationProvider),
+                        () => _showDietDialog(hydrationProvider, l10n),
                       ),
                       _buildDivider(),
                       _buildProfileTile(
-                        'Активность',
-                        _getActivityText(hydrationProvider.activityLevel),
+                        l10n.activityLevel,
+                        _getActivityText(hydrationProvider.activityLevel, l10n),
                         Icons.fitness_center,
-                        () => _showActivityDialog(hydrationProvider),
+                        () => _showActivityDialog(hydrationProvider, l10n),
                       ),
                     ],
                   ),
                 ).animate().fadeIn(),
                 
-                // Уведомления
-                _buildSectionTitle('Уведомления'),
+                // Notifications
+                _buildSectionTitle(l10n.notificationsSection),
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 20),
                   decoration: BoxDecoration(
@@ -168,7 +235,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   child: Column(
                     children: [
-                      // Счетчик уведомлений для FREE
                       if (!isPro && _notificationStats.isNotEmpty) ...[
                         Container(
                           margin: const EdgeInsets.all(16),
@@ -187,7 +253,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Лимит уведомлений (FREE)',
+                                      l10n.notificationLimit,
                                       style: TextStyle(
                                         color: Colors.blue.shade900,
                                         fontWeight: FontWeight.w600,
@@ -196,7 +262,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      'Использовано: ${_notificationStats['today_count'] ?? 0} из 4',
+                                      l10n.notificationUsage(
+                                        _notificationStats['today_count'] ?? 0,
+                                        4,
+                                      ),
                                       style: TextStyle(
                                         color: Colors.blue.shade700,
                                         fontSize: 13,
@@ -216,8 +285,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ],
                       
                       _buildSwitchTile(
-                        'Напоминания о воде',
-                        'Регулярные напоминания в течение дня',
+                        l10n.waterReminders,
+                        l10n.waterRemindersDesc,
                         _notificationsEnabled,
                         (value) {
                           setState(() {
@@ -225,21 +294,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           });
                           _saveSettings();
                         },
-                        isPro: false, // Доступно всем
+                        isPro: false,
                       ),
                       
                       if (_notificationsEnabled) ...[
                         _buildDivider(),
                         _buildListTile(
-                          'Частота напоминаний',
-                          isPro ? 'Без ограничений' : '$_reminderFrequency раз в день (макс 4)',
+                          l10n.reminderFrequency,
+                          isPro ? l10n.unlimitedReminders : l10n.maxTimesPerDay(_reminderFrequency),
                           Icons.access_time,
-                          () => isPro ? _showFrequencyDialog() : _showPaywall(),
-                          isPro: !isPro, // Показываем звездочку для FREE
+                          () => isPro ? _showFrequencyDialog(l10n) : _showPaywall(),
+                          isPro: !isPro,
                         ),
                         _buildDivider(),
                         _buildListTile(
-                          'Начало дня',
+                          l10n.startOfDay,
                           _morningTime,
                           Icons.wb_sunny_outlined,
                           () => _showTimePicker(true),
@@ -247,7 +316,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         _buildDivider(),
                         _buildListTile(
-                          'Конец дня',
+                          l10n.endOfDay,
                           _eveningTime,
                           Icons.nightlight_outlined,
                           () => _showTimePicker(false),
@@ -257,8 +326,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       
                       _buildDivider(),
                       _buildSwitchTile(
-                        'Напоминания после кофе',
-                        'Напомнить выпить воду через 20 минут',
+                        l10n.postCoffeeReminders,
+                        l10n.postCoffeeRemindersDesc,
                         _postCoffeeReminders && isPro,
                         isPro ? (value) {
                           setState(() {
@@ -266,13 +335,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           });
                           _saveSettings();
                         } : (value) => _showPaywall(),
-                        isPro: true, // PRO функция
+                        isPro: true,
                       ),
                       
                       _buildDivider(),
                       _buildSwitchTile(
-                        'Предупреждения о жаре',
-                        'Уведомления при высокой температуре',
+                        l10n.heatWarnings,
+                        l10n.heatWarningsDesc,
                         _heatWarnings && isPro,
                         isPro ? (value) {
                           setState(() {
@@ -280,13 +349,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           });
                           _saveSettings();
                         } : (value) => _showPaywall(),
-                        isPro: true, // PRO функция
+                        isPro: true,
                       ),
                       
                       _buildDivider(),
                       _buildSwitchTile(
-                        'Напоминания после алкоголя',
-                        'План восстановления на 6-12 часов',
+                        l10n.postAlcoholReminders,
+                        l10n.postAlcoholRemindersDesc,
                         _postAlcoholReminders && isPro,
                         isPro ? (value) {
                           setState(() {
@@ -294,15 +363,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           });
                           _saveSettings();
                         } : (value) => _showPaywall(),
-                        isPro: true, // PRO функция
+                        isPro: true,
                       ),
                     ],
                   ),
                 ).animate().fadeIn(delay: 100.ms),
                 
-                // PRO функции (если пользователь FREE)
+                // PRO features (if user is FREE)
                 if (!isPro) ...[
-                  _buildSectionTitle('PRO возможности'),
+                  _buildSectionTitle(l10n.proFeaturesSection),
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
@@ -344,21 +413,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ),
                                 ),
                                 const SizedBox(width: 16),
-                                const Expanded(
+                                Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Разблокировать PRO',
-                                        style: TextStyle(
+                                        l10n.unlockPro,
+                                        style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      SizedBox(height: 4),
+                                      const SizedBox(height: 4),
                                       Text(
-                                        'Безлимитные уведомления и умные напоминания',
-                                        style: TextStyle(
+                                        l10n.unlockProDesc,
+                                        style: const TextStyle(
                                           fontSize: 13,
                                           color: Colors.grey,
                                         ),
@@ -374,12 +443,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ],
                             ),
                             const SizedBox(height: 16),
-                            const Column(
+                            Column(
                               children: [
-                                _ProFeatureItem(icon: Icons.all_inclusive, text: 'Без лимита уведомлений'),
-                                _ProFeatureItem(icon: Icons.coffee, text: 'Напоминания после кофе'),
-                                _ProFeatureItem(icon: Icons.wb_sunny, text: 'Предупреждения о жаре'),
-                                _ProFeatureItem(icon: Icons.local_bar, text: 'Восстановление после алкоголя'),
+                                _ProFeatureItem(icon: Icons.all_inclusive, text: l10n.noNotificationLimit),
+                                _ProFeatureItem(icon: Icons.coffee, text: l10n.postCoffeeReminders),
+                                _ProFeatureItem(icon: Icons.wb_sunny, text: l10n.heatWarnings),
+                                _ProFeatureItem(icon: Icons.local_bar, text: l10n.postAlcoholReminders),
                               ],
                             ),
                           ],
@@ -389,8 +458,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ).animate().fadeIn(delay: 150.ms),
                 ],
                 
-                // Единицы измерения
-                _buildSectionTitle('Единицы измерения'),
+                // Units
+                _buildSectionTitle(l10n.unitsSection),
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 20),
                   decoration: BoxDecoration(
@@ -400,8 +469,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     children: [
                       RadioListTile<String>(
-                        title: const Text('Метрическая система'),
-                        subtitle: const Text('мл, кг, °C'),
+                        title: Text(l10n.metricSystem),
+                        subtitle: Text(l10n.metricUnits),
                         value: 'metric',
                         groupValue: _units,
                         onChanged: (value) {
@@ -413,8 +482,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       _buildDivider(),
                       RadioListTile<String>(
-                        title: const Text('Имперская система'),
-                        subtitle: const Text('oz, lb, °F'),
+                        title: Text(l10n.imperialSystem),
+                        subtitle: Text(l10n.imperialUnits),
                         value: 'imperial',
                         groupValue: _units,
                         onChanged: (value) {
@@ -428,8 +497,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ).animate().fadeIn(delay: 200.ms),
                 
-                // О приложении
-                _buildSectionTitle('О приложении'),
+                // About
+                _buildSectionTitle(l10n.aboutSection),
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 20),
                   decoration: BoxDecoration(
@@ -439,47 +508,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     children: [
                       _buildListTile(
-                        'Версия',
-                        '0.3.0',
+                        l10n.version,
+                        '0.4.0',
                         Icons.info_outline,
                         null,
                       ),
                       _buildDivider(),
                       _buildListTile(
-                        'Оценить приложение',
+                        l10n.rateApp,
                         '',
                         Icons.star_outline,
                         () {
-                          // TODO: Открыть страницу в App Store / Google Play
+                          // TODO: Open App Store / Google Play
                         },
                       ),
                       _buildDivider(),
                       _buildListTile(
-                        'Поделиться',
+                        l10n.share,
                         '',
                         Icons.share_outlined,
                         () {
-                          // TODO: Поделиться приложением
+                          // TODO: Share app
                         },
                       ),
                       _buildDivider(),
                       _buildListTile(
-                        'Политика конфиденциальности',
+                        l10n.privacyPolicy,
                         '',
                         Icons.privacy_tip_outlined,
                         () {
-                          // TODO: Открыть политику
+                          // TODO: Open privacy policy
                         },
                       ),
                     ],
                   ),
                 ).animate().fadeIn(delay: 300.ms),
                 
-                // Кнопка сброса
+                // Reset button
                 Container(
                   margin: const EdgeInsets.all(20),
                   child: OutlinedButton(
-                    onPressed: () => _showResetDialog(),
+                    onPressed: () => _showResetDialog(l10n),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.red,
                       side: const BorderSide(color: Colors.red),
@@ -488,7 +557,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('Сбросить все данные'),
+                    child: Text(l10n.resetAllData),
                   ),
                 ),
                 
@@ -612,36 +681,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return const Divider(height: 1, indent: 16, endIndent: 16);
   }
   
-  String _getDietModeText(String mode) {
+  String _getDietModeText(String mode, AppLocalizations l10n) {
     switch (mode) {
-      case 'normal': return 'Обычное питание';
-      case 'keto': return 'Кето / Низкоуглеводное';
-      case 'fasting': return 'Интервальное голодание';
+      case 'normal': return l10n.dietModeNormal;
+      case 'keto': return l10n.dietModeKeto;
+      case 'fasting': return l10n.dietModeFasting;
       default: return mode;
     }
   }
   
-  String _getActivityText(String level) {
+  String _getActivityText(String level, AppLocalizations l10n) {
     switch (level) {
-      case 'low': return 'Низкая активность';
-      case 'medium': return 'Средняя активность';
-      case 'high': return 'Высокая активность';
+      case 'low': return l10n.activityLow;
+      case 'medium': return l10n.activityMedium;
+      case 'high': return l10n.activityHigh;
       default: return level;
     }
   }
   
-  void _showWeightDialog(HydrationProvider provider) {
+  void _showWeightDialog(HydrationProvider provider, AppLocalizations l10n) {
     double tempWeight = provider.weight;
     
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Изменить вес'),
+        title: Text(l10n.changeWeight),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '${tempWeight.toInt()} кг',
+              '${tempWeight.toInt()} ${l10n.kg}',
               style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
@@ -660,7 +729,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -671,23 +740,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
               Navigator.pop(context);
             },
-            child: const Text('Сохранить'),
+            child: Text(l10n.save),
           ),
         ],
       ),
     );
   }
   
-  void _showDietDialog(HydrationProvider provider) {
+  void _showDietDialog(HydrationProvider provider, AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Режим питания'),
+        title: Text(l10n.dietMode),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioListTile<String>(
-              title: const Text('Обычное питание'),
+              title: Text(l10n.dietModeNormal),
               value: 'normal',
               groupValue: provider.dietMode,
               onChanged: (value) {
@@ -700,7 +769,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             RadioListTile<String>(
-              title: const Text('Кето / Низкоуглеводное'),
+              title: Text(l10n.dietModeKeto),
               value: 'keto',
               groupValue: provider.dietMode,
               onChanged: (value) {
@@ -713,7 +782,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             RadioListTile<String>(
-              title: const Text('Интервальное голодание'),
+              title: Text(l10n.dietModeFasting),
               value: 'fasting',
               groupValue: provider.dietMode,
               onChanged: (value) {
@@ -731,17 +800,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
   
-  void _showActivityDialog(HydrationProvider provider) {
+  void _showActivityDialog(HydrationProvider provider, AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Уровень активности'),
+        title: Text(l10n.activityLevel),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             RadioListTile<String>(
-              title: const Text('Низкая'),
-              subtitle: const Text('Офисная работа, мало движения'),
+              title: Text(l10n.activityLow),
+              subtitle: Text(l10n.activityLowDesc),
               value: 'low',
               groupValue: provider.activityLevel,
               onChanged: (value) {
@@ -754,8 +823,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             RadioListTile<String>(
-              title: const Text('Средняя'),
-              subtitle: const Text('30-60 минут упражнений в день'),
+              title: Text(l10n.activityMedium),
+              subtitle: Text(l10n.activityMediumDesc),
               value: 'medium',
               groupValue: provider.activityLevel,
               onChanged: (value) {
@@ -768,8 +837,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             RadioListTile<String>(
-              title: const Text('Высокая'),
-              subtitle: const Text('Тренировки >1 часа'),
+              title: Text(l10n.activityHigh),
+              subtitle: Text(l10n.activityHighDesc),
               value: 'high',
               groupValue: provider.activityLevel,
               onChanged: (value) {
@@ -787,19 +856,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
   
-  void _showFrequencyDialog() {
+  void _showFrequencyDialog(AppLocalizations l10n) {
     final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
     final isPro = subscriptionProvider.isPro;
     
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Частота напоминаний'),
+        title: Text(l10n.reminderFrequency),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: (isPro ? [2, 3, 4, 6, 8, 12] : [2, 3, 4]).map((freq) => 
             RadioListTile<int>(
-              title: Text('$freq раз в день'),
+              title: Text(l10n.timesPerDay(freq)),
               subtitle: !isPro && freq > 4 ? const Text('PRO', style: TextStyle(color: Colors.orange)) : null,
               value: freq,
               groupValue: _reminderFrequency,
@@ -840,18 +909,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
   
-  void _showResetDialog() {
+  void _showResetDialog(AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Сбросить все данные?'),
-        content: const Text(
-          'Это действие удалит всю историю и вернет настройки к значениям по умолчанию.',
-        ),
+        title: Text(l10n.resetDataTitle),
+        content: Text(l10n.resetDataMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Отмена'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -863,7 +930,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               }
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Сбросить'),
+            child: Text(l10n.reset),
           ),
         ],
       ),
@@ -871,7 +938,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
-// Вспомогательный виджет для PRO функций
 class _ProFeatureItem extends StatelessWidget {
   final IconData icon;
   final String text;

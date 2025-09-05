@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../services/subscription_service.dart';
-import '../widgets/pro_badge.dart';
 import '../screens/paywall_screen.dart';
 import 'history/daily_history_screen.dart';
 import 'history/weekly_history_screen.dart';
@@ -45,6 +45,8 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
   
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Consumer<SubscriptionProvider>(
       builder: (context, subscriptionProvider, _) {
         final isPro = subscriptionProvider.isPro;
@@ -54,9 +56,9 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
           appBar: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
-            title: const Text(
-              'История',
-              style: TextStyle(
+            title: Text(
+              l10n.history,
+              style: const TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
               ),
@@ -85,11 +87,11 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                   indicatorWeight: 3,
                   tabs: [
                     // Дневная вкладка - всегда доступна
-                    const Tab(
+                    Tab(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('День'),
+                          Text(l10n.day),
                         ],
                       ),
                     ),
@@ -99,7 +101,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text('Неделя'),
+                          Text(l10n.week),
                           if (!isPro) ...[
                             const SizedBox(width: 4),
                             Icon(
@@ -117,7 +119,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text('Месяц'),
+                          Text(l10n.month),
                           if (!isPro) ...[
                             const SizedBox(width: 4),
                             Icon(
@@ -144,8 +146,8 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
               isPro 
                 ? const WeeklyHistoryScreen()
                 : _buildProPlaceholder(
-                    title: 'Недельная история',
-                    description: 'Анализируйте тренды за неделю, получайте инсайты и рекомендации',
+                    title: l10n.weeklyHistory,
+                    description: l10n.weeklyHistoryDesc,
                     icon: Icons.calendar_view_week,
                   ),
               
@@ -153,8 +155,8 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
               isPro
                 ? const MonthlyHistoryScreen()
                 : _buildProPlaceholder(
-                    title: 'Месячная история',
-                    description: 'Долгосрочные паттерны, сравнение недель и глубокая аналитика',
+                    title: l10n.monthlyHistory,
+                    description: l10n.monthlyHistoryDesc,
                     icon: Icons.calendar_month,
                   ),
             ],
@@ -170,6 +172,8 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
     required String description,
     required IconData icon,
   }) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -243,18 +247,18 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                   ),
                 ],
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.star,
                     color: Colors.white,
                     size: 18,
                   ),
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   Text(
-                    'PRO функция',
-                    style: TextStyle(
+                    l10n.proFunction,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
@@ -281,14 +285,14 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                 ),
                 elevation: 2,
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.lock_open, size: 20),
-                  SizedBox(width: 8),
+                  const Icon(Icons.lock_open, size: 20),
+                  const SizedBox(width: 8),
                   Text(
-                    'Разблокировать PRO',
-                    style: TextStyle(
+                    l10n.unlockProHistory,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -309,10 +313,10 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
               ),
               child: Column(
                 children: [
-                  _buildBenefit('Неограниченная история'),
-                  _buildBenefit('Экспорт данных в CSV'),
-                  _buildBenefit('Детальная аналитика'),
-                  _buildBenefit('Сравнение периодов'),
+                  _buildBenefit(l10n.unlimitedHistory),
+                  _buildBenefit(l10n.dataExportCSV),
+                  _buildBenefit(l10n.detailedAnalytics),
+                  _buildBenefit(l10n.periodComparison),
                 ],
               ),
             ),

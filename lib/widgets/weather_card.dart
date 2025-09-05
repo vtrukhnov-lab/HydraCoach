@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../services/weather_service.dart';
+import '../l10n/app_localizations.dart';
 
 class WeatherCard extends StatefulWidget {
   final Function(double waterAdjustment, int sodiumAdjustment) onWeatherUpdate;
@@ -51,14 +52,14 @@ class _WeatherCardState extends State<WeatherCard> {
       } else {
         setState(() {
           _loading = false;
-          _errorMessage = 'Не удалось загрузить погоду';
+          _errorMessage = null;
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
           _loading = false;
-          _errorMessage = 'Ошибка: ${e.toString()}';
+          _errorMessage = null;
         });
       }
     }
@@ -66,6 +67,8 @@ class _WeatherCardState extends State<WeatherCard> {
   
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     if (_loading) {
       return Container(
         margin: const EdgeInsets.all(20),
@@ -90,13 +93,13 @@ class _WeatherCardState extends State<WeatherCard> {
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
             const SizedBox(width: 12),
-            const Text('Загрузка погоды...'),
+            Text(l10n.loadingWeather),
           ],
         ),
       );
     }
     
-    // ИСПРАВЛЕНО: Показываем карточку с ошибкой вместо пустоты
+    // Показываем карточку с ошибкой вместо пустоты
     if (_weather == null) {
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -117,7 +120,7 @@ class _WeatherCardState extends State<WeatherCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Погода недоступна',
+                        l10n.weatherUnavailable,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.orange.shade900,
@@ -125,7 +128,7 @@ class _WeatherCardState extends State<WeatherCard> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        _errorMessage ?? 'Проверьте разрешения геолокации и интернет',
+                        l10n.checkLocationPermissions,
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.orange.shade700,
@@ -142,7 +145,7 @@ class _WeatherCardState extends State<WeatherCard> {
               child: TextButton.icon(
                 onPressed: _loadWeather,
                 icon: const Icon(Icons.refresh, size: 18),
-                label: const Text('Повторить'),
+                label: Text(l10n.retry),
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.orange.shade700,
                   backgroundColor: Colors.orange.shade100,
@@ -209,7 +212,7 @@ class _WeatherCardState extends State<WeatherCard> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              _weather!.city.isEmpty ? 'Текущая локация' : _weather!.city,
+                              _weather!.city.isEmpty ? l10n.currentLocation : _weather!.city,
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.9),
                                 fontSize: 14,
@@ -218,16 +221,32 @@ class _WeatherCardState extends State<WeatherCard> {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          '${_weather!.temperature.toInt()}°C',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text(
+                              '${_weather!.temperature.toInt()}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 48,
+                                fontWeight: FontWeight.bold,
+                                height: 1.0,
+                              ),
+                            ),
+                            Text(
+                              '°C',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: 24,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
+                        const SizedBox(height: 4),
                         Text(
-                          _weather!.description,
+                          _weather!.getLocalizedDescription(context),
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.9),
                             fontSize: 16,
@@ -256,7 +275,7 @@ class _WeatherCardState extends State<WeatherCard> {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                '${_weather!.humidity.toInt()}%',
+                                l10n.humidity(_weather!.humidity.toInt()),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
@@ -277,9 +296,9 @@ class _WeatherCardState extends State<WeatherCard> {
                           ),
                           child: Column(
                             children: [
-                              const Text(
-                                'Heat Index',
-                                style: TextStyle(
+                              Text(
+                                l10n.heatIndex,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 11,
                                 ),
@@ -321,7 +340,7 @@ class _WeatherCardState extends State<WeatherCard> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          _weather!.getHeatWarning(),
+                          _weather!.getLocalizedHeatWarning(context),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -340,12 +359,12 @@ class _WeatherCardState extends State<WeatherCard> {
                     children: [
                       _buildAdjustmentChip(
                         Icons.water_drop,
-                        '+${(WeatherService.getWaterAdjustment(_weather!.heatIndex) * 100).toInt()}% воды',
+                        l10n.adjustmentWater((WeatherService.getWaterAdjustment(_weather!.heatIndex) * 100).toInt()),
                       ),
                       const SizedBox(width: 8),
                       _buildAdjustmentChip(
                         Icons.grain,
-                        '+${WeatherService.getSodiumAdjustment(_weather!.heatIndex, 'medium')} мг соли',
+                        l10n.adjustmentSodium(WeatherService.getSodiumAdjustment(_weather!.heatIndex, 'medium')),
                       ),
                     ],
                   ),

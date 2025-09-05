@@ -1,17 +1,33 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 /// Типы алкогольных напитков
 enum AlcoholType {
-  beer('Пиво', Icons.sports_bar, 5.0),
-  wine('Вино', Icons.wine_bar, 12.0),
-  spirits('Крепкий', Icons.local_bar, 40.0),
-  cocktail('Коктейль', Icons.local_drink, 15.0);
+  beer('beer', Icons.sports_bar, 5.0),
+  wine('wine', Icons.wine_bar, 12.0),
+  spirits('spirits', Icons.local_bar, 40.0),
+  cocktail('cocktail', Icons.local_drink, 15.0);
 
-  final String label;
+  final String key; // Ключ для локализации
   final IconData icon;
   final double defaultAbv;
 
-  const AlcoholType(this.label, this.icon, this.defaultAbv);
+  const AlcoholType(this.key, this.icon, this.defaultAbv);
+  
+  // Метод для получения локализованного названия
+  String getLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (this) {
+      case AlcoholType.beer:
+        return l10n.beer;
+      case AlcoholType.wine:
+        return l10n.wine;
+      case AlcoholType.spirits:
+        return l10n.spirits;
+      case AlcoholType.cocktail:
+        return l10n.cocktail;
+    }
+  }
 }
 
 /// Модель записи употребления алкоголя
@@ -104,24 +120,25 @@ class AlcoholCheckin {
     this.hadElectrolytes = false,
   });
 
-  List<String> getRecommendations() {
+  List<String> getRecommendations(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     List<String> recommendations = [];
     
     if (feelingScore <= 2) {
-      recommendations.add('💧 Пейте больше воды сегодня (+20%)');
-      recommendations.add('🧂 Добавьте электролиты к каждому приему воды');
-      recommendations.add('☕ Ограничьте кофе одной чашкой');
+      recommendations.add('💧 ${l10n.drinkMoreWaterToday}');
+      recommendations.add('🧂 ${l10n.addElectrolytesToWater}');
+      recommendations.add('☕ ${l10n.limitCoffeeOneCup}');
     } else if (feelingScore <= 3) {
-      recommendations.add('💧 Увеличьте воду на 10%');
-      recommendations.add('🧂 Не забывайте про электролиты');
+      recommendations.add('💧 ${l10n.increaseWater10}');
+      recommendations.add('🧂 ${l10n.dontForgetElectrolytes}');
     }
     
     if (!hadWater) {
-      recommendations.add('💧 Начните день со стакана воды');
+      recommendations.add('💧 ${l10n.startDayWithWater}');
     }
     
     if (!hadElectrolytes) {
-      recommendations.add('🧂 Примите электролиты с утра');
+      recommendations.add('🧂 ${l10n.takeElectrolytesMorning}');
     }
     
     return recommendations;

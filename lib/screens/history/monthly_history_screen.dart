@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../l10n/app_localizations.dart';
 
 import '../../main.dart';
 import '../../models/alcohol_intake.dart';
@@ -86,7 +87,9 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
       // ----- алкоголь -----
       final alcoholIntakes = await alcoholService.getIntakesForDate(date);
       double totalSD = 0;
-      for (final a in alcoholIntakes) totalSD += a.standardDrinks;
+      for (final a in alcoholIntakes) {
+        totalSD += a.standardDrinks;
+      }
       tempAlcoholData[dateKey] = totalSD;
 
       if (!date.isAfter(now)) {
@@ -104,6 +107,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final alcoholService = Provider.of<AlcoholService>(context);
 
     if (isLoadingMonthData) return const Center(child: CircularProgressIndicator());
@@ -116,7 +120,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: _cardDeco(),
-            child: _buildCalendarWithAlcohol(),
+            child: _buildCalendarWithAlcohol(l10n),
           ).animate().fadeIn(),
 
           const SizedBox(height: 20),
@@ -126,7 +130,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: _cardDeco(),
-              child: _buildAlcoholStats(),
+              child: _buildAlcoholStats(l10n),
             ).animate().fadeIn(delay: 100.ms),
 
           const SizedBox(height: 20),
@@ -138,9 +142,9 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('📊 Статистика месяца', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(l10n.monthStatistics, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 20),
-                _buildMonthlyStats(),
+                _buildMonthlyStats(l10n),
               ],
             ),
           ).animate().slideY(delay: 300.ms),
@@ -163,13 +167,22 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
       );
 
   // ---------- Календарь ----------
-  Widget _buildCalendarWithAlcohol() {
+  Widget _buildCalendarWithAlcohol(AppLocalizations l10n) {
     final now = DateTime.now();
     final firstDayOfMonth = DateTime(_selectedMonth.year, _selectedMonth.month, 1);
     final lastDayOfMonth = DateTime(_selectedMonth.year, _selectedMonth.month + 1, 0);
     final firstWeekday = firstDayOfMonth.weekday;
 
-    const weekDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    // Используем локализованные дни недели (короткие версии)
+    final weekDays = [
+      l10n.monday.substring(0, 2),
+      l10n.tuesday.substring(0, 2),
+      l10n.wednesday.substring(0, 2),
+      l10n.thursday.substring(0, 2),
+      l10n.friday.substring(0, 2),
+      l10n.saturday.substring(0, 2),
+      l10n.sunday.substring(0, 2),
+    ];
 
     return Column(
       children: [
@@ -186,11 +199,11 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
             ),
             Column(
               children: [
-                Text('${_getMonthName(_selectedMonth.month)} ${_selectedMonth.year}',
+                Text('${_getMonthName(_selectedMonth.month, l10n)} ${_selectedMonth.year}',
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 if (soberStreakDays > 0)
                   Text(
-                    'Трезвые дни подряд: $soberStreakDays',
+                    l10n.soberDaysRow(soberStreakDays),
                     style: TextStyle(fontSize: 12, color: Colors.green[600], fontWeight: FontWeight.w600),
                   ),
               ],
@@ -269,8 +282,8 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
             final textColor = progress > 70 ? Colors.white : Colors.black87;
 
             return GestureDetector(
-              onTap: () => _showDayDetails(date, dayData, alcoholSD),
-              onLongPress: () => _quickLogAlcohol(date),
+              onTap: () => _showDayDetails(date, dayData, alcoholSD, l10n),
+              onLongPress: () => _quickLogAlcohol(date, l10n),
               child: Container(
                 decoration: BoxDecoration(
                   color: bgColor,
@@ -352,7 +365,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
   }
 
   // ---------- Статистика алкоголя ----------
-  Widget _buildAlcoholStats() {
+  Widget _buildAlcoholStats(AppLocalizations l10n) {
     double totalSD = 0;
     int daysWithAlcohol = 0;
     int soberDays = 0;
@@ -370,21 +383,21 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('🍺 Статистика алкоголя', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(l10n.alcoholStatistics, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 20),
         Row(
           children: [
-            Expanded(child: _buildStatCard('Общее SD', totalSD.toStringAsFixed(1), Colors.orange, 'за месяц')),
+            Expanded(child: _buildStatCard(l10n.totalSD, totalSD.toStringAsFixed(1), Colors.orange, l10n.forMonth)),
             const SizedBox(width: 12),
-            Expanded(child: _buildStatCard('Дней с алкоголем', '$daysWithAlcohol', Colors.red, 'из ${alcoholData.length}')),
+            Expanded(child: _buildStatCard(l10n.daysWithAlcohol, '$daysWithAlcohol', Colors.red, l10n.fromDays(alcoholData.length))),
           ],
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(child: _buildStatCard('Трезвых дней', '$soberDays', Colors.green, 'отлично!')),
+            Expanded(child: _buildStatCard(l10n.soberDays, '$soberDays', Colors.green, l10n.excellent)),
             const SizedBox(width: 12),
-            Expanded(child: _buildStatCard('Средний SD', avgSD.toStringAsFixed(1), Colors.purple, 'в дни употребления')),
+            Expanded(child: _buildStatCard(l10n.averageSD, avgSD.toStringAsFixed(1), Colors.purple, l10n.inDrinkingDays)),
           ],
         ),
         if (soberStreakDays > 0) ...[
@@ -404,9 +417,9 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Текущая серия: $soberStreakDays дней',
+                      Text(l10n.currentStreak(soberStreakDays),
                           style: TextStyle(color: Colors.green[800], fontWeight: FontWeight.bold)),
-                      Text('Продолжайте в том же духе!',
+                      Text(l10n.keepItUp,
                           style: TextStyle(color: Colors.green[600], fontSize: 12)),
                     ],
                   ),
@@ -440,7 +453,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
     );
   }
 
-  void _showDayDetails(DateTime date, DailyData? data, double alcoholSD) {
+  void _showDayDetails(DateTime date, DailyData? data, double alcoholSD, AppLocalizations l10n) {
     final alcoholService = Provider.of<AlcoholService>(context, listen: false);
 
     showModalBottomSheet(
@@ -467,7 +480,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text('${date.day} ${_getMonthName(date.month)}',
+                  Text('${date.day} ${_getMonthName(date.month, l10n)}',
                       style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   if (data != null) ...[
@@ -475,7 +488,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                       children: [
                         Icon(Icons.water_drop, color: Colors.blue[600]),
                         const SizedBox(width: 8),
-                        Text('Вода: ${data.water} мл (${data.waterPercent.toInt()}%)'),
+                        Text(l10n.waterAmount(data.water, data.waterPercent.toInt())),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -483,7 +496,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                       children: [
                         Icon(Icons.bolt, color: Colors.orange[600]),
                         const SizedBox(width: 8),
-                        Text('Na: ${data.sodium} мг, K: ${data.potassium} мг'),
+                        Text('Na: ${data.sodium} ${l10n.mg}, K: ${data.potassium} ${l10n.mg}'),
                       ],
                     ),
                   ],
@@ -495,7 +508,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                       children: [
                         Icon(Icons.local_bar, color: Colors.orange[600]),
                         const SizedBox(width: 8),
-                        Text('Алкоголь: ${alcoholSD.toStringAsFixed(1)} SD',
+                        Text(l10n.alcoholAmount(alcoholSD.toStringAsFixed(1)),
                             style: const TextStyle(fontWeight: FontWeight.bold)),
                       ],
                     ),
@@ -509,8 +522,8 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                             const SizedBox(width: 8),
                             Icon(intake.type.icon, size: 16, color: Colors.orange),
                             const SizedBox(width: 4),
-                            Text('${intake.type.label}: '),
-                            Text('${intake.volumeMl.toInt()} мл, ${intake.abv}%',
+                            Text('${intake.type.getLabel(context)}: '),  // ИСПРАВЛЕНО: используем getLabel(context)
+                            Text('${intake.volumeMl.toInt()} ${l10n.ml}, ${intake.abv}%',
                                 style: const TextStyle(fontWeight: FontWeight.w500)),
                           ],
                         ),
@@ -527,15 +540,17 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
     );
   }
 
-  void _quickLogAlcohol(DateTime date) {
+  void _quickLogAlcohol(DateTime date, AppLocalizations l10n) {
+    // Заменить на локализованный текст
+    // Это может быть в отдельном ключе локализации или использовать существующий
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Быстрое добавление алкоголя будет доступно в PRO'), duration: Duration(seconds: 2)),
+      const SnackBar(content: Text('Quick alcohol add will be available in PRO'), duration: Duration(seconds: 2)),
     );
   }
 
   bool _hasAlcoholData() => alcoholData.values.any((sd) => sd > 0);
 
-  Widget _buildMonthlyStats() {
+  Widget _buildMonthlyStats(AppLocalizations l10n) {
     int totalWater = 0;
     int totalSodium = 0;
     int activeDays = 0;
@@ -554,17 +569,17 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
       children: [
         _buildMonthStatRow(
           icon: '💧',
-          label: 'Общий объем воды',
-          value: '${(totalWater / 1000).toStringAsFixed(1)} л',
-          subValue: 'В среднем $avgWater мл/день',
+          label: l10n.totalVolume,
+          value: '${(totalWater / 1000).toStringAsFixed(1)} L',
+          subValue: l10n.averagePerDay(avgWater),
           color: Colors.blue,
         ),
         const SizedBox(height: 16),
         _buildMonthStatRow(
           icon: '📅',
-          label: 'Активные дни',
-          value: '$activeDays из ${monthlyData.length}',
-          subValue: 'Дней с идеальной целью: $perfectDays',
+          label: l10n.activeDays,
+          value: '$activeDays ${l10n.fromDays(monthlyData.length)}',
+          subValue: l10n.perfectDays(perfectDays),
           color: Colors.green,
         ),
       ],
@@ -615,9 +630,22 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
     );
   }
 
-  String _getMonthName(int month) {
-    const months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-    return months[month - 1];
+  String _getMonthName(int month, AppLocalizations l10n) {
+    switch (month) {
+      case 1: return l10n.january;
+      case 2: return l10n.february;
+      case 3: return l10n.march;
+      case 4: return l10n.april;
+      case 5: return l10n.may;
+      case 6: return l10n.june;
+      case 7: return l10n.july;
+      case 8: return l10n.august;
+      case 9: return l10n.september;
+      case 10: return l10n.october;
+      case 11: return l10n.november;
+      case 12: return l10n.december;
+      default: return '';
+    }
   }
 
   Color _getHeatmapColor(double progress) {

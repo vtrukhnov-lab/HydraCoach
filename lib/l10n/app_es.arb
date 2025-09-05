@@ -1,0 +1,627 @@
+{
+  "@@locale": "es",
+  
+  "appTitle": "HydraCoach",
+  "@appTitle": {
+    "description": "The application name"
+  },
+  
+  "getPro": "Obtener PRO",
+  "@getPro": {
+    "description": "Get PRO tooltip"
+  },
+  
+  "sunday": "Domingo",
+  "monday": "Lunes",
+  "tuesday": "Martes",
+  "wednesday": "Miércoles",
+  "thursday": "Jueves",
+  "friday": "Viernes",
+  "saturday": "Sábado",
+  
+  "january": "enero",
+  "february": "febrero",
+  "march": "marzo",
+  "april": "abril",
+  "may": "mayo",
+  "june": "junio",
+  "july": "julio",
+  "august": "agosto",
+  "september": "septiembre",
+  "october": "octubre",
+  "november": "noviembre",
+  "december": "diciembre",
+  
+  "dateFormat": "{weekday}, {day} de {month}",
+  "@dateFormat": {
+    "description": "Date format pattern",
+    "placeholders": {
+      "weekday": {"type": "String"},
+      "day": {"type": "int"},
+      "month": {"type": "String"}
+    }
+  },
+  
+  "loading": "Cargando...",
+  "loadingWeather": "Cargando clima...",
+  
+  "heatIndex": "Índice de Calor",
+  "humidity": "Humedad: {value}%",
+  "@humidity": {
+    "placeholders": {
+      "value": {"type": "int"}
+    }
+  },
+  
+  "water": "Agua",
+  "sodium": "Sodio",
+  "potassium": "Potasio",
+  "magnesium": "Magnesio",
+  "electrolyte": "Electrolito",
+  "broth": "Caldo",
+  "coffee": "Café",
+  "alcohol": "Alcohol",
+  "drink": "Bebida",
+  
+  "ml": "ml",
+  "mg": "mg",
+  "kg": "kg",
+  
+  "valueWithUnit": "{value} {unit}",
+  "@valueWithUnit": {
+    "placeholders": {
+      "value": {"type": "int"},
+      "unit": {"type": "String"}
+    }
+  },
+  
+  "goalFormat": "{current}/{goal} {unit}",
+  "@goalFormat": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "goal": {"type": "int"},
+      "unit": {"type": "String"}
+    }
+  },
+  
+  "heatAdjustment": "Calor +{percent}%",
+  "@heatAdjustment": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  
+  "alcoholAdjustment": "Alcohol +{amount} ml",
+  "@alcoholAdjustment": {
+    "placeholders": {
+      "amount": {"type": "int"}
+    }
+  },
+  
+  "smartAdviceTitle": "Consejo para ahora",
+  "smartAdviceDefault": "Mantén el equilibrio de agua y electrolitos.",
+  
+  "adviceOverhydrationSevere": "Sobrecarga de agua (>200% meta)",
+  "adviceOverhydrationSevereBody": "Pausa 60-90 minutos. Añade electrolitos: 300-500 ml con 500-1000 mg de sodio.",
+  
+  "adviceOverhydration": "Sobrehidratación",
+  "adviceOverhydrationBody": "Pausa el agua 30-60 minutos y añade ~500 mg de sodio (electrolito/caldo).",
+  
+  "adviceAlcoholRecovery": "Alcohol: recuperación",
+  "adviceAlcoholRecoveryBody": "No más alcohol hoy. Bebe 300-500 ml de agua en pequeñas porciones y añade sodio.",
+  
+  "adviceLowSodium": "Bajo en sodio",
+  "adviceLowSodiumBody": "Añade ~{amount} mg de sodio. Bebe moderadamente.",
+  "@adviceLowSodiumBody": {
+    "placeholders": {
+      "amount": {"type": "int"}
+    }
+  },
+  
+  "adviceDehydration": "Falta agua",
+  "adviceDehydrationBody": "Bebe 300-500 ml de {type}.",
+  "@adviceDehydrationBody": {
+    "placeholders": {
+      "type": {"type": "String"}
+    }
+  },
+  
+  "adviceHighRisk": "Alto riesgo (HRI)",
+  "adviceHighRiskBody": "Bebe agua con electrolitos urgentemente (300-500 ml) y reduce la actividad.",
+  
+  "adviceHeat": "Calor y pérdidas",
+  "adviceHeatBody": "Aumenta el agua +5-8% y añade 300-500 mg de sodio.",
+  
+  "adviceAllGood": "Todo va bien",
+  "adviceAllGoodBody": "Mantén el ritmo. Meta: ~{amount} ml más para completar.",
+  "@adviceAllGoodBody": {
+    "placeholders": {
+      "amount": {"type": "int"}
+    }
+  },
+  
+  "hydrationStatus": "Estado de Hidratación",
+  "hydrationStatusNormal": "Normal",
+  "hydrationStatusDiluted": "Diluyendo",
+  "hydrationStatusDehydrated": "Falta agua",
+  "hydrationStatusLowSalt": "Poca sal",
+  
+  "hydrationRiskIndex": "Índice de Riesgo de Hidratación",
+  
+  "quickAdd": "Añadir Rápido",
+  "add": "Añadir",
+  "delete": "Eliminar",
+  
+  "todaysDrinks": "Bebidas de Hoy",
+  "allRecords": "Todos los registros →",
+  
+  "itemDeleted": "{item} eliminado",
+  "@itemDeleted": {
+    "placeholders": {
+      "item": {"type": "String"}
+    }
+  },
+  
+  "undo": "Deshacer",
+  
+  "dailyReportReady": "¡Informe diario listo!",
+  "viewDayResults": "Ver resultados del día",
+  "dailyReportComingSoon": "El informe diario estará disponible en la próxima versión",
+  
+  "home": "Inicio",
+  "history": "Historial",
+  "settings": "Ajustes",
+  
+  "cancel": "Cancelar",
+  "save": "Guardar",
+  "reset": "Restablecer",
+  
+  "settingsTitle": "Ajustes",
+  "languageSection": "Idioma",
+  "languageSettings": "Idioma",
+  "selectLanguage": "Seleccionar Idioma",
+  
+  "profileSection": "Perfil",
+  "weight": "Peso",
+  "dietMode": "Modo de Dieta",
+  "activityLevel": "Nivel de Actividad",
+  "changeWeight": "Cambiar Peso",
+  
+  "dietModeNormal": "Dieta Normal",
+  "dietModeKeto": "Keto / Bajo en carbohidratos",
+  "dietModeFasting": "Ayuno Intermitente",
+  
+  "activityLow": "Actividad Baja",
+  "activityMedium": "Actividad Media",
+  "activityHigh": "Actividad Alta",
+  "activityLowDesc": "Trabajo de oficina, poco movimiento",
+  "activityMediumDesc": "30-60 minutos de ejercicio al día",
+  "activityHighDesc": "Entrenamientos >1 hora",
+  
+  "notificationsSection": "Notificaciones",
+  "notificationLimit": "Límite de Notificaciones (GRATIS)",
+  "notificationUsage": "Usadas: {used} de {limit}",
+  "@notificationUsage": {
+    "placeholders": {
+      "used": {"type": "int"},
+      "limit": {"type": "int"}
+    }
+  },
+  
+  "waterReminders": "Recordatorios de Agua",
+  "waterRemindersDesc": "Recordatorios regulares durante el día",
+  "reminderFrequency": "Frecuencia de Recordatorios",
+  
+  "timesPerDay": "{count} veces al día",
+  "@timesPerDay": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  
+  "maxTimesPerDay": "{count} veces al día (máx 4)",
+  "@maxTimesPerDay": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  
+  "unlimitedReminders": "Sin límite",
+  "startOfDay": "Inicio del Día",
+  "endOfDay": "Fin del Día",
+  
+  "postCoffeeReminders": "Recordatorios Post-Café",
+  "postCoffeeRemindersDesc": "Recordar beber agua después de 20 minutos",
+  "heatWarnings": "Alertas de Calor",
+  "heatWarningsDesc": "Notificaciones en altas temperaturas",
+  "postAlcoholReminders": "Recordatorios Post-Alcohol",
+  "postAlcoholRemindersDesc": "Plan de recuperación para 6-12 horas",
+  
+  "proFeaturesSection": "Funciones PRO",
+  "unlockPro": "Desbloquear PRO",
+  "unlockProDesc": "Notificaciones ilimitadas y recordatorios inteligentes",
+  "noNotificationLimit": "Sin límite de notificaciones",
+  
+  "unitsSection": "Unidades",
+  "metricSystem": "Sistema Métrico",
+  "metricUnits": "ml, kg, °C",
+  "imperialSystem": "Sistema Imperial",
+  "imperialUnits": "oz, lb, °F",
+  
+  "aboutSection": "Acerca de",
+  "version": "Versión",
+  "rateApp": "Calificar App",
+  "share": "Compartir",
+  "privacyPolicy": "Política de Privacidad",
+  "termsOfUse": "Términos de Uso",
+  
+  "resetAllData": "Restablecer Todos los Datos",
+  "resetDataTitle": "¿Restablecer todos los datos?",
+  "resetDataMessage": "Esto eliminará todo el historial y restablecerá los ajustes a los valores predeterminados.",
+  
+  "back": "Atrás",
+  "next": "Siguiente",
+  "start": "Comenzar",
+  
+  "welcomeTitle": "Bienvenido a\nHydraCoach",
+  "welcomeSubtitle": "Seguimiento inteligente de agua y electrolitos\npara keto, ayuno y vida activa",
+  
+  "weightPageTitle": "Tu peso",
+  "weightPageSubtitle": "Para calcular la cantidad óptima de agua",
+  "weightUnit": "{weight} kg",
+  "@weightUnit": {
+    "placeholders": {
+      "weight": {"type": "int"}
+    }
+  },
+  "recommendedNorm": "Norma recomendada: {min}-{max} ml de agua al día",
+  "@recommendedNorm": {
+    "placeholders": {
+      "min": {"type": "int"},
+      "max": {"type": "int"}
+    }
+  },
+  
+  "dietPageTitle": "Modo de Dieta",
+  "dietPageSubtitle": "Esto afecta las necesidades de electrolitos",
+  "normalDiet": "Dieta normal",
+  "normalDietDesc": "Recomendaciones estándar",
+  "ketoDiet": "Keto / Bajo en carbohidratos",
+  "ketoDietDesc": "Mayor necesidad de sal",
+  "fastingDiet": "Ayuno Intermitente",
+  "fastingDietDesc": "Régimen especial de electrolitos",
+  
+  "fastingSchedule": "Horario de ayuno:",
+  "fasting16_8": "16:8",
+  "fasting16_8Desc": "Ventana diaria de 8 horas",
+  "fastingOMAD": "OMAD",
+  "fastingOMADDesc": "Una comida al día",
+  "fastingADF": "ADF",
+  "fastingADFDesc": "Ayuno en días alternos",
+  
+  "activityPageTitle": "Nivel de Actividad",
+  "activityPageSubtitle": "Afecta las necesidades de agua",
+  "lowActivity": "Actividad baja",
+  "lowActivityDesc": "Trabajo de oficina, poco movimiento",
+  "lowActivityWater": "+0 ml de agua",
+  "mediumActivity": "Actividad media",
+  "mediumActivityDesc": "30-60 minutos de ejercicio al día",
+  "mediumActivityWater": "+350-700 ml de agua",
+  "highActivity": "Actividad alta",
+  "highActivityDesc": "Entrenamientos >1 hora o trabajo físico",
+  "highActivityWater": "+700-1200 ml de agua",
+  "activityAdjustmentNote": "Ajustaremos las metas según tus entrenamientos",
+  
+  "day": "Día",
+  "week": "Semana",
+  "month": "Mes",
+  "today": "Hoy",
+  "yesterday": "Ayer",
+  
+  "noData": "Sin datos",
+  "noRecordsToday": "Aún no hay registros de hoy",
+  "noRecordsThisDay": "No hay registros de este día",
+  "loadingData": "Cargando datos...",
+  
+  "deleteRecord": "¿Eliminar registro?",
+  "deleteRecordMessage": "¿Eliminar {type} {volume} ml?",
+  "@deleteRecordMessage": {
+    "placeholders": {
+      "type": {"type": "String"},
+      "volume": {"type": "int"}
+    }
+  },
+  "recordDeleted": "Registro eliminado",
+  
+  "waterConsumption": "💧 Consumo de agua",
+  "alcoholWeek": "🍺 Alcohol esta semana",
+  "electrolytes": "⚡ Electrolitos",
+  "weeklyAverages": "📊 Promedios semanales",
+  "monthStatistics": "📊 Estadísticas del mes",
+  "alcoholStatistics": "🍺 Estadísticas de alcohol",
+  "alcoholStatisticsTitle": "Estadísticas de alcohol",
+  "weeklyInsights": "💡 Perspectivas semanales",
+  
+  "waterPerDay": "Agua por día",
+  "sodiumPerDay": "Sodio por día",
+  "potassiumPerDay": "Potasio por día",
+  "magnesiumPerDay": "Magnesio por día",
+  
+  "goal": "Meta",
+  "daysWithGoalAchieved": "✅ Días con meta alcanzada",
+  "recordsPerDay": "📝 Registros por día",
+  "insufficientDataForAnalysis": "Datos insuficientes para el análisis",
+  
+  "totalVolume": "Volumen total",
+  "averagePerDay": "Promedio {amount} ml/día",
+  "@averagePerDay": {
+    "placeholders": {
+      "amount": {"type": "int"}
+    }
+  },
+  "activeDays": "Días activos",
+  "perfectDays": "Días con meta perfecta: {count}",
+  "@perfectDays": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  
+  "currentStreak": "Racha actual: {days} días",
+  "@currentStreak": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "soberDaysRow": "Días sobrios seguidos: {days}",
+  "@soberDaysRow": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "keepItUp": "¡Sigue así!",
+  
+  "waterAmount": "Agua: {amount} ml ({percent}%)",
+  "@waterAmount": {
+    "placeholders": {
+      "amount": {"type": "int"},
+      "percent": {"type": "int"}
+    }
+  },
+  
+  "alcoholAmount": "Alcohol: {amount} SD",
+  "@alcoholAmount": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  
+  "totalSD": "SD total",
+  "forMonth": "por mes",
+  "daysWithAlcohol": "Días con alcohol",
+  "fromDays": "de {days}",
+  "@fromDays": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "soberDays": "Días sobrios",
+  "excellent": "¡excelente!",
+  "averageSD": "SD promedio",
+  "inDrinkingDays": "en días de consumo",
+  
+  "bestDay": "🏆 Mejor día",
+  "bestDayMessage": "{day} - {percent}% de la meta",
+  "@bestDayMessage": {
+    "placeholders": {
+      "day": {"type": "String"},
+      "percent": {"type": "int"}
+    }
+  },
+  
+  "weekends": "📅 Fines de semana",
+  "weekdays": "📅 Días laborables",
+  "drinkLessOnWeekends": "Bebes {percent}% menos los fines de semana",
+  "@drinkLessOnWeekends": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "drinkLessOnWeekdays": "Bebes {percent}% menos entre semana",
+  "@drinkLessOnWeekdays": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  
+  "positiveTrend": "📈 Tendencia positiva",
+  "positiveTrendMessage": "Tu hidratación mejora hacia el final de la semana",
+  "decliningActivity": "📉 Actividad en descenso",
+  "decliningActivityMessage": "El consumo de agua disminuye al final de la semana",
+  
+  "lowSalt": "⚠️ Poca sal",
+  "lowSaltMessage": "Solo {days} días con niveles normales de sodio",
+  "@lowSaltMessage": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  
+  "frequentAlcohol": "🍺 Consumo frecuente",
+  "frequentAlcoholMessage": "Alcohol {days} días de 7 afecta la hidratación",
+  "@frequentAlcoholMessage": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  
+  "excellentWeek": "✅ Semana excelente",
+  "continueMessage": "¡Sigue con el buen trabajo!",
+  
+  "all": "Todo",
+  
+  "addAlcohol": "Añadir alcohol",
+  "minimumHarm": "Daño mínimo",
+  "additionalWaterNeeded": "+{amount} ml de agua necesaria",
+  "@additionalWaterNeeded": {
+    "placeholders": {
+      "amount": {"type": "int"}
+    }
+  },
+  "additionalSodiumNeeded": "+{amount} mg de sodio agregar",
+  "@additionalSodiumNeeded": {
+    "placeholders": {
+      "amount": {"type": "int"}
+    }
+  },
+  "goToBedEarly": "Acuéstate temprano",
+  "todayConsumed": "Consumido hoy:",
+  "alcoholToday": "Alcohol hoy",
+  "beer": "Cerveza",
+  "wine": "Vino",
+  "spirits": "Licor",
+  "cocktail": "Cóctel",
+  "selectDrinkType": "Selecciona el tipo de bebida:",
+  "volume": "Volumen (ml):",
+  "enterVolume": "Ingresa el volumen en ml",
+  "strength": "Graduación (%):",
+  "standardDrinks": "Bebidas estándar:",
+  "additionalWater": "Agua adicional",
+  "additionalSodium": "Sodio adicional",
+  "hriRisk": "Riesgo HRI",
+  "enterValidVolume": "Por favor ingrese un volumen válido",
+  
+  "weeklyHistory": "Historial semanal",
+  "weeklyHistoryDesc": "Analiza tendencias semanales, obtén perspectivas y recomendaciones",
+  "monthlyHistory": "Historial mensual",
+  "monthlyHistoryDesc": "Patrones a largo plazo, comparación de semanas y análisis profundo",
+  "proFunction": "Función PRO",
+  "unlockProHistory": "Desbloquear PRO",
+  "unlimitedHistory": "Historial ilimitado",
+  "dataExportCSV": "Exportar datos a CSV",
+  "detailedAnalytics": "Análisis detallado",
+  "periodComparison": "Comparación de períodos",
+  
+  "shareResult": "Compartir resultado",
+  "retry": "Reintentar",
+  
+  "welcomeToPro": "¡Bienvenido a PRO!",
+  "allFeaturesUnlocked": "Todas las funciones están desbloqueadas",
+  "testMode": "Modo de prueba: Usando compra simulada",
+  "proStatusNote": "El estado PRO persistirá hasta reiniciar la app",
+  "startUsingPro": "Comenzar a usar PRO",
+  
+  "lifetimeAccess": "Acceso de por vida",
+  "bestValueAnnual": "Mejor valor — Anual",
+  "monthly": "Mensual",
+  "oneTime": "único pago",
+  "perYear": "/año",
+  "perMonth": "/mes",
+  "approximatelyPerMonth": "≈ {amount}/mes",
+  "@approximatelyPerMonth": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  
+  "startFreeTrial": "Comenzar prueba gratis de 7 días",
+  "continueWithPrice": "Continuar — {price}",
+  "@continueWithPrice": {
+    "placeholders": {
+      "price": {"type": "String"}
+    }
+  },
+  "unlockForPrice": "Desbloquear por {price} (único pago)",
+  "@unlockForPrice": {
+    "placeholders": {
+      "price": {"type": "String"}
+    }
+  },
+  
+  "enableFreeTrial": "Habilitar prueba gratis de 7 días",
+  "noChargeToday": "Sin cargo hoy. Después de 7 días, tu suscripción se renueva automáticamente a menos que la canceles.",
+  "cancelAnytime": "Puedes cancelar en cualquier momento en Ajustes.",
+  
+  "everythingInPro": "Todo en PRO",
+  "smartReminders": "Recordatorios inteligentes",
+  "smartRemindersDesc": "Calor, entrenamientos, ayuno — sin spam.",
+  "weeklyReports": "Informes semanales",
+  "weeklyReportsDesc": "Análisis profundo + exportación CSV.",
+  "healthIntegrations": "Integraciones de salud",
+  "healthIntegrationsDesc": "Apple Health y Google Fit.",
+  "alcoholProtocols": "Protocolos de alcohol",
+  "alcoholProtocolsDesc": "Preparación previa y hoja de ruta de recuperación.",
+  "fullSync": "Sincronización completa",
+  "fullSyncDesc": "Historial ilimitado en todos los dispositivos.",
+  "personalCalibrations": "Calibraciones personales",
+  "personalCalibrationsDesc": "Prueba de sudor, escala de color de orina.",
+  
+  "showAllFeatures": "Mostrar todas las características",
+  "showLess": "Mostrar menos",
+  
+  "restorePurchases": "Restaurar compras",
+  "proSubscriptionRestored": "¡Suscripción PRO restaurada!",
+  "noPurchasesToRestore": "No se encontraron compras para restaurar",
+  
+  "drinkMoreWaterToday": "Bebe más agua hoy (+20%)",
+  "addElectrolytesToWater": "Añade electrolitos a cada toma de agua",
+  "limitCoffeeOneCup": "Limita el café a una taza",
+  "increaseWater10": "Aumenta el agua en un 10%",
+  "dontForgetElectrolytes": "No olvides los electrolitos",
+  "startDayWithWater": "Empieza el día con un vaso de agua",
+  "takeElectrolytesMorning": "Toma electrolitos por la mañana",
+  
+  "purchaseFailed": "Error de compra: {error}",
+  "@purchaseFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "restoreFailed": "Error de restauración: {error}",
+  "@restoreFailed": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  
+  "trustedByUsers": "⭐️ 4.9 — confían 12,000 usuarios",
+  "bestValue": "Mejor valor",
+  "percentOff": "-{percent}% Mejor valor",
+  "@percentOff": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "weatherUnavailable": "Clima no disponible",
+  "checkLocationPermissions": "Verifique los permisos de ubicación e internet",
+  "currentLocation": "Ubicación actual",
+  
+  "weatherClear": "despejado",
+  "weatherCloudy": "nublado",
+  "weatherOvercast": "nublado",
+  "weatherRain": "lluvia",
+  "weatherSnow": "nieve",
+  "weatherStorm": "tormenta",
+  "weatherFog": "niebla",
+  "weatherDrizzle": "llovizna",
+  "weatherSunny": "soleado",
+  
+  "heatWarningExtreme": "☀️ ¡Calor extremo! Hidratación máxima",
+  "heatWarningVeryHot": "🌡️ ¡Muy caliente! Riesgo de deshidratación",
+  "heatWarningHot": "🔥 ¡Calor! Beba más agua",
+  "heatWarningElevated": "⚠️ Temperatura elevada",
+  "heatWarningComfortable": "Temperatura confortable",
+  
+  "adjustmentWater": "+{percent}% agua",
+  "@adjustmentWater": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "adjustmentSodium": "+{amount} mg sodio",
+  "@adjustmentSodium": {
+    "placeholders": {
+      "amount": {"type": "int"}
+    }
+  }
+}

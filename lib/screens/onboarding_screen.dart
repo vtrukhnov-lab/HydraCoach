@@ -3,9 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../l10n/app_localizations.dart';
 import '../main.dart';
 import 'home_screen.dart';
-import 'paywall_screen.dart'; // Добавлен импорт
+import 'paywall_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -26,6 +27,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
@@ -64,10 +67,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   });
                 },
                 children: [
-                  _buildWelcomePage(),
-                  _buildWeightPage(),
-                  _buildDietPage(),
-                  _buildActivityPage(),
+                  _buildWelcomePage(l10n),
+                  _buildWeightPage(l10n),
+                  _buildDietPage(l10n),
+                  _buildActivityPage(l10n),
                 ],
               ),
             ),
@@ -86,7 +89,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           curve: Curves.easeInOut,
                         );
                       },
-                      child: const Text('Назад'),
+                      child: Text(l10n.back),
                     )
                   else
                     const SizedBox(width: 80),
@@ -109,7 +112,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         borderRadius: BorderRadius.circular(25),
                       ),
                     ),
-                    child: Text(_currentPage == 3 ? 'Начать' : 'Далее'),
+                    child: Text(_currentPage == 3 ? l10n.start : l10n.next),
                   ),
                 ],
               ),
@@ -120,7 +123,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
   
-  Widget _buildWelcomePage() {
+  Widget _buildWelcomePage(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.all(40),
       child: Column(
@@ -141,17 +144,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ).animate().scale(duration: 500.ms),
           const SizedBox(height: 40),
-          const Text(
-            'Добро пожаловать в\nHydraCoach',
+          Text(
+            l10n.welcomeTitle,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
             ),
           ).animate().fadeIn(delay: 200.ms),
           const SizedBox(height: 20),
           Text(
-            'Умный трекинг воды и электролитов\nдля кето, поста и активной жизни',
+            l10n.welcomeSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
@@ -164,22 +167,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
   
-  Widget _buildWeightPage() {
+  Widget _buildWeightPage(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.all(40),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            'Ваш вес',
-            style: TextStyle(
+          Text(
+            l10n.weightPageTitle,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 10),
           Text(
-            'Для расчета оптимального количества воды',
+            l10n.weightPageSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -205,7 +208,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             child: Column(
               children: [
                 Text(
-                  '${_weight.toInt()} кг',
+                  l10n.weightUnit(_weight.toInt()),
                   style: const TextStyle(
                     fontSize: 48,
                     fontWeight: FontWeight.bold,
@@ -240,8 +243,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('40 кг', style: TextStyle(color: Colors.grey[600])),
-                    Text('150 кг', style: TextStyle(color: Colors.grey[600])),
+                    Text('40 ${l10n.kg}', style: TextStyle(color: Colors.grey[600])),
+                    Text('150 ${l10n.kg}', style: TextStyle(color: Colors.grey[600])),
                   ],
                 ),
               ],
@@ -262,7 +265,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Рекомендуемая норма: ${(22 * _weight).toInt()}-${(36 * _weight).toInt()} мл воды в день',
+                    l10n.recommendedNorm(
+                      (22 * _weight).toInt(),
+                      (36 * _weight).toInt(),
+                    ),
                     style: const TextStyle(
                       fontSize: 13,
                       color: Colors.blue,
@@ -277,22 +283,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
   
-  Widget _buildDietPage() {
+  Widget _buildDietPage(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.all(40),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            'Режим питания',
-            style: TextStyle(
+          Text(
+            l10n.dietPageTitle,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 10),
           Text(
-            'Это влияет на потребность в электролитах',
+            l10n.dietPageSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -304,22 +310,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           _buildDietOption(
             'normal',
             '🍽️',
-            'Обычное питание',
-            'Стандартные рекомендации',
+            l10n.normalDiet,
+            l10n.normalDietDesc,
+            l10n,
           ),
           const SizedBox(height: 12),
           _buildDietOption(
             'keto',
             '🥑',
-            'Кето / Низкоуглеводное',
-            'Повышенная потребность в соли',
+            l10n.ketoDiet,
+            l10n.ketoDietDesc,
+            l10n,
           ),
           const SizedBox(height: 12),
           _buildDietOption(
             'fasting',
             '⏰',
-            'Интервальное голодание',
-            'Особый режим электролитов',
+            l10n.fastingDiet,
+            l10n.fastingDietDesc,
+            l10n,
           ),
           
           if (_dietMode == 'fasting') ...[
@@ -334,14 +343,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Расписание голодания:',
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                  Text(
+                    l10n.fastingSchedule,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 12),
-                  _buildFastingOption('16:8', '16:8', 'Ежедневное окно 8 часов'),
-                  _buildFastingOption('OMAD', 'OMAD', 'Один прием пищи в день'),
-                  _buildFastingOption('ADF', 'ADF', 'Через день'),
+                  _buildFastingOption('16:8', l10n.fasting16_8, l10n.fasting16_8Desc),
+                  _buildFastingOption('OMAD', l10n.fastingOMAD, l10n.fastingOMADDesc),
+                  _buildFastingOption('ADF', l10n.fastingADF, l10n.fastingADFDesc),
                 ],
               ),
             ).animate().slideY(begin: 0.1, end: 0, duration: 200.ms),
@@ -351,7 +360,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
   
-  Widget _buildDietOption(String value, String icon, String title, String subtitle) {
+  Widget _buildDietOption(String value, String icon, String title, 
+      String subtitle, AppLocalizations l10n) {
     final isSelected = _dietMode == value;
     
     return GestureDetector(
@@ -456,22 +466,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
   
-  Widget _buildActivityPage() {
+  Widget _buildActivityPage(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.all(40),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            'Уровень активности',
-            style: TextStyle(
+          Text(
+            l10n.activityPageTitle,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 10),
           Text(
-            'Влияет на потребность в воде',
+            l10n.activityPageSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -483,25 +493,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           _buildActivityOption(
             'low',
             '🪑',
-            'Низкая активность',
-            'Офисная работа, мало движения',
-            '+0 мл воды',
+            l10n.lowActivity,
+            l10n.lowActivityDesc,
+            l10n.lowActivityWater,
+            l10n,
           ),
           const SizedBox(height: 12),
           _buildActivityOption(
             'medium',
             '🚶',
-            'Средняя активность',
-            '30-60 минут упражнений в день',
-            '+350-700 мл воды',
+            l10n.mediumActivity,
+            l10n.mediumActivityDesc,
+            l10n.mediumActivityWater,
+            l10n,
           ),
           const SizedBox(height: 12),
           _buildActivityOption(
             'high',
             '🏃',
-            'Высокая активность',
-            'Тренировки >1 часа или физический труд',
-            '+700-1200 мл воды',
+            l10n.highActivity,
+            l10n.highActivityDesc,
+            l10n.highActivityWater,
+            l10n,
           ),
           
           const SizedBox(height: 30),
@@ -515,10 +528,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: [
                 const Icon(Icons.check_circle, color: Colors.green, size: 20),
                 const SizedBox(width: 8),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Мы будем корректировать цели на основе ваших тренировок',
-                    style: TextStyle(
+                    l10n.activityAdjustmentNote,
+                    style: const TextStyle(
                       fontSize: 13,
                       color: Colors.green,
                     ),
@@ -533,7 +546,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
   
   Widget _buildActivityOption(String value, String icon, String title, 
-      String subtitle, String extra) {
+      String subtitle, String extra, AppLocalizations l10n) {
     final isSelected = _activityLevel == value;
     
     return GestureDetector(

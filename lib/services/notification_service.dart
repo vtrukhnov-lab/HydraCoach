@@ -290,7 +290,7 @@ class NotificationService {
         print('Action: Показать отчет');
         break;
       default:
-        print('Action: ${action ?? "неизвестно"}');
+        print('Action: ${action ?? "unknown"}');
     }
   }
   

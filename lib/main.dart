@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
 import 'dart:math' as math;
 
 // Firebase imports
@@ -24,6 +26,7 @@ import 'services/remote_config_service.dart';
 import 'services/weather_service.dart';
 import 'services/alcohol_service.dart';
 import 'services/hri_service.dart';
+import 'services/locale_service.dart';
 import 'widgets/weather_card.dart';
 import 'widgets/daily_report.dart';
 import 'widgets/alcohol_card.dart';
@@ -54,6 +57,9 @@ void main() async {
     print('Firebase initialization error: $e');
   }
   
+  // Инициализируем локализацию
+  await LocaleService.instance.initialize();
+  
   // Тестовое уведомление при запуске
   try {
     final FlutterLocalNotificationsPlugin testPlugin = FlutterLocalNotificationsPlugin();
@@ -81,16 +87,28 @@ void main() async {
     
     const NotificationDetails details = NotificationDetails(android: androidDetails);
     
+    // Получаем сохраненную локаль для уведомления
+    final prefs = await SharedPreferences.getInstance();
+    final savedLocale = prefs.getString('locale') ?? 'en';
+    
+    // Показываем уведомление на правильном языке
+    final title = savedLocale == 'es' ? '¡HydraCoach iniciado!' : 
+                  savedLocale == 'ru' ? 'HydraCoach запущен!' :
+                  'HydraCoach launched!';
+    final body = savedLocale == 'es' ? '¡La aplicación está lista para trabajar con el seguimiento del alcohol!' :
+                 savedLocale == 'ru' ? 'Приложение готово к работе с алкогольным трекингом!' :
+                 'App is ready to work with alcohol tracking!';
+    
     await testPlugin.show(
       12345,
-      'HydraCoach запущен!',
-      'Приложение готово к работе с алкогольным трекингом!',
+      title,
+      body,
       details,
     );
     
-    print('✅ Тестовое уведомление отправлено при запуске');
+    print('✅ Test notification sent at startup');
   } catch (e) {
-    print('❌ Ошибка тестового уведомления: $e');
+    print('❌ Test notification error: $e');
   }
   
   await RemoteConfigService.instance.initialize();
@@ -114,7 +132,7 @@ void main() async {
   
   if (kDebugMode && fcmToken != null) {
     print('════════════════════════════════════════════════════════════');
-    print('FCM TOKEN (скопируйте для тестирования):');
+    print('FCM TOKEN (copy for testing):');
     print(fcmToken);
     print('════════════════════════════════════════════════════════════');
   }
@@ -155,6 +173,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => WeatherService()),
         ChangeNotifierProvider(create: (context) => AlcoholService()),
         ChangeNotifierProvider(create: (context) => HRIService()),
+        ChangeNotifierProvider.value(value: LocaleService.instance),
       ],
       child: const MyApp(),
     ),
@@ -166,27 +185,47 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'HydraCoach',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-          brightness: Brightness.light,
-        ),
-        useMaterial3: true,
-        fontFamily: 'SF Pro Display',
-        splashFactory: InkRipple.splashFactory,
-        highlightColor: Colors.transparent,
-        splashColor: Colors.blue.withOpacity(0.2),
-      ),
-      home: const SplashScreen(),
-      routes: {
-        '/home': (context) => const HomeScreen(),
-        '/history': (context) => const HistoryScreen(),
-        '/settings': (context) => const SettingsScreen(),
-        '/onboarding': (context) => const OnboardingScreen(),
-        '/alcohol': (context) => const AlcoholLogScreen(),
+    return Consumer<LocaleService>(
+      builder: (context, localeService, child) {
+        return MaterialApp(
+          title: 'HydraCoach',
+          debugShowCheckedModeBanner: false,
+          
+          // Локализация
+          locale: localeService.currentLocale,
+          supportedLocales: const [
+            Locale('en'),
+            Locale('es'),
+            Locale('ru'),
+          ],
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.blue,
+              brightness: Brightness.light,
+            ),
+            useMaterial3: true,
+            fontFamily: 'SF Pro Display',
+            splashFactory: InkRipple.splashFactory,
+            highlightColor: Colors.transparent,
+            splashColor: Colors.blue.withOpacity(0.2),
+          ),
+          
+          home: const SplashScreen(),
+          routes: {
+            '/home': (context) => const HomeScreen(),
+            '/history': (context) => const HistoryScreen(),
+            '/settings': (context) => const SettingsScreen(),
+            '/onboarding': (context) => const OnboardingScreen(),
+            '/alcohol': (context) => const AlcoholLogScreen(),
+          },
+        );
       },
     );
   }
@@ -231,7 +270,7 @@ class Intake {
   });
 }
 
-// Обновленный провайдер состояния с учетом алкоголя
+// Обновленный провайдер состояния с учетом алкоголя и локализации
 class HydrationProvider extends ChangeNotifier {
   double weight = 70;
   String dietMode = 'normal';
