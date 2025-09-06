@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
@@ -9,7 +8,6 @@ import '../services/hri_service.dart';
 import '../services/weather_service.dart';
 import '../services/subscription_service.dart';
 import '../services/alcohol_service.dart';
-import '../widgets/alcohol_checkin_dialog.dart';
 import 'paywall_screen.dart';
 import '../main.dart';
 
@@ -403,12 +401,12 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 if (weatherData != null) ...[
                   Text(
-                    weatherData.description,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                    ),
-                  ),
+  weatherData.getLocalizedDescription(context),
+  style: const TextStyle(
+    color: Colors.white,
+    fontSize: 13,
+  ),
+),
                   const SizedBox(height: 4),
                 ],
                 Row(
@@ -422,12 +420,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 6),
                     Flexible(
                       child: Text(
-                        weatherData != null ? weatherData.getLocalizedHeatWarning(context) : "" ?? l10n.loadingWeather,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
+                    weatherData != null 
+                    ? weatherData.getLocalizedHeatWarning(context)
+                    : l10n.loadingWeather,
+                    style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                                        ),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -1311,7 +1311,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Color _getStatusColor(String status) {
     if (status.contains('Normal') || status.contains('Норма')) return Colors.green;
     if (status.contains('Low salt') || status.contains('Мало соли') || 
-        status.contains('Diluting') || status.contains('Разбавляешь')) return Colors.orange;
+        status.contains('Diluting') || status.contains('Разбавляешь')) {
+      return Colors.orange;
+    }
     if (status.contains('Under-hydrated') || status.contains('Недобор воды')) return Colors.red;
     return Colors.grey;
   }

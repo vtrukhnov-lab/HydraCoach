@@ -1057,7 +1057,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get weatherCloudy => 'nublado';
 
   @override
-  String get weatherOvercast => 'nublado';
+  String get weatherOvercast => 'cubierto';
 
   @override
   String get weatherRain => 'lluvia';
@@ -1102,4 +1102,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String adjustmentSodium(int amount) {
     return '+$amount mg sodio';
   }
+
+  @override
+  String get heatWarningCold =>
+      '❄️ ¡Frío! Entra en calor y bebe líquidos tibios';
 }

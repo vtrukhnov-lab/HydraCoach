@@ -83,7 +83,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get loadingWeather => 'Загрузка погоды...';
 
   @override
-  String get heatIndex => 'Heat Index';
+  String get heatIndex => 'Индекс жары';
 
   @override
   String humidity(int value) {
@@ -1096,4 +1096,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String adjustmentSodium(int amount) {
     return '+$amount мг натрия';
   }
+
+  @override
+  String get heatWarningCold => '❄️ Холодно! Согрейтесь и пейте тёплые напитки';
 }

@@ -68,8 +68,8 @@ abstract class AppLocalizations {
 
   final String localeName;
 
-  static AppLocalizations? of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations);
+  static AppLocalizations of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
   static const LocalizationsDelegate<AppLocalizations> delegate =
@@ -2091,6 +2091,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'+{amount} mg sodium'**
   String adjustmentSodium(int amount);
+
+  /// No description provided for @heatWarningCold.
+  ///
+  /// In en, this message translates to:
+  /// **'❄️ Cold! Warm up and drink warm fluids'**
+  String get heatWarningCold;
 }
 
 class _AppLocalizationsDelegate

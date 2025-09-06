@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../services/weather_service.dart';
-import '../l10n/app_localizations.dart';
+import 'package:hydracoach/l10n/app_localizations.dart';
 
 class WeatherCard extends StatefulWidget {
   final Function(double waterAdjustment, int sodiumAdjustment) onWeatherUpdate;
@@ -245,12 +246,20 @@ class _WeatherCardState extends State<WeatherCard> {
                           ],
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          _weather!.getLocalizedDescription(context),
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
-                            fontSize: 16,
-                          ),
+                        Builder(
+                          builder: (context) {
+                            final description = _weather!.description;
+                            final localized = _weather!.getLocalizedDescription(context);
+                            if (kDebugMode) print('DEBUG WeatherCard: description key = "$description", localized = "$localized"');
+                            
+                            return Text(
+                              localized,
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: 16,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),

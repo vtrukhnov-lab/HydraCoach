@@ -1,16 +1,13 @@
 {
   "@@locale": "ru",
-  
   "appTitle": "HydraCoach",
   "@appTitle": {
     "description": "The application name"
   },
-  
   "getPro": "Получить PRO",
   "@getPro": {
     "description": "Get PRO tooltip"
   },
-  
   "sunday": "Воскресенье",
   "monday": "Понедельник",
   "tuesday": "Вторник",
@@ -18,7 +15,6 @@
   "thursday": "Четверг",
   "friday": "Пятница",
   "saturday": "Суббота",
-  
   "january": "января",
   "february": "февраля",
   "march": "марта",
@@ -31,28 +27,32 @@
   "october": "октября",
   "november": "ноября",
   "december": "декабря",
-  
   "dateFormat": "{weekday}, {day} {month}",
   "@dateFormat": {
     "description": "Date format pattern",
     "placeholders": {
-      "weekday": {"type": "String"},
-      "day": {"type": "int"},
-      "month": {"type": "String"}
+      "weekday": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "String"
+      }
     }
   },
-  
   "loading": "Загрузка...",
   "loadingWeather": "Загрузка погоды...",
-  
-  "heatIndex": "Heat Index",
+  "heatIndex": "Индекс жары",
   "humidity": "Влажность: {value}%",
   "@humidity": {
     "placeholders": {
-      "value": {"type": "int"}
+      "value": {
+        "type": "int"
+      }
     }
   },
-  
   "water": "Вода",
   "sodium": "Натрий",
   "potassium": "Калий",
@@ -62,226 +62,221 @@
   "coffee": "Кофе",
   "alcohol": "Алкоголь",
   "drink": "Напиток",
-  
   "ml": "мл",
   "mg": "мг",
   "kg": "кг",
-  
   "valueWithUnit": "{value} {unit}",
   "@valueWithUnit": {
     "placeholders": {
-      "value": {"type": "int"},
-      "unit": {"type": "String"}
+      "value": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
     }
   },
-  
   "goalFormat": "{current}/{goal} {unit}",
   "@goalFormat": {
     "placeholders": {
-      "current": {"type": "int"},
-      "goal": {"type": "int"},
-      "unit": {"type": "String"}
+      "current": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
     }
   },
-  
   "heatAdjustment": "Жара +{percent}%",
   "@heatAdjustment": {
     "placeholders": {
-      "percent": {"type": "int"}
+      "percent": {
+        "type": "int"
+      }
     }
   },
-  
   "alcoholAdjustment": "Алкоголь +{amount} мл",
   "@alcoholAdjustment": {
     "placeholders": {
-      "amount": {"type": "int"}
+      "amount": {
+        "type": "int"
+      }
     }
   },
-  
   "smartAdviceTitle": "Подсказка на сейчас",
   "smartAdviceDefault": "Поддерживайте баланс воды и электролитов.",
-  
   "adviceOverhydrationSevere": "Перепивание воды (>200% цели)",
   "adviceOverhydrationSevereBody": "Сделайте паузу 60–90 минут. Добавьте электролиты: 300–500 мл с 500–1000 мг натрия.",
-  
   "adviceOverhydration": "Перепивание воды",
   "adviceOverhydrationBody": "Приостановите воду на 30–60 минут и добавьте ~500 мг натрия (электролит/бульон).",
-  
   "adviceAlcoholRecovery": "Алкоголь: восстановление",
   "adviceAlcoholRecoveryBody": "Не пейте больше алкоголя сегодня. Пейте малыми порциями 300–500 мл воды и добавьте натрий.",
-  
   "adviceLowSodium": "Мало натрия",
   "adviceLowSodiumBody": "Добавьте ~{amount} мг натрия. Пейте умеренно.",
   "@adviceLowSodiumBody": {
     "placeholders": {
-      "amount": {"type": "int"}
+      "amount": {
+        "type": "int"
+      }
     }
   },
-  
   "adviceDehydration": "Недобор воды",
   "adviceDehydrationBody": "Выпейте 300–500 мл {type}.",
   "@adviceDehydrationBody": {
     "placeholders": {
-      "type": {"type": "String"}
+      "type": {
+        "type": "String"
+      }
     }
   },
-  
   "adviceHighRisk": "Высокий риск (HRI)",
   "adviceHighRiskBody": "Срочно выпейте воду с электролитами (300–500 мл) и снизьте нагрузку.",
-  
   "adviceHeat": "Жара и потери",
   "adviceHeatBody": "Увеличьте воду на +5–8% и добавьте 300–500 мг натрия.",
-  
   "adviceAllGood": "Всё по плану",
   "adviceAllGoodBody": "Держите ритм. Ориентир: ещё ~{amount} мл до цели.",
   "@adviceAllGoodBody": {
     "placeholders": {
-      "amount": {"type": "int"}
+      "amount": {
+        "type": "int"
+      }
     }
   },
-  
   "hydrationStatus": "Статус гидратации",
   "hydrationStatusNormal": "Норма",
   "hydrationStatusDiluted": "Разбавляешь",
   "hydrationStatusDehydrated": "Недобор воды",
   "hydrationStatusLowSalt": "Мало соли",
-  
   "hydrationRiskIndex": "Hydration Risk Index",
-  
   "quickAdd": "Быстрое добавление",
   "add": "Добавить",
   "delete": "Удалить",
-  
   "todaysDrinks": "Сегодня выпито",
   "allRecords": "Все записи →",
-  
   "itemDeleted": "{item} удалён",
   "@itemDeleted": {
     "placeholders": {
-      "item": {"type": "String"}
+      "item": {
+        "type": "String"
+      }
     }
   },
-  
   "undo": "Отменить",
-  
   "dailyReportReady": "Дневной отчёт готов!",
   "viewDayResults": "Посмотрите результаты дня",
   "dailyReportComingSoon": "Дневной отчет будет доступен в следующей версии",
-  
   "home": "Главная",
   "history": "История",
   "settings": "Настройки",
-  
   "cancel": "Отмена",
   "save": "Сохранить",
   "reset": "Сбросить",
-  
   "settingsTitle": "Настройки",
   "languageSection": "Язык",
   "languageSettings": "Язык",
   "selectLanguage": "Выберите язык",
-  
   "profileSection": "Профиль",
   "weight": "Вес",
   "dietMode": "Режим питания",
   "activityLevel": "Уровень активности",
   "changeWeight": "Изменить вес",
-  
   "dietModeNormal": "Обычное питание",
   "dietModeKeto": "Кето / Низкоуглеводное",
   "dietModeFasting": "Интервальное голодание",
-  
   "activityLow": "Низкая активность",
   "activityMedium": "Средняя активность",
   "activityHigh": "Высокая активность",
   "activityLowDesc": "Офисная работа, мало движения",
   "activityMediumDesc": "30-60 минут упражнений в день",
   "activityHighDesc": "Тренировки >1 часа",
-  
   "notificationsSection": "Уведомления",
   "notificationLimit": "Лимит уведомлений (БЕСПЛАТНО)",
   "notificationUsage": "Использовано: {used} из {limit}",
   "@notificationUsage": {
     "placeholders": {
-      "used": {"type": "int"},
-      "limit": {"type": "int"}
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
     }
   },
-  
   "waterReminders": "Напоминания о воде",
   "waterRemindersDesc": "Регулярные напоминания в течение дня",
   "reminderFrequency": "Частота напоминаний",
-  
   "timesPerDay": "{count} раз в день",
   "@timesPerDay": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
-  
   "maxTimesPerDay": "{count} раз в день (макс 4)",
   "@maxTimesPerDay": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
-  
   "unlimitedReminders": "Без ограничений",
   "startOfDay": "Начало дня",
   "endOfDay": "Конец дня",
-  
   "postCoffeeReminders": "Напоминания после кофе",
   "postCoffeeRemindersDesc": "Напомнить выпить воду через 20 минут",
   "heatWarnings": "Предупреждения о жаре",
   "heatWarningsDesc": "Уведомления при высокой температуре",
   "postAlcoholReminders": "Напоминания после алкоголя",
   "postAlcoholRemindersDesc": "План восстановления на 6-12 часов",
-  
   "proFeaturesSection": "PRO возможности",
   "unlockPro": "Разблокировать PRO",
   "unlockProDesc": "Безлимитные уведомления и умные напоминания",
   "noNotificationLimit": "Без лимита уведомлений",
-  
   "unitsSection": "Единицы измерения",
   "metricSystem": "Метрическая система",
   "metricUnits": "мл, кг, °C",
   "imperialSystem": "Имперская система",
   "imperialUnits": "oz, lb, °F",
-  
   "aboutSection": "О приложении",
   "version": "Версия",
   "rateApp": "Оценить приложение",
   "share": "Поделиться",
   "privacyPolicy": "Политика конфиденциальности",
   "termsOfUse": "Условия использования",
-  
   "resetAllData": "Сбросить все данные",
   "resetDataTitle": "Сбросить все данные?",
   "resetDataMessage": "Это действие удалит всю историю и вернет настройки к значениям по умолчанию.",
-  
   "back": "Назад",
   "next": "Далее",
   "start": "Начать",
-  
   "welcomeTitle": "Добро пожаловать в\nHydraCoach",
   "welcomeSubtitle": "Умный трекинг воды и электролитов\nдля кето, поста и активной жизни",
-  
   "weightPageTitle": "Ваш вес",
   "weightPageSubtitle": "Для расчета оптимального количества воды",
   "weightUnit": "{weight} кг",
   "@weightUnit": {
     "placeholders": {
-      "weight": {"type": "int"}
+      "weight": {
+        "type": "int"
+      }
     }
   },
   "recommendedNorm": "Рекомендуемая норма: {min}-{max} мл воды в день",
   "@recommendedNorm": {
     "placeholders": {
-      "min": {"type": "int"},
-      "max": {"type": "int"}
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
     }
   },
-  
   "dietPageTitle": "Режим питания",
   "dietPageSubtitle": "Это влияет на потребность в электролитах",
   "normalDiet": "Обычное питание",
@@ -290,7 +285,6 @@
   "ketoDietDesc": "Повышенная потребность в соли",
   "fastingDiet": "Интервальное голодание",
   "fastingDietDesc": "Особый режим электролитов",
-  
   "fastingSchedule": "Расписание голодания:",
   "fasting16_8": "16:8",
   "fasting16_8Desc": "Ежедневное окно 8 часов",
@@ -298,7 +292,6 @@
   "fastingOMADDesc": "Один прием пищи в день",
   "fastingADF": "ADF",
   "fastingADFDesc": "Через день",
-  
   "activityPageTitle": "Уровень активности",
   "activityPageSubtitle": "Влияет на потребность в воде",
   "lowActivity": "Низкая активность",
@@ -311,28 +304,28 @@
   "highActivityDesc": "Тренировки >1 часа или физический труд",
   "highActivityWater": "+700-1200 мл воды",
   "activityAdjustmentNote": "Мы будем корректировать цели на основе ваших тренировок",
-  
   "day": "День",
   "week": "Неделя",
   "month": "Месяц",
   "today": "Сегодня",
   "yesterday": "Вчера",
-  
   "noData": "Нет данных",
   "noRecordsToday": "Пока нет записей на сегодня",
   "noRecordsThisDay": "Нет записей за этот день",
   "loadingData": "Загрузка данных...",
-  
   "deleteRecord": "Удалить запись?",
   "deleteRecordMessage": "Удалить {type} {volume} мл?",
   "@deleteRecordMessage": {
     "placeholders": {
-      "type": {"type": "String"},
-      "volume": {"type": "int"}
+      "type": {
+        "type": "String"
+      },
+      "volume": {
+        "type": "int"
+      }
     }
   },
   "recordDeleted": "Запись удалена",
-  
   "waterConsumption": "💧 Потребление воды",
   "alcoholWeek": "🍺 Алкоголь за неделю",
   "electrolytes": "⚡ Электролиты",
@@ -341,137 +334,154 @@
   "alcoholStatistics": "🍺 Статистика алкоголя",
   "alcoholStatisticsTitle": "Статистика алкоголя",
   "weeklyInsights": "💡 Инсайты недели",
-  
   "waterPerDay": "Вода в день",
   "sodiumPerDay": "Натрий в день",
   "potassiumPerDay": "Калий в день",
   "magnesiumPerDay": "Магний в день",
-  
   "goal": "Цель",
   "daysWithGoalAchieved": "✅ Дней с достижением цели",
   "recordsPerDay": "📝 Записей в день",
   "insufficientDataForAnalysis": "Недостаточно данных для анализа",
-  
   "totalVolume": "Общий объем",
   "averagePerDay": "В среднем {amount} мл/день",
   "@averagePerDay": {
     "placeholders": {
-      "amount": {"type": "int"}
+      "amount": {
+        "type": "int"
+      }
     }
   },
   "activeDays": "Активные дни",
   "perfectDays": "Дней с идеальной целью: {count}",
   "@perfectDays": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
-  
   "currentStreak": "Текущая серия: {days} дней",
   "@currentStreak": {
     "placeholders": {
-      "days": {"type": "int"}
+      "days": {
+        "type": "int"
+      }
     }
   },
   "soberDaysRow": "Трезвые дни подряд: {days}",
   "@soberDaysRow": {
     "placeholders": {
-      "days": {"type": "int"}
+      "days": {
+        "type": "int"
+      }
     }
   },
   "keepItUp": "Продолжайте в том же духе!",
-  
   "waterAmount": "Вода: {amount} мл ({percent}%)",
   "@waterAmount": {
     "placeholders": {
-      "amount": {"type": "int"},
-      "percent": {"type": "int"}
+      "amount": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "int"
+      }
     }
   },
-  
   "alcoholAmount": "Алкоголь: {amount} SD",
   "@alcoholAmount": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  
   "totalSD": "Общее SD",
   "forMonth": "за месяц",
   "daysWithAlcohol": "Дней с алкоголем",
   "fromDays": "из {days}",
   "@fromDays": {
     "placeholders": {
-      "days": {"type": "int"}
+      "days": {
+        "type": "int"
+      }
     }
   },
   "soberDays": "Трезвых дней",
   "excellent": "отлично!",
   "averageSD": "Средний SD",
   "inDrinkingDays": "в дни употребления",
-  
   "bestDay": "🏆 Лучший день",
   "bestDayMessage": "{day} - {percent}% от цели",
   "@bestDayMessage": {
     "placeholders": {
-      "day": {"type": "String"},
-      "percent": {"type": "int"}
+      "day": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
     }
   },
-  
   "weekends": "📅 Выходные",
   "weekdays": "📅 Будни",
   "drinkLessOnWeekends": "В выходные вы пьете на {percent}% меньше",
   "@drinkLessOnWeekends": {
     "placeholders": {
-      "percent": {"type": "int"}
+      "percent": {
+        "type": "int"
+      }
     }
   },
   "drinkLessOnWeekdays": "В будни вы пьете на {percent}% меньше",
   "@drinkLessOnWeekdays": {
     "placeholders": {
-      "percent": {"type": "int"}
+      "percent": {
+        "type": "int"
+      }
     }
   },
-  
   "positiveTrend": "📈 Положительный тренд",
   "positiveTrendMessage": "Ваша гидратация улучшается к концу недели",
   "decliningActivity": "📉 Снижение активности",
   "decliningActivityMessage": "К концу недели потребление воды снижается",
-  
   "lowSalt": "⚠️ Мало соли",
   "lowSaltMessage": "Только {days} дней с нормальным уровнем натрия",
   "@lowSaltMessage": {
     "placeholders": {
-      "days": {"type": "int"}
+      "days": {
+        "type": "int"
+      }
     }
   },
-  
   "frequentAlcohol": "🍺 Частое употребление",
   "frequentAlcoholMessage": "Алкоголь {days} дней из 7 влияет на гидратацию",
   "@frequentAlcoholMessage": {
     "placeholders": {
-      "days": {"type": "int"}
+      "days": {
+        "type": "int"
+      }
     }
   },
-  
   "excellentWeek": "✅ Отличная неделя",
   "continueMessage": "Продолжайте в том же духе!",
-  
   "all": "Все",
-  
   "addAlcohol": "Добавить алкоголь",
   "minimumHarm": "Минимум вреда",
   "additionalWaterNeeded": "+{amount} мл воды нужно выпить",
   "@additionalWaterNeeded": {
     "placeholders": {
-      "amount": {"type": "int"}
+      "amount": {
+        "type": "int"
+      }
     }
   },
   "additionalSodiumNeeded": "+{amount} мг натрия добавить",
   "@additionalSodiumNeeded": {
     "placeholders": {
-      "amount": {"type": "int"}
+      "amount": {
+        "type": "int"
+      }
     }
   },
   "goToBedEarly": "Ложитесь спать раньше",
@@ -490,7 +500,6 @@
   "additionalSodium": "Доп. натрий",
   "hriRisk": "HRI риск",
   "enterValidVolume": "Введите корректный объем",
-  
   "weeklyHistory": "Недельная история",
   "weeklyHistoryDesc": "Анализируйте тренды за неделю, получайте инсайты и рекомендации",
   "monthlyHistory": "Месячная история",
@@ -501,16 +510,13 @@
   "dataExportCSV": "Экспорт данных в CSV",
   "detailedAnalytics": "Детальная аналитика",
   "periodComparison": "Сравнение периодов",
-  
   "shareResult": "Поделиться результатом",
   "retry": "Повторить",
-  
   "welcomeToPro": "Добро пожаловать в PRO!",
   "allFeaturesUnlocked": "Все функции разблокированы",
   "testMode": "Тестовый режим: Используется имитация покупки",
   "proStatusNote": "PRO статус сохранится до перезапуска приложения",
   "startUsingPro": "Начать использовать PRO",
-  
   "lifetimeAccess": "Пожизненный доступ",
   "bestValueAnnual": "Лучшая цена — Годовая",
   "monthly": "Месячная",
@@ -520,28 +526,31 @@
   "approximatelyPerMonth": "≈ {amount}/мес",
   "@approximatelyPerMonth": {
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
   },
-  
   "startFreeTrial": "Начать 7-дневную пробную версию",
   "continueWithPrice": "Продолжить — {price}",
   "@continueWithPrice": {
     "placeholders": {
-      "price": {"type": "String"}
+      "price": {
+        "type": "String"
+      }
     }
   },
   "unlockForPrice": "Разблокировать за {price} (единоразово)",
   "@unlockForPrice": {
     "placeholders": {
-      "price": {"type": "String"}
+      "price": {
+        "type": "String"
+      }
     }
   },
-  
   "enableFreeTrial": "Включить 7-дневную пробную версию",
   "noChargeToday": "Сегодня без оплаты. Через 7 дней подписка продлится автоматически, если вы не отмените её.",
   "cancelAnytime": "Вы можете отменить в любое время в Настройках.",
-  
   "everythingInPro": "Всё в PRO",
   "smartReminders": "Умные напоминания",
   "smartRemindersDesc": "Жара, тренировки, пост — без спама.",
@@ -555,14 +564,11 @@
   "fullSyncDesc": "Неограниченная история на всех устройствах.",
   "personalCalibrations": "Личные калибровки",
   "personalCalibrationsDesc": "Тест пота, шкала цвета мочи.",
-  
   "showAllFeatures": "Показать все функции",
   "showLess": "Показать меньше",
-  
   "restorePurchases": "Восстановить покупки",
   "proSubscriptionRestored": "PRO подписка восстановлена!",
   "noPurchasesToRestore": "Покупки для восстановления не найдены",
-  
   "drinkMoreWaterToday": "Пейте больше воды сегодня (+20%)",
   "addElectrolytesToWater": "Добавьте электролиты к каждому приему воды",
   "limitCoffeeOneCup": "Ограничьте кофе одной чашкой",
@@ -570,32 +576,35 @@
   "dontForgetElectrolytes": "Не забывайте про электролиты",
   "startDayWithWater": "Начните день со стакана воды",
   "takeElectrolytesMorning": "Примите электролиты с утра",
-  
   "purchaseFailed": "Ошибка покупки: {error}",
   "@purchaseFailed": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "restoreFailed": "Ошибка восстановления: {error}",
   "@restoreFailed": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
-  
   "trustedByUsers": "⭐️ 4.9 — доверяют 12 000 пользователей",
   "bestValue": "Лучшая цена",
   "percentOff": "-{percent}% Лучшая цена",
   "@percentOff": {
     "placeholders": {
-      "percent": {"type": "int"}
+      "percent": {
+        "type": "int"
+      }
     }
   },
   "weatherUnavailable": "Погода недоступна",
   "checkLocationPermissions": "Проверьте разрешения геолокации и интернет",
   "currentLocation": "Текущая локация",
-  
   "weatherClear": "ясно",
   "weatherCloudy": "облачно",
   "weatherOvercast": "пасмурно",
@@ -605,23 +614,26 @@
   "weatherFog": "туман",
   "weatherDrizzle": "морось",
   "weatherSunny": "солнечно",
-  
   "heatWarningExtreme": "☀️ Экстремальная жара! Максимальная гидратация",
   "heatWarningVeryHot": "🌡️ Очень жарко! Риск обезвоживания",
   "heatWarningHot": "🔥 Жарко! Пейте больше воды",
   "heatWarningElevated": "⚠️ Повышенная температура",
   "heatWarningComfortable": "Комфортная температура",
-  
   "adjustmentWater": "+{percent}% воды",
   "@adjustmentWater": {
     "placeholders": {
-      "percent": {"type": "int"}
+      "percent": {
+        "type": "int"
+      }
     }
   },
   "adjustmentSodium": "+{amount} мг натрия",
   "@adjustmentSodium": {
     "placeholders": {
-      "amount": {"type": "int"}
+      "amount": {
+        "type": "int"
+      }
     }
-  }
+  },
+  "heatWarningCold": "❄️ Холодно! Согрейтесь и пейте тёплые напитки"
 }

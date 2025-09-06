@@ -1095,4 +1095,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String adjustmentSodium(int amount) {
     return '+$amount mg sodium';
   }
+
+  @override
+  String get heatWarningCold => '❄️ Cold! Warm up and drink warm fluids';
 }

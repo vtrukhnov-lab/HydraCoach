@@ -1,17 +1,21 @@
-import 'dart:convert';
+// lib/services/weather_service.dart
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../l10n/app_localizations.dart';
+
+import 'package:hydracoach/l10n/app_localizations.dart';
 
 class WeatherService extends ChangeNotifier {
   // OpenWeatherMap
   static const String apiKey = 'c460f153f615a343e0fe5158eae73121';
   static const String baseUrl = 'https://api.openweathermap.org/data/2.5/weather';
 
-  // Можно включить демо для оффлайна
+  // Демо-режим (оффлайн)
   static const bool useDemo = false;
 
   WeatherData? _currentWeather;
@@ -44,20 +48,17 @@ class WeatherService extends ChangeNotifier {
   }
 
   static Future<WeatherData?> getCurrentWeather() async {
-    try {
-      if (useDemo) {
-        return _demo();
-      }
+    if (useDemo) return _demo();
 
-      Position? position = await _getCurrentLocation();
+    try {
+      final position = await _getCurrentLocation();
       if (position == null) {
-        // кэш или мягкий фоллбек
         final cached = await _getCachedWeather();
         if (cached != null) return cached;
         return WeatherData(
           temperature: 22,
           humidity: 60,
-          heatIndex: 24,
+          heatIndex: _calculateHeatIndex(22, 60),
           description: 'clear',
           city: '',
         );
@@ -66,143 +67,181 @@ class WeatherService extends ChangeNotifier {
       final lat = position.latitude;
       final lon = position.longitude;
 
-      print('Got location: $lat, $lon');
+      if (kDebugMode) debugPrint('Got location: $lat, $lon');
 
-      // Запрашиваем погоду на английском языке для единообразия ключей
+      // Берём язык "en", чтобы описания были предсказуемыми
       final url = Uri.parse(
-        '$baseUrl?lat=$lat&lon=$lon'
-        '&appid=$apiKey&units=metric&lang=en',
+        '$baseUrl?lat=$lat&lon=$lon&appid=$apiKey&units=metric&lang=en',
       );
 
       final response = await http.get(url).timeout(
-        const Duration(seconds: 10),
+        const Duration(seconds: 12),
         onTimeout: () => throw Exception('Timeout'),
       );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-
-        final temp = (data['main']['temp'] as num).toDouble();
-        final humidity = (data['main']['humidity'] as num).toDouble();
-        final heatIndex = _calculateHeatIndex(temp, humidity);
-
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setDouble('lastTemp', temp);
-        await prefs.setDouble('lastHumidity', humidity);
-        await prefs.setDouble('lastHeatIndex', heatIndex);
-        await prefs.setString('lastCity', data['name']);
-        await prefs.setString('lastWeatherTime', DateTime.now().toIso8601String());
-
-        // Получаем описание погоды и маппим на наши ключи
-        String description = 'clear';
-        if (data['weather'] is List && data['weather'].isNotEmpty) {
-          final mainWeather = data['weather'][0]['main']?.toString().toLowerCase() ?? 'clear';
-          // Маппинг основных типов погоды на наши ключи локализации
-          switch (mainWeather) {
-            case 'clear':
-              description = 'clear';
-              break;
-            case 'clouds':
-              final cloudsDetail = data['clouds']['all'] ?? 0;
-              description = cloudsDetail > 80 ? 'overcast' : 'cloudy';
-              break;
-            case 'rain':
-              description = 'rain';
-              break;
-            case 'drizzle':
-              description = 'drizzle';
-              break;
-            case 'thunderstorm':
-              description = 'storm';
-              break;
-            case 'snow':
-              description = 'snow';
-              break;
-            case 'mist':
-            case 'fog':
-              description = 'fog';
-              break;
-            default:
-              description = 'clear';
-          }
+      if (response.statusCode != 200) {
+        if (kDebugMode) {
+          debugPrint('Weather error: ${response.statusCode} ${response.body}');
         }
-
-        return WeatherData(
-          temperature: temp,
-          humidity: humidity,
-          heatIndex: heatIndex,
-          description: description,
-          city: data['name'],
-        );
+        return await _getCachedWeather();
       }
+
+      final data = json.decode(response.body) as Map<String, dynamic>;
+
+      final temp = (data['main']?['temp'] as num?)?.toDouble() ?? 0.0;
+      final humidity = (data['main']?['humidity'] as num?)?.toDouble() ?? 0.0;
+      final heatIndex = _calculateHeatIndex(temp, humidity);
+
+      final weatherList = (data['weather'] is List) ? data['weather'] as List : const [];
+      final mainWeather = weatherList.isNotEmpty
+          ? (weatherList[0]['main']?.toString().toLowerCase() ?? 'clear')
+          : 'clear';
+      final apiDesc = weatherList.isNotEmpty
+          ? (weatherList[0]['description']?.toString().toLowerCase() ?? '')
+          : '';
+      final cloudsAll = (data['clouds']?['all'] as num?)?.toInt() ?? 0;
+
+      // Маппим в короткий ключ для локализации
+      String descKey;
+      switch (mainWeather) {
+        case 'clear':
+          descKey = 'clear';
+          break;
+        case 'clouds':
+          descKey = cloudsAll > 80 ? 'overcast' : 'cloudy';
+          break;
+        case 'rain':
+          descKey = 'rain';
+          break;
+        case 'drizzle':
+          descKey = 'drizzle';
+          break;
+        case 'thunderstorm':
+          descKey = 'storm';
+          break;
+        case 'snow':
+          descKey = 'snow';
+          break;
+        case 'mist':
+        case 'fog':
+        case 'haze':
+          descKey = 'fog';
+          break;
+        default:
+          // Фоллбек по подстрокам
+          if (apiDesc.contains('overcast')) {
+            descKey = 'overcast';
+          } else if (apiDesc.contains('cloud')) {
+            descKey = 'cloudy';
+          } else if (apiDesc.contains('drizzle')) {
+            descKey = 'drizzle';
+          } else if (apiDesc.contains('rain')) {
+            descKey = 'rain';
+          } else if (apiDesc.contains('thunder')) {
+            descKey = 'storm';
+          } else if (apiDesc.contains('snow')) {
+            descKey = 'snow';
+          } else if (apiDesc.contains('fog') || apiDesc.contains('mist') || apiDesc.contains('haze')) {
+            descKey = 'fog';
+          } else {
+            descKey = 'clear';
+          }
+      }
+
+      if (kDebugMode) {
+        debugPrint('===== WEATHER DEBUG =====');
+        debugPrint('Main weather: $mainWeather');
+        debugPrint('Description from API: $apiDesc');
+        debugPrint('Clouds percentage: $cloudsAll');
+        debugPrint('Final description key: $descKey');
+        debugPrint('=========================');
+      }
+
+      final weather = WeatherData(
+        temperature: temp,
+        humidity: humidity,
+        heatIndex: heatIndex,
+        description: descKey,
+        city: (data['name']?.toString() ?? ''),
+      );
+
+      // Кэшируем
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setDouble('lastTemp', temp);
+      await prefs.setDouble('lastHumidity', humidity);
+      await prefs.setDouble('lastHeatIndex', heatIndex);
+      await prefs.setString('lastCity', weather.city);
+      await prefs.setString('lastDescription', descKey);
+      await prefs.setString('lastWeatherTime', DateTime.now().toIso8601String());
+
+      return weather;
     } catch (e) {
-      print('Weather error: $e');
+      if (kDebugMode) debugPrint('Weather error: $e');
       final cached = await _getCachedWeather();
       if (cached != null) return cached;
 
       return WeatherData(
         temperature: 24,
         humidity: 65,
-        heatIndex: 26,
+        heatIndex: _calculateHeatIndex(24, 65),
         description: 'clear',
         city: '',
       );
     }
-
-    return null;
   }
 
   static Future<Position?> _getCurrentLocation() async {
     try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        print('Location services disabled - asking user to enable');
+        if (kDebugMode) debugPrint('Location services disabled');
         await Geolocator.openLocationSettings();
         return null;
       }
 
       var permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
-        // Защита от параллельных запросов разрешений
         await _permMutex.runIfFree(() async {
-          print('Requesting location permission from user...');
+          if (kDebugMode) debugPrint('Requesting location permission...');
           permission = await Geolocator.requestPermission();
         });
-
         if (permission == LocationPermission.denied) {
-          print('User denied location permission');
+          if (kDebugMode) debugPrint('User denied location permission');
           return null;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
-        print('Location permission permanently denied - opening settings');
+        if (kDebugMode) debugPrint('Location permission permanently denied');
         await Geolocator.openAppSettings();
         return null;
       }
 
-      print('Getting current position...');
+      if (kDebugMode) debugPrint('Getting current position...');
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.medium,
         timeLimit: const Duration(seconds: 10),
       );
-
-      print('Successfully got position: ${position.latitude}, ${position.longitude}');
+      if (kDebugMode) {
+        debugPrint('Successfully got position: ${position.latitude}, ${position.longitude}');
+      }
       return position;
     } catch (e) {
-      print('Location error: $e');
+      if (kDebugMode) debugPrint('Location error: $e');
       return null;
     }
   }
 
   static double _calculateHeatIndex(double tempC, double humidity) {
+    // NOAA формула в °F, переводим туда-обратно
     final tempF = tempC * 9 / 5 + 32;
 
     if (tempF < 80) {
-      return tempC; // HI не применяется при низких температурах
+      // при низких температурах HI ~= T
+      return tempC;
     }
 
-    final hi = -42.379 +
+    final hiF = -42.379 +
         2.04901523 * tempF +
         10.14333127 * humidity -
         0.22475541 * tempF * humidity -
@@ -212,30 +251,31 @@ class WeatherService extends ChangeNotifier {
         0.00085282 * tempF * humidity * humidity -
         0.00000199 * tempF * tempF * humidity * humidity;
 
-    return (hi - 32) * 5 / 9;
+    return (hiF - 32) * 5 / 9;
   }
 
   static Future<WeatherData?> _getCachedWeather() async {
     final prefs = await SharedPreferences.getInstance();
-
     final temp = prefs.getDouble('lastTemp');
     final humidity = prefs.getDouble('lastHumidity');
     final heatIndex = prefs.getDouble('lastHeatIndex');
     final city = prefs.getString('lastCity') ?? '';
+    final description = prefs.getString('lastDescription') ?? 'clear';
 
     if (temp != null && humidity != null && heatIndex != null) {
+      if (kDebugMode) debugPrint('Loading cached weather with description: $description');
       return WeatherData(
         temperature: temp,
         humidity: humidity,
         heatIndex: heatIndex,
-        description: 'clear',
+        description: description,
         city: city,
       );
     }
-
     return null;
   }
 
+  // Используется в UI
   static double getWaterAdjustment(double heatIndex) {
     if (heatIndex < 27) return 0;
     if (heatIndex < 32) return 0.05; // +5%
@@ -244,22 +284,21 @@ class WeatherService extends ChangeNotifier {
     return 0.15; // +15% для экстремальной жары
   }
 
+  // Используется в UI
   static int getSodiumAdjustment(double heatIndex, String activityLevel) {
-    int baseAdjustment = 0;
-
-    if (heatIndex >= 32) baseAdjustment = 500;
-    if (heatIndex >= 39) baseAdjustment = 1000;
+    int base = 0;
+    if (heatIndex >= 32) base = 500;
+    if (heatIndex >= 39) base = 1000;
 
     if (activityLevel == 'high') {
-      baseAdjustment += 500;
+      base += 500;
     } else if (activityLevel == 'medium' && heatIndex >= 32) {
-      baseAdjustment += 300;
+      base += 300;
     }
-
-    return baseAdjustment;
+    return base;
   }
 
-  // Демо набор
+  // Демо-набор
   static WeatherData _demo() {
     final now = DateTime.now();
     final hour = now.hour;
@@ -278,12 +317,12 @@ class WeatherService extends ChangeNotifier {
     }
 
     final humidity = 60.0 + (hour < 12 ? 10 : -5);
-    final heatIndex = _calculateHeatIndex(temp, humidity);
+    final hi = _calculateHeatIndex(temp, humidity);
 
     return WeatherData(
       temperature: temp,
       humidity: humidity,
-      heatIndex: heatIndex,
+      heatIndex: hi,
       description: hour >= 6 && hour <= 20 ? 'sunny' : 'clear',
       city: 'Demo City',
     );
@@ -315,7 +354,8 @@ class WeatherData {
   final double temperature;
   final double humidity;
   final double heatIndex;
-  final String description; // Ключ для локализации
+  /// Короткий ключ: clear/cloudy/overcast/rain/drizzle/storm/snow/fog/sunny
+  final String description;
   final String city;
 
   WeatherData({
@@ -326,12 +366,12 @@ class WeatherData {
     required this.city,
   });
 
-  // Метод для получения локализованного описания погоды
+  // Локализованный текст состояния
   String getLocalizedDescription(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
-    // Маппинг ключей на локализованные строки
-    switch (description.toLowerCase()) {
+    final key = description.trim().toLowerCase();
+
+    switch (key) {
       case 'clear':
         return l10n.weatherClear;
       case 'cloudy':
@@ -340,31 +380,42 @@ class WeatherData {
         return l10n.weatherOvercast;
       case 'rain':
         return l10n.weatherRain;
-      case 'snow':
-        return l10n.weatherSnow;
-      case 'storm':
-        return l10n.weatherStorm;
-      case 'fog':
-        return l10n.weatherFog;
       case 'drizzle':
         return l10n.weatherDrizzle;
+      case 'storm':
+        return l10n.weatherStorm;
+      case 'snow':
+        return l10n.weatherSnow;
+      case 'fog':
+        return l10n.weatherFog;
       case 'sunny':
         return l10n.weatherSunny;
-      default:
-        return description; // Fallback на оригинальное описание
     }
+
+    // Фоллбеки для длинных строк OpenWeather
+    if (key.contains('overcast')) return l10n.weatherOvercast;
+    if (key.contains('cloud')) return l10n.weatherCloudy;
+    if (key.contains('rain')) return l10n.weatherRain;
+    if (key.contains('drizzle')) return l10n.weatherDrizzle;
+    if (key.contains('thunder')) return l10n.weatherStorm;
+    if (key.contains('snow')) return l10n.weatherSnow;
+    if (key.contains('fog') || key.contains('mist') || key.contains('haze')) return l10n.weatherFog;
+    if (key.contains('sun')) return l10n.weatherSunny;
+
+    return description;
   }
 
-  // Метод для получения локализованного предупреждения о жаре
+// Предупреждение по индексу жары (ключи как в твоём ARB)
   String getLocalizedHeatWarning(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
-    if (heatIndex >= 45) {
-      return l10n.heatWarningExtreme;
-    } else if (heatIndex >= 39) {
-      return l10n.heatWarningVeryHot;
+
+    // Полоса «холодно»
+    if (heatIndex <= 10) return l10n.heatWarningCold;
+
+    if (heatIndex >= 39) {
+      return l10n.heatWarningVeryHot;   // было Danger/High → используем VeryHot
     } else if (heatIndex >= 32) {
-      return l10n.heatWarningHot;
+      return l10n.heatWarningHot;       // было High → используем Hot
     } else if (heatIndex >= 27) {
       return l10n.heatWarningElevated;
     } else {
@@ -372,6 +423,7 @@ class WeatherData {
     }
   }
 
+  // Цвет по HI
   Color getHeatColor() {
     if (heatIndex < 27) return const Color(0xFF4CAF50);
     if (heatIndex < 32) return const Color(0xFFFFC107);
