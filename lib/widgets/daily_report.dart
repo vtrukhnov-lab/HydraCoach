@@ -3,16 +3,19 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../main.dart';
+import '../l10n/app_localizations.dart';
 
 class DailyReportCard extends StatelessWidget {
   const DailyReportCard({super.key});
   
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Consumer<HydrationProvider>(
       builder: (context, provider, child) {
         final progress = provider.getProgress();
-        final status = provider.getHydrationStatus();
+        final status = provider.getHydrationStatus(l10n);
         
         return Container(
           margin: const EdgeInsets.all(20),
@@ -37,7 +40,7 @@ class DailyReportCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Заголовок
+              // Header
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -53,16 +56,16 @@ class DailyReportCard extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Дневной отчет',
-                          style: TextStyle(
+                        Text(
+                          l10n.dailyReportTitle.replaceAll('📊 ', ''), // Remove emoji if present
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
-                          _getFormattedDate(),
+                          l10n.dateFormat(_getWeekday(l10n), DateTime.now().day, _getMonth(l10n)),
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.8),
                             fontSize: 14,
@@ -77,7 +80,7 @@ class DailyReportCard extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        _getStatusIcon(status),
+                        _getStatusIcon(status, l10n),
                         color: Colors.white,
                         size: 28,
                       ),
@@ -86,42 +89,42 @@ class DailyReportCard extends StatelessWidget {
                 ),
               ),
               
-              // График прогресса за день
+              // Daily progress chart
               Container(
                 height: 200,
                 padding: const EdgeInsets.all(20),
                 child: _buildDayProgressChart(provider),
               ),
               
-              // Статистика
+              // Statistics
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
                     _buildStatRow(
-                      'Вода',
-                      '${progress['water']!.toInt()} / ${provider.goals.waterOpt} мл',
+                      l10n.water,
+                      '${progress['water']!.toInt()} / ${provider.goals.waterOpt} ${l10n.ml}',
                       progress['waterPercent']!,
                       Colors.white,
                     ),
                     const SizedBox(height: 12),
                     _buildStatRow(
-                      'Натрий',
-                      '${progress['sodium']!.toInt()} / ${provider.goals.sodium} мг',
+                      l10n.sodium,
+                      '${progress['sodium']!.toInt()} / ${provider.goals.sodium} ${l10n.mg}',
                       progress['sodiumPercent']!,
                       Colors.yellow.shade300,
                     ),
                     const SizedBox(height: 12),
                     _buildStatRow(
-                      'Калий',
-                      '${progress['potassium']!.toInt()} / ${provider.goals.potassium} мг',
+                      l10n.potassium,
+                      '${progress['potassium']!.toInt()} / ${provider.goals.potassium} ${l10n.mg}',
                       progress['potassiumPercent']!,
                       Colors.purple.shade300,
                     ),
                     const SizedBox(height: 12),
                     _buildStatRow(
-                      'Магний',
-                      '${progress['magnesium']!.toInt()} / ${provider.goals.magnesium} мг',
+                      l10n.magnesium,
+                      '${progress['magnesium']!.toInt()} / ${provider.goals.magnesium} ${l10n.mg}',
                       progress['magnesiumPercent']!,
                       Colors.pink.shade300,
                     ),
@@ -129,7 +132,7 @@ class DailyReportCard extends StatelessWidget {
                 ),
               ),
               
-              // Рекомендации
+              // Recommendations
               Container(
                 margin: const EdgeInsets.all(20),
                 padding: const EdgeInsets.all(16),
@@ -148,9 +151,9 @@ class DailyReportCard extends StatelessWidget {
                           size: 20,
                         ),
                         const SizedBox(width: 8),
-                        const Text(
-                          'Рекомендации на завтра',
-                          style: TextStyle(
+                        Text(
+                          l10n.tomorrowRecommendations,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -160,7 +163,7 @@ class DailyReportCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      _getRecommendation(status, progress),
+                      _getRecommendation(status, progress, l10n),
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.9),
                         fontSize: 14,
@@ -171,15 +174,15 @@ class DailyReportCard extends StatelessWidget {
                 ),
               ),
               
-              // Кнопка поделиться
+              // Share button
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    // TODO: Поделиться отчетом
+                    // TODO: Share report
                   },
                   icon: const Icon(Icons.share),
-                  label: const Text('Поделиться результатом'),
+                  label: Text(l10n.shareResult),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.blue.shade600,
@@ -200,7 +203,7 @@ class DailyReportCard extends StatelessWidget {
   }
   
   Widget _buildDayProgressChart(HydrationProvider provider) {
-    // Симуляция данных за день (по часам)
+    // Simulate daily data (by hours)
     final spots = <FlSpot>[];
     for (int i = 7; i <= 22; i++) {
       final progress = i <= DateTime.now().hour 
@@ -343,48 +346,65 @@ class DailyReportCard extends StatelessWidget {
     return Colors.red;
   }
   
-  IconData _getStatusIcon(String status) {
-    switch (status) {
-      case 'Норма':
-        return Icons.check_circle;
-      case 'Разбавляешь':
-        return Icons.water_damage;
-      case 'Недобор воды':
-        return Icons.warning;
-      case 'Мало соли':
-        return Icons.grain;
-      default:
-        return Icons.info;
-    }
-  }
-  
-  String _getRecommendation(String status, Map<String, double> progress) {
-    if (status == 'Норма' && progress['waterPercent']! >= 90) {
-      return 'Отличная работа! Продолжайте в том же духе. '
-             'Старайтесь начинать день со стакана воды и '
-             'поддерживать равномерное потребление.';
-    } else if (status == 'Разбавляешь') {
-      return 'Вы пьете много воды, но мало электролитов. '
-             'Завтра добавьте больше соли или выпейте электролитный напиток. '
-             'Попробуйте начать день с соленого бульона.';
-    } else if (status == 'Недобор воды') {
-      return 'Недостаточно воды сегодня. '
-             'Завтра поставьте напоминания каждые 2 часа. '
-             'Держите бутылку воды на видном месте.';
-    } else if (status == 'Мало соли') {
-      return 'Низкий уровень натрия может вызвать усталость. '
-             'Добавьте щепотку соли в воду или выпейте бульон. '
-             'Особенно важно на кето или при голодании.';
+  IconData _getStatusIcon(String status, AppLocalizations l10n) {
+    // Compare with localized strings
+    if (status == l10n.hydrationStatusNormal) {
+      return Icons.check_circle;
+    } else if (status == l10n.hydrationStatusDiluted) {
+      return Icons.water_damage;
+    } else if (status == l10n.hydrationStatusDehydrated) {
+      return Icons.warning;
+    } else if (status == l10n.hydrationStatusLowSalt) {
+      return Icons.grain;
     } else {
-      return 'Стремитесь к балансу воды и электролитов. '
-             'Пейте равномерно в течение дня и не забывайте про соль в жару.';
+      return Icons.info;
     }
   }
   
-  String _getFormattedDate() {
+  String _getRecommendation(String status, Map<String, double> progress, AppLocalizations l10n) {
+    if (status == l10n.hydrationStatusNormal && progress['waterPercent']! >= 90) {
+      return l10n.recommendationExcellent;
+    } else if (status == l10n.hydrationStatusDiluted) {
+      return l10n.recommendationDiluted;
+    } else if (status == l10n.hydrationStatusDehydrated) {
+      return l10n.recommendationDehydrated;
+    } else if (status == l10n.hydrationStatusLowSalt) {
+      return l10n.recommendationLowSalt;
+    } else {
+      return l10n.recommendationGeneral;
+    }
+  }
+  
+  String _getWeekday(AppLocalizations l10n) {
     final now = DateTime.now();
-    final months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
-                   'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-    return '${now.day} ${months[now.month - 1]} ${now.year}';
+    switch (now.weekday) {
+      case 1: return l10n.monday;
+      case 2: return l10n.tuesday;
+      case 3: return l10n.wednesday;
+      case 4: return l10n.thursday;
+      case 5: return l10n.friday;
+      case 6: return l10n.saturday;
+      case 7: return l10n.sunday;
+      default: return l10n.monday;
+    }
+  }
+  
+  String _getMonth(AppLocalizations l10n) {
+    final now = DateTime.now();
+    switch (now.month) {
+      case 1: return l10n.january;
+      case 2: return l10n.february;
+      case 3: return l10n.march;
+      case 4: return l10n.april;
+      case 5: return l10n.may;
+      case 6: return l10n.june;
+      case 7: return l10n.july;
+      case 8: return l10n.august;
+      case 9: return l10n.september;
+      case 10: return l10n.october;
+      case 11: return l10n.november;
+      case 12: return l10n.december;
+      default: return l10n.january;
+    }
   }
 }

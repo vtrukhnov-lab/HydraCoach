@@ -125,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final provider = Provider.of<HydrationProvider>(context);
     final sub = Provider.of<SubscriptionProvider>(context);
     final alcohol = Provider.of<AlcoholService>(context);
@@ -133,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final weather = Provider.of<WeatherService>(context);
 
     final progress = provider.getProgress();
-    final status = _getLocalizedStatus(provider.getHydrationStatus(), l10n);
+    final status = provider.getHydrationStatus(l10n);
     final hriValue = hri.currentHRI.round();
 
     return Scaffold(

@@ -1011,6 +1011,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startDayWithWater => 'Start your day with a glass of water';
 
   @override
+  String get dontForgetElectrolytesReminder => '⚡ Don\'t forget electrolytes';
+
+  @override
+  String get startDayWithWaterReminder =>
+      'Start your day with a glass of water for good wellbeing';
+
+  @override
   String get takeElectrolytesMorning => 'Take electrolytes in the morning';
 
   @override
@@ -1098,4 +1105,243 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get heatWarningCold => '❄️ Cold! Warm up and drink warm fluids';
+
+  @override
+  String get notificationChannelName => 'HydraCoach Reminders';
+
+  @override
+  String get notificationChannelDescription =>
+      'Water and electrolyte reminders';
+
+  @override
+  String get urgentNotificationChannelName => 'Urgent Reminders';
+
+  @override
+  String get urgentNotificationChannelDescription =>
+      'Important hydration notifications';
+
+  @override
+  String get goodMorning => '☀️ Good morning!';
+
+  @override
+  String get timeToHydrate => '💧 Time to hydrate';
+
+  @override
+  String get eveningHydration => '💧 Evening hydration';
+
+  @override
+  String get dailyReportTitle => '📊 Daily report ready';
+
+  @override
+  String get dailyReportBody => 'See how your hydration day went';
+
+  @override
+  String get maintainWaterBalance =>
+      'Maintain water balance throughout the day';
+
+  @override
+  String get electrolytesTime =>
+      'Time for electrolytes: add a pinch of salt to water';
+
+  @override
+  String catchUpHydration(int percent) {
+    return 'You\'ve drunk only $percent% of daily norm. Time to catch up!';
+  }
+
+  @override
+  String get excellentProgress =>
+      'Excellent progress! A bit more to reach the goal';
+
+  @override
+  String get postCoffeeTitle => '☕ After coffee';
+
+  @override
+  String get postCoffeeBody => 'Drink 250-300 ml water to restore balance';
+
+  @override
+  String get postWorkoutTitle => '💪 After workout';
+
+  @override
+  String get postWorkoutBody =>
+      'Restore electrolytes: 500 ml water + pinch of salt';
+
+  @override
+  String get heatWarningPro => '🌡️ PRO Heat warning';
+
+  @override
+  String get extremeHeatWarning =>
+      'Extreme heat! Increase water consumption by 15% and add 1g salt';
+
+  @override
+  String get hotWeatherWarning =>
+      'Hot! Drink 10% more water and don\'t forget electrolytes';
+
+  @override
+  String get warmWeatherWarning => 'Warm weather. Monitor your hydration';
+
+  @override
+  String get alcoholRecoveryTitle => '🍺 Recovery time';
+
+  @override
+  String get alcoholRecoveryBody =>
+      'Drink 300 ml water with a pinch of salt for balance';
+
+  @override
+  String get continueHydration => '💧 Continue hydration';
+
+  @override
+  String get alcoholRecoveryBody2 =>
+      'Another 500 ml water will help you recover faster';
+
+  @override
+  String get morningRecoveryTitle => '☀️ Morning recovery';
+
+  @override
+  String get morningRecoveryBody =>
+      'Start the day with 500 ml water and electrolytes';
+
+  @override
+  String get testNotificationTitle => '🧪 Test notification';
+
+  @override
+  String get testNotificationBody =>
+      'If you see this - instant notifications work!';
+
+  @override
+  String get scheduledTestTitle => '⏰ Scheduled test (1 min)';
+
+  @override
+  String get scheduledTestBody =>
+      'This notification was scheduled 1 minute ago. Scheduling works!';
+
+  @override
+  String get notificationServiceInitialized =>
+      '✅ NotificationService initialized';
+
+  @override
+  String get localNotificationsInitialized =>
+      '✅ Local notifications initialized';
+
+  @override
+  String get androidChannelsCreated =>
+      '📢 Android notification channels created';
+
+  @override
+  String notificationsPermissionGranted(String granted) {
+    return '📝 Notifications permission: $granted';
+  }
+
+  @override
+  String exactAlarmsPermissionGranted(String granted) {
+    return '📝 Exact alarms permission: $granted';
+  }
+
+  @override
+  String fcmPermissions(String status) {
+    return '📱 FCM permissions: $status';
+  }
+
+  @override
+  String get fcmTokenReceived => '🔑 FCM Token received';
+
+  @override
+  String fcmTokenSaved(String userId) {
+    return '✅ FCM Token saved to Firestore for user $userId';
+  }
+
+  @override
+  String get topicSubscriptionComplete => '✅ Topic subscription complete';
+
+  @override
+  String foregroundMessage(String title) {
+    return '📨 Foreground message: $title';
+  }
+
+  @override
+  String notificationOpened(String messageId) {
+    return '📱 Notification opened: $messageId';
+  }
+
+  @override
+  String get dailyLimitReached =>
+      '⚠️ Daily notification limit reached (4/day for FREE)';
+
+  @override
+  String schedulingError(String error) {
+    return '❌ Notification scheduling error: $error';
+  }
+
+  @override
+  String get showingImmediatelyAsFallback =>
+      'Showing notification immediately as fallback';
+
+  @override
+  String instantNotificationShown(String title) {
+    return '📬 Instant notification shown: $title';
+  }
+
+  @override
+  String get smartRemindersScheduled => '🧠 Scheduling smart reminders...';
+
+  @override
+  String smartRemindersComplete(int count) {
+    return '✅ Scheduled $count reminders';
+  }
+
+  @override
+  String get proPostCoffeeScheduled => '☕ PRO: Post-coffee reminder scheduled';
+
+  @override
+  String get postWorkoutScheduled => '💪 Post-workout reminder scheduled';
+
+  @override
+  String get proHeatWarningPro => '🌡️ PRO: Heat warning sent';
+
+  @override
+  String get proAlcoholRecoveryPlan =>
+      '🍺 PRO: Alcohol recovery plan scheduled';
+
+  @override
+  String eveningReportScheduled(int day, int month) {
+    return '📊 Evening report scheduled for $day.$month at 21:00';
+  }
+
+  @override
+  String notificationCancelled(int id) {
+    return '🚫 Notification $id cancelled';
+  }
+
+  @override
+  String get allNotificationsCancelled => '🗑️ All notifications cancelled';
+
+  @override
+  String get reminderSettingsSaved => '✅ Reminder settings saved';
+
+  @override
+  String testNotificationScheduledFor(String time) {
+    return '⏰ Test notification scheduled for $time';
+  }
+
+  @override
+  String get tomorrowRecommendations => 'Recomendaciones para mañana';
+
+  @override
+  String get recommendationExcellent =>
+      '¡Excelente trabajo! Continúa así. Trata de comenzar el día con un vaso de agua y mantener un consumo uniforme.';
+
+  @override
+  String get recommendationDiluted =>
+      'Bebes mucha agua pero pocos electrolitos. Mañana agrega más sal o bebe una bebida electrolítica. Intenta comenzar el día con caldo salado.';
+
+  @override
+  String get recommendationDehydrated =>
+      'No suficiente agua hoy. Mañana pon recordatorios cada 2 horas. Mantén una botella de agua a la vista.';
+
+  @override
+  String get recommendationLowSalt =>
+      'Los niveles bajos de sodio pueden causar fatiga. Agrega una pizca de sal al agua o bebe caldo. Especialmente importante en keto o ayuno.';
+
+  @override
+  String get recommendationGeneral =>
+      'Busca el equilibrio entre agua y electrolitos. Bebe uniformemente durante el día y no olvides la sal en el calor.';
 }

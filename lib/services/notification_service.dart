@@ -11,6 +11,9 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'dart:io';
 import 'dart:math';
 
+import '../l10n/app_localizations.dart';
+import 'locale_service.dart';
+
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
@@ -22,13 +25,11 @@ class NotificationService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   
   static const String channelId = 'hydracoach_notifications';
-  static const String channelName = 'HydraCoach Напоминания';
-  static const String channelDescription = 'Напоминания о воде и электролитах';
   
-  // Флаг для проверки инициализации
+  // Flag for initialization check
   bool _isInitialized = false;
 
-  // ==================== ИНИЦИАЛИЗАЦИЯ ====================
+  // ==================== INITIALIZATION ====================
   
   static Future<void> initialize() async {
     final service = NotificationService();
@@ -36,39 +37,39 @@ class NotificationService {
     await service._initializeFirebaseMessaging();
     await service._initializeTimezone();
     
-    // Запрашиваем разрешения для Android 12+
+    // Request exact alarm permission for Android 12+
     await service._requestExactAlarmPermission();
     
-    print('✅ NotificationService инициализирован');
+    print('✅ NotificationService initialized');
   }
 
   Future<void> _initializeTimezone() async {
-    // ВАЖНО: Используем latest_all для полной поддержки timezone
+    // IMPORTANT: Using latest_all for full timezone support
     tz.initializeTimeZones();
     
-    // Определяем локальную timezone
+    // Determine local timezone
     final String timeZoneName = await _getTimeZoneName();
-    print('📍 Используем timezone: $timeZoneName');
+    print('🌍 Using timezone: $timeZoneName');
     
     try {
       tz.setLocalLocation(tz.getLocation(timeZoneName));
     } catch (e) {
-      print('⚠️ Не удалось установить timezone $timeZoneName, используем Moscow');
+      print('⚠️ Failed to set timezone $timeZoneName, using Moscow');
       tz.setLocalLocation(tz.getLocation('Europe/Moscow'));
     }
   }
   
   Future<String> _getTimeZoneName() async {
-    // Можно определить автоматически или использовать фиксированную
-    // Для России обычно Europe/Moscow
+    // Can be determined automatically or use fixed
+    // For Russia usually Europe/Moscow
     return 'Europe/Moscow';
   }
 
   Future<void> _initializeLocalNotifications() async {
-    // Настройки для Android с правильной иконкой
+    // Android settings with proper icon
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
     
-    // Настройки для iOS
+    // iOS settings
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -79,13 +80,13 @@ class NotificationService {
       defaultPresentSound: true,
     );
     
-    // Общие настройки
+    // General settings
     const initSettings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
     );
     
-    // Инициализация с callback для обработки нажатий
+    // Initialize with callback for handling taps
     final bool? initialized = await _localNotifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
@@ -94,17 +95,17 @@ class NotificationService {
     
     if (initialized == true) {
       _isInitialized = true;
-      print('✅ Локальные уведомления инициализированы');
+      print('✅ Local notifications initialized');
       
-      // Создаем Android каналы для уведомлений
+      // Create Android notification channels
       if (Platform.isAndroid) {
         await _createAndroidNotificationChannels();
       }
       
-      // Проверяем pending уведомления
+      // Check pending notifications
       await checkNotificationStatus();
     } else {
-      print('❌ Ошибка инициализации локальных уведомлений');
+      print('❌ Local notifications initialization error');
     }
   }
 
@@ -114,25 +115,28 @@ class NotificationService {
     
     if (androidPlugin == null) return;
     
-    // Основной канал
-    const channel = AndroidNotificationChannel(
+    // Get localized strings
+    final locale = LocaleService.instance.currentLocale.languageCode;
+    
+    // Main channel
+    final channel = AndroidNotificationChannel(
       channelId,
-      channelName,
-      description: channelDescription,
+      _getLocalizedString('notificationChannelName', locale),
+      description: _getLocalizedString('notificationChannelDescription', locale),
       importance: Importance.high,
       enableVibration: true,
       playSound: true,
       showBadge: true,
-      enableLights: false,  // Отключаем LED
+      enableLights: false,  // Disable LED
     );
     
     await androidPlugin.createNotificationChannel(channel);
     
-    // Канал для срочных уведомлений
-    const urgentChannel = AndroidNotificationChannel(
+    // Channel for urgent notifications
+    final urgentChannel = AndroidNotificationChannel(
       'hydracoach_urgent',
-      'Срочные напоминания',
-      description: 'Важные уведомления о гидратации',
+      _getLocalizedString('urgentNotificationChannelName', locale),
+      description: _getLocalizedString('urgentNotificationChannelDescription', locale),
       importance: Importance.max,
       enableVibration: true,
       playSound: true,
@@ -141,29 +145,29 @@ class NotificationService {
     
     await androidPlugin.createNotificationChannel(urgentChannel);
     
-    print('📢 Android каналы уведомлений созданы');
+    print('📢 Android notification channels created');
   }
   
-  // Запрашиваем разрешение на точные алармы для Android 12+
+  // Request exact alarm permission for Android 12+
   Future<void> _requestExactAlarmPermission() async {
     if (Platform.isAndroid) {
       final androidPlugin = _localNotifications
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
       
       if (androidPlugin != null) {
-        // Запрашиваем разрешение на уведомления (Android 13+)
+        // Request notification permission (Android 13+)
         final notificationGranted = await androidPlugin.requestNotificationsPermission();
-        print('🔐 Разрешение на уведомления: $notificationGranted');
+        print('📝 Notifications permission: $notificationGranted');
         
-        // Запрашиваем разрешение на точные алармы (Android 12+)
+        // Request exact alarm permission (Android 12+)
         final exactAlarmGranted = await androidPlugin.requestExactAlarmsPermission();
-        print('🔐 Разрешение на точные алармы: $exactAlarmGranted');
+        print('📝 Exact alarms permission: $exactAlarmGranted');
       }
     }
   }
 
   Future<void> _initializeFirebaseMessaging() async {
-    // Запрашиваем разрешения
+    // Request permissions
     final settings = await _messaging.requestPermission(
       alert: true,
       announcement: false,
@@ -174,41 +178,41 @@ class NotificationService {
       sound: true,
     );
     
-    print('📱 Разрешения FCM: ${settings.authorizationStatus}');
+    print('📱 FCM permissions: ${settings.authorizationStatus}');
     
-    // Получаем и сохраняем FCM токен
+    // Get and save FCM token
     await _saveFCMToken();
     
-    // Слушаем обновления токена
+    // Listen for token updates
     _messaging.onTokenRefresh.listen(_updateFCMToken);
     
-    // Обрабатываем foreground сообщения
+    // Handle foreground messages
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
     
-    // Обрабатываем нажатия на уведомления
+    // Handle notification taps
     FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationOpen);
     
-    // Проверяем, было ли приложение открыто через уведомление
+    // Check if app was opened from notification
     final initialMessage = await _messaging.getInitialMessage();
     if (initialMessage != null) {
       _handleNotificationOpen(initialMessage);
     }
   }
 
-  // ==================== FCM ТОКЕН ====================
+  // ==================== FCM TOKEN ====================
   
   Future<void> _saveFCMToken() async {
     try {
       final token = await _messaging.getToken();
       if (token == null) return;
       
-      print('🔑 FCM Token получен: ${token.substring(0, 20)}...');
+      print('🔑 FCM Token received: ${token.substring(0, 20)}...');
       
-      // Сохраняем локально
+      // Save locally
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('fcm_token', token);
       
-      // Сохраняем в Firestore если есть пользователь
+      // Save to Firestore if user exists
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         await _firestore.collection('users').doc(user.uid).set({
@@ -218,28 +222,28 @@ class NotificationService {
           'notificationsEnabled': true,
         }, SetOptions(merge: true));
         
-        print('✅ FCM Token сохранен в Firestore для пользователя ${user.uid}');
+        print('✅ FCM Token saved to Firestore for user ${user.uid}');
       }
       
-      // Подписываемся на топики
+      // Subscribe to topics
       await _subscribeToTopics();
       
     } catch (e) {
-      print('❌ Ошибка сохранения FCM токена: $e');
+      print('❌ FCM token save error: $e');
     }
   }
 
   Future<void> _updateFCMToken(String token) async {
-    print('🔄 FCM Token обновлен');
+    print('🔄 FCM Token updated');
     await _saveFCMToken();
   }
 
   Future<void> _subscribeToTopics() async {
-    // Подписываемся на общие топики
+    // Subscribe to general topics
     await _messaging.subscribeToTopic('all_users');
     await _messaging.subscribeToTopic('daily_reminders');
     
-    // Подписываемся на топики по настройкам
+    // Subscribe to topics based on settings
     final prefs = await SharedPreferences.getInstance();
     final dietMode = prefs.getString('dietMode') ?? 'normal';
     
@@ -249,15 +253,15 @@ class NotificationService {
       await _messaging.subscribeToTopic('fasting_users');
     }
     
-    print('✅ Подписка на топики завершена');
+    print('✅ Topic subscription complete');
   }
 
-  // ==================== ОБРАБОТКА СООБЩЕНИЙ ====================
+  // ==================== MESSAGE HANDLING ====================
   
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
-    print('📨 Foreground сообщение: ${message.notification?.title}');
+    print('📨 Foreground message: ${message.notification?.title ?? ''}');
     
-    // Показываем локальное уведомление
+    // Show local notification
     if (message.notification != null) {
       await showNotification(
         id: message.hashCode,
@@ -267,12 +271,12 @@ class NotificationService {
       );
     }
     
-    // Обрабатываем данные
+    // Process data
     _processMessageData(message.data);
   }
 
   void _handleNotificationOpen(RemoteMessage message) {
-    print('🔔 Уведомление открыто: ${message.messageId}');
+    print('📱 Notification opened: ${message.messageId ?? ''}');
     _processMessageData(message.data);
   }
 
@@ -281,29 +285,29 @@ class NotificationService {
     
     switch (action) {
       case 'drink_water':
-        print('Action: Выпить воду');
+        print('Action: Drink water');
         break;
       case 'add_electrolytes':
-        print('Action: Добавить электролиты');
+        print('Action: Add electrolytes');
         break;
       case 'daily_report':
-        print('Action: Показать отчет');
+        print('Action: Show report');
         break;
       default:
         print('Action: ${action ?? "unknown"}');
     }
   }
   
-  // ==================== PRO ПРОВЕРКИ ====================
+  // ==================== PRO CHECKS ====================
   
-  // Счетчик уведомлений для FREE пользователей
+  // Notification counter for FREE users
   Future<int> _getTodayNotificationCount() async {
     final prefs = await SharedPreferences.getInstance();
     final lastResetDate = prefs.getString('notification_count_reset_date');
     final today = DateTime.now().toIso8601String().split('T')[0];
     
     if (lastResetDate != today) {
-      // Новый день - сбрасываем счетчик
+      // New day - reset counter
       await prefs.setInt('daily_notification_count', 0);
       await prefs.setString('notification_count_reset_date', today);
       return 0;
@@ -318,35 +322,35 @@ class NotificationService {
     await prefs.setInt('daily_notification_count', count + 1);
   }
   
-  // Проверка лимита для FREE пользователей
+  // Check limit for FREE users
   Future<bool> canSendNotification() async {
     final prefs = await SharedPreferences.getInstance();
     final isPro = prefs.getBool('is_pro') ?? false;
     
     if (isPro) {
-      return true; // PRO пользователи без лимитов
+      return true; // PRO users without limits
     }
     
     final count = await _getTodayNotificationCount();
-    return count < 4; // FREE пользователи - максимум 4 уведомления в день
+    return count < 4; // FREE users - max 4 notifications per day
   }
   
-  // Проверка доступности PRO функций уведомлений
+  // Check PRO feature availability
   Future<bool> hasProFeature(String feature) async {
     final prefs = await SharedPreferences.getInstance();
     final isPro = prefs.getBool('is_pro') ?? false;
     
-    // FREE функции - всегда доступны
+    // FREE features - always available
     const freeFeatures = ['basic_reminder', 'daily_report'];
     if (freeFeatures.contains(feature)) {
       return true;
     }
     
-    // PRO функции - требуют подписку
+    // PRO features - require subscription
     return isPro;
   }
 
-  // ==================== ЛОКАЛЬНЫЕ УВЕДОМЛЕНИЯ ====================
+  // ==================== LOCAL NOTIFICATIONS ====================
   
   Future<void> showNotification({
     required int id,
@@ -355,22 +359,25 @@ class NotificationService {
     String? payload,
     DateTime? scheduledTime,
   }) async {
-    // Проверяем лимит для FREE пользователей
+    // Check limit for FREE users
     if (!await canSendNotification()) {
-      print('⚠️ Достигнут лимит уведомлений (4/день для FREE)');
+      print('⚠️ Daily notification limit reached (4/day for FREE)');
       return;
     }
     
-    // Убеждаемся что сервис инициализирован
+    // Ensure service is initialized
     if (!_isInitialized) {
-      print('⚠️ NotificationService не инициализирован, инициализируем...');
+      print('⚠️ NotificationService not initialized, initializing...');
       await initialize();
     }
     
+    // Get current locale for notification channel
+    final locale = LocaleService.instance.currentLocale.languageCode;
+    
     final androidDetails = AndroidNotificationDetails(
       channelId,
-      channelName,
-      channelDescription: channelDescription,
+      _getLocalizedString('notificationChannelName', locale),
+      channelDescription: _getLocalizedString('notificationChannelDescription', locale),
       importance: Importance.high,
       priority: Priority.high,
       ticker: 'HydraCoach',
@@ -406,27 +413,27 @@ class NotificationService {
     );
     
     if (scheduledTime != null) {
-      // Проверяем что время в будущем
+      // Check that time is in the future
       if (scheduledTime.isBefore(DateTime.now())) {
-        print('⚠️ Время уже прошло, показываем уведомление сразу');
+        print('⚠️ Time already passed, showing notification immediately');
         await _localNotifications.show(id, title, body, details, payload: payload);
         await _incrementNotificationCount();
         return;
       }
       
       try {
-        // Конвертируем в TZDateTime правильно
+        // Convert to TZDateTime properly
         final tz.TZDateTime tzScheduledTime = tz.TZDateTime.from(
           scheduledTime,
           tz.local,
         );
         
-        print('📅 Планируем уведомление:');
+        print('📅 Scheduling notification:');
         print('   ID: $id');
-        print('   Заголовок: $title');
-        print('   Запланировано на: $scheduledTime');
+        print('   Title: $title');
+        print('   Scheduled for: $scheduledTime');
         
-        // Планируем уведомление с правильными параметрами
+        // Schedule notification with proper parameters
         await _localNotifications.zonedSchedule(
           id,
           title,
@@ -438,54 +445,55 @@ class NotificationService {
         );
         
         await _incrementNotificationCount();
-        print('✅ Уведомление успешно запланировано с ID: $id');
+        print('✅ Notification successfully scheduled with ID: $id');
         
       } catch (e, stackTrace) {
-        print('❌ Ошибка планирования уведомления: $e');
+        print('❌ Notification scheduling error: $e');
         print('Stack trace: $stackTrace');
         
-        // Если не удалось запланировать, показываем сразу
-        print('Показываем уведомление немедленно как fallback');
+        // If failed to schedule, show immediately
+        print('Showing notification immediately as fallback');
         await _localNotifications.show(id, title, body, details, payload: payload);
         await _incrementNotificationCount();
       }
     } else {
-      // Показываем сразу
+      // Show immediately
       await _localNotifications.show(id, title, body, details, payload: payload);
       await _incrementNotificationCount();
-      print('📬 Мгновенное уведомление показано: $title');
+      print('📬 Instant notification shown: $title');
     }
   }
 
-  // ==================== УМНЫЕ НАПОМИНАНИЯ ====================
+  // ==================== SMART REMINDERS ====================
   
   Future<void> scheduleSmartReminders() async {
-    print('🧠 Планирование умных напоминаний...');
+    print('🧠 Scheduling smart reminders...');
     
-    // Отменяем старые напоминания
+    // Cancel old reminders
     await cancelAllNotifications();
     
     final prefs = await SharedPreferences.getInstance();
     final dietMode = prefs.getString('dietMode') ?? 'normal';
+    final locale = LocaleService.instance.currentLocale.languageCode;
     
-    // Получаем текущий прогресс
+    // Get current progress
     final waterProgress = prefs.getDouble('waterProgress') ?? 0;
     
-    // Базовые напоминания в течение дня
+    // Base reminders throughout the day
     final now = DateTime.now();
     final reminders = <DateTime>[];
     
-    // Утреннее напоминание (8:00)
+    // Morning reminder (8:00)
     reminders.add(DateTime(now.year, now.month, now.day, 8, 0));
     
-    // Дневные напоминания в зависимости от режима
+    // Daily reminders depending on mode
     if (dietMode == 'fasting') {
-      // Для голодания - акцент на электролиты
-      reminders.add(DateTime(now.year, now.month, now.day, 10, 0)); // Электролиты
-      reminders.add(DateTime(now.year, now.month, now.day, 14, 0)); // Вода
-      reminders.add(DateTime(now.year, now.month, now.day, 18, 0)); // Электролиты
+      // For fasting - focus on electrolytes
+      reminders.add(DateTime(now.year, now.month, now.day, 10, 0)); // Electrolytes
+      reminders.add(DateTime(now.year, now.month, now.day, 14, 0)); // Water
+      reminders.add(DateTime(now.year, now.month, now.day, 18, 0)); // Electrolytes
     } else {
-      // Обычный режим - равномерные напоминания
+      // Normal mode - even reminders
       reminders.add(DateTime(now.year, now.month, now.day, 10, 0));
       reminders.add(DateTime(now.year, now.month, now.day, 12, 30));
       reminders.add(DateTime(now.year, now.month, now.day, 15, 0));
@@ -493,15 +501,15 @@ class NotificationService {
       reminders.add(DateTime(now.year, now.month, now.day, 20, 0));
     }
     
-    // Вечерний отчет (21:00)
+    // Evening report (21:00)
     reminders.add(DateTime(now.year, now.month, now.day, 21, 0));
     
-    // Планируем напоминания
+    // Schedule reminders
     int notificationId = 1000;
     for (final reminderTime in reminders) {
       if (reminderTime.isAfter(now)) {
-        final title = _getReminderTitle(reminderTime.hour, dietMode);
-        final body = _getReminderBody(reminderTime.hour, dietMode, waterProgress);
+        final title = _getReminderTitle(reminderTime.hour, dietMode, locale);
+        final body = _getReminderBody(reminderTime.hour, dietMode, waterProgress, locale);
         
         await showNotification(
           id: notificationId++,
@@ -513,190 +521,198 @@ class NotificationService {
       }
     }
     
-    print('✅ Запланировано ${notificationId - 1000} напоминаний');
+    print('✅ Scheduled ${notificationId - 1000} reminders');
   }
 
-  String _getReminderTitle(int hour, String dietMode) {
-    if (hour == 8) return '☀️ Доброе утро!';
-    if (hour == 21) return '📊 Дневной отчет';
-    if (hour < 12) return '💧 Время пить воду';
-    if (hour < 17) return '⚡ Не забудьте про электролиты';
-    return '💧 Вечерняя гидратация';
+  String _getReminderTitle(int hour, String dietMode, String locale) {
+    if (hour == 8) return _getLocalizedString('goodMorning', locale);
+    if (hour == 21) return _getLocalizedString('dailyReportTitle', locale);
+    if (hour < 12) return _getLocalizedString('timeToHydrate', locale);
+    if (hour < 17) return _getLocalizedString('dontForgetElectrolytesReminder', locale);
+    return _getLocalizedString('eveningHydration', locale);
   }
 
-  String _getReminderBody(int hour, String dietMode, double progress) {
+  String _getReminderBody(int hour, String dietMode, double progress, String locale) {
     if (hour == 8) {
-      return 'Начните день со стакана воды для хорошего самочувствия';
+      return _getLocalizedString('startDayWithWaterReminder', locale);
     }
     
     if (hour == 21) {
-      return 'Посмотрите, как прошел ваш день гидратации';
+      return _getLocalizedString('dailyReportBody', locale);
     }
     
     if (dietMode == 'fasting' && (hour == 10 || hour == 18)) {
-      return 'Время для электролитов: добавьте щепотку соли в воду';
+      return _getLocalizedString('electrolytesTime', locale);
     }
     
     if (progress < 30) {
-      return 'Вы выпили только ${progress.toInt()}% от дневной нормы. Время наверстать!';
+      return _getLocalizedString('catchUpHydration', locale).replaceAll('{percent}', '${progress.toInt()}');
     }
     
     if (progress < 60) {
-      return 'Отличный прогресс! Еще немного для достижения цели';
+      return _getLocalizedString('excellentProgress', locale);
     }
     
-    return 'Поддерживайте водный баланс в течение дня';
+    return _getLocalizedString('maintainWaterBalance', locale);
   }
 
-  // ==================== PRO НАПОМИНАНИЯ ====================
+  // ==================== PRO REMINDERS ====================
   
-  // Напоминание после кофе (PRO)
+  // Post-coffee reminder (PRO)
   Future<bool> schedulePostCoffeeReminder() async {
-    // Проверяем PRO статус
+    // Check PRO status
     if (!await hasProFeature('post_coffee_reminder')) {
-      print('⚠️ Напоминания после кофе - PRO функция');
+      print('⚠️ Post-coffee reminders - PRO feature');
       return false;
     }
     
-    // Планируем напоминание через 20 минут
+    final locale = LocaleService.instance.currentLocale.languageCode;
+    
+    // Schedule reminder in 20 minutes
     final reminderTime = DateTime.now().add(const Duration(minutes: 20));
     
     await showNotification(
       id: 2000 + Random().nextInt(1000),
-      title: '☕ После кофе',
-      body: 'Выпейте 250-300 мл воды для восстановления баланса',
+      title: _getLocalizedString('postCoffeeTitle', locale),
+      body: _getLocalizedString('postCoffeeBody', locale),
       scheduledTime: reminderTime,
       payload: 'post_coffee',
     );
     
-    print('☕ PRO: Напоминание после кофе запланировано');
+    print('☕ PRO: Post-coffee reminder scheduled');
     return true;
   }
   
-  // Напоминание после тренировки (базовое)
+  // Post-workout reminder (basic)
   Future<void> schedulePostWorkoutReminder() async {
+    final locale = LocaleService.instance.currentLocale.languageCode;
     final reminderTime = DateTime.now().add(const Duration(minutes: 30));
     
     await showNotification(
       id: 3000 + Random().nextInt(1000),
-      title: '💪 После тренировки',
-      body: 'Восстановите электролиты: 500 мл воды + щепотка соли',
+      title: _getLocalizedString('postWorkoutTitle', locale),
+      body: _getLocalizedString('postWorkoutBody', locale),
       scheduledTime: reminderTime,
       payload: 'post_workout',
     );
     
-    print('💪 Напоминание после тренировки запланировано');
+    print('💪 Post-workout reminder scheduled');
   }
   
-  // Напоминание при жаре (PRO)
+  // Heat warning (PRO)
   Future<bool> sendHeatWarning(double heatIndex) async {
-    // Проверяем PRO статус
+    // Check PRO status
     if (!await hasProFeature('heat_warnings')) {
-      print('⚠️ Предупреждения о жаре - PRO функция');
+      print('⚠️ Heat warnings - PRO feature');
       return false;
     }
     
+    final locale = LocaleService.instance.currentLocale.languageCode;
+    
     String message;
     if (heatIndex > 40) {
-      message = 'Экстремальная жара! Увеличьте потребление воды на 15% и добавьте 1г соли';
+      message = _getLocalizedString('extremeHeatWarning', locale);
     } else if (heatIndex > 32) {
-      message = 'Жарко! Пейте на 10% больше воды и не забывайте про электролиты';
+      message = _getLocalizedString('hotWeatherWarning', locale);
     } else {
-      message = 'Теплая погода. Следите за гидратацией';
+      message = _getLocalizedString('warmWeatherWarning', locale);
     }
     
     await showNotification(
       id: Random().nextInt(1000),
-      title: '🌡️ Погодное предупреждение PRO',
+      title: _getLocalizedString('heatWarningPro', locale),
       body: message,
       payload: 'heat_warning',
     );
     
-    print('🌡️ PRO: Предупреждение о жаре отправлено');
+    print('🌡️ PRO: Heat warning sent');
     return true;
   }
   
-  // Напоминание после алкоголя (PRO)
+  // Post-alcohol reminder (PRO)
   Future<bool> schedulePostAlcoholReminder() async {
-    // Проверяем PRO статус
+    // Check PRO status
     if (!await hasProFeature('post_alcohol_reminder')) {
-      print('⚠️ Напоминания после алкоголя - PRO функция');
+      print('⚠️ Post-alcohol reminders - PRO feature');
       return false;
     }
     
-    // Планируем серию напоминаний для восстановления
+    final locale = LocaleService.instance.currentLocale.languageCode;
+    
+    // Schedule series of recovery reminders
     final now = DateTime.now();
     
-    // Через 30 минут - первое напоминание
+    // In 30 minutes - first reminder
     await showNotification(
       id: 4000 + Random().nextInt(100),
-      title: '🍺 Время восстановления',
-      body: 'Выпейте 300 мл воды с щепоткой соли для баланса',
+      title: _getLocalizedString('alcoholRecoveryTitle', locale),
+      body: _getLocalizedString('alcoholRecoveryBody', locale),
       scheduledTime: now.add(const Duration(minutes: 30)),
       payload: 'post_alcohol_1',
     );
     
-    // Через 2 часа - второе напоминание
+    // In 2 hours - second reminder
     await showNotification(
       id: 4100 + Random().nextInt(100),
-      title: '💧 Продолжайте гидратацию',
-      body: 'Еще 500 мл воды помогут восстановиться быстрее',
+      title: _getLocalizedString('continueHydration', locale),
+      body: _getLocalizedString('alcoholRecoveryBody2', locale),
       scheduledTime: now.add(const Duration(hours: 2)),
       payload: 'post_alcohol_2',
     );
     
-    // Утром следующего дня
+    // Next morning
     final tomorrow = DateTime(now.year, now.month, now.day + 1, 8, 0);
     await showNotification(
       id: 4200 + Random().nextInt(100),
-      title: '☀️ Утреннее восстановление',
-      body: 'Начните день с 500 мл воды и электролитов',
+      title: _getLocalizedString('morningRecoveryTitle', locale),
+      body: _getLocalizedString('morningRecoveryBody', locale),
       scheduledTime: tomorrow,
       payload: 'post_alcohol_morning',
     );
     
-    print('🍺 PRO: План восстановления после алкоголя запланирован');
+    print('🍺 PRO: Alcohol recovery plan scheduled');
     return true;
   }
   
-  // Вечерний отчет (базовый)
+  // Evening report (basic)
   Future<void> scheduleEveningReport() async {
+    final locale = LocaleService.instance.currentLocale.languageCode;
     final now = DateTime.now();
     var scheduledTime = DateTime(now.year, now.month, now.day, 21, 0);
     
-    // Если уже после 21:00, планируем на завтра
+    // If already after 21:00, schedule for tomorrow
     if (now.hour >= 21) {
       scheduledTime = scheduledTime.add(const Duration(days: 1));
     }
     
     await showNotification(
-      id: 999999, // Фиксированный ID для вечернего отчета
-      title: '📊 Дневной отчет готов',
-      body: 'Посмотрите, как прошел ваш день гидратации',
+      id: 999999, // Fixed ID for evening report
+      title: _getLocalizedString('dailyReportTitle', locale),
+      body: _getLocalizedString('dailyReportBody', locale),
       scheduledTime: scheduledTime,
       payload: 'evening_report',
     );
     
-    print('📊 Вечерний отчет запланирован на ${scheduledTime.day}.${scheduledTime.month} в 21:00');
+    print('📊 Evening report scheduled for ${scheduledTime.day}.${scheduledTime.month} at 21:00');
   }
 
-  // ==================== УПРАВЛЕНИЕ УВЕДОМЛЕНИЯМИ ====================
+  // ==================== NOTIFICATION MANAGEMENT ====================
   
   Future<void> cancelNotification(int id) async {
     await _localNotifications.cancel(id);
-    print('🚫 Уведомление $id отменено');
+    print('🚫 Notification $id cancelled');
   }
 
   Future<void> cancelAllNotifications() async {
     await _localNotifications.cancelAll();
-    print('🗑️ Все уведомления отменены');
+    print('🗑️ All notifications cancelled');
   }
 
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     return await _localNotifications.pendingNotificationRequests();
   }
   
-  // Статический метод для сохранения настроек
+  // Static method for saving settings
   Future<void> saveSettings(ReminderSettings settings) async {
     final prefs = await SharedPreferences.getInstance();
     
@@ -708,17 +724,17 @@ class NotificationService {
     await prefs.setBool('heatWarnings', settings.heatWarnings);
     await prefs.setBool('postAlcoholReminder', settings.postAlcohol);
     
-    // Перезапускаем напоминания если включены
+    // Restart reminders if enabled
     if (settings.enabled) {
       await scheduleSmartReminders();
     } else {
       await cancelAllNotifications();
     }
     
-    print('✅ Настройки напоминаний сохранены');
+    print('✅ Reminder settings saved');
   }
   
-  // Получение статистики уведомлений
+  // Get notification statistics
   Future<Map<String, dynamic>> getNotificationStats() async {
     final prefs = await SharedPreferences.getInstance();
     final isPro = prefs.getBool('is_pro') ?? false;
@@ -741,16 +757,16 @@ class NotificationService {
     };
   }
 
-  // ==================== ОБРАБОТЧИКИ НАЖАТИЙ ====================
+  // ==================== TAP HANDLERS ====================
   
   static void _onNotificationTapped(NotificationResponse response) {
-    print('📱 Уведомление нажато: ${response.payload}');
+    print('📱 Notification tapped: ${response.payload}');
     _handleNotificationAction(response.payload);
   }
 
   @pragma('vm:entry-point')
   static void _onBackgroundNotificationTapped(NotificationResponse response) {
-    print('📱 Background уведомление нажато: ${response.payload}');
+    print('📱 Background notification tapped: ${response.payload}');
     _handleNotificationAction(response.payload);
   }
 
@@ -759,68 +775,72 @@ class NotificationService {
     
     switch (payload) {
       case 'smart_reminder':
-        print('Открыть главный экран');
+        print('Open main screen');
         break;
       case 'post_coffee':
-        print('Добавить воду после кофе');
+        print('Add water after coffee');
         break;
       case 'post_workout':
-        print('Добавить электролиты после тренировки');
+        print('Add electrolytes after workout');
         break;
       case 'post_alcohol_1':
       case 'post_alcohol_2':
       case 'post_alcohol_morning':
-        print('Показать план восстановления после алкоголя');
+        print('Show alcohol recovery plan');
         break;
       case 'daily_report':
       case 'evening_report':
-        print('Показать дневной отчет');
+        print('Show daily report');
         break;
       case 'heat_warning':
-        print('Показать рекомендации для жары');
+        print('Show heat recommendations');
         break;
       case 'test':
       case 'test_scheduled':
-        print('Тестовое уведомление обработано');
+        print('Test notification processed');
         break;
     }
   }
 
-  // ==================== ТЕСТИРОВАНИЕ ====================
+  // ==================== TESTING ====================
   
-  // Мгновенное тестовое уведомление
+  // Instant test notification
   Future<void> sendTestNotification() async {
+    final locale = LocaleService.instance.currentLocale.languageCode;
+    
     await showNotification(
       id: 999,
-      title: '🧪 Тест уведомления',
-      body: 'Если вы видите это - мгновенные уведомления работают!',
+      title: _getLocalizedString('testNotificationTitle', locale),
+      body: _getLocalizedString('testNotificationBody', locale),
       payload: 'test',
     );
   }
   
-  // Тестовое уведомление через 1 минуту
+  // Test notification in 1 minute
   Future<void> scheduleTestNotificationIn1Minute() async {
+    final locale = LocaleService.instance.currentLocale.languageCode;
     final scheduledTime = DateTime.now().add(const Duration(minutes: 1));
     
     await showNotification(
       id: 998,
-      title: '⏰ Тест планирования (1 мин)',
-      body: 'Это уведомление было запланировано 1 минуту назад. Планирование работает!',
+      title: _getLocalizedString('scheduledTestTitle', locale),
+      body: _getLocalizedString('scheduledTestBody', locale),
       scheduledTime: scheduledTime,
       payload: 'test_scheduled',
     );
     
-    print('⏰ Тестовое уведомление запланировано на ${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}');
+    final timeStr = '${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}';
+    print('⏰ Test notification scheduled for $timeStr');
   }
   
-  // Проверка статуса уведомлений
+  // Check notification status
   Future<void> checkNotificationStatus() async {
     final pending = await getPendingNotifications();
     print('');
-    print('📋 ===== СТАТУС УВЕДОМЛЕНИЙ =====');
-    print('📋 Запланировано уведомлений: ${pending.length}');
+    print('📋 ===== NOTIFICATION STATUS =====');
+    print('📋 Scheduled notifications: ${pending.length}');
     if (pending.isNotEmpty) {
-      print('📋 Список:');
+      print('📋 List:');
       for (var notification in pending) {
         print('   - ID: ${notification.id}');
         print('     Title: ${notification.title}');
@@ -831,9 +851,124 @@ class NotificationService {
     print('📋 =============================');
     print('');
   }
+
+  // ==================== LOCALIZATION HELPER ====================
+  
+  static String _getLocalizedString(String key, String locale) {
+    // FIXED: Complete localization with all three languages
+    final Map<String, Map<String, String>> localizedStrings = {
+      'en': {
+        'notificationChannelName': 'HydraCoach Reminders',
+        'notificationChannelDescription': 'Water and electrolyte reminders',
+        'urgentNotificationChannelName': 'Urgent Reminders',
+        'urgentNotificationChannelDescription': 'Important hydration notifications',
+        'goodMorning': '☀️ Good morning!',
+        'startDayWithWaterReminder': 'Start your day with a glass of water for good wellbeing',
+        'timeToHydrate': '💧 Time to hydrate',
+        'dontForgetElectrolytesReminder': '⚡ Don\'t forget electrolytes',
+        'eveningHydration': '💧 Evening hydration',
+        'dailyReportTitle': '📊 Daily report ready',
+        'dailyReportBody': 'See how your hydration day went',
+        'maintainWaterBalance': 'Maintain water balance throughout the day',
+        'electrolytesTime': 'Time for electrolytes: add a pinch of salt to water',
+        'catchUpHydration': 'You\'ve drunk only {percent}% of daily norm. Time to catch up!',
+        'excellentProgress': 'Excellent progress! A bit more to reach the goal',
+        'postCoffeeTitle': '☕ After coffee',
+        'postCoffeeBody': 'Drink 250-300 ml water to restore balance',
+        'postWorkoutTitle': '💪 After workout',
+        'postWorkoutBody': 'Restore electrolytes: 500 ml water + pinch of salt',
+        'heatWarningPro': '🌡️ PRO Heat warning',
+        'extremeHeatWarning': 'Extreme heat! Increase water consumption by 15% and add 1g salt',
+        'hotWeatherWarning': 'Hot! Drink 10% more water and don\'t forget electrolytes',
+        'warmWeatherWarning': 'Warm weather. Monitor your hydration',
+        'alcoholRecoveryTitle': '🍺 Recovery time',
+        'alcoholRecoveryBody': 'Drink 300 ml water with a pinch of salt for balance',
+        'continueHydration': '💧 Continue hydration',
+        'alcoholRecoveryBody2': 'Another 500 ml water will help you recover faster',
+        'morningRecoveryTitle': '☀️ Morning recovery',
+        'morningRecoveryBody': 'Start the day with 500 ml water and electrolytes',
+        'testNotificationTitle': '🧪 Test notification',
+        'testNotificationBody': 'If you see this - instant notifications work!',
+        'scheduledTestTitle': '⏰ Scheduled test (1 min)',
+        'scheduledTestBody': 'This notification was scheduled 1 minute ago. Scheduling works!',
+      },
+      'ru': {
+        'notificationChannelName': 'Напоминания HydraCoach',
+        'notificationChannelDescription': 'Напоминания о воде и электролитах',
+        'urgentNotificationChannelName': 'Срочные напоминания',
+        'urgentNotificationChannelDescription': 'Важные уведомления о гидратации',
+        'goodMorning': '☀️ Доброе утро!',
+        'startDayWithWaterReminder': 'Начните день со стакана воды для хорошего самочувствия',
+        'timeToHydrate': '💧 Время гидратации',
+        'dontForgetElectrolytesReminder': '⚡ Не забывайте об электролитах',
+        'eveningHydration': '💧 Вечерняя гидратация',
+        'dailyReportTitle': '📊 Дневной отчёт готов',
+        'dailyReportBody': 'Посмотрите, как прошёл ваш день гидратации',
+        'maintainWaterBalance': 'Поддерживайте водный баланс в течение дня',
+        'electrolytesTime': 'Время для электролитов: добавьте щепотку соли в воду',
+        'catchUpHydration': 'Вы выпили только {percent}% дневной нормы. Время наверстать!',
+        'excellentProgress': 'Отличный прогресс! Ещё немного до цели',
+        'postCoffeeTitle': '☕ После кофе',
+        'postCoffeeBody': 'Выпейте 250-300 мл воды для восстановления баланса',
+        'postWorkoutTitle': '💪 После тренировки',
+        'postWorkoutBody': 'Восстановите электролиты: 500 мл воды + щепотка соли',
+        'heatWarningPro': '🌡️ PRO Предупреждение о жаре',
+        'extremeHeatWarning': 'Экстремальная жара! Увеличьте потребление воды на 15% и добавьте 1г соли',
+        'hotWeatherWarning': 'Жарко! Пейте на 10% больше воды и не забывайте об электролитах',
+        'warmWeatherWarning': 'Тёплая погода. Следите за гидратацией',
+        'alcoholRecoveryTitle': '🍺 Время восстановления',
+        'alcoholRecoveryBody': 'Выпейте 300 мл воды со щепоткой соли для баланса',
+        'continueHydration': '💧 Продолжайте гидратацию',
+        'alcoholRecoveryBody2': 'Ещё 500 мл воды помогут вам быстрее восстановиться',
+        'morningRecoveryTitle': '☀️ Утреннее восстановление',
+        'morningRecoveryBody': 'Начните день с 500 мл воды и электролитов',
+        'testNotificationTitle': '🧪 Тестовое уведомление',
+        'testNotificationBody': 'Если вы видите это - мгновенные уведомления работают!',
+        'scheduledTestTitle': '⏰ Запланированный тест (1 мин)',
+        'scheduledTestBody': 'Это уведомление было запланировано минуту назад. Планирование работает!',
+      },
+      'es': {
+        'notificationChannelName': 'Recordatorios HydraCoach',
+        'notificationChannelDescription': 'Recordatorios de agua y electrolitos',
+        'urgentNotificationChannelName': 'Recordatorios urgentes',
+        'urgentNotificationChannelDescription': 'Notificaciones importantes de hidratación',
+        'goodMorning': '☀️ ¡Buenos días!',
+        'startDayWithWaterReminder': 'Comienza el día con un vaso de agua para el bienestar',
+        'timeToHydrate': '💧 Hora de hidratarse',
+        'dontForgetElectrolytesReminder': '⚡ No olvides los electrolitos',
+        'eveningHydration': '💧 Hidratación nocturna',
+        'dailyReportTitle': '📊 Informe diario listo',
+        'dailyReportBody': 'Ve cómo fue tu día de hidratación',
+        'maintainWaterBalance': 'Mantén el equilibrio hídrico durante el día',
+        'electrolytesTime': 'Hora de electrolitos: agrega una pizca de sal al agua',
+        'catchUpHydration': 'Solo has bebido {percent}% de la norma diaria. ¡Es hora de ponerse al día!',
+        'excellentProgress': '¡Excelente progreso! Un poco más para alcanzar la meta',
+        'postCoffeeTitle': '☕ Después del café',
+        'postCoffeeBody': 'Bebe 250-300 ml de agua para restaurar el equilibrio',
+        'postWorkoutTitle': '💪 Después del entrenamiento',
+        'postWorkoutBody': 'Restaura electrolitos: 500 ml agua + pizca de sal',
+        'heatWarningPro': '🌡️ PRO Alerta de calor',
+        'extremeHeatWarning': '¡Calor extremo! Aumenta el consumo de agua en 15% y agrega 1g de sal',
+        'hotWeatherWarning': '¡Calor! Bebe 10% más agua y no olvides los electrolitos',
+        'warmWeatherWarning': 'Clima cálido. Monitorea tu hidratación',
+        'alcoholRecoveryTitle': '🍺 Tiempo de recuperación',
+        'alcoholRecoveryBody': 'Bebe 300 ml agua con una pizca de sal para equilibrio',
+        'continueHydration': '💧 Continúa la hidratación',
+        'alcoholRecoveryBody2': 'Otros 500 ml de agua te ayudarán a recuperarte más rápido',
+        'morningRecoveryTitle': '☀️ Recuperación matutina',
+        'morningRecoveryBody': 'Comienza el día con 500 ml agua y electrolitos',
+        'testNotificationTitle': '🧪 Notificación de prueba',
+        'testNotificationBody': 'Si ves esto - ¡las notificaciones instantáneas funcionan!',
+        'scheduledTestTitle': '⏰ Prueba programada (1 min)',
+        'scheduledTestBody': 'Esta notificación fue programada hace 1 minuto. ¡La programación funciona!',
+      }
+    };
+    
+    return localizedStrings[locale]?[key] ?? localizedStrings['en']?[key] ?? key;
+  }
 }
 
-// ==================== КЛАСС ДЛЯ НАСТРОЕК ====================
+// ==================== SETTINGS CLASS ====================
 
 class ReminderSettings {
   final bool enabled;

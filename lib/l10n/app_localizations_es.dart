@@ -36,40 +36,40 @@ class AppLocalizationsEs extends AppLocalizations {
   String get saturday => 'Sábado';
 
   @override
-  String get january => 'enero';
+  String get january => 'Enero';
 
   @override
-  String get february => 'febrero';
+  String get february => 'Febrero';
 
   @override
-  String get march => 'marzo';
+  String get march => 'Marzo';
 
   @override
-  String get april => 'abril';
+  String get april => 'Abril';
 
   @override
-  String get may => 'mayo';
+  String get may => 'Mayo';
 
   @override
-  String get june => 'junio';
+  String get june => 'Junio';
 
   @override
-  String get july => 'julio';
+  String get july => 'Julio';
 
   @override
-  String get august => 'agosto';
+  String get august => 'Agosto';
 
   @override
-  String get september => 'septiembre';
+  String get september => 'Septiembre';
 
   @override
-  String get october => 'octubre';
+  String get october => 'Octubre';
 
   @override
-  String get november => 'noviembre';
+  String get november => 'Noviembre';
 
   @override
-  String get december => 'diciembre';
+  String get december => 'Diciembre';
 
   @override
   String dateFormat(String weekday, int day, String month) {
@@ -80,10 +80,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get loading => 'Cargando...';
 
   @override
-  String get loadingWeather => 'Cargando clima...';
+  String get loadingWeather => 'Cargando el clima...';
 
   @override
-  String get heatIndex => 'Índice de Calor';
+  String get heatIndex => 'Índice de calor';
 
   @override
   String humidity(int value) {
@@ -103,7 +103,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get magnesium => 'Magnesio';
 
   @override
-  String get electrolyte => 'Electrolito';
+  String get electrolyte => 'Electrolitos';
 
   @override
   String get broth => 'Caldo';
@@ -154,36 +154,37 @@ class AppLocalizationsEs extends AppLocalizations {
       'Mantén el equilibrio de agua y electrolitos.';
 
   @override
-  String get adviceOverhydrationSevere => 'Sobrecarga de agua (>200% meta)';
+  String get adviceOverhydrationSevere =>
+      'Sobrehidratación severa (>200% objetivo)';
 
   @override
   String get adviceOverhydrationSevereBody =>
-      'Pausa 60-90 minutos. Añade electrolitos: 300-500 ml con 500-1000 mg de sodio.';
+      'Pausa 60-90 minutos. Agrega electrolitos: 300-500 ml con 500-1000 mg sodio.';
 
   @override
   String get adviceOverhydration => 'Sobrehidratación';
 
   @override
   String get adviceOverhydrationBody =>
-      'Pausa el agua 30-60 minutos y añade ~500 mg de sodio (electrolito/caldo).';
+      'Pausa el agua por 30-60 minutos y agrega ~500 mg sodio (electrolitos/caldo).';
 
   @override
   String get adviceAlcoholRecovery => 'Alcohol: recuperación';
 
   @override
   String get adviceAlcoholRecoveryBody =>
-      'No más alcohol hoy. Bebe 300-500 ml de agua en pequeñas porciones y añade sodio.';
+      'No más alcohol hoy. Bebe 300-500 ml agua en porciones pequeñas y agrega sodio.';
 
   @override
-  String get adviceLowSodium => 'Bajo en sodio';
+  String get adviceLowSodium => 'Poco sodio';
 
   @override
   String adviceLowSodiumBody(int amount) {
-    return 'Añade ~$amount mg de sodio. Bebe moderadamente.';
+    return 'Agrega ~$amount mg sodio. Bebe moderadamente.';
   }
 
   @override
-  String get adviceDehydration => 'Falta agua';
+  String get adviceDehydration => 'Deshidratado';
 
   @override
   String adviceDehydrationBody(String type) {
@@ -195,25 +196,24 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get adviceHighRiskBody =>
-      'Bebe agua con electrolitos urgentemente (300-500 ml) y reduce la actividad.';
+      'Urgentemente bebe agua con electrolitos (300-500 ml) y reduce actividad.';
 
   @override
   String get adviceHeat => 'Calor y pérdidas';
 
   @override
-  String get adviceHeatBody =>
-      'Aumenta el agua +5-8% y añade 300-500 mg de sodio.';
+  String get adviceHeatBody => 'Aumenta agua +5-8% y agrega 300-500 mg sodio.';
 
   @override
-  String get adviceAllGood => 'Todo va bien';
+  String get adviceAllGood => 'Todo en marcha';
 
   @override
   String adviceAllGoodBody(int amount) {
-    return 'Mantén el ritmo. Meta: ~$amount ml más para completar.';
+    return 'Mantén el ritmo. Objetivo: ~$amount ml más para la meta.';
   }
 
   @override
-  String get hydrationStatus => 'Estado de Hidratación';
+  String get hydrationStatus => 'Estado de hidratación';
 
   @override
   String get hydrationStatusNormal => 'Normal';
@@ -222,25 +222,25 @@ class AppLocalizationsEs extends AppLocalizations {
   String get hydrationStatusDiluted => 'Diluyendo';
 
   @override
-  String get hydrationStatusDehydrated => 'Falta agua';
+  String get hydrationStatusDehydrated => 'Deshidratado';
 
   @override
   String get hydrationStatusLowSalt => 'Poca sal';
 
   @override
-  String get hydrationRiskIndex => 'Índice de Riesgo de Hidratación';
+  String get hydrationRiskIndex => 'Índice de riesgo de hidratación';
 
   @override
-  String get quickAdd => 'Añadir Rápido';
+  String get quickAdd => 'Agregar rápido';
 
   @override
-  String get add => 'Añadir';
+  String get add => 'Agregar';
 
   @override
   String get delete => 'Eliminar';
 
   @override
-  String get todaysDrinks => 'Bebidas de Hoy';
+  String get todaysDrinks => 'Bebidas de hoy';
 
   @override
   String get allRecords => 'Todos los registros →';
@@ -270,7 +270,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get history => 'Historial';
 
   @override
-  String get settings => 'Ajustes';
+  String get settings => 'Configuración';
 
   @override
   String get cancel => 'Cancelar';
@@ -282,7 +282,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reset => 'Restablecer';
 
   @override
-  String get settingsTitle => 'Ajustes';
+  String get settingsTitle => 'Configuración';
 
   @override
   String get languageSection => 'Idioma';
@@ -291,7 +291,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get languageSettings => 'Idioma';
 
   @override
-  String get selectLanguage => 'Seleccionar Idioma';
+  String get selectLanguage => 'Seleccionar idioma';
 
   @override
   String get profileSection => 'Perfil';
@@ -300,37 +300,37 @@ class AppLocalizationsEs extends AppLocalizations {
   String get weight => 'Peso';
 
   @override
-  String get dietMode => 'Modo de Dieta';
+  String get dietMode => 'Modo de dieta';
 
   @override
-  String get activityLevel => 'Nivel de Actividad';
+  String get activityLevel => 'Nivel de actividad';
 
   @override
-  String get changeWeight => 'Cambiar Peso';
+  String get changeWeight => 'Cambiar peso';
 
   @override
-  String get dietModeNormal => 'Dieta Normal';
+  String get dietModeNormal => 'Dieta normal';
 
   @override
-  String get dietModeKeto => 'Keto / Bajo en carbohidratos';
+  String get dietModeKeto => 'Keto / Baja en carbohidratos';
 
   @override
-  String get dietModeFasting => 'Ayuno Intermitente';
+  String get dietModeFasting => 'Ayuno intermitente';
 
   @override
-  String get activityLow => 'Actividad Baja';
+  String get activityLow => 'Actividad baja';
 
   @override
-  String get activityMedium => 'Actividad Media';
+  String get activityMedium => 'Actividad media';
 
   @override
-  String get activityHigh => 'Actividad Alta';
+  String get activityHigh => 'Actividad alta';
 
   @override
   String get activityLowDesc => 'Trabajo de oficina, poco movimiento';
 
   @override
-  String get activityMediumDesc => '30-60 minutos de ejercicio al día';
+  String get activityMediumDesc => '30-60 minutos de ejercicio por día';
 
   @override
   String get activityHighDesc => 'Entrenamientos >1 hora';
@@ -339,59 +339,59 @@ class AppLocalizationsEs extends AppLocalizations {
   String get notificationsSection => 'Notificaciones';
 
   @override
-  String get notificationLimit => 'Límite de Notificaciones (GRATIS)';
+  String get notificationLimit => 'Límite de notificaciones (FREE)';
 
   @override
   String notificationUsage(int used, int limit) {
-    return 'Usadas: $used de $limit';
+    return 'Usado: $used de $limit';
   }
 
   @override
-  String get waterReminders => 'Recordatorios de Agua';
+  String get waterReminders => 'Recordatorios de agua';
 
   @override
   String get waterRemindersDesc => 'Recordatorios regulares durante el día';
 
   @override
-  String get reminderFrequency => 'Frecuencia de Recordatorios';
+  String get reminderFrequency => 'Frecuencia de recordatorios';
 
   @override
   String timesPerDay(int count) {
-    return '$count veces al día';
+    return '$count veces por día';
   }
 
   @override
   String maxTimesPerDay(int count) {
-    return '$count veces al día (máx 4)';
+    return '$count veces por día (máx 4)';
   }
 
   @override
-  String get unlimitedReminders => 'Sin límite';
+  String get unlimitedReminders => 'Ilimitado';
 
   @override
-  String get startOfDay => 'Inicio del Día';
+  String get startOfDay => 'Inicio del día';
 
   @override
-  String get endOfDay => 'Fin del Día';
+  String get endOfDay => 'Fin del día';
 
   @override
-  String get postCoffeeReminders => 'Recordatorios Post-Café';
+  String get postCoffeeReminders => 'Recordatorios post-café';
 
   @override
   String get postCoffeeRemindersDesc =>
       'Recordar beber agua después de 20 minutos';
 
   @override
-  String get heatWarnings => 'Alertas de Calor';
+  String get heatWarnings => 'Alertas de calor';
 
   @override
   String get heatWarningsDesc => 'Notificaciones en altas temperaturas';
 
   @override
-  String get postAlcoholReminders => 'Recordatorios Post-Alcohol';
+  String get postAlcoholReminders => 'Recordatorios post-alcohol';
 
   @override
-  String get postAlcoholRemindersDesc => 'Plan de recuperación para 6-12 horas';
+  String get postAlcoholRemindersDesc => 'Plan de recuperación por 6-12 horas';
 
   @override
   String get proFeaturesSection => 'Funciones PRO';
@@ -410,13 +410,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get unitsSection => 'Unidades';
 
   @override
-  String get metricSystem => 'Sistema Métrico';
+  String get metricSystem => 'Sistema métrico';
 
   @override
   String get metricUnits => 'ml, kg, °C';
 
   @override
-  String get imperialSystem => 'Sistema Imperial';
+  String get imperialSystem => 'Sistema imperial';
 
   @override
   String get imperialUnits => 'oz, lb, °F';
@@ -428,26 +428,26 @@ class AppLocalizationsEs extends AppLocalizations {
   String get version => 'Versión';
 
   @override
-  String get rateApp => 'Calificar App';
+  String get rateApp => 'Calificar app';
 
   @override
   String get share => 'Compartir';
 
   @override
-  String get privacyPolicy => 'Política de Privacidad';
+  String get privacyPolicy => 'Política de privacidad';
 
   @override
-  String get termsOfUse => 'Términos de Uso';
+  String get termsOfUse => 'Términos de uso';
 
   @override
-  String get resetAllData => 'Restablecer Todos los Datos';
+  String get resetAllData => 'Restablecer todos los datos';
 
   @override
   String get resetDataTitle => '¿Restablecer todos los datos?';
 
   @override
   String get resetDataMessage =>
-      'Esto eliminará todo el historial y restablecerá los ajustes a los valores predeterminados.';
+      'Esto eliminará todo el historial y restaurará la configuración por defecto.';
 
   @override
   String get back => 'Atrás';
@@ -478,11 +478,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String recommendedNorm(int min, int max) {
-    return 'Norma recomendada: $min-$max ml de agua al día';
+    return 'Norma recomendada: $min-$max ml de agua por día';
   }
 
   @override
-  String get dietPageTitle => 'Modo de Dieta';
+  String get dietPageTitle => 'Modo de dieta';
 
   @override
   String get dietPageSubtitle => 'Esto afecta las necesidades de electrolitos';
@@ -494,13 +494,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get normalDietDesc => 'Recomendaciones estándar';
 
   @override
-  String get ketoDiet => 'Keto / Bajo en carbohidratos';
+  String get ketoDiet => 'Keto / Baja en carbohidratos';
 
   @override
-  String get ketoDietDesc => 'Mayor necesidad de sal';
+  String get ketoDietDesc => 'Necesidades aumentadas de sal';
 
   @override
-  String get fastingDiet => 'Ayuno Intermitente';
+  String get fastingDiet => 'Ayuno intermitente';
 
   @override
   String get fastingDietDesc => 'Régimen especial de electrolitos';
@@ -527,7 +527,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get fastingADFDesc => 'Ayuno en días alternos';
 
   @override
-  String get activityPageTitle => 'Nivel de Actividad';
+  String get activityPageTitle => 'Nivel de actividad';
 
   @override
   String get activityPageSubtitle => 'Afecta las necesidades de agua';
@@ -539,16 +539,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get lowActivityDesc => 'Trabajo de oficina, poco movimiento';
 
   @override
-  String get lowActivityWater => '+0 ml de agua';
+  String get lowActivityWater => '+0 ml agua';
 
   @override
   String get mediumActivity => 'Actividad media';
 
   @override
-  String get mediumActivityDesc => '30-60 minutos de ejercicio al día';
+  String get mediumActivityDesc => '30-60 minutos de ejercicio por día';
 
   @override
-  String get mediumActivityWater => '+350-700 ml de agua';
+  String get mediumActivityWater => '+350-700 ml agua';
 
   @override
   String get highActivity => 'Actividad alta';
@@ -557,11 +557,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get highActivityDesc => 'Entrenamientos >1 hora o trabajo físico';
 
   @override
-  String get highActivityWater => '+700-1200 ml de agua';
+  String get highActivityWater => '+700-1200 ml agua';
 
   @override
   String get activityAdjustmentNote =>
-      'Ajustaremos las metas según tus entrenamientos';
+      'Ajustaremos objetivos basados en tus entrenamientos';
 
   @override
   String get day => 'Día';
@@ -582,10 +582,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get noData => 'Sin datos';
 
   @override
-  String get noRecordsToday => 'Aún no hay registros de hoy';
+  String get noRecordsToday => 'Aún no hay registros para hoy';
 
   @override
-  String get noRecordsThisDay => 'No hay registros de este día';
+  String get noRecordsThisDay => 'No hay registros para este día';
 
   @override
   String get loadingData => 'Cargando datos...';
@@ -623,7 +623,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get alcoholStatisticsTitle => 'Estadísticas de alcohol';
 
   @override
-  String get weeklyInsights => '💡 Perspectivas semanales';
+  String get weeklyInsights => '💡 Insights semanales';
 
   @override
   String get waterPerDay => 'Agua por día';
@@ -638,17 +638,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get magnesiumPerDay => 'Magnesio por día';
 
   @override
-  String get goal => 'Meta';
+  String get goal => 'Objetivo';
 
   @override
-  String get daysWithGoalAchieved => '✅ Días con meta alcanzada';
+  String get daysWithGoalAchieved => '✅ Días con objetivo logrado';
 
   @override
   String get recordsPerDay => '📝 Registros por día';
 
   @override
-  String get insufficientDataForAnalysis =>
-      'Datos insuficientes para el análisis';
+  String get insufficientDataForAnalysis => 'Datos insuficientes para análisis';
 
   @override
   String get totalVolume => 'Volumen total';
@@ -663,7 +662,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String perfectDays(int count) {
-    return 'Días con meta perfecta: $count';
+    return 'Días con objetivo perfecto: $count';
   }
 
   @override
@@ -690,10 +689,10 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get totalSD => 'SD total';
+  String get totalSD => 'Total SD';
 
   @override
-  String get forMonth => 'por mes';
+  String get forMonth => 'del mes';
 
   @override
   String get daysWithAlcohol => 'Días con alcohol';
@@ -720,7 +719,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String bestDayMessage(String day, int percent) {
-    return '$day - $percent% de la meta';
+    return '$day - $percent% del objetivo';
   }
 
   @override
@@ -736,7 +735,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String drinkLessOnWeekdays(int percent) {
-    return 'Bebes $percent% menos entre semana';
+    return 'Bebes $percent% menos los días laborables';
   }
 
   @override
@@ -747,11 +746,11 @@ class AppLocalizationsEs extends AppLocalizations {
       'Tu hidratación mejora hacia el final de la semana';
 
   @override
-  String get decliningActivity => '📉 Actividad en descenso';
+  String get decliningActivity => '📉 Actividad decreciente';
 
   @override
   String get decliningActivityMessage =>
-      'El consumo de agua disminuye al final de la semana';
+      'El consumo de agua disminuye hacia el final de la semana';
 
   @override
   String get lowSalt => '⚠️ Poca sal';
@@ -770,32 +769,32 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get excellentWeek => '✅ Semana excelente';
+  String get excellentWeek => '✅ Excelente semana';
 
   @override
-  String get continueMessage => '¡Sigue con el buen trabajo!';
+  String get continueMessage => '¡Continúa con el buen trabajo!';
 
   @override
   String get all => 'Todo';
 
   @override
-  String get addAlcohol => 'Añadir alcohol';
+  String get addAlcohol => 'Agregar alcohol';
 
   @override
   String get minimumHarm => 'Daño mínimo';
 
   @override
   String additionalWaterNeeded(int amount) {
-    return '+$amount ml de agua necesaria';
+    return '+$amount ml agua necesaria';
   }
 
   @override
   String additionalSodiumNeeded(int amount) {
-    return '+$amount mg de sodio agregar';
+    return '+$amount mg sodio para agregar';
   }
 
   @override
-  String get goToBedEarly => 'Acuéstate temprano';
+  String get goToBedEarly => 'Acostarse temprano';
 
   @override
   String get todayConsumed => 'Consumido hoy:';
@@ -810,19 +809,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get wine => 'Vino';
 
   @override
-  String get spirits => 'Licor';
+  String get spirits => 'Licores';
 
   @override
   String get cocktail => 'Cóctel';
 
   @override
-  String get selectDrinkType => 'Selecciona el tipo de bebida:';
+  String get selectDrinkType => 'Selecciona tipo de bebida:';
 
   @override
   String get volume => 'Volumen (ml):';
 
   @override
-  String get enterVolume => 'Ingresa el volumen en ml';
+  String get enterVolume => 'Ingresa volumen en ml';
 
   @override
   String get strength => 'Graduación (%):';
@@ -831,23 +830,23 @@ class AppLocalizationsEs extends AppLocalizations {
   String get standardDrinks => 'Bebidas estándar:';
 
   @override
-  String get additionalWater => 'Agua adicional';
+  String get additionalWater => 'Agua adic.';
 
   @override
-  String get additionalSodium => 'Sodio adicional';
+  String get additionalSodium => 'Sodio adic.';
 
   @override
   String get hriRisk => 'Riesgo HRI';
 
   @override
-  String get enterValidVolume => 'Por favor ingrese un volumen válido';
+  String get enterValidVolume => 'Por favor ingresa un volumen válido';
 
   @override
   String get weeklyHistory => 'Historial semanal';
 
   @override
   String get weeklyHistoryDesc =>
-      'Analiza tendencias semanales, obtén perspectivas y recomendaciones';
+      'Analiza tendencias semanales, insights y recomendaciones';
 
   @override
   String get monthlyHistory => 'Historial mensual';
@@ -905,7 +904,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get monthly => 'Mensual';
 
   @override
-  String get oneTime => 'único pago';
+  String get oneTime => 'una vez';
 
   @override
   String get perYear => '/año';
@@ -919,7 +918,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get startFreeTrial => 'Comenzar prueba gratis de 7 días';
+  String get startFreeTrial => 'Iniciar prueba gratuita de 7 días';
 
   @override
   String continueWithPrice(String price) {
@@ -928,11 +927,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String unlockForPrice(String price) {
-    return 'Desbloquear por $price (único pago)';
+    return 'Desbloquear por $price (una vez)';
   }
 
   @override
-  String get enableFreeTrial => 'Habilitar prueba gratis de 7 días';
+  String get enableFreeTrial => 'Habilitar prueba gratuita de 7 días';
 
   @override
   String get noChargeToday =>
@@ -940,7 +939,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get cancelAnytime =>
-      'Puedes cancelar en cualquier momento en Ajustes.';
+      'Puedes cancelar en cualquier momento en Configuración.';
 
   @override
   String get everythingInPro => 'Todo en PRO';
@@ -955,7 +954,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get weeklyReports => 'Informes semanales';
 
   @override
-  String get weeklyReportsDesc => 'Análisis profundo + exportación CSV.';
+  String get weeklyReportsDesc => 'Insights profundos + exportación CSV.';
 
   @override
   String get healthIntegrations => 'Integraciones de salud';
@@ -984,7 +983,7 @@ class AppLocalizationsEs extends AppLocalizations {
       'Prueba de sudor, escala de color de orina.';
 
   @override
-  String get showAllFeatures => 'Mostrar todas las características';
+  String get showAllFeatures => 'Mostrar todas las funciones';
 
   @override
   String get showLess => 'Mostrar menos';
@@ -1002,35 +1001,43 @@ class AppLocalizationsEs extends AppLocalizations {
   String get drinkMoreWaterToday => 'Bebe más agua hoy (+20%)';
 
   @override
-  String get addElectrolytesToWater => 'Añade electrolitos a cada toma de agua';
+  String get addElectrolytesToWater =>
+      'Agrega electrolitos a cada ingesta de agua';
 
   @override
   String get limitCoffeeOneCup => 'Limita el café a una taza';
 
   @override
-  String get increaseWater10 => 'Aumenta el agua en un 10%';
+  String get increaseWater10 => 'Aumenta el agua en 10%';
 
   @override
   String get dontForgetElectrolytes => 'No olvides los electrolitos';
 
   @override
-  String get startDayWithWater => 'Empieza el día con un vaso de agua';
+  String get startDayWithWater => 'Comienza el día con un vaso de agua';
+
+  @override
+  String get dontForgetElectrolytesReminder => '⚡ No olvides los electrolitos';
+
+  @override
+  String get startDayWithWaterReminder =>
+      'Comienza el día con un vaso de agua para el bienestar';
 
   @override
   String get takeElectrolytesMorning => 'Toma electrolitos por la mañana';
 
   @override
   String purchaseFailed(String error) {
-    return 'Error de compra: $error';
+    return 'Compra fallida: $error';
   }
 
   @override
   String restoreFailed(String error) {
-    return 'Error de restauración: $error';
+    return 'Restauración fallida: $error';
   }
 
   @override
-  String get trustedByUsers => '⭐️ 4.9 — confían 12,000 usuarios';
+  String get trustedByUsers => '⭐️ 4.9 — confiado por 12,000 usuarios';
 
   @override
   String get bestValue => 'Mejor valor';
@@ -1045,7 +1052,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get checkLocationPermissions =>
-      'Verifique los permisos de ubicación e internet';
+      'Verifica permisos de ubicación e internet';
 
   @override
   String get currentLocation => 'Ubicación actual';
@@ -1057,7 +1064,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get weatherCloudy => 'nublado';
 
   @override
-  String get weatherOvercast => 'cubierto';
+  String get weatherOvercast => 'encapotado';
 
   @override
   String get weatherRain => 'lluvia';
@@ -1082,16 +1089,16 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get heatWarningVeryHot =>
-      '🌡️ ¡Muy caliente! Riesgo de deshidratación';
+      '🌡️ ¡Muy caluroso! Riesgo de deshidratación';
 
   @override
-  String get heatWarningHot => '🔥 ¡Calor! Beba más agua';
+  String get heatWarningHot => '🔥 ¡Calor! Bebe más agua';
 
   @override
   String get heatWarningElevated => '⚠️ Temperatura elevada';
 
   @override
-  String get heatWarningComfortable => 'Temperatura confortable';
+  String get heatWarningComfortable => 'Temperatura cómoda';
 
   @override
   String adjustmentWater(int percent) {
@@ -1104,6 +1111,250 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get heatWarningCold =>
-      '❄️ ¡Frío! Entra en calor y bebe líquidos tibios';
+  String get heatWarningCold => '❄️ ¡Frío! Abrígate y bebe líquidos calientes';
+
+  @override
+  String get notificationChannelName => 'Recordatorios HydraCoach';
+
+  @override
+  String get notificationChannelDescription =>
+      'Recordatorios de agua y electrolitos';
+
+  @override
+  String get urgentNotificationChannelName => 'Recordatorios urgentes';
+
+  @override
+  String get urgentNotificationChannelDescription =>
+      'Notificaciones importantes de hidratación';
+
+  @override
+  String get goodMorning => '☀️ ¡Buenos días!';
+
+  @override
+  String get timeToHydrate => '💧 Hora de hidratarse';
+
+  @override
+  String get eveningHydration => '💧 Hidratación nocturna';
+
+  @override
+  String get dailyReportTitle => '📊 Informe diario listo';
+
+  @override
+  String get dailyReportBody => 'Ve cómo fue tu día de hidratación';
+
+  @override
+  String get maintainWaterBalance =>
+      'Mantén el equilibrio hídrico durante el día';
+
+  @override
+  String get electrolytesTime =>
+      'Hora de electrolitos: agrega una pizca de sal al agua';
+
+  @override
+  String catchUpHydration(int percent) {
+    return 'Solo has bebido $percent% de la norma diaria. ¡Es hora de ponerse al día!';
+  }
+
+  @override
+  String get excellentProgress =>
+      '¡Excelente progreso! Un poco más para alcanzar la meta';
+
+  @override
+  String get postCoffeeTitle => '☕ Después del café';
+
+  @override
+  String get postCoffeeBody =>
+      'Bebe 250-300 ml de agua para restaurar el equilibrio';
+
+  @override
+  String get postWorkoutTitle => '💪 Después del entrenamiento';
+
+  @override
+  String get postWorkoutBody =>
+      'Restaura electrolitos: 500 ml agua + pizca de sal';
+
+  @override
+  String get heatWarningPro => '🌡️ PRO Alerta de calor';
+
+  @override
+  String get extremeHeatWarning =>
+      '¡Calor extremo! Aumenta el consumo de agua en 15% y agrega 1g de sal';
+
+  @override
+  String get hotWeatherWarning =>
+      '¡Calor! Bebe 10% más agua y no olvides los electrolitos';
+
+  @override
+  String get warmWeatherWarning => 'Clima cálido. Monitorea tu hidratación';
+
+  @override
+  String get alcoholRecoveryTitle => '🍺 Tiempo de recuperación';
+
+  @override
+  String get alcoholRecoveryBody =>
+      'Bebe 300 ml agua con una pizca de sal para equilibrio';
+
+  @override
+  String get continueHydration => '💧 Continúa la hidratación';
+
+  @override
+  String get alcoholRecoveryBody2 =>
+      'Otros 500 ml de agua te ayudarán a recuperarte más rápido';
+
+  @override
+  String get morningRecoveryTitle => '☀️ Recuperación matutina';
+
+  @override
+  String get morningRecoveryBody =>
+      'Comienza el día con 500 ml agua y electrolitos';
+
+  @override
+  String get testNotificationTitle => '🧪 Notificación de prueba';
+
+  @override
+  String get testNotificationBody =>
+      'Si ves esto - ¡las notificaciones instantáneas funcionan!';
+
+  @override
+  String get scheduledTestTitle => '⏰ Prueba programada (1 min)';
+
+  @override
+  String get scheduledTestBody =>
+      'Esta notificación fue programada hace 1 minuto. ¡La programación funciona!';
+
+  @override
+  String get notificationServiceInitialized =>
+      '✅ NotificationService inicializado';
+
+  @override
+  String get localNotificationsInitialized =>
+      '✅ Notificaciones locales inicializadas';
+
+  @override
+  String get androidChannelsCreated =>
+      '📢 Canales de notificación Android creados';
+
+  @override
+  String notificationsPermissionGranted(String granted) {
+    return '📝 Permiso de notificaciones: $granted';
+  }
+
+  @override
+  String exactAlarmsPermissionGranted(String granted) {
+    return '📝 Permiso de alarmas exactas: $granted';
+  }
+
+  @override
+  String fcmPermissions(String status) {
+    return '📱 Permisos FCM: $status';
+  }
+
+  @override
+  String get fcmTokenReceived => '🔑 Token FCM recibido';
+
+  @override
+  String fcmTokenSaved(String userId) {
+    return '✅ Token FCM guardado en Firestore para usuario $userId';
+  }
+
+  @override
+  String get topicSubscriptionComplete => '✅ Suscripción a tema completa';
+
+  @override
+  String foregroundMessage(String title) {
+    return '📨 Mensaje en primer plano: $title';
+  }
+
+  @override
+  String notificationOpened(String messageId) {
+    return '📱 Notificación abierta: $messageId';
+  }
+
+  @override
+  String get dailyLimitReached =>
+      '⚠️ Límite diario de notificaciones alcanzado (4/día para FREE)';
+
+  @override
+  String schedulingError(String error) {
+    return '❌ Error de programación de notificación: $error';
+  }
+
+  @override
+  String get showingImmediatelyAsFallback =>
+      'Mostrando notificación inmediatamente como respaldo';
+
+  @override
+  String instantNotificationShown(String title) {
+    return '📬 Notificación instantánea mostrada: $title';
+  }
+
+  @override
+  String get smartRemindersScheduled =>
+      '🧠 Programando recordatorios inteligentes...';
+
+  @override
+  String smartRemindersComplete(int count) {
+    return '✅ Programados $count recordatorios';
+  }
+
+  @override
+  String get proPostCoffeeScheduled =>
+      '☕ PRO: Recordatorio post-café programado';
+
+  @override
+  String get postWorkoutScheduled =>
+      '💪 Recordatorio post-entrenamiento programado';
+
+  @override
+  String get proHeatWarningPro => '🌡️ PRO: Alerta de calor enviada';
+
+  @override
+  String get proAlcoholRecoveryPlan =>
+      '🍺 PRO: Plan de recuperación de alcohol programado';
+
+  @override
+  String eveningReportScheduled(int day, int month) {
+    return '📊 Informe nocturno programado para $day.$month a las 21:00';
+  }
+
+  @override
+  String notificationCancelled(int id) {
+    return '🚫 Notificación $id cancelada';
+  }
+
+  @override
+  String get allNotificationsCancelled =>
+      '🗑️ Todas las notificaciones canceladas';
+
+  @override
+  String get reminderSettingsSaved =>
+      '✅ Configuración de recordatorios guardada';
+
+  @override
+  String testNotificationScheduledFor(String time) {
+    return '⏰ Notificación de prueba programada para $time';
+  }
+
+  @override
+  String get tomorrowRecommendations => 'Tomorrow\'s recommendations';
+
+  @override
+  String get recommendationExcellent =>
+      'Excellent work! Keep it up. Try to start the day with a glass of water and maintain even consumption.';
+
+  @override
+  String get recommendationDiluted =>
+      'You drink a lot of water but few electrolytes. Tomorrow add more salt or drink an electrolyte beverage. Try starting the day with salty broth.';
+
+  @override
+  String get recommendationDehydrated =>
+      'Not enough water today. Tomorrow set reminders every 2 hours. Keep a water bottle in sight.';
+
+  @override
+  String get recommendationLowSalt =>
+      'Low sodium levels can cause fatigue. Add a pinch of salt to water or drink broth. Especially important on keto or fasting.';
+
+  @override
+  String get recommendationGeneral =>
+      'Aim for balance between water and electrolytes. Drink evenly throughout the day and don\'t forget salt in heat.';
 }

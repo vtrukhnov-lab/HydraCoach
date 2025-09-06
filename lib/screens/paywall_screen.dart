@@ -100,7 +100,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return WillPopScope(
       onWillPop: () async => widget.showCloseButton,
@@ -242,9 +242,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
     final isAnnual = pack.plan == Plan.annual;
     final perMonthLabel = isAnnual ? l10n.approximatelyPerMonth(_formatMoney(pack.price / 12)) : null;
 
-    // заголовки планов
+    // FIXED: Всегда используем локализацию, не Remote Config
     final title = switch (pack.plan) {
-      Plan.lifetime => _rc.paywallLifetimeText.isNotEmpty ? _rc.paywallLifetimeText : l10n.lifetimeAccess,
+      Plan.lifetime => l10n.lifetimeAccess,
       Plan.annual  => l10n.bestValueAnnual,
       Plan.monthly => l10n.monthly,
     };
@@ -404,13 +404,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
         children: [
           Expanded(
             child: Text(
-              _rc.paywallTrialText.isNotEmpty ? _rc.paywallTrialText : l10n.enableFreeTrial,
+              l10n.enableFreeTrial,
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: isDark ? Colors.white : const Color(0xFF2D3436)),
             ),
           ),
           CupertinoSwitch(
             value: _trialEnabledSwitch,
-            activeColor: Colors.cyan,
+            activeTrackColor: Colors.cyan,
             onChanged: (v) {
               HapticFeedback.selectionClick();
               setState(() => _trialEnabledSwitch = v);
@@ -451,7 +451,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   Widget _buildAutoRenewNote(bool isDark, AppLocalizations l10n) {
     final color = isDark ? Colors.white70 : Colors.grey.shade700;
-    return Text(l10n.noChargeToday, textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: color, height: 1.3));
+    
+    // Показываем разный текст в зависимости от триала
+    final text = (_showTrialSwitch && _trialEnabledSwitch) 
+        ? l10n.noChargeToday 
+        : l10n.cancelAnytime;
+    
+    return Text(text, textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: color, height: 1.3));
   }
 
   Widget _buildFeatures(bool isDark, AppLocalizations l10n) {
@@ -544,7 +550,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   // ---------- Actions ----------
   Future<void> _handlePurchase() async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     if (_isLoading) return;
     HapticFeedback.mediumImpact();
     setState(() => _isLoading = true);
@@ -657,7 +663,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
   }
 
   Future<void> _handleRestore() async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     if (_isLoading) return;
     HapticFeedback.selectionClick();
     setState(() => _isLoading = true);

@@ -27,10 +27,6 @@ import 'services/weather_service.dart';
 import 'services/alcohol_service.dart';
 import 'services/hri_service.dart';
 import 'services/locale_service.dart';
-import 'widgets/weather_card.dart';
-import 'widgets/daily_report.dart';
-import 'widgets/alcohol_card.dart';
-import 'widgets/alcohol_checkin_dialog.dart';
 
 // Background message handler
 @pragma('vm:entry-point')
@@ -46,7 +42,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Инициализируем Firebase только если еще не инициализирован
+  // Initialize Firebase only if not already initialized
   try {
     if (Firebase.apps.isEmpty) {
       await Firebase.initializeApp(
@@ -57,10 +53,10 @@ void main() async {
     print('Firebase initialization error: $e');
   }
   
-  // Инициализируем локализацию
+  // Initialize localization
   await LocaleService.instance.initialize();
   
-  // Тестовое уведомление при запуске
+  // Test notification on startup - now properly localized
   try {
     final FlutterLocalNotificationsPlugin testPlugin = FlutterLocalNotificationsPlugin();
     const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -87,22 +83,32 @@ void main() async {
     
     const NotificationDetails details = NotificationDetails(android: androidDetails);
     
-    // Получаем сохраненную локаль для уведомления
+    // Get saved locale for notification
     final prefs = await SharedPreferences.getInstance();
     final savedLocale = prefs.getString('locale') ?? 'en';
     
-    // Показываем уведомление на правильном языке
-    final title = savedLocale == 'es' ? '¡HydraCoach iniciado!' : 
-                  savedLocale == 'ru' ? 'HydraCoach запущен!' :
-                  'HydraCoach launched!';
-    final body = savedLocale == 'es' ? '¡La aplicación está lista para trabajar con el seguimiento del alcohol!' :
-                 savedLocale == 'ru' ? 'Приложение готово к работе с алкогольным трекингом!' :
-                 'App is ready to work with alcohol tracking!';
+    // FIXED: Use localized strings instead of hardcoded
+    final Map<String, Map<String, String>> localizedStartup = {
+      'en': {
+        'title': 'HydraCoach launched!',
+        'body': 'App is ready to work with alcohol tracking!'
+      },
+      'ru': {
+        'title': 'HydraCoach запущен!',
+        'body': 'Приложение готово к работе с алкогольным трекингом!'
+      },
+      'es': {
+        'title': '¡HydraCoach iniciado!',
+        'body': '¡La aplicación está lista para trabajar con el seguimiento del alcohol!'
+      }
+    };
+    
+    final strings = localizedStartup[savedLocale] ?? localizedStartup['en']!;
     
     await testPlugin.show(
       12345,
-      title,
-      body,
+      strings['title']!,
+      strings['body']!,
       details,
     );
     
@@ -114,7 +120,7 @@ void main() async {
   await RemoteConfigService.instance.initialize();
   await SubscriptionService.instance.initialize();
   
-  // Настраиваем Firebase Messaging
+  // Setup Firebase Messaging
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   
   final messaging = FirebaseMessaging.instance;
@@ -131,10 +137,10 @@ void main() async {
   final fcmToken = await messaging.getToken();
   
   if (kDebugMode && fcmToken != null) {
-    print('════════════════════════════════════════════════════════════');
+    print('═══════════════════════════════════════════════════════════════');
     print('FCM TOKEN (copy for testing):');
     print(fcmToken);
-    print('════════════════════════════════════════════════════════════');
+    print('═══════════════════════════════════════════════════════════════');
   }
   
   await notif.NotificationService.initialize();
@@ -191,7 +197,7 @@ class MyApp extends StatelessWidget {
           title: 'HydraCoach',
           debugShowCheckedModeBanner: false,
           
-          // Локализация
+          // Localization
           locale: localeService.currentLocale,
           supportedLocales: const [
             Locale('en'),
@@ -231,7 +237,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Модели данных
+// Data models
 class DailyGoals {
   final int waterMin;
   final int waterOpt;
@@ -270,7 +276,15 @@ class Intake {
   });
 }
 
-// Обновленный провайдер состояния с учетом алкоголя и локализации
+// Internal status enum for logic (not exposed to UI)
+enum _HydrationStatusInternal {
+  normal,
+  diluted,
+  dehydrated,
+  lowSalt,
+}
+
+// Updated provider with localization support and alcohol tracking
 class HydrationProvider extends ChangeNotifier {
   double weight = 70;
   String dietMode = 'normal';
@@ -280,7 +294,7 @@ class HydrationProvider extends ChangeNotifier {
   double weatherWaterAdjustment = 0;
   int weatherSodiumAdjustment = 0;
   
-  // Корректировки от алкоголя
+  // Alcohol adjustments
   double alcoholWaterAdjustment = 0;
   int alcoholSodiumAdjustment = 0;
   
@@ -295,7 +309,7 @@ class HydrationProvider extends ChangeNotifier {
     _subscribeFCMTopics();
   }
   
-  // НОВЫЕ ГЕТТЕРЫ ДЛЯ HRI СЕРВИСА
+  // NEW GETTERS FOR HRI SERVICE
   double get totalWaterToday {
     double total = 0;
     for (var intake in todayIntakes) {
@@ -324,7 +338,7 @@ class HydrationProvider extends ChangeNotifier {
     if (todayIntakes.isEmpty) return null;
     return todayIntakes.last.timestamp;
   }
-  // КОНЕЦ НОВЫХ ГЕТТЕРОВ
+  // END NEW GETTERS
   
   void _subscribeFCMTopics() async {
     final messaging = FirebaseMessaging.instance;
@@ -340,31 +354,31 @@ class HydrationProvider extends ChangeNotifier {
   }
   
   void _calculateGoals() {
-    // ИСПРАВЛЕНИЕ: Всегда начинаем с БАЗОВЫХ значений
+    // FIXED: Always start with BASE values
     int baseWaterMin = (_remoteConfig.waterMinPerKg * weight).round();
     int baseWaterOpt = (_remoteConfig.waterOptPerKg * weight).round();
     int baseWaterMax = (_remoteConfig.waterMaxPerKg * weight).round();
     
-    // Начинаем с базовых значений
+    // Start with base values
     int waterMin = baseWaterMin;
     int waterOpt = baseWaterOpt;
     int waterMax = baseWaterMax;
     
-    // Применяем корректировку от погоды (процентное увеличение от БАЗЫ)
+    // Apply weather correction (percentage increase from BASE)
     if (weatherWaterAdjustment > 0) {
       waterMin = (baseWaterMin * (1 + weatherWaterAdjustment)).round();
       waterOpt = (baseWaterOpt * (1 + weatherWaterAdjustment)).round();
       waterMax = (baseWaterMax * (1 + weatherWaterAdjustment)).round();
     }
     
-    // Применяем корректировку от алкоголя (добавление к уже скорректированным значениям)
+    // Apply alcohol correction (addition to already corrected values)
     if (alcoholWaterAdjustment > 0) {
       waterMin += alcoholWaterAdjustment.round();
       waterOpt += alcoholWaterAdjustment.round();
       waterMax += alcoholWaterAdjustment.round();
     }
     
-    // БАЗОВЫЕ значения электролитов
+    // BASE electrolyte values
     int baseSodium = dietMode == 'keto' || dietMode == 'fasting' 
         ? _remoteConfig.sodiumKeto 
         : _remoteConfig.sodiumNormal;
@@ -375,18 +389,18 @@ class HydrationProvider extends ChangeNotifier {
         ? _remoteConfig.magnesiumKeto 
         : _remoteConfig.magnesiumNormal;
     
-    // Начинаем с базовых значений
+    // Start with base values
     int sodium = baseSodium;
     int potassium = basePotassium;
     int magnesium = baseMagnesium;
     
-    // Добавляем корректировку соли от погоды
+    // Add weather salt correction
     sodium += weatherSodiumAdjustment;
     
-    // Добавляем корректировку соли от алкоголя
+    // Add alcohol salt correction
     sodium += alcoholSodiumAdjustment;
     
-    // Создаём финальные цели
+    // Create final goals
     goals = DailyGoals(
       waterMin: waterMin,
       waterOpt: waterOpt,
@@ -396,7 +410,7 @@ class HydrationProvider extends ChangeNotifier {
       magnesium: magnesium,
     );
     
-    // Отладочная информация
+    // Debug info
     if (kDebugMode) {
       print('=== Goals Calculation Debug ===');
       print('Weight: $weight kg');
@@ -452,7 +466,7 @@ class HydrationProvider extends ChangeNotifier {
     notifyListeners();
   }
   
-  // Метод сохранения
+  // Save method
   Future<void> _saveIntakes() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -469,12 +483,12 @@ class HydrationProvider extends ChangeNotifier {
       await prefs.setDouble('waterProgress', progress['waterPercent']!);
       
       if (kDebugMode) {
-        print('✅ Сохранено ${todayIntakes.length} записей');
-        print('📊 Прогресс воды: ${progress['waterPercent']?.toStringAsFixed(1)}%');
+        print('✅ Saved ${todayIntakes.length} records');
+        print('📊 Water progress: ${progress['waterPercent']?.toStringAsFixed(1)}%');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Ошибка сохранения: $e');
+        print('❌ Save error: $e');
       }
     }
   }
@@ -522,9 +536,9 @@ class HydrationProvider extends ChangeNotifier {
     await prefs.setString('activityLevel', activityLevel);
   }
   
-  // ИСПРАВЛЕННЫЙ метод добавления воды (синхронная версия с мгновенным UI обновлением)
+  // FIXED: Synchronous method for adding water with instant UI updates
   void addIntake(String type, int volume, {int sodium = 0, int potassium = 0, int magnesium = 0}) {
-    // Добавляем в список
+    // Add to list
     todayIntakes.add(Intake(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       timestamp: DateTime.now(),
@@ -535,33 +549,33 @@ class HydrationProvider extends ChangeNotifier {
       magnesium: magnesium,
     ));
     
-    // Вибрация для обратной связи
+    // Haptic feedback
     HapticFeedback.lightImpact();
     
     if (kDebugMode) {
-      print('➕ Добавлено: $type, объем: $volume мл');
-      print('📋 Всего записей: ${todayIntakes.length}');
+      print('➕ Added: $type, volume: $volume ml');
+      print('🔋 Total records: ${todayIntakes.length}');
     }
     
-    // ВАЖНО: Сначала уведомляем UI об изменениях
+    // IMPORTANT: First notify UI about changes
     notifyListeners();
     
-    // Затем сохраняем асинхронно (не ждем завершения)
+    // Then save asynchronously (don't wait for completion)
     _saveIntakes().then((_) {
       if (kDebugMode) {
-        print('💾 Данные сохранены в SharedPreferences');
+        print('💾 Data saved to SharedPreferences');
       }
     }).catchError((error) {
       if (kDebugMode) {
-        print('❌ Ошибка при сохранении: $error');
+        print('❌ Save error: $error');
       }
     });
     
-    // Планируем напоминание после кофе
+    // Schedule post-coffee reminder
     if (type == 'coffee') {
       notif.NotificationService().schedulePostCoffeeReminder().then((success) {
         if (kDebugMode && success) {
-          print('☕ Напоминание после кофе запланировано');
+          print('☕ Post-coffee reminder scheduled');
         }
       });
     }
@@ -570,13 +584,13 @@ class HydrationProvider extends ChangeNotifier {
   void removeIntake(String id) {
     todayIntakes.removeWhere((intake) => intake.id == id);
     
-    // Сначала обновляем UI
+    // First update UI
     notifyListeners();
     
-    // Затем сохраняем
+    // Then save
     _saveIntakes().then((_) {
       if (kDebugMode) {
-        print('➖ Удалена запись: $id');
+        print('➖ Deleted record: $id');
       }
     });
   }
@@ -608,40 +622,66 @@ class HydrationProvider extends ChangeNotifier {
     };
   }
   
-  String getHydrationStatus() {
+  // Private method to get internal status enum (for logic)
+  _HydrationStatusInternal _getInternalHydrationStatus() {
     final progress = getProgress();
     final waterRatio = progress['water']! / goals.waterOpt;
     final sodiumRatio = progress['sodium']! / goals.sodium;
     
     if (waterRatio > _remoteConfig.dilutionWaterThreshold && 
         sodiumRatio < _remoteConfig.dilutionSodiumThreshold) {
-      return 'Разбавляешь';
+      return _HydrationStatusInternal.diluted;
     } else if (waterRatio < _remoteConfig.dehydrationThreshold) {
-      return 'Недобор воды';
+      return _HydrationStatusInternal.dehydrated;
     } else if (sodiumRatio < _remoteConfig.lowSaltThreshold) {
-      return 'Мало соли';
+      return _HydrationStatusInternal.lowSalt;
     } else {
-      return 'Норма';
+      return _HydrationStatusInternal.normal;
+    }
+  }
+  
+  // Public method to get localized status string
+  String getHydrationStatus(AppLocalizations l10n) {
+    final status = _getInternalHydrationStatus();
+    
+    switch (status) {
+      case _HydrationStatusInternal.normal:
+        return l10n.hydrationStatusNormal;
+      case _HydrationStatusInternal.diluted:
+        return l10n.hydrationStatusDiluted;
+      case _HydrationStatusInternal.dehydrated:
+        return l10n.hydrationStatusDehydrated;
+      case _HydrationStatusInternal.lowSalt:
+        return l10n.hydrationStatusLowSalt;
     }
   }
   
   int getHRI(AlcoholService? alcoholService) {
-    final status = getHydrationStatus();
+    final status = _getInternalHydrationStatus();
     int baseHRI = 0;
     
+    // Use internal enum for logic
     switch (status) {
-      case 'Норма': baseHRI = 15; break;
-      case 'Мало соли': baseHRI = 45; break;
-      case 'Недобор воды': baseHRI = 55; break;
-      case 'Разбавляешь': baseHRI = 65; break;
+      case _HydrationStatusInternal.normal:
+        baseHRI = 15;
+        break;
+      case _HydrationStatusInternal.lowSalt:
+        baseHRI = 45;
+        break;
+      case _HydrationStatusInternal.dehydrated:
+        baseHRI = 55;
+        break;
+      case _HydrationStatusInternal.diluted:
+        baseHRI = 65;
+        break;
     }
     
-    // Добавляем риск от погоды
+    // Add weather risk
     if (weatherWaterAdjustment > 0.1) {
       baseHRI += 10;
     }
     
-    // Добавляем риск от алкоголя
+    // Add alcohol risk
     if (alcoholService != null) {
       baseHRI += alcoholService.totalHRIModifier.round();
     }
@@ -650,7 +690,7 @@ class HydrationProvider extends ChangeNotifier {
   }
 }
 
-// Экран загрузки
+// Splash screen
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -666,15 +706,15 @@ class _SplashScreenState extends State<SplashScreen> {
   }
   
   Future<void> _initializeApp() async {
-    // Инициализируем подписку
+    // Initialize subscription
     final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
     await subscriptionProvider.initialize();
     
-    // Инициализируем алкогольный сервис
+    // Initialize alcohol service
     final alcoholService = Provider.of<AlcoholService>(context, listen: false);
     await alcoholService.init();
     
-    // Проверяем онбординг
+    // Check onboarding
     final prefs = await SharedPreferences.getInstance();
     final completed = prefs.getBool('onboardingCompleted') ?? false;
     

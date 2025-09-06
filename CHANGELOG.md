@@ -14,7 +14,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dark theme support
 - Home screen widgets
 
-## [0.4.0] - 2025-01-04
+
+[0.5.0] - 2025-09-06
+Added
+
+Complete Localization System Refactoring
+
+Implemented Flutter ARB-based localization system
+Added support for three languages: English (EN), Russian (RU), Spanish (ES)
+Created comprehensive app_en.arb with 200+ localized strings
+Added Russian translations (app_ru.arb) with proper declensions
+Added Spanish translations (app_es.arb) with regional variations
+Integrated flutter_localizations for system UI components
+
+Refactored UI Components
+
+All widgets now use context-based localization
+Quick-add buttons display in user's language
+Settings screen fully localized
+Reports generate in selected language
+
+
+Remote Config Integration
+
+Paywall texts now pulled from Remote Config per locale
+A/B test variants support multiple languages
+Error messages configured per language
+
+
+
+Fixed
+
+Fixed missing placeholders in hydration status messages
+Resolved RTL layout issues for future Arabic support
+Fixed date/time formatting for different locales
+Corrected number formatting (decimal separators) per region
+Fixed notification scheduling with proper timezone handling
+
+Technical
+
+Added flutter_gen for type-safe localization access
+Implemented AppLocalizations.delegate in MaterialApp
+Created l10n.yaml configuration for ARB processing
+Added locale persistence in SharedPreferences
+Integrated intl package for date/number formatting
+Set up CI/CD checks for missing translations
+Added lint rules for hardcoded string detection
+
+Migration Notes
+
+Developers must run flutter gen-l10n after pulling this update
+All new features MUST add strings to app_en.arb first
+Use AppLocalizations.of(context)!.keyName for all text
+Never commit hardcoded strings - will fail CI checks
+
+
+## [0.4.0] - 2025-09-04
 ### Added
 - **Redesigned Home Screen**
   - Single water ring with percentage display

@@ -571,10 +571,12 @@
   "noPurchasesToRestore": "No purchases found to restore",
   "drinkMoreWaterToday": "Drink more water today (+20%)",
   "addElectrolytesToWater": "Add electrolytes to each water intake",
-  "limitCoffeeOneCup": "Limit coffee to one cup",
+    "limitCoffeeOneCup": "Limit coffee to one cup",
   "increaseWater10": "Increase water by 10%",
   "dontForgetElectrolytes": "Don't forget electrolytes",
   "startDayWithWater": "Start your day with a glass of water",
+  "dontForgetElectrolytesReminder": "⚡ Don't forget electrolytes",
+  "startDayWithWaterReminder": "Start your day with a glass of water for good wellbeing",
   "takeElectrolytesMorning": "Take electrolytes in the morning",
   "purchaseFailed": "Purchase failed: {error}",
   "@purchaseFailed": {
@@ -635,5 +637,176 @@
       }
     }
   },
-  "heatWarningCold": "❄️ Cold! Warm up and drink warm fluids"
+  "heatWarningCold": "❄️ Cold! Warm up and drink warm fluids",
+  "notificationChannelName": "HydraCoach Reminders",
+  "@notificationChannelName": {
+    "description": "Name of the notification channel"
+  },
+  "notificationChannelDescription": "Water and electrolyte reminders",
+  "@notificationChannelDescription": {
+    "description": "Description of the notification channel"
+  },
+  "urgentNotificationChannelName": "Urgent Reminders",
+  "@urgentNotificationChannelName": {
+    "description": "Name of the urgent notification channel"
+  },
+  "urgentNotificationChannelDescription": "Important hydration notifications",
+  "@urgentNotificationChannelDescription": {
+    "description": "Description of the urgent notification channel"
+  },
+  "goodMorning": "☀️ Good morning!",
+  "startDayWithWaterReminder": "Start your day with a glass of water for good wellbeing",
+  "timeToHydrate": "💧 Time to hydrate",
+  "dontForgetElectrolytesReminder": "⚡ Don't forget electrolytes",
+  "eveningHydration": "💧 Evening hydration",
+  "dailyReportTitle": "📊 Daily report ready",
+  "dailyReportBody": "See how your hydration day went",
+  "maintainWaterBalance": "Maintain water balance throughout the day",
+  "electrolytesTime": "Time for electrolytes: add a pinch of salt to water",
+  "catchUpHydration": "You've drunk only {percent}% of daily norm. Time to catch up!",
+  "@catchUpHydration": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "excellentProgress": "Excellent progress! A bit more to reach the goal",
+  "postCoffeeTitle": "☕ After coffee",
+  "postCoffeeBody": "Drink 250-300 ml water to restore balance",
+  "postWorkoutTitle": "💪 After workout",
+  "postWorkoutBody": "Restore electrolytes: 500 ml water + pinch of salt",
+  "heatWarningPro": "🌡️ PRO Heat warning",
+  "extremeHeatWarning": "Extreme heat! Increase water consumption by 15% and add 1g salt",
+  "hotWeatherWarning": "Hot! Drink 10% more water and don't forget electrolytes",
+  "warmWeatherWarning": "Warm weather. Monitor your hydration",
+  "alcoholRecoveryTitle": "🍺 Recovery time",
+  "alcoholRecoveryBody": "Drink 300 ml water with a pinch of salt for balance",
+  "continueHydration": "💧 Continue hydration",
+  "alcoholRecoveryBody2": "Another 500 ml water will help you recover faster",
+  "morningRecoveryTitle": "☀️ Morning recovery",
+  "morningRecoveryBody": "Start the day with 500 ml water and electrolytes",
+  "testNotificationTitle": "🧪 Test notification",
+  "testNotificationBody": "If you see this - instant notifications work!",
+  "scheduledTestTitle": "⏰ Scheduled test (1 min)",
+  "scheduledTestBody": "This notification was scheduled 1 minute ago. Scheduling works!",
+  "notificationServiceInitialized": "✅ NotificationService initialized",
+  "localNotificationsInitialized": "✅ Local notifications initialized",
+  "androidChannelsCreated": "📢 Android notification channels created",
+  "notificationsPermissionGranted": "📝 Notifications permission: {granted}",
+  "@notificationsPermissionGranted": {
+    "placeholders": {
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+  "exactAlarmsPermissionGranted": "📝 Exact alarms permission: {granted}",
+  "@exactAlarmsPermissionGranted": {
+    "placeholders": {
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+  "fcmPermissions": "📱 FCM permissions: {status}",
+  "@fcmPermissions": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "fcmTokenReceived": "🔑 FCM Token received",
+  "fcmTokenSaved": "✅ FCM Token saved to Firestore for user {userId}",
+  "@fcmTokenSaved": {
+    "placeholders": {
+      "userId": {
+        "type": "String"
+      }
+    }
+  },
+  "topicSubscriptionComplete": "✅ Topic subscription complete",
+  "foregroundMessage": "📨 Foreground message: {title}",
+  "@foregroundMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationOpened": "📱 Notification opened: {messageId}",
+  "@notificationOpened": {
+    "placeholders": {
+      "messageId": {
+        "type": "String"
+      }
+    }
+  },
+  "dailyLimitReached": "⚠️ Daily notification limit reached (4/day for FREE)",
+  "schedulingError": "❌ Notification scheduling error: {error}",
+  "@schedulingError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "showingImmediatelyAsFallback": "Showing notification immediately as fallback",
+  "instantNotificationShown": "📬 Instant notification shown: {title}",
+  "@instantNotificationShown": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "smartRemindersScheduled": "🧠 Scheduling smart reminders...",
+  "smartRemindersComplete": "✅ Scheduled {count} reminders",
+  "@smartRemindersComplete": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "proPostCoffeeScheduled": "☕ PRO: Post-coffee reminder scheduled",
+  "postWorkoutScheduled": "💪 Post-workout reminder scheduled",
+  "proHeatWarningPro": "🌡️ PRO: Heat warning sent",
+  "proAlcoholRecoveryPlan": "🍺 PRO: Alcohol recovery plan scheduled",
+  "eveningReportScheduled": "📊 Evening report scheduled for {day}.{month} at 21:00",
+  "@eveningReportScheduled": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationCancelled": "🚫 Notification {id} cancelled",
+  "@notificationCancelled": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "allNotificationsCancelled": "🗑️ All notifications cancelled",
+  "reminderSettingsSaved": "✅ Reminder settings saved",
+  "testNotificationScheduledFor": "⏰ Test notification scheduled for {time}",
+  "@testNotificationScheduledFor": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+     }
+    }
+  },
+  "tomorrowRecommendations": "Recomendaciones para mañana",
+  "recommendationExcellent": "¡Excelente trabajo! Continúa así. Trata de comenzar el día con un vaso de agua y mantener un consumo uniforme.",
+  "recommendationDiluted": "Bebes mucha agua pero pocos electrolitos. Mañana agrega más sal o bebe una bebida electrolítica. Intenta comenzar el día con caldo salado.",
+  "recommendationDehydrated": "No suficiente agua hoy. Mañana pon recordatorios cada 2 horas. Mantén una botella de agua a la vista.",
+  "recommendationLowSalt": "Los niveles bajos de sodio pueden causar fatiga. Agrega una pizca de sal al agua o bebe caldo. Especialmente importante en keto o ayuno.",
+  "recommendationGeneral": "Busca el equilibrio entre agua y electrolitos. Bebe uniformemente durante el día y no olvides la sal en el calor."
 }

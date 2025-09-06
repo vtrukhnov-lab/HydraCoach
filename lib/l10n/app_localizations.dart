@@ -1942,6 +1942,18 @@ abstract class AppLocalizations {
   /// **'Start your day with a glass of water'**
   String get startDayWithWater;
 
+  /// No description provided for @dontForgetElectrolytesReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'⚡ Don\'t forget electrolytes'**
+  String get dontForgetElectrolytesReminder;
+
+  /// No description provided for @startDayWithWaterReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Start your day with a glass of water for good wellbeing'**
+  String get startDayWithWaterReminder;
+
   /// No description provided for @takeElectrolytesMorning.
   ///
   /// In en, this message translates to:
@@ -2097,6 +2109,384 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'❄️ Cold! Warm up and drink warm fluids'**
   String get heatWarningCold;
+
+  /// Name of the notification channel
+  ///
+  /// In en, this message translates to:
+  /// **'HydraCoach Reminders'**
+  String get notificationChannelName;
+
+  /// Description of the notification channel
+  ///
+  /// In en, this message translates to:
+  /// **'Water and electrolyte reminders'**
+  String get notificationChannelDescription;
+
+  /// Name of the urgent notification channel
+  ///
+  /// In en, this message translates to:
+  /// **'Urgent Reminders'**
+  String get urgentNotificationChannelName;
+
+  /// Description of the urgent notification channel
+  ///
+  /// In en, this message translates to:
+  /// **'Important hydration notifications'**
+  String get urgentNotificationChannelDescription;
+
+  /// No description provided for @goodMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'☀️ Good morning!'**
+  String get goodMorning;
+
+  /// No description provided for @timeToHydrate.
+  ///
+  /// In en, this message translates to:
+  /// **'💧 Time to hydrate'**
+  String get timeToHydrate;
+
+  /// No description provided for @eveningHydration.
+  ///
+  /// In en, this message translates to:
+  /// **'💧 Evening hydration'**
+  String get eveningHydration;
+
+  /// No description provided for @dailyReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'📊 Daily report ready'**
+  String get dailyReportTitle;
+
+  /// No description provided for @dailyReportBody.
+  ///
+  /// In en, this message translates to:
+  /// **'See how your hydration day went'**
+  String get dailyReportBody;
+
+  /// No description provided for @maintainWaterBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintain water balance throughout the day'**
+  String get maintainWaterBalance;
+
+  /// No description provided for @electrolytesTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time for electrolytes: add a pinch of salt to water'**
+  String get electrolytesTime;
+
+  /// No description provided for @catchUpHydration.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve drunk only {percent}% of daily norm. Time to catch up!'**
+  String catchUpHydration(int percent);
+
+  /// No description provided for @excellentProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent progress! A bit more to reach the goal'**
+  String get excellentProgress;
+
+  /// No description provided for @postCoffeeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'☕ After coffee'**
+  String get postCoffeeTitle;
+
+  /// No description provided for @postCoffeeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink 250-300 ml water to restore balance'**
+  String get postCoffeeBody;
+
+  /// No description provided for @postWorkoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'💪 After workout'**
+  String get postWorkoutTitle;
+
+  /// No description provided for @postWorkoutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore electrolytes: 500 ml water + pinch of salt'**
+  String get postWorkoutBody;
+
+  /// No description provided for @heatWarningPro.
+  ///
+  /// In en, this message translates to:
+  /// **'🌡️ PRO Heat warning'**
+  String get heatWarningPro;
+
+  /// No description provided for @extremeHeatWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Extreme heat! Increase water consumption by 15% and add 1g salt'**
+  String get extremeHeatWarning;
+
+  /// No description provided for @hotWeatherWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot! Drink 10% more water and don\'t forget electrolytes'**
+  String get hotWeatherWarning;
+
+  /// No description provided for @warmWeatherWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm weather. Monitor your hydration'**
+  String get warmWeatherWarning;
+
+  /// No description provided for @alcoholRecoveryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'🍺 Recovery time'**
+  String get alcoholRecoveryTitle;
+
+  /// No description provided for @alcoholRecoveryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink 300 ml water with a pinch of salt for balance'**
+  String get alcoholRecoveryBody;
+
+  /// No description provided for @continueHydration.
+  ///
+  /// In en, this message translates to:
+  /// **'💧 Continue hydration'**
+  String get continueHydration;
+
+  /// No description provided for @alcoholRecoveryBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'Another 500 ml water will help you recover faster'**
+  String get alcoholRecoveryBody2;
+
+  /// No description provided for @morningRecoveryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'☀️ Morning recovery'**
+  String get morningRecoveryTitle;
+
+  /// No description provided for @morningRecoveryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the day with 500 ml water and electrolytes'**
+  String get morningRecoveryBody;
+
+  /// No description provided for @testNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'🧪 Test notification'**
+  String get testNotificationTitle;
+
+  /// No description provided for @testNotificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'If you see this - instant notifications work!'**
+  String get testNotificationBody;
+
+  /// No description provided for @scheduledTestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'⏰ Scheduled test (1 min)'**
+  String get scheduledTestTitle;
+
+  /// No description provided for @scheduledTestBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This notification was scheduled 1 minute ago. Scheduling works!'**
+  String get scheduledTestBody;
+
+  /// No description provided for @notificationServiceInitialized.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ NotificationService initialized'**
+  String get notificationServiceInitialized;
+
+  /// No description provided for @localNotificationsInitialized.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Local notifications initialized'**
+  String get localNotificationsInitialized;
+
+  /// No description provided for @androidChannelsCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'📢 Android notification channels created'**
+  String get androidChannelsCreated;
+
+  /// No description provided for @notificationsPermissionGranted.
+  ///
+  /// In en, this message translates to:
+  /// **'📝 Notifications permission: {granted}'**
+  String notificationsPermissionGranted(String granted);
+
+  /// No description provided for @exactAlarmsPermissionGranted.
+  ///
+  /// In en, this message translates to:
+  /// **'📝 Exact alarms permission: {granted}'**
+  String exactAlarmsPermissionGranted(String granted);
+
+  /// No description provided for @fcmPermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'📱 FCM permissions: {status}'**
+  String fcmPermissions(String status);
+
+  /// No description provided for @fcmTokenReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'🔑 FCM Token received'**
+  String get fcmTokenReceived;
+
+  /// No description provided for @fcmTokenSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ FCM Token saved to Firestore for user {userId}'**
+  String fcmTokenSaved(String userId);
+
+  /// No description provided for @topicSubscriptionComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Topic subscription complete'**
+  String get topicSubscriptionComplete;
+
+  /// No description provided for @foregroundMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'📨 Foreground message: {title}'**
+  String foregroundMessage(String title);
+
+  /// No description provided for @notificationOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'📱 Notification opened: {messageId}'**
+  String notificationOpened(String messageId);
+
+  /// No description provided for @dailyLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ Daily notification limit reached (4/day for FREE)'**
+  String get dailyLimitReached;
+
+  /// No description provided for @schedulingError.
+  ///
+  /// In en, this message translates to:
+  /// **'❌ Notification scheduling error: {error}'**
+  String schedulingError(String error);
+
+  /// No description provided for @showingImmediatelyAsFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing notification immediately as fallback'**
+  String get showingImmediatelyAsFallback;
+
+  /// No description provided for @instantNotificationShown.
+  ///
+  /// In en, this message translates to:
+  /// **'📬 Instant notification shown: {title}'**
+  String instantNotificationShown(String title);
+
+  /// No description provided for @smartRemindersScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'🧠 Scheduling smart reminders...'**
+  String get smartRemindersScheduled;
+
+  /// No description provided for @smartRemindersComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Scheduled {count} reminders'**
+  String smartRemindersComplete(int count);
+
+  /// No description provided for @proPostCoffeeScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'☕ PRO: Post-coffee reminder scheduled'**
+  String get proPostCoffeeScheduled;
+
+  /// No description provided for @postWorkoutScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'💪 Post-workout reminder scheduled'**
+  String get postWorkoutScheduled;
+
+  /// No description provided for @proHeatWarningPro.
+  ///
+  /// In en, this message translates to:
+  /// **'🌡️ PRO: Heat warning sent'**
+  String get proHeatWarningPro;
+
+  /// No description provided for @proAlcoholRecoveryPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'🍺 PRO: Alcohol recovery plan scheduled'**
+  String get proAlcoholRecoveryPlan;
+
+  /// No description provided for @eveningReportScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'📊 Evening report scheduled for {day}.{month} at 21:00'**
+  String eveningReportScheduled(int day, int month);
+
+  /// No description provided for @notificationCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'🚫 Notification {id} cancelled'**
+  String notificationCancelled(int id);
+
+  /// No description provided for @allNotificationsCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'🗑️ All notifications cancelled'**
+  String get allNotificationsCancelled;
+
+  /// No description provided for @reminderSettingsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Reminder settings saved'**
+  String get reminderSettingsSaved;
+
+  /// No description provided for @testNotificationScheduledFor.
+  ///
+  /// In en, this message translates to:
+  /// **'⏰ Test notification scheduled for {time}'**
+  String testNotificationScheduledFor(String time);
+
+  /// No description provided for @tomorrowRecommendations.
+  ///
+  /// In en, this message translates to:
+  /// **'Recomendaciones para mañana'**
+  String get tomorrowRecommendations;
+
+  /// No description provided for @recommendationExcellent.
+  ///
+  /// In en, this message translates to:
+  /// **'¡Excelente trabajo! Continúa así. Trata de comenzar el día con un vaso de agua y mantener un consumo uniforme.'**
+  String get recommendationExcellent;
+
+  /// No description provided for @recommendationDiluted.
+  ///
+  /// In en, this message translates to:
+  /// **'Bebes mucha agua pero pocos electrolitos. Mañana agrega más sal o bebe una bebida electrolítica. Intenta comenzar el día con caldo salado.'**
+  String get recommendationDiluted;
+
+  /// No description provided for @recommendationDehydrated.
+  ///
+  /// In en, this message translates to:
+  /// **'No suficiente agua hoy. Mañana pon recordatorios cada 2 horas. Mantén una botella de agua a la vista.'**
+  String get recommendationDehydrated;
+
+  /// No description provided for @recommendationLowSalt.
+  ///
+  /// In en, this message translates to:
+  /// **'Los niveles bajos de sodio pueden causar fatiga. Agrega una pizca de sal al agua o bebe caldo. Especialmente importante en keto o ayuno.'**
+  String get recommendationLowSalt;
+
+  /// No description provided for @recommendationGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'Busca el equilibrio entre agua y electrolitos. Bebe uniformemente durante el día y no olvides la sal en el calor.'**
+  String get recommendationGeneral;
 }
 
 class _AppLocalizationsDelegate

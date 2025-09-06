@@ -1,317 +1,312 @@
 # HydraCoach 💧
 
-> Умный трекер гидратации и электролитного баланса для кето, интервального голодания и активного образа жизни
+Smart water and electrolyte tracking app optimized for keto, fasting, and active lifestyle.
 
-[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](https://github.com/vtrukhnov-lab/HydraCoach)
-[![Flutter](https://img.shields.io/badge/Flutter-3.9.0+-02569B.svg)](https://flutter.dev)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+## ✨ Features
 
-## 🎯 О проекте
+### Core Features (FREE)
+- **Smart Water Tracking** - Personalized daily goals based on weight, diet, and activity
+- **Electrolyte Balance** - Track sodium, potassium, and magnesium intake
+- **Weather Integration** - Automatic goal adjustments based on Heat Index
+- **Hydration Status** - Real-time monitoring with HRI (Hydration Risk Index)
+- **Smart Reminders** - Context-aware notifications (post-coffee, heat warnings)
+- **Diet Modes** - Optimized for normal, keto, and intermittent fasting
+- **Daily Reports** - Evening summary with insights and recommendations
+- **Alcohol Tracking** - Log drinks and get hydration corrections
 
-HydraCoach — персонализированный трекер баланса воды и электролитов с учётом контекстных факторов: режима питания (кето/пост), погодных условий, физической активности и бытовых триггеров (кофеин/алкоголь).
+### PRO Features (Subscription)
+- **Advanced Reminders** - Workout protocols, fasting-aware notifications
+- **Recovery Plans** - Step-by-step hydration after alcohol
+- **Sobriety Calendar** - Track and celebrate alcohol-free days
+- **Unlimited Sync** - Full cloud backup and multi-device support
+- **Weekly PRO Reports** - Deep analytics with CSV export
+- **Health Integrations** - Apple Health / Google Fit sync
+- **Calibration Tools** - Sweat rate testing, urine color tracking
 
-### Ключевые особенности:
-- 📊 **Персональные цели** — вода + Na/K/Mg с учётом вашего профиля
-- 🌡️ **Погодная адаптация** — автокоррекция целей по Heat Index
-- 🍺 **Alcohol-Aware** — учёт алкоголя и восстановительные протоколы
-- 📈 **HRI индекс** — комплексная оценка риска обезвоживания (0-100)
-- ⏰ **Умные напоминания** — контекстные уведомления без спама
-- 🥑 **Режимы питания** — оптимизация для кето, IF/OMAD/ADF
-- 📱 **Подписка PRO** — расширенные функции через RevenueCat
-
-## 📱 Скриншоты
+## 📱 Screenshots
 
 <details>
-<summary>Посмотреть интерфейс приложения</summary>
+<summary>View Screenshots</summary>
 
-- Главный экран с кольцами прогресса
-- Пейвол экран с выбором тарифов
-- Карточка погоды с корректировками
-- Лог алкоголя и восстановление  
-- История и аналитика
-- Настройки и профиль
+- Main Dashboard with progress rings
+- Weather card with heat adjustments
+- Daily report and analytics
+- History and trends
+- Alcohol tracking and recovery
+- Settings and profile
 
 </details>
 
-## 🏗️ Текущий статус разработки
+## 🛠️ Tech Stack
 
-### ✅ Реализовано (v0.3.0)
-
-#### Основной функционал
-- ✅ **Главный экран** — 3 кольца (Вода/Na/K) + индикатор Mg
-- ✅ **Онбординг** — настройка профиля (вес, режим питания, активность)
-- ✅ **Быстрый лог** — вода, электролиты, кофе с Material анимациями
-- ✅ **История** — день/неделя/месяц с графиками
-
-#### Система подписок
-- ✅ **RevenueCat** — полная интеграция для управления подписками
-- ✅ **Пейвол экран** — красивый экран монетизации с 3 тарифами
-- ✅ **FREE/PRO разделение** — мягкий гейтинг без ломки флоу
-- ✅ **PRO индикаторы** — звёздочки на заблокированных функциях
-- ✅ **Ограничения FREE** — максимум 4 уведомления в день
-
-#### Сервисы
-- ✅ **Погода** — интеграция с API, Heat Index, автокоррекция целей
-- ✅ **Уведомления** — базовые временные напоминания со счётчиком для FREE
-- ✅ **Remote Config** — управление параметрами через Firebase
-
-#### Алкоголь (базовый функционал)
-- ✅ **Лог алкоголя** — тип/объём/ABV, пересчёт в стандартные дринки
-- ✅ **Контр-коррекция** — автоматическая корректировка воды/Na
-- ✅ **Утренний чек-ин** — оценка самочувствия
-
-#### Инфраструктура  
-- ✅ **Firebase** — Core, Auth, Firestore, Analytics, Remote Config, Crashlytics
-- ✅ **RevenueCat** — интеграция для подписок и биллинга
-- ✅ **Пейвол** — экран монетизации с динамическими ценами
-
-### 🚧 В разработке
-
-#### Текущие задачи
-- [ ] Подключение реальных покупок через RevenueCat
-- [ ] Восстановление покупок (Restore Purchases)
-- [ ] Управление подпиской из настроек
-
-#### Релиз 1 — Стабилизация ядра
-- [ ] Полноценный расчёт HRI индекса (0-100)
-- [ ] Статусы гидратации (норма/разбавление/недобор/мало соли)
-- [ ] Дневные отчёты с инсайтами
-- [ ] Экспорт CSV
-
-#### Релиз 2 — PRO функции
-- [ ] Smart Reminders (жара/тренировка/выход из поста)
-- [ ] Fasting-aware режимы (IF/OMAD/ADF)
-- [ ] Workout/Heatwave протоколы
-- [ ] Недельный PRO-отчёт
-- [ ] Безлимитная синхронизация
-
-#### Релиз 3 — Алкоголь PRO
-- [ ] Pre-drink протокол (T-60/30/15)
-- [ ] Recovery план на 6-12 часов
-- [ ] Трезвый календарь и цели
-- [ ] Расширенный утренний индекс
-
-#### Релиз 4 — SDK издателя
-- [ ] AppsFlyer интеграция
-- [ ] Offerwall события
-- [ ] ATT/CMP диалоги (iOS)
-- [ ] Санкционные ограничения
-
-#### Релиз 5 — Расширения
-- [ ] Калибровки (тест потоотделения, цвет мочи)
-- [ ] Интеграции Apple Health/Google Fit
-- [ ] Виджеты и часы
-
-## 🛠 Технологический стек
-
-### Frontend
-- **Framework:** Flutter 3.9.0+
+- **Framework:** Flutter 3.0+
 - **State Management:** Provider
-- **UI:** Material Design, fl_chart, flutter_animate
+- **Backend:** Firebase (Auth, Firestore, Remote Config)
+- **Billing:** RevenueCat
+- **Analytics:** Firebase Analytics + AppsFlyer
+- **Localization:** Flutter ARB (EN/RU/ES)
+- **Local Storage:** SharedPreferences
+- **Charts:** fl_chart
+- **Notifications:** flutter_local_notifications
 
-### Backend & Services  
-- **Firebase:** Auth, Firestore, Remote Config, Analytics, Crashlytics, Messaging
-- **Биллинг:** RevenueCat (purchases_flutter)
-- **Погода:** External Weather API
-- **Уведомления:** flutter_local_notifications
-
-### Хранение данных
-- **Локально:** SharedPreferences
-- **Облако:** Firestore (структурированные коллекции)
-- **Экспорт:** CSV через path_provider
-
-## 📂 Структура проекта
+## 📁 Project Structure
 
 ```
 hydracoach/
 ├── lib/
-│   ├── main.dart                      # Точка входа
-│   ├── firebase_options.dart          # Конфигурация Firebase
-│   │
-│   ├── models/                        # Модели данных
-│   │   └── alcohol_intake.dart        # Модель приёма алкоголя
-│   │
-│   ├── screens/                       # Экраны приложения
-│   │   ├── home_screen.dart          # Главный экран
-│   │   ├── onboarding_screen.dart    # Онбординг
-│   │   ├── alcohol_log_screen.dart   # Лог алкоголя
-│   │   ├── paywall_screen.dart       # Пейвол ⭐ NEW
-│   │   ├── settings_screen.dart      # Настройки
-│   │   ├── history_screen.dart       # История (контейнер)
-│   │   └── history/                  # Вкладки истории
-│   │       ├── daily_history_screen.dart
-│   │       ├── weekly_history_screen.dart  # PRO-ограничение
-│   │       └── monthly_history_screen.dart # PRO-ограничение
-│   │
-│   ├── services/                      # Бизнес-логика
-│   │   ├── alcohol_service.dart      # Сервис алкоголя
-│   │   ├── notification_service.dart # Уведомления с счётчиком
-│   │   ├── remote_config_service.dart # Remote Config
-│   │   ├── subscription_service.dart  # Подписки ⭐ NEW
-│   │   └── weather_service.dart      # Погода
-│   │
-│   └── widgets/                       # Переиспользуемые компоненты
-│       ├── alcohol_card.dart         # Карточка алкоголя
-│       ├── alcohol_checkin_dialog.dart # Утренний чек-ин
-│       ├── daily_report.dart         # Дневной отчёт
-│       └── weather_card.dart         # Карточка погоды
-│
-├── assets/
-│   └── images/                       # Изображения и иконки
-│
-├── pubspec.yaml                      # Зависимости
-├── firebase.json                     # Конфигурация Firebase
-└── README.md                         # Документация
+│   ├── main.dart                 # App entry point
+│   ├── config/                   # Configuration
+│   │   ├── remote_config.dart    # Remote parameters
+│   │   └── feature_flags.dart    # Feature toggles
+│   ├── models/                   # Data models
+│   ├── screens/                  # UI screens
+│   │   ├── main_screen.dart      # Dashboard
+│   │   ├── onboarding/           # Onboarding flow
+│   │   ├── alcohol/              # Alcohol features
+│   │   └── settings/             # Settings
+│   ├── services/                 # Business logic
+│   │   ├── hydration_calculator.dart
+│   │   ├── weather_service.dart
+│   │   ├── notification_service.dart
+│   │   └── revenue_cat_service.dart
+│   ├── widgets/                  # Reusable UI components
+│   ├── providers/                # State management
+│   ├── utils/                    # Utilities
+│   └── l10n/                     # Localization files
+│       ├── app_en.arb
+│       ├── app_ru.arb
+│       └── app_es.arb
+├── assets/                       # Images, icons, fonts
+├── test/                         # Tests
+└── pubspec.yaml                  # Dependencies
 ```
 
-## 🚀 Установка и запуск
+## 🚀 Getting Started
 
-### Требования
-- Flutter SDK 3.9.0 или выше
-- Dart SDK 3.0 или выше
+### Prerequisites
+
+- Flutter SDK (3.0 or higher)
+- Dart SDK (3.0 or higher)
 - iOS/Android development environment
-- Firebase проект с активированными сервисами
-- RevenueCat аккаунт для подписок
+- Firebase project configured
+- RevenueCat account for billing
 
-### Установка
+### Installation
 
-1. **Клонирование репозитория:**
+1. Clone the repository:
 ```bash
 git clone https://github.com/vtrukhnov-lab/HydraCoach.git
-cd hydracoach
+cd HydraCoach
 ```
 
-2. **Установка зависимостей:**
+2. Install dependencies:
 ```bash
 flutter pub get
 ```
 
-3. **Конфигурация Firebase:**
+3. Generate localization files:
 ```bash
-flutterfire configure
+flutter gen-l10n
 ```
 
-4. **Конфигурация RevenueCat:**
-- Создайте аккаунт на [RevenueCat](https://www.revenuecat.com/)
-- Добавьте ваше приложение в RevenueCat Dashboard
-- Получите API ключи для iOS и Android
-- Настройте продукты и entitlements
+4. Configure Firebase:
+   - Add `google-services.json` (Android)
+   - Add `GoogleService-Info.plist` (iOS)
 
-5. **Запуск приложения:**
+5. Set up environment variables:
 ```bash
-# iOS
+cp .env.example .env
+# Edit .env with your API keys
+```
+
+6. Run the app:
+```bash
+# For iOS
 flutter run -d ios
 
-# Android
+# For Android
 flutter run -d android
 
-# Web (в разработке)
+# For Web (limited functionality)
 flutter run -d chrome
 ```
 
-## 💰 Система подписок
+## 🧮 Core Algorithms
 
-### FREE функции
-- ✅ Базовый трекинг воды и электролитов
-- ✅ История за день
-- ✅ До 4 уведомлений в день
-- ✅ Погодная адаптация
-- ✅ Базовый лог алкоголя
-
-### PRO функции
-- ⭐ История за неделю и месяц
-- ⭐ Неограниченные уведомления
-- ⭐ Напоминания после кофе
-- ⭐ Напоминания при жаре
-- ⭐ Восстановление после алкоголя
-- ⭐ Экспорт данных в CSV
-- ⭐ Облачная синхронизация
-- ⭐ Недельные отчёты
-- ⭐ Режимы голодания
-
-### Тарифные планы
-- **Месячная подписка:** $2.99/месяц
-- **Годовая подписка:** $19.99/год (44% экономии)
-- **Пожизненная лицензия:** $39.99 (единоразово)
-
-## 📊 Алгоритмы расчёта
-
-### Базовые цели воды
+### Water Calculation
 ```
-waterMin = 22 мл × вес(кг)
-waterOpt = 30 мл × вес(кг)  
-waterMax = 36 мл × вес(кг)
+Base formulas (ml/day):
+- Minimum: 22 ml × weight(kg)
+- Optimal: 30 ml × weight(kg)
+- Maximum: 36 ml × weight(kg)
+
+Adjustments:
+- Heat Index corrections
+- Activity level multipliers
+- Coffee/alcohol compensations
+- Fasting mode modifications
 ```
 
-### Корректировки по Heat Index
-- HI < 27°C: без изменений
-- HI 27-32°C: +5% воды, +500mg Na
-- HI 32-39°C: +8% воды, +1000mg Na
-- HI > 39°C: +12% воды, +1500mg Na
-
-### Алкогольная коррекция
+### Electrolyte Targets
 ```
-Δвода = alcohol_drink_bonus_ml × SD
-ΔNa = na_per_sd_mg × SD
-SD (стандартный дринк) = 10г чистого спирта
+Normal mode:
+- Sodium: 2000mg
+- Potassium: 3500mg
+- Magnesium: 400mg
+
+Keto mode:
+- Sodium: 3000-5000mg
+- Potassium: 3500-4700mg
+- Magnesium: 400-600mg
 ```
 
-## 🔐 Приватность и безопасность
+### Hydration Risk Index (HRI)
+```
+Factors (0-100 scale):
+- Heat Index impact
+- Physical activity level
+- Caffeine intake
+- Alcohol consumption
+- Sleep quality
+- Urine color (PRO)
 
-- **GDPR совместимость** — согласия на обработку данных
-- **iOS ATT** — корректная обработка разрешений
-- **Локальное хранение** — чувствительные данные в SharedPreferences
-- **Облачная синхронизация** — только с авторизацией пользователя
-- **Трезвый режим** — скрытие алкогольных функций с PIN-защитой
+Risk zones:
+- Green: 0-30 (Good)
+- Yellow: 31-60 (Caution)
+- Red: 61-100 (Risk)
+```
 
-## 🧪 Тестирование
+## 🌍 Localization
 
+The app supports multiple languages through ARB files:
+
+- **English** (en) - Primary language
+- **Russian** (ru) - Русский
+- **Spanish** (es) - Español
+
+To add a new language:
+1. Create `app_XX.arb` in `lib/l10n/`
+2. Translate all keys from `app_en.arb`
+3. Run `flutter gen-l10n`
+
+## 🔧 Configuration
+
+### Remote Config Parameters
+
+Key parameters managed remotely via Firebase:
+
+- Water calculation formulas
+- Electrolyte targets by diet mode
+- Heat Index thresholds
+- Notification limits
+- Alcohol correction factors
+- HRI risk thresholds
+- Feature flags
+
+### Environment Variables
+
+Required in `.env`:
+```
+WEATHER_API_KEY=your_openweather_key
+REVENUE_CAT_API_KEY=your_revenuecat_key
+APPSFLYER_DEV_KEY=your_appsflyer_key
+```
+
+## 📊 Analytics Events
+
+Key events tracked:
+- Onboarding completion
+- Water/electrolyte logging
+- Hydration status changes
+- Reminder interactions
+- Subscription events
+- Alcohol tracking
+- Report generation
+
+## 🧪 Testing
+
+Run tests:
 ```bash
-# Запуск тестов
+# All tests
 flutter test
 
-# Анализ кода
-flutter analyze
+# Unit tests only
+flutter test test/unit
 
-# Форматирование
-flutter format lib/
+# Widget tests
+flutter test test/widget
+
+# Integration tests
+flutter test integration_test
 ```
 
-## 📈 Метрики успеха
+## 📦 Build & Release
 
-- **Удержание:** D1 > 60%, D7 > 40%, D30 > 25%
-- **Конверсия в PRO:** Trial → Paid > 15%
-- **HRI в зелёной зоне:** > 70% дней
-- **Активность:** > 5 записей/день у активных пользователей
+### Android
+```bash
+flutter build appbundle --release
+```
 
-## 🤝 Вклад в проект
+### iOS
+```bash
+flutter build ipa --release
+```
 
-Приветствуем вклад в развитие HydraCoach!
+## 🗺️ Roadmap
 
-1. Fork репозитория
-2. Создайте feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit изменений (`git commit -m 'Add: удивительная функция'`)
-4. Push в branch (`git push origin feature/AmazingFeature`)
-5. Откройте Pull Request
+- [ ] Phase 1: Core hydration tracking (Released ✅)
+- [ ] Phase 2: PRO subscription model (In Progress 🚧)
+- [ ] Phase 3: Alcohol awareness module (In Progress 🚧)
+- [ ] Phase 4: Publisher SDK integration
+- [ ] Phase 5: Advanced features
+  - [ ] Apple Watch / WearOS apps
+  - [ ] AI recommendations
+  - [ ] Social challenges
+  - [ ] Meal tracking integration
 
-## 📄 Лицензия
+## 🤝 Contributing
 
-Распространяется под лицензией MIT. См. [LICENSE](LICENSE) для подробностей.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 👨‍💻 Автор
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-**Viktor Trukhnov** - [GitHub](https://github.com/vtrukhnov-lab)
+### Coding Standards
 
-## 🙏 Благодарности
+- Follow Flutter style guide
+- Add tests for new features
+- Update localization files
+- Document complex logic
+- Keep commits atomic
 
-- Вдохновлено потребностью в качественном трекинге гидратации для кето/IF диет
-- Weather API для данных о погоде
-- Firebase & RevenueCat за отличные сервисы
-- Flutter community за поддержку
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Weather data from OpenWeatherMap API
+- Icons from Material Design
+- Billing infrastructure by RevenueCat
+- Analytics by Firebase & AppsFlyer
+- Special thanks to the keto/fasting community for feedback
+
+## 📞 Support
+
+For questions or support:
+- Open an issue on GitHub
+- Email: support@hydracoach.app
+- Documentation: [docs.hydracoach.app](https://docs.hydracoach.app)
+
+## 👨‍💻 Author
+
+**Viktor Trukhnov**
+- GitHub: [@vtrukhnov-lab](https://github.com/vtrukhnov-lab)
+- Email: viktor@hydracoach.app
 
 ---
 
-<p align="center">Создано с ❤️ используя Flutter</p>
-<p align="center">
-  <a href="#hydracoach-">↑ Наверх</a>
-</p>
+Built with ❤️ using Flutter
