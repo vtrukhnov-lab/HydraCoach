@@ -454,7 +454,7 @@ class _QuickAddWidgetState extends State<QuickAddWidget> {
         _buildCategoryHotDrinks(l10n),
         _buildCategorySupplements(l10n),
         _buildCategoryAlcohol(l10n),
-        _buildCategoryAll(l10n),
+        _buildCategorySports(l10n),
       ],
     );
   }
@@ -558,24 +558,22 @@ Widget _buildCategorySupplements(AppLocalizations l10n) {
     );
   }
   
-  Widget _buildCategoryAll(AppLocalizations l10n) {
-    return _buildCategoryTile(
-      icon: Icons.list_alt,
-      iconColor: Colors.white,
-      label: l10n.all,
-      gradientColors: [Colors.teal.shade400, Colors.teal.shade600],
-      onTap: () async {
-        if (widget.onNavigate != null) {
-          widget.onNavigate!('/drink_catalog');
-        } else {
-          final result = await Navigator.pushNamed(context, '/drink_catalog');
-          if (result == true) {
-            widget.onUpdate();
-          }
-        }
-      },
-    );
-  }
+  Widget _buildCategorySports(AppLocalizations l10n) {
+  return _buildCategoryTile(
+    icon: Icons.fitness_center,
+    iconColor: Colors.white,
+    label: 'Sports', // TODO: добавить в локализацию
+    gradientColors: [Colors.teal.shade400, Colors.teal.shade600],
+    onTap: () {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Sports tracking coming soon!'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    },
+  );
+}
   
   Widget _buildCategoryTile({
     required IconData icon,
