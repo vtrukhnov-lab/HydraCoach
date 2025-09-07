@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'dart:math' as math;
@@ -20,7 +18,10 @@ import 'screens/home_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/alcohol_log_screen.dart';
+import 'screens/liquids_catalog_screen.dart';
 import 'screens/drink_catalog_screen.dart';
+import 'screens/electrolytes_screen.dart';
+import 'screens/supplements_screen.dart';
 import 'services/notification_service.dart' as notif;
 import 'services/subscription_service.dart';
 import 'services/remote_config_service.dart';
@@ -35,9 +36,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  if (kDebugMode) {
-    print('Background message: ${message.messageId}');
-  }
 }
 
 void main() async {
@@ -56,68 +54,6 @@ void main() async {
   
   // Initialize localization
   await LocaleService.instance.initialize();
-  
-  // Test notification on startup - now properly localized
-  try {
-    final FlutterLocalNotificationsPlugin testPlugin = FlutterLocalNotificationsPlugin();
-    const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const InitializationSettings initSettings = InitializationSettings(android: androidSettings);
-    
-    await testPlugin.initialize(initSettings);
-    
-    const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      'test_channel',
-      'Test Channel',
-      importance: Importance.max,
-    );
-    
-    await testPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
-    
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'test_channel',
-      'Test Channel',
-      importance: Importance.max,
-      priority: Priority.max,
-    );
-    
-    const NotificationDetails details = NotificationDetails(android: androidDetails);
-    
-    // Get saved locale for notification
-    final prefs = await SharedPreferences.getInstance();
-    final savedLocale = prefs.getString('locale') ?? 'en';
-    
-    // FIXED: Use localized strings instead of hardcoded
-    final Map<String, Map<String, String>> localizedStartup = {
-      'en': {
-        'title': 'HydraCoach launched!',
-        'body': 'App is ready to work with alcohol tracking!'
-      },
-      'ru': {
-        'title': 'HydraCoach запущен!',
-        'body': 'Приложение готово к работе с алкогольным трекингом!'
-      },
-      'es': {
-        'title': '¡HydraCoach iniciado!',
-        'body': '¡La aplicación está lista para trabajar con el seguimiento del alcohol!'
-      }
-    };
-    
-    final strings = localizedStartup[savedLocale] ?? localizedStartup['en']!;
-    
-    await testPlugin.show(
-      12345,
-      strings['title']!,
-      strings['body']!,
-      details,
-    );
-    
-    print('✅ Test notification sent at startup');
-  } catch (e) {
-    print('❌ Test notification error: $e');
-  }
-  
   await RemoteConfigService.instance.initialize();
   await SubscriptionService.instance.initialize();
   
@@ -136,20 +72,13 @@ void main() async {
   );
   
   final fcmToken = await messaging.getToken();
-  
-  if (kDebugMode && fcmToken != null) {
-    print('╔══════════════════════════════════════════════════════════╗');
-    print('FCM TOKEN (copy for testing):');
-    print(fcmToken);
-    print('╚══════════════════════════════════════════════════════════╝');
-  }
+  print('FCM Token: $fcmToken');
   
   await notif.NotificationService.initialize();
   
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-    if (kDebugMode) {
-      print('Foreground message: ${message.notification?.title}');
-    }
+    print('Got a message whilst in the foreground!');
+    print('Message data: ${message.data}');
     
     if (message.notification != null) {
       await notif.NotificationService().showNotification(
@@ -162,9 +91,7 @@ void main() async {
   });
   
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    if (kDebugMode) {
-      print('Message clicked: ${message.messageId}');
-    }
+    print('A new onMessageOpenedApp event was published!');
   });
   
   SystemChrome.setPreferredOrientations([
@@ -232,6 +159,9 @@ class MyApp extends StatelessWidget {
             '/onboarding': (context) => const OnboardingScreen(),
             '/alcohol': (context) => const AlcoholLogScreen(),
             '/drink_catalog': (context) => const DrinkCatalogScreen(),
+            '/liquids': (context) => const LiquidsCatalogScreen(),
+            '/electrolytes': (context) => const ElectrolytesScreen(),
+            '/supplements': (context) => const SupplementsScreen(),
           },
         );
       },
@@ -411,21 +341,6 @@ class HydrationProvider extends ChangeNotifier {
       potassium: potassium,
       magnesium: magnesium,
     );
-    
-    // Debug info
-    if (kDebugMode) {
-      print('=== Goals Calculation Debug ===');
-      print('Weight: $weight kg');
-      print('Base water: $baseWaterOpt ml');
-      print('Weather adjustment: ${(weatherWaterAdjustment * 100).toStringAsFixed(1)}%');
-      print('Alcohol adjustment: ${alcoholWaterAdjustment.toStringAsFixed(0)} ml');
-      print('Final water goal: $waterOpt ml');
-      print('Base sodium: $baseSodium mg');
-      print('Weather sodium adj: $weatherSodiumAdjustment mg');
-      print('Alcohol sodium adj: $alcoholSodiumAdjustment mg');
-      print('Final sodium goal: $sodium mg');
-      print('==============================');
-    }
   }
   
   void updateAlcoholAdjustments(double waterAdjustment, int sodiumAdjustment) {
@@ -483,15 +398,8 @@ class HydrationProvider extends ChangeNotifier {
       
       final progress = getProgress();
       await prefs.setDouble('waterProgress', progress['waterPercent']!);
-      
-      if (kDebugMode) {
-        print('✅ Saved ${todayIntakes.length} records');
-        print('📊 Water progress: ${progress['waterPercent']?.toStringAsFixed(1)}%');
-      }
     } catch (e) {
-      if (kDebugMode) {
-        print('❌ Save error: $e');
-      }
+      print('Error saving intakes: $e');
     }
   }
   
@@ -554,31 +462,20 @@ class HydrationProvider extends ChangeNotifier {
     // Haptic feedback
     HapticFeedback.lightImpact();
     
-    if (kDebugMode) {
-      print('➕ Added: $type, volume: $volume ml');
-      print('📋 Total records: ${todayIntakes.length}');
-    }
-    
     // IMPORTANT: First notify UI about changes
     notifyListeners();
     
     // Then save asynchronously (don't wait for completion)
     _saveIntakes().then((_) {
-      if (kDebugMode) {
-        print('💾 Data saved to SharedPreferences');
-      }
+      print('Intake saved successfully');
     }).catchError((error) {
-      if (kDebugMode) {
-        print('❌ Save error: $error');
-      }
+      print('Error saving intake: $error');
     });
     
     // Schedule post-coffee reminder
     if (type == 'coffee') {
       notif.NotificationService().schedulePostCoffeeReminder().then((success) {
-        if (kDebugMode && success) {
-          print('☕ Post-coffee reminder scheduled');
-        }
+        print('Post-coffee reminder scheduled: $success');
       });
     }
   }
@@ -591,9 +488,7 @@ class HydrationProvider extends ChangeNotifier {
     
     // Then save
     _saveIntakes().then((_) {
-      if (kDebugMode) {
-        print('➖ Deleted record: $id');
-      }
+      print('Intake removed successfully');
     });
   }
   

@@ -1632,4 +1632,148 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get createFavoriteHint =>
       'Чтобы добавить избранное, перейдите в любой экран напитка ниже и нажмите кнопку \'Сохранить в избранное\' после настройки напитка.';
+
+  @override
+  String get sparklingWater => 'Газированная вода';
+
+  @override
+  String get cola => 'Кола';
+
+  @override
+  String get juice => 'Сок';
+
+  @override
+  String get energyDrink => 'Энергетик';
+
+  @override
+  String get sportsDrink => 'Спортивный напиток';
+
+  @override
+  String get selectElectrolyteType => 'Выберите тип электролита:';
+
+  @override
+  String get saltQuarterTsp => 'Соль (1/4 ч.л.)';
+
+  @override
+  String get pinkSalt => 'Розовая гималайская соль';
+
+  @override
+  String get seaSalt => 'Морская соль';
+
+  @override
+  String get potassiumCitrate => 'Цитрат калия';
+
+  @override
+  String get magnesiumGlycinate => 'Глицинат магния';
+
+  @override
+  String get coconutWaterElectrolyte => 'Кокосовая вода';
+
+  @override
+  String get sportsDrinkElectrolyte => 'Спортивный напиток';
+
+  @override
+  String get electrolyteContent => 'Содержание электролитов:';
+
+  @override
+  String sodiumContent(int amount) {
+    return 'Натрий: $amount мг';
+  }
+
+  @override
+  String potassiumContent(int amount) {
+    return 'Калий: $amount мг';
+  }
+
+  @override
+  String magnesiumContent(int amount) {
+    return 'Магний: $amount мг';
+  }
+
+  @override
+  String get servings => 'Порции';
+
+  @override
+  String get enterServings => 'Введите количество порций';
+
+  @override
+  String get servingsUnit => 'порций';
+
+  @override
+  String get noElectrolytes => 'Нет электролитов';
+
+  @override
+  String get enterValidAmount => 'Введите корректное количество';
+
+  @override
+  String get lmntMix => 'LMNT Микс';
+
+  @override
+  String get pickleJuice => 'Огуречный рассол';
+
+  @override
+  String get tomatoSalt => 'Томатный сок + соль';
+
+  @override
+  String get ketorade => 'Кеторейд';
+
+  @override
+  String get alkalineWater => 'Щелочная вода';
+
+  @override
+  String get celticSalt => 'Кельтская соль';
+
+  @override
+  String get soleWater => 'Соляной раствор';
+
+  @override
+  String get mineralDrops => 'Минеральные капли';
+
+  @override
+  String get bakingSoda => 'Содовая вода';
+
+  @override
+  String get creamTartar => 'Винный камень';
+
+  @override
+  String get selectSupplementType => 'Выберите тип добавки:';
+
+  @override
+  String get multivitamin => 'Мультивитамины';
+
+  @override
+  String get magnesiumCitrate => 'Цитрат магния';
+
+  @override
+  String get magnesiumThreonate => 'L-треонат магния';
+
+  @override
+  String get calciumCitrate => 'Цитрат кальция';
+
+  @override
+  String get zincGlycinate => 'Глицинат цинка';
+
+  @override
+  String get vitaminD3 => 'Витамин D3';
+
+  @override
+  String get vitaminC => 'Витамин C';
+
+  @override
+  String get bComplex => 'B-комплекс';
+
+  @override
+  String get omega3 => 'Омега-3';
+
+  @override
+  String get ironBisglycinate => 'Бисглицинат железа';
+
+  @override
+  String get dosage => 'Дозировка';
+
+  @override
+  String get enterDosage => 'Введите дозировку';
+
+  @override
+  String get noElectrolyteContent => 'Нет электролитов';
 }

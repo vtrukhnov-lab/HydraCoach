@@ -314,16 +314,114 @@ class _QuickAddWidgetState extends State<QuickAddWidget> {
   IconData _getFavoriteIcon(QuickFavorite favorite) {
     switch (favorite.type) {
       case 'water':
-        return Icons.water_drop;
+        // Для жидкостей проверяем подтип
+        final liquidType = favorite.metadata?['liquidType'] ?? 'water';
+        switch (liquidType) {
+          case 'water':
+            return Icons.water_drop;
+          case 'sparkling':
+            return Icons.bubble_chart;
+          case 'lemon':
+            return Icons.eco;
+          case 'coconut':
+            return Icons.beach_access;
+          case 'mineral':
+            return Icons.opacity;
+          case 'cola':
+            return Icons.local_drink;
+          case 'juice':
+            return Icons.local_bar;
+          case 'energy':
+            return Icons.battery_charging_full;
+          case 'sports':
+            return Icons.fitness_center;
+          default:
+            return Icons.water_drop;
+        }
       case 'electrolyte':
-        return Icons.bolt;
+        // Для электролитов проверяем подтип
+        final electrolyteType = favorite.metadata?['electrolyteType'] ?? 'salt_water';
+        switch (electrolyteType) {
+          case 'salt_water':
+            return Icons.grain;
+          case 'electrolyte_mix':
+            return Icons.water_drop;
+          case 'bone_broth':
+            return Icons.soup_kitchen;
+          case 'lmnt_mix':
+            return Icons.science;
+          case 'pickle_juice':
+            return Icons.liquor;
+          case 'tomato_salt':
+            return Icons.local_drink;
+          case 'ketorade':
+            return Icons.battery_charging_full;
+          case 'alkaline_water':
+            return Icons.opacity;
+          case 'celtic_salt':
+            return Icons.waves;
+          case 'sole_water':
+            return Icons.water;
+          case 'mineral_drops':
+            return Icons.water_drop_outlined;
+          case 'baking_soda':
+            return Icons.bubble_chart;
+          case 'cream_tartar':
+            return Icons.auto_awesome;
+          // Старые типы для обратной совместимости
+          case 'salt_quarter':
+            return Icons.grain;
+          case 'pink_salt':
+            return Icons.diamond;
+          case 'sea_salt':
+            return Icons.waves;
+          case 'potassium_citrate':
+            return Icons.medication;
+          case 'magnesium_glycinate':
+            return Icons.medication_liquid;
+          case 'coconut_water_electrolyte':
+            return Icons.eco;
+          case 'sports_drink_electrolyte':
+            return Icons.sports;
+          default:
+            return Icons.bolt;
+        }
       case 'coffee':
       case 'hot':
         return Icons.coffee;
       case 'supplement':
-        return Icons.medication;
+        // Для добавок проверяем подтип
+        final supplementType = favorite.metadata?['supplementType'] ?? 'multivitamin';
+        switch (supplementType) {
+          case 'magnesium_glycinate':
+            return Icons.medication_liquid;
+          case 'potassium_citrate':
+            return Icons.medication;
+          case 'multivitamin':
+            return Icons.vaccines;
+          case 'magnesium_citrate':
+            return Icons.water_drop;
+          case 'magnesium_threonate':
+            return Icons.psychology;
+          case 'calcium_citrate':
+            return Icons.healing;
+          case 'zinc_glycinate':
+            return Icons.shield;
+          case 'vitamin_d3':
+            return Icons.wb_sunny;
+          case 'vitamin_c':
+            return Icons.star;
+          case 'b_complex':
+            return Icons.battery_full;
+          case 'omega3':
+            return Icons.favorite;
+          case 'iron_bisglycinate':
+            return Icons.fitness_center;
+          default:
+            return Icons.medication;
+        }
       case 'alcohol':
-        // Определяем иконку на основе подтипа алкоголя
+        // Для алкоголя проверяем подтип
         final alcoholType = favorite.metadata?['alcoholType'] ?? 'beer';
         switch (alcoholType) {
           case 'beer':
@@ -367,10 +465,17 @@ class _QuickAddWidgetState extends State<QuickAddWidget> {
       iconColor: Colors.white,
       label: l10n.water,
       gradientColors: [Colors.blue.shade400, Colors.blue.shade600],
-      onTap: () {
-        widget.provider.addIntake('water', 250);
-        widget.onUpdate();
-        _showSuccessMessage('${l10n.water} 250 ml');
+      onTap: () async {
+        // Открываем новый экран Liquids вместо мгновенного добавления
+        if (widget.onNavigate != null) {
+          widget.onNavigate!('/liquids');
+        } else {
+          final result = await Navigator.pushNamed(context, '/liquids');
+          if (result == true) {
+            widget.onUpdate();
+            await _loadFavorites(); // Обновить фавориты
+          }
+        }
       },
     );
   }
@@ -381,11 +486,17 @@ class _QuickAddWidgetState extends State<QuickAddWidget> {
       iconColor: Colors.white,
       label: l10n.electrolyte,
       gradientColors: [Colors.orange.shade400, Colors.orange.shade600],
-      onTap: () {
-        widget.provider.addIntake('electrolyte', 0, 
-          sodium: 500, potassium: 200, magnesium: 50);
-        widget.onUpdate();
-        _showSuccessMessage(l10n.electrolyte);
+      onTap: () async {
+        // Открываем новый экран Electrolytes вместо мгновенного добавления
+        if (widget.onNavigate != null) {
+          widget.onNavigate!('/electrolytes');
+        } else {
+          final result = await Navigator.pushNamed(context, '/electrolytes');
+          if (result == true) {
+            widget.onUpdate();
+            await _loadFavorites(); // Обновить фавориты
+          }
+        }
       },
     );
   }
@@ -404,19 +515,28 @@ class _QuickAddWidgetState extends State<QuickAddWidget> {
     );
   }
   
-  Widget _buildCategorySupplements(AppLocalizations l10n) {
-    return _buildCategoryTile(
-      icon: Icons.medication,
-      iconColor: Colors.white,
-      label: l10n.supplements,
-      gradientColors: [Colors.purple.shade400, Colors.purple.shade600],
-      onTap: () {
-        widget.provider.addIntake('supplement', 0, magnesium: 200);
-        widget.onUpdate();
-        _showSuccessMessage('${l10n.magnesium} 200 ${l10n.mg}');
-      },
-    );
-  }
+  // Найдите метод _buildCategorySupplements (около строки 420) и замените его на:
+
+Widget _buildCategorySupplements(AppLocalizations l10n) {
+  return _buildCategoryTile(
+    icon: Icons.medication,
+    iconColor: Colors.white,
+    label: l10n.supplements,
+    gradientColors: [Colors.purple.shade400, Colors.purple.shade600],
+    onTap: () async {
+      // Открываем экран Supplements вместо мгновенного добавления
+      if (widget.onNavigate != null) {
+        widget.onNavigate!('/supplements');
+      } else {
+        final result = await Navigator.pushNamed(context, '/supplements');
+        if (result == true) {
+          widget.onUpdate();
+          await _loadFavorites(); // Обновить фавориты
+        }
+      }
+    },
+  );
+}
   
   Widget _buildCategoryAlcohol(AppLocalizations l10n) {
     return _buildCategoryTile(

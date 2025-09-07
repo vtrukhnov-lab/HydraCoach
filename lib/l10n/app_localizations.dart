@@ -3051,6 +3051,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'To add a favorite, go to any drink screen below and tap \'Save to favorites\' button after setting up your drink.'**
   String get createFavoriteHint;
+
+  /// Sparkling water drink type
+  ///
+  /// In en, this message translates to:
+  /// **'Sparkling Water'**
+  String get sparklingWater;
+
+  /// Cola drink type
+  ///
+  /// In en, this message translates to:
+  /// **'Cola'**
+  String get cola;
+
+  /// Juice drink type
+  ///
+  /// In en, this message translates to:
+  /// **'Juice'**
+  String get juice;
+
+  /// Energy drink type
+  ///
+  /// In en, this message translates to:
+  /// **'Energy Drink'**
+  String get energyDrink;
+
+  /// Sports drink type
+  ///
+  /// In en, this message translates to:
+  /// **'Sports Drink'**
+  String get sportsDrink;
+
+  /// Prompt to select electrolyte type
+  ///
+  /// In en, this message translates to:
+  /// **'Select electrolyte type:'**
+  String get selectElectrolyteType;
+
+  /// Quarter teaspoon of salt
+  ///
+  /// In en, this message translates to:
+  /// **'Salt (1/4 tsp)'**
+  String get saltQuarterTsp;
+
+  /// Pink Himalayan salt type
+  ///
+  /// In en, this message translates to:
+  /// **'Pink Himalayan Salt'**
+  String get pinkSalt;
+
+  /// Sea salt type
+  ///
+  /// In en, this message translates to:
+  /// **'Sea Salt'**
+  String get seaSalt;
+
+  /// Potassium citrate supplement
+  ///
+  /// In en, this message translates to:
+  /// **'Potassium Citrate'**
+  String get potassiumCitrate;
+
+  /// Magnesium glycinate supplement
+  ///
+  /// In en, this message translates to:
+  /// **'Magnesium Glycinate'**
+  String get magnesiumGlycinate;
+
+  /// Coconut water as electrolyte source
+  ///
+  /// In en, this message translates to:
+  /// **'Coconut Water'**
+  String get coconutWaterElectrolyte;
+
+  /// Sports drink as electrolyte source
+  ///
+  /// In en, this message translates to:
+  /// **'Sports Drink'**
+  String get sportsDrinkElectrolyte;
+
+  /// Label for electrolyte content display
+  ///
+  /// In en, this message translates to:
+  /// **'Electrolyte content:'**
+  String get electrolyteContent;
+
+  /// Sodium content display
+  ///
+  /// In en, this message translates to:
+  /// **'Sodium: {amount} mg'**
+  String sodiumContent(int amount);
+
+  /// Potassium content display
+  ///
+  /// In en, this message translates to:
+  /// **'Potassium: {amount} mg'**
+  String potassiumContent(int amount);
+
+  /// Magnesium content display
+  ///
+  /// In en, this message translates to:
+  /// **'Magnesium: {amount} mg'**
+  String magnesiumContent(int amount);
+
+  /// Servings label
+  ///
+  /// In en, this message translates to:
+  /// **'Servings'**
+  String get servings;
+
+  /// Prompt to enter number of servings
+  ///
+  /// In en, this message translates to:
+  /// **'Enter servings'**
+  String get enterServings;
+
+  /// Unit for servings
+  ///
+  /// In en, this message translates to:
+  /// **'servings'**
+  String get servingsUnit;
+
+  /// Message when no electrolytes present
+  ///
+  /// In en, this message translates to:
+  /// **'No electrolytes'**
+  String get noElectrolytes;
+
+  /// Error message for invalid amount
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid amount'**
+  String get enterValidAmount;
+
+  /// No description provided for @lmntMix.
+  ///
+  /// In en, this message translates to:
+  /// **'LMNT Mix'**
+  String get lmntMix;
+
+  /// No description provided for @pickleJuice.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickle Juice'**
+  String get pickleJuice;
+
+  /// No description provided for @tomatoSalt.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomato + Salt'**
+  String get tomatoSalt;
+
+  /// No description provided for @ketorade.
+  ///
+  /// In en, this message translates to:
+  /// **'Ketorade'**
+  String get ketorade;
+
+  /// No description provided for @alkalineWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Alkaline Water'**
+  String get alkalineWater;
+
+  /// No description provided for @celticSalt.
+  ///
+  /// In en, this message translates to:
+  /// **'Celtic Salt Water'**
+  String get celticSalt;
+
+  /// No description provided for @soleWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Sole Water'**
+  String get soleWater;
+
+  /// No description provided for @mineralDrops.
+  ///
+  /// In en, this message translates to:
+  /// **'Mineral Drops'**
+  String get mineralDrops;
+
+  /// No description provided for @bakingSoda.
+  ///
+  /// In en, this message translates to:
+  /// **'Baking Soda Water'**
+  String get bakingSoda;
+
+  /// No description provided for @creamTartar.
+  ///
+  /// In en, this message translates to:
+  /// **'Cream of Tartar'**
+  String get creamTartar;
+
+  /// No description provided for @selectSupplementType.
+  ///
+  /// In en, this message translates to:
+  /// **'Select supplement type:'**
+  String get selectSupplementType;
+
+  /// No description provided for @multivitamin.
+  ///
+  /// In en, this message translates to:
+  /// **'Multivitamin'**
+  String get multivitamin;
+
+  /// No description provided for @magnesiumCitrate.
+  ///
+  /// In en, this message translates to:
+  /// **'Magnesium Citrate'**
+  String get magnesiumCitrate;
+
+  /// No description provided for @magnesiumThreonate.
+  ///
+  /// In en, this message translates to:
+  /// **'Magnesium L-Threonate'**
+  String get magnesiumThreonate;
+
+  /// No description provided for @calciumCitrate.
+  ///
+  /// In en, this message translates to:
+  /// **'Calcium Citrate'**
+  String get calciumCitrate;
+
+  /// No description provided for @zincGlycinate.
+  ///
+  /// In en, this message translates to:
+  /// **'Zinc Glycinate'**
+  String get zincGlycinate;
+
+  /// No description provided for @vitaminD3.
+  ///
+  /// In en, this message translates to:
+  /// **'Vitamin D3'**
+  String get vitaminD3;
+
+  /// No description provided for @vitaminC.
+  ///
+  /// In en, this message translates to:
+  /// **'Vitamin C'**
+  String get vitaminC;
+
+  /// No description provided for @bComplex.
+  ///
+  /// In en, this message translates to:
+  /// **'B-Complex'**
+  String get bComplex;
+
+  /// No description provided for @omega3.
+  ///
+  /// In en, this message translates to:
+  /// **'Omega-3'**
+  String get omega3;
+
+  /// No description provided for @ironBisglycinate.
+  ///
+  /// In en, this message translates to:
+  /// **'Iron Bisglycinate'**
+  String get ironBisglycinate;
+
+  /// No description provided for @dosage.
+  ///
+  /// In en, this message translates to:
+  /// **'Dosage'**
+  String get dosage;
+
+  /// No description provided for @enterDosage.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter dosage'**
+  String get enterDosage;
+
+  /// No description provided for @noElectrolyteContent.
+  ///
+  /// In en, this message translates to:
+  /// **'No electrolyte content'**
+  String get noElectrolyteContent;
 }
 
 class _AppLocalizationsDelegate

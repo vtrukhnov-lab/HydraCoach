@@ -1628,4 +1628,148 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get createFavoriteHint =>
       'To add a favorite, go to any drink screen below and tap \'Save to favorites\' button after setting up your drink.';
+
+  @override
+  String get sparklingWater => 'Sparkling Water';
+
+  @override
+  String get cola => 'Cola';
+
+  @override
+  String get juice => 'Juice';
+
+  @override
+  String get energyDrink => 'Energy Drink';
+
+  @override
+  String get sportsDrink => 'Sports Drink';
+
+  @override
+  String get selectElectrolyteType => 'Select electrolyte type:';
+
+  @override
+  String get saltQuarterTsp => 'Salt (1/4 tsp)';
+
+  @override
+  String get pinkSalt => 'Pink Himalayan Salt';
+
+  @override
+  String get seaSalt => 'Sea Salt';
+
+  @override
+  String get potassiumCitrate => 'Potassium Citrate';
+
+  @override
+  String get magnesiumGlycinate => 'Magnesium Glycinate';
+
+  @override
+  String get coconutWaterElectrolyte => 'Coconut Water';
+
+  @override
+  String get sportsDrinkElectrolyte => 'Sports Drink';
+
+  @override
+  String get electrolyteContent => 'Electrolyte content:';
+
+  @override
+  String sodiumContent(int amount) {
+    return 'Sodium: $amount mg';
+  }
+
+  @override
+  String potassiumContent(int amount) {
+    return 'Potassium: $amount mg';
+  }
+
+  @override
+  String magnesiumContent(int amount) {
+    return 'Magnesium: $amount mg';
+  }
+
+  @override
+  String get servings => 'Servings';
+
+  @override
+  String get enterServings => 'Enter servings';
+
+  @override
+  String get servingsUnit => 'servings';
+
+  @override
+  String get noElectrolytes => 'No electrolytes';
+
+  @override
+  String get enterValidAmount => 'Please enter a valid amount';
+
+  @override
+  String get lmntMix => 'LMNT Mix';
+
+  @override
+  String get pickleJuice => 'Pickle Juice';
+
+  @override
+  String get tomatoSalt => 'Tomato + Salt';
+
+  @override
+  String get ketorade => 'Ketorade';
+
+  @override
+  String get alkalineWater => 'Alkaline Water';
+
+  @override
+  String get celticSalt => 'Celtic Salt Water';
+
+  @override
+  String get soleWater => 'Sole Water';
+
+  @override
+  String get mineralDrops => 'Mineral Drops';
+
+  @override
+  String get bakingSoda => 'Baking Soda Water';
+
+  @override
+  String get creamTartar => 'Cream of Tartar';
+
+  @override
+  String get selectSupplementType => 'Select supplement type:';
+
+  @override
+  String get multivitamin => 'Multivitamin';
+
+  @override
+  String get magnesiumCitrate => 'Magnesium Citrate';
+
+  @override
+  String get magnesiumThreonate => 'Magnesium L-Threonate';
+
+  @override
+  String get calciumCitrate => 'Calcium Citrate';
+
+  @override
+  String get zincGlycinate => 'Zinc Glycinate';
+
+  @override
+  String get vitaminD3 => 'Vitamin D3';
+
+  @override
+  String get vitaminC => 'Vitamin C';
+
+  @override
+  String get bComplex => 'B-Complex';
+
+  @override
+  String get omega3 => 'Omega-3';
+
+  @override
+  String get ironBisglycinate => 'Iron Bisglycinate';
+
+  @override
+  String get dosage => 'Dosage';
+
+  @override
+  String get enterDosage => 'Enter dosage';
+
+  @override
+  String get noElectrolyteContent => 'No electrolyte content';
 }

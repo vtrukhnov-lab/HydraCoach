@@ -944,5 +944,133 @@
   "@amount": {
     "description": "Amount label"
   },
-  "createFavoriteHint": "To add a favorite, go to any drink screen below and tap 'Save to favorites' button after setting up your drink."
+  "createFavoriteHint": "To add a favorite, go to any drink screen below and tap 'Save to favorites' button after setting up your drink.",
+   
+  "sparklingWater": "Sparkling Water",
+  "@sparklingWater": {
+    "description": "Sparkling water drink type"
+  },
+  "cola": "Cola",
+  "@cola": {
+    "description": "Cola drink type"
+  },
+  "juice": "Juice",
+  "@juice": {
+    "description": "Juice drink type"
+  },
+  "energyDrink": "Energy Drink",
+  "@energyDrink": {
+    "description": "Energy drink type"
+  },
+  "sportsDrink": "Sports Drink",
+  "@sportsDrink": {
+    "description": "Sports drink type"
+  },
+  "selectElectrolyteType": "Select electrolyte type:",
+  "@selectElectrolyteType": {
+    "description": "Prompt to select electrolyte type"
+  },
+  "saltQuarterTsp": "Salt (1/4 tsp)",
+  "@saltQuarterTsp": {
+    "description": "Quarter teaspoon of salt"
+  },
+  "pinkSalt": "Pink Himalayan Salt",
+  "@pinkSalt": {
+    "description": "Pink Himalayan salt type"
+  },
+  "seaSalt": "Sea Salt",
+  "@seaSalt": {
+    "description": "Sea salt type"
+  },
+  "potassiumCitrate": "Potassium Citrate",
+  "@potassiumCitrate": {
+    "description": "Potassium citrate supplement"
+  },
+  "magnesiumGlycinate": "Magnesium Glycinate",
+  "@magnesiumGlycinate": {
+    "description": "Magnesium glycinate supplement"
+  },
+  "coconutWaterElectrolyte": "Coconut Water",
+  "@coconutWaterElectrolyte": {
+    "description": "Coconut water as electrolyte source"
+  },
+  "sportsDrinkElectrolyte": "Sports Drink",
+  "@sportsDrinkElectrolyte": {
+    "description": "Sports drink as electrolyte source"
+  },
+  "electrolyteContent": "Electrolyte content:",
+  "@electrolyteContent": {
+    "description": "Label for electrolyte content display"
+  },
+  "sodiumContent": "Sodium: {amount} mg",
+  "@sodiumContent": {
+    "description": "Sodium content display",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "potassiumContent": "Potassium: {amount} mg",
+  "@potassiumContent": {
+    "description": "Potassium content display",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "magnesiumContent": "Magnesium: {amount} mg",
+  "@magnesiumContent": {
+    "description": "Magnesium content display",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "servings": "Servings",
+  "@servings": {
+    "description": "Servings label"
+  },
+  "enterServings": "Enter servings",
+  "@enterServings": {
+    "description": "Prompt to enter number of servings"
+  },
+  "servingsUnit": "servings",
+  "@servingsUnit": {
+    "description": "Unit for servings"
+  },
+  "noElectrolytes": "No electrolytes",
+  "@noElectrolytes": {
+    "description": "Message when no electrolytes present"
+  },
+  "enterValidAmount": "Please enter a valid amount",
+  "@enterValidAmount": {
+    "description": "Error message for invalid amount"
+  },
+  "lmntMix": "LMNT Mix",
+"pickleJuice": "Pickle Juice", 
+"tomatoSalt": "Tomato + Salt",
+"ketorade": "Ketorade",
+"alkalineWater": "Alkaline Water",
+"celticSalt": "Celtic Salt Water",
+"soleWater": "Sole Water",
+"mineralDrops": "Mineral Drops",
+"bakingSoda": "Baking Soda Water",
+"creamTartar": "Cream of Tartar",
+"selectSupplementType": "Select supplement type:",
+"multivitamin": "Multivitamin",
+"magnesiumCitrate": "Magnesium Citrate",
+"magnesiumThreonate": "Magnesium L-Threonate",
+"calciumCitrate": "Calcium Citrate",
+"zincGlycinate": "Zinc Glycinate",
+"vitaminD3": "Vitamin D3",
+"vitaminC": "Vitamin C",
+"bComplex": "B-Complex",
+"omega3": "Omega-3",
+"ironBisglycinate": "Iron Bisglycinate",
+"dosage": "Dosage",
+"enterDosage": "Enter dosage",
+"noElectrolyteContent": "No electrolyte content"
 }

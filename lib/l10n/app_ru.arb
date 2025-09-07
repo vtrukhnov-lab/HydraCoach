@@ -944,5 +944,67 @@
   "@amount": {
     "description": "Метка количества"
   },
-    "createFavoriteHint": "Чтобы добавить избранное, перейдите в любой экран напитка ниже и нажмите кнопку 'Сохранить в избранное' после настройки напитка."
+    "createFavoriteHint": "Чтобы добавить избранное, перейдите в любой экран напитка ниже и нажмите кнопку 'Сохранить в избранное' после настройки напитка.",
+    "sparklingWater": "Газированная вода",
+  "@sparklingWater": {
+    "description": "Sparkling water drink type"
+  },
+  "cola": "Кола",
+  "@cola": {
+    "description": "Cola drink type"
+  },
+  "juice": "Сок",
+  "@juice": {
+    "description": "Juice drink type"
+  },
+  "energyDrink": "Энергетик",
+  "@energyDrink": {
+    "description": "Energy drink type"
+  },
+  "sportsDrink": "Спортивный напиток",
+  "@sportsDrink": {
+    "description": "Sports drink type"
+  },
+  
+"selectElectrolyteType": "Выберите тип электролита:",
+  "saltQuarterTsp": "Соль (1/4 ч.л.)",
+  "pinkSalt": "Розовая гималайская соль",
+  "seaSalt": "Морская соль",
+  "potassiumCitrate": "Цитрат калия",
+  "magnesiumGlycinate": "Глицинат магния",
+  "coconutWaterElectrolyte": "Кокосовая вода",
+  "sportsDrinkElectrolyte": "Спортивный напиток",
+  "electrolyteContent": "Содержание электролитов:",
+  "sodiumContent": "Натрий: {amount} мг",
+  "potassiumContent": "Калий: {amount} мг",
+  "magnesiumContent": "Магний: {amount} мг",
+  "servings": "Порции",
+  "enterServings": "Введите количество порций",
+  "servingsUnit": "порций",
+  "noElectrolytes": "Нет электролитов",
+  "enterValidAmount": "Введите корректное количество",
+  "lmntMix": "LMNT Микс",
+"pickleJuice": "Огуречный рассол",
+"tomatoSalt": "Томатный сок + соль",
+"ketorade": "Кеторейд",
+"alkalineWater": "Щелочная вода",
+"celticSalt": "Кельтская соль",
+"soleWater": "Соляной раствор",
+"mineralDrops": "Минеральные капли",
+"bakingSoda": "Содовая вода",
+"creamTartar": "Винный камень",
+"selectSupplementType": "Выберите тип добавки:",
+"multivitamin": "Мультивитамины",
+"magnesiumCitrate": "Цитрат магния",
+"magnesiumThreonate": "L-треонат магния",
+"calciumCitrate": "Цитрат кальция",
+"zincGlycinate": "Глицинат цинка",
+"vitaminD3": "Витамин D3",
+"vitaminC": "Витамин C",
+"bComplex": "B-комплекс",
+"omega3": "Омега-3",
+"ironBisglycinate": "Бисглицинат железа",
+"dosage": "Дозировка",
+"enterDosage": "Введите дозировку",
+"noElectrolyteContent": "Нет электролитов"
 }

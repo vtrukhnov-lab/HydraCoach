@@ -947,5 +947,66 @@
   "@amount": {
     "description": "Etiqueta de cantidad"
   },
-  "createFavoriteHint": "Para agregar un favorito, vaya a cualquier pantalla de bebida a continuación y toque el botón 'Guardar en favoritos' después de configurar su bebida."
+  "createFavoriteHint": "Para agregar un favorito, vaya a cualquier pantalla de bebida a continuación y toque el botón 'Guardar en favoritos' después de configurar su bebida.",
+  "sparklingWater": "Agua con gas",
+  "@sparklingWater": {
+    "description": "Sparkling water drink type"
+  },
+  "cola": "Cola",
+  "@cola": {
+    "description": "Cola drink type"
+  },
+  "juice": "Jugo",
+  "@juice": {
+    "description": "Juice drink type"
+  },
+  "energyDrink": "Bebida energética",
+  "@energyDrink": {
+    "description": "Energy drink type"
+  },
+  "sportsDrink": "Bebida deportiva",
+  "@sportsDrink": {
+    "description": "Sports drink type"
+  },
+  "selectElectrolyteType": "Seleccionar tipo de electrolito:",
+  "saltQuarterTsp": "Sal (1/4 cdta)",
+  "pinkSalt": "Sal rosa del Himalaya",
+  "seaSalt": "Sal marina",
+  "potassiumCitrate": "Citrato de potasio",
+  "magnesiumGlycinate": "Glicinato de magnesio",
+  "coconutWaterElectrolyte": "Agua de coco",
+  "sportsDrinkElectrolyte": "Bebida deportiva",
+  "electrolyteContent": "Contenido de electrolitos:",
+  "sodiumContent": "Sodio: {amount} mg",
+  "potassiumContent": "Potasio: {amount} mg",
+  "magnesiumContent": "Magnesio: {amount} mg",
+  "servings": "Porciones",
+  "enterServings": "Ingrese porciones",
+  "servingsUnit": "porciones",
+  "noElectrolytes": "Sin electrolitos",
+  "enterValidAmount": "Por favor ingrese una cantidad válida",
+  "lmntMix": "Mezcla LMNT",
+"pickleJuice": "Jugo de pepinillos",
+"tomatoSalt": "Tomate + sal",
+"ketorade": "Ketorade",
+"alkalineWater": "Agua alcalina",
+"celticSalt": "Sal celta",
+"soleWater": "Agua de sol",
+"mineralDrops": "Gotas minerales",
+"bakingSoda": "Agua con bicarbonato",
+"creamTartar": "Crémor tártaro",
+"selectSupplementType": "Seleccionar tipo de suplemento:",
+"multivitamin": "Multivitamínico",
+"magnesiumCitrate": "Citrato de magnesio",
+"magnesiumThreonate": "L-treonato de magnesio",
+"calciumCitrate": "Citrato de calcio",
+"zincGlycinate": "Glicinato de zinc",
+"vitaminD3": "Vitamina D3",
+"vitaminC": "Vitamina C",
+"bComplex": "Complejo B",
+"omega3": "Omega-3",
+"ironBisglycinate": "Bisglicinato de hierro",
+"dosage": "Dosificación",
+"enterDosage": "Ingrese la dosis",
+"noElectrolyteContent": "Sin electrolitos"
 }

@@ -1,3 +1,19 @@
+// ============================================================================
+// FILE: lib/screens/home_screen.dart
+// 
+// PURPOSE: Main home screen of HydraCoach app
+// Displays hydration progress, weather info, quick add buttons, and daily history.
+// Manages favorites refresh when returning from any drink screen.
+// 
+// FEATURES:
+// - Real-time hydration progress rings
+// - Weather-based adjustments
+// - Quick Add widget with favorites management
+// - Today's intake history
+// - Smart hydration advice
+// - Automatic favorites refresh on screen focus
+// ============================================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +38,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   // Constants
   static const double kProgressRingSize = 140.0;
   static const double kProgressStrokeWidth = 12.0;
@@ -33,10 +49,16 @@ class _HomeScreenState extends State<HomeScreen> {
   static const int kMaxHistoryItems = 10;
 
   bool _showDailyReport = false;
+  
+  // Key для принудительного обновления QuickAddWidget
+  Key _quickAddKey = UniqueKey();
 
   @override
   void initState() {
     super.initState();
+    // Добавляем observer для отслеживания жизненного цикла
+    WidgetsBinding.instance.addObserver(this);
+    
     _checkDailyReport();
     _checkMorningCheckin();
 
@@ -54,9 +76,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    // Удаляем observer
+    WidgetsBinding.instance.removeObserver(this);
+    
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
     alcohol.removeListener(_onAlcoholServiceChanged);
     super.dispose();
+  }
+
+  // Вызывается когда приложение возвращается из фона или при навигации
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshQuickAdd();
+    }
+  }
+
+  // Метод для обновления QuickAddWidget
+  void _refreshQuickAdd() {
+    if (mounted) {
+      setState(() {
+        _quickAddKey = UniqueKey();
+      });
+    }
   }
 
   void _onAlcoholServiceChanged() {
@@ -122,6 +164,23 @@ class _HomeScreenState extends State<HomeScreen> {
       alcoholSD: alcohol.totalStandardDrinks,
       lastIntakeTime: lastIntakeTime,
     );
+  }
+
+  // Универсальный метод навигации с обновлением фаворитов при возврате
+  Future<void> _navigateToDrinkScreen(String route, {Object? arguments}) async {
+    final result = await Navigator.pushNamed(
+      context, 
+      route,
+      arguments: arguments,
+    );
+    
+    // Обновляем QuickAddWidget при любом возврате из экрана напитков
+    _refreshQuickAdd();
+    
+    // Если добавили напиток, обновляем HRI
+    if (result == true) {
+      _updateHRI();
+    }
   }
 
   @override
@@ -269,7 +328,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: _buildHRICard(hri, hriValue, status, l10n),
                 ),
 
-                // Quick Add Section - ИСПОЛЬЗУЕМ НОВЫЙ ВИДЖЕТ
+                // Quick Add Section с обновляемым ключом
                 SliverToBoxAdapter(
                   child: _buildQuickAddSection(provider, alcohol, l10n),
                 ),
@@ -809,23 +868,27 @@ class _HomeScreenState extends State<HomeScreen> {
     ).animate().fadeIn(delay: 500.ms);
   }
 
-  // ИСПРАВЛЕННЫЙ МЕТОД - ИСПОЛЬЗУЕМ QuickAddWidget
-  Widget _buildQuickAddSection(
-    HydrationProvider provider,
-    AlcoholService alcohol,
-    AppLocalizations l10n,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.all(kCardPadding),
-      child: QuickAddWidget(
-        provider: provider,
-        onUpdate: () {
-          setState(() {});
-          _updateHRI();
-        },
-      ),
-    );
-  }
+  // Обновленный метод с использованием ключа для принудительного обновления
+  
+    Widget _buildQuickAddSection(
+      HydrationProvider provider,
+      AlcoholService alcohol,
+      AppLocalizations l10n,
+    ) {
+      return Padding(
+        padding: const EdgeInsets.all(kCardPadding),
+        child: QuickAddWidget(
+          key: _quickAddKey,
+          provider: provider,
+          onUpdate: () {
+            setState(() {});
+            _updateHRI();
+          },
+          // Убираем onNavigate - пусть QuickAddWidget использует свою дефолтную навигацию
+          // onNavigate будет null, и QuickAddWidget будет использовать Navigator.pushNamed напрямую
+        ),
+      );
+    }
 
   Widget _buildTodayHistory(HydrationProvider provider, AlcoholService alcohol, AppLocalizations l10n) {
     return Padding(
@@ -1167,21 +1230,6 @@ class _HomeScreenState extends State<HomeScreen> {
         fullscreenDialog: true,
       ),
     );
-  }
-
-  String _getLocalizedStatus(String status, AppLocalizations l10n) {
-    switch (status) {
-      case 'Норма':
-        return l10n.hydrationStatusNormal;
-      case 'Мало соли':
-        return l10n.hydrationStatusLowSalt;
-      case 'Разбавляешь':
-        return l10n.hydrationStatusDiluted;
-      case 'Недобор воды':
-        return l10n.hydrationStatusDehydrated;
-      default:
-        return status;
-    }
   }
 
   Color _getStatusColor(String status) {
