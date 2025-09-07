@@ -54,6 +54,7 @@
     }
   },
   "water": "Agua",
+  "liquids": "Líquidos",
   "sodium": "Sodio",
   "potassium": "Potasio",
   "magnesium": "Magnesio",
@@ -576,6 +577,7 @@
   "dontForgetElectrolytes": "No olvides los electrolitos",
   "startDayWithWater": "Comienza el día con un vaso de agua",
   "dontForgetElectrolytesReminder": "⚡ No olvides los electrolitos",
+  "startDayWithWaterReminder": "Comienza el día con un vaso de agua para el bienestar",
   "takeElectrolytesMorning": "Toma electrolitos por la mañana",
   "purchaseFailed": "Compra fallida: {error}",
   "@purchaseFailed": {
@@ -802,10 +804,148 @@
      }
     }
   },
-  "tomorrowRecommendations": "Tomorrow's recommendations",
-"recommendationExcellent": "Excellent work! Keep it up. Try to start the day with a glass of water and maintain even consumption.",
-"recommendationDiluted": "You drink a lot of water but few electrolytes. Tomorrow add more salt or drink an electrolyte beverage. Try starting the day with salty broth.",
-"recommendationDehydrated": "Not enough water today. Tomorrow set reminders every 2 hours. Keep a water bottle in sight.",
-"recommendationLowSalt": "Low sodium levels can cause fatigue. Add a pinch of salt to water or drink broth. Especially important on keto or fasting.",
-"recommendationGeneral": "Aim for balance between water and electrolytes. Drink evenly throughout the day and don't forget salt in heat."
+  "tomorrowRecommendations": "Recomendaciones para mañana",
+  "recommendationExcellent": "¡Excelente trabajo! Sigue así. Intenta comenzar el día con un vaso de agua y mantén un consumo equilibrado.",
+  "recommendationDiluted": "Bebes mucha agua pero pocos electrolitos. Mañana agrega más sal o bebe una bebida electrolítica. Prueba comenzar el día con caldo salado.",
+  "recommendationDehydrated": "No suficiente agua hoy. Mañana establece recordatorios cada 2 horas. Mantén una botella de agua a la vista.",
+  "recommendationLowSalt": "Los niveles bajos de sodio pueden causar fatiga. Agrega una pizca de sal al agua o bebe caldo. Especialmente importante en keto o ayuno.",
+  "recommendationGeneral": "Apunta al equilibrio entre agua y electrolitos. Bebe uniformemente durante el día y no olvides la sal en el calor.",
+  
+  "category_water": "Agua",
+  "category_hot_drinks": "Bebidas calientes",
+  "category_juice": "Jugos",
+  "category_sports": "Deportivas",
+  "category_dairy": "Lácteos",
+  "category_alcohol": "Alcohol",
+  "category_supplements": "Suplementos",
+  "category_other": "Otros",
+  
+  "drink_water": "Agua",
+  "drink_sparkling_water": "Agua con gas",
+  "drink_mineral_water": "Agua mineral",
+  "drink_coconut_water": "Agua de coco",
+  "drink_coffee": "Café",
+  "drink_espresso": "Espresso",
+  "drink_americano": "Americano",
+  "drink_cappuccino": "Cappuccino",
+  "drink_latte": "Latte",
+  "drink_black_tea": "Té negro",
+  "drink_green_tea": "Té verde",
+  "drink_herbal_tea": "Té de hierbas",
+  "drink_matcha": "Matcha",
+  "drink_hot_chocolate": "Chocolate caliente",
+  "drink_orange_juice": "Jugo de naranja",
+  "drink_apple_juice": "Jugo de manzana",
+  "drink_grapefruit_juice": "Jugo de toronja",
+  "drink_tomato_juice": "Jugo de tomate",
+  "drink_vegetable_juice": "Jugo de vegetales",
+  "drink_smoothie": "Batido",
+  "drink_lemonade": "Limonada",
+  "drink_isotonic": "Bebida isotónica",
+  "drink_electrolyte": "Bebida electrolítica",
+  "drink_protein_shake": "Batido de proteína",
+  "drink_bcaa": "Bebida BCAA",
+  "drink_energy": "Bebida energética",
+  "drink_milk": "Leche",
+  "drink_kefir": "Kéfir",
+  "drink_yogurt": "Yogur bebible",
+  "drink_almond_milk": "Leche de almendra",
+  "drink_soy_milk": "Leche de soja",
+  "drink_oat_milk": "Leche de avena",
+  "drink_beer_light": "Cerveza ligera",
+  "drink_beer_regular": "Cerveza regular",
+  "drink_beer_strong": "Cerveza fuerte",
+  "drink_wine_red": "Vino tinto",
+  "drink_wine_white": "Vino blanco",
+  "drink_champagne": "Champán",
+  "drink_vodka": "Vodka",
+  "drink_whiskey": "Whisky",
+  "drink_rum": "Ron",
+  "drink_gin": "Ginebra",
+  "drink_tequila": "Tequila",
+  "drink_mojito": "Mojito",
+  "drink_margarita": "Margarita",
+  "drink_kombucha": "Kombucha",
+  "drink_kvass": "Kvass",
+  "drink_bone_broth": "Caldo de hueso",
+  "drink_vegetable_broth": "Caldo de verduras",
+  "drink_soda": "Refresco",
+  "drink_diet_soda": "Refresco dietético",
+  
+  "addedToFavorites": "Añadido a favoritos",
+  "favoriteLimitReached": "Límite de favoritos alcanzado (3 para FREE, 20 para PRO)",
+  "addFavorite": "Añadir favorito",
+  "hotAndSupplements": "Calientes y Suplementos",
+  "quickVolumes": "Volúmenes rápidos:",
+  "type": "Tipo:",
+  "regular": "Regular",
+  "coconut": "Coco",
+  "sparkling": "Con gas",
+  "mineral": "Mineral",
+  "hotDrinks": "Bebidas calientes",
+  "supplements": "Suplementos",
+  "tea": "Té",
+  "salt": "Sal (1/4 cdta)",
+  "electrolyteMix": "Mezcla de electrolitos",
+  "boneBroth": "Caldo de hueso",
+  "favoriteAssignmentComingSoon": "Asignación de favoritos próximamente",
+  "longPressToEditComingSoon": "Mantén presionado para editar - próximamente",
+  "proSubscriptionRequired": "Suscripción PRO requerida",
+  "saveToFavorites": "Guardar en favoritos",
+  "@saveToFavorites": {
+    "description": "Botón para guardar la configuración actual como favorito"
+  },
+  "savedToFavorites": "Guardado en favoritos",
+  "@savedToFavorites": {
+    "description": "Mensaje de éxito al guardar en favoritos"
+  },
+  "selectFavoriteSlot": "Seleccionar ranura de favorito",
+  "@selectFavoriteSlot": {
+    "description": "Título del diálogo de selección de ranura de favorito"
+  },
+  "slot": "Ranura",
+  "@slot": {
+    "description": "Etiqueta de ranura de favorito"
+  },
+  "emptySlot": "Ranura vacía",
+  "@emptySlot": {
+    "description": "Etiqueta para ranura de favorito vacía"
+  },
+  "upgradeToUnlock": "Actualiza a PRO para desbloquear",
+  "@upgradeToUnlock": {
+    "description": "Mensaje para ranuras PRO bloqueadas"
+  },
+  "changeFavorite": "Cambiar favorito",
+  "@changeFavorite": {
+    "description": "Opción para cambiar favorito existente"
+  },
+  "removeFavorite": "Eliminar de favoritos",
+  "@removeFavorite": {
+    "description": "Opción para eliminar favorito"
+  },
+  "ok": "OK",
+  "@ok": {
+    "description": "Texto del botón OK"
+  },
+  "mineralWater": "Agua mineral",
+  "@mineralWater": {
+    "description": "Tipo de bebida - agua mineral"
+  },
+  "coconutWater": "Agua de coco",
+  "@coconutWater": {
+    "description": "Tipo de bebida - agua de coco"
+  },
+  "lemonWater": "Agua con limón",
+  "@lemonWater": {
+    "description": "Tipo de bebida - agua con limón"
+  },
+  "greenTea": "Té verde",
+  "@greenTea": {
+    "description": "Tipo de bebida - té verde"
+  },
+  "amount": "Cantidad",
+  "@amount": {
+    "description": "Etiqueta de cantidad"
+  },
+  "createFavoriteHint": "Para agregar un favorito, vaya a cualquier pantalla de bebida a continuación y toque el botón 'Guardar en favoritos' después de configurar su bebida."
 }

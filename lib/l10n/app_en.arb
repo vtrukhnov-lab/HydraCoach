@@ -54,6 +54,7 @@
     }
   },
   "water": "Water",
+  "liquids": "Liquids",
   "sodium": "Sodium",
   "potassium": "Potassium",
   "magnesium": "Magnesium",
@@ -571,7 +572,7 @@
   "noPurchasesToRestore": "No purchases found to restore",
   "drinkMoreWaterToday": "Drink more water today (+20%)",
   "addElectrolytesToWater": "Add electrolytes to each water intake",
-    "limitCoffeeOneCup": "Limit coffee to one cup",
+  "limitCoffeeOneCup": "Limit coffee to one cup",
   "increaseWater10": "Increase water by 10%",
   "dontForgetElectrolytes": "Don't forget electrolytes",
   "startDayWithWater": "Start your day with a glass of water",
@@ -803,10 +804,145 @@
      }
     }
   },
-  "tomorrowRecommendations": "Recomendaciones para mañana",
-  "recommendationExcellent": "¡Excelente trabajo! Continúa así. Trata de comenzar el día con un vaso de agua y mantener un consumo uniforme.",
-  "recommendationDiluted": "Bebes mucha agua pero pocos electrolitos. Mañana agrega más sal o bebe una bebida electrolítica. Intenta comenzar el día con caldo salado.",
-  "recommendationDehydrated": "No suficiente agua hoy. Mañana pon recordatorios cada 2 horas. Mantén una botella de agua a la vista.",
-  "recommendationLowSalt": "Los niveles bajos de sodio pueden causar fatiga. Agrega una pizca de sal al agua o bebe caldo. Especialmente importante en keto o ayuno.",
-  "recommendationGeneral": "Busca el equilibrio entre agua y electrolitos. Bebe uniformemente durante el día y no olvides la sal en el calor."
+  "tomorrowRecommendations": "Recommendations for tomorrow",
+  "recommendationExcellent": "Excellent work! Keep it up. Try to start the day with a glass of water and maintain even consumption.",
+  "recommendationDiluted": "You drink a lot of water but few electrolytes. Tomorrow add more salt or drink an electrolyte beverage. Try starting the day with salty broth.",
+  "recommendationDehydrated": "Not enough water today. Tomorrow set reminders every 2 hours. Keep a water bottle in sight.",
+  "recommendationLowSalt": "Low sodium levels can cause fatigue. Add a pinch of salt to water or drink broth. Especially important on keto or fasting.",
+  "recommendationGeneral": "Aim for balance between water and electrolytes. Drink evenly throughout the day and don't forget salt in heat.",
+  "category_water": "Water",
+  "category_hot_drinks": "Hot Drinks",
+  "category_juice": "Juices",
+  "category_sports": "Sports",
+  "category_dairy": "Dairy",
+  "category_alcohol": "Alcohol",
+  "category_supplements": "Supplements",
+  "category_other": "Other",
+  "drink_water": "Water",
+  "drink_sparkling_water": "Sparkling Water",
+  "drink_mineral_water": "Mineral Water",
+  "drink_coconut_water": "Coconut Water",
+  "drink_coffee": "Coffee",
+  "drink_espresso": "Espresso",
+  "drink_americano": "Americano",
+  "drink_cappuccino": "Cappuccino",
+  "drink_latte": "Latte",
+  "drink_black_tea": "Black Tea",
+  "drink_green_tea": "Green Tea",
+  "drink_herbal_tea": "Herbal Tea",
+  "drink_matcha": "Matcha",
+  "drink_hot_chocolate": "Hot Chocolate",
+  "drink_orange_juice": "Orange Juice",
+  "drink_apple_juice": "Apple Juice",
+  "drink_grapefruit_juice": "Grapefruit Juice",
+  "drink_tomato_juice": "Tomato Juice",
+  "drink_vegetable_juice": "Vegetable Juice",
+  "drink_smoothie": "Smoothie",
+  "drink_lemonade": "Lemonade",
+  "drink_isotonic": "Isotonic Drink",
+  "drink_electrolyte": "Electrolyte Drink",
+  "drink_protein_shake": "Protein Shake",
+  "drink_bcaa": "BCAA Drink",
+  "drink_energy": "Energy Drink",
+  "drink_milk": "Milk",
+  "drink_kefir": "Kefir",
+  "drink_yogurt": "Yogurt Drink",
+  "drink_almond_milk": "Almond Milk",
+  "drink_soy_milk": "Soy Milk",
+  "drink_oat_milk": "Oat Milk",
+  "drink_beer_light": "Light Beer",
+  "drink_beer_regular": "Regular Beer",
+  "drink_beer_strong": "Strong Beer",
+  "drink_wine_red": "Red Wine",
+  "drink_wine_white": "White Wine",
+  "drink_champagne": "Champagne",
+  "drink_vodka": "Vodka",
+  "drink_whiskey": "Whiskey",
+  "drink_rum": "Rum",
+  "drink_gin": "Gin",
+  "drink_tequila": "Tequila",
+  "drink_mojito": "Mojito",
+  "drink_margarita": "Margarita",
+  "drink_kombucha": "Kombucha",
+  "drink_kvass": "Kvass",
+  "drink_bone_broth": "Bone Broth",
+  "drink_vegetable_broth": "Vegetable Broth",
+  "drink_soda": "Soda",
+  "drink_diet_soda": "Diet Soda",
+  "addedToFavorites": "Added to favorites",
+  "favoriteLimitReached": "Favorites limit reached (3 for FREE, 20 for PRO)",
+  "addFavorite": "Add favorite",
+  "hotAndSupplements": "Hot & Supplements",
+  "quickVolumes": "Quick volumes:",
+  "type": "Type:",
+  "regular": "Regular",
+  "coconut": "Coconut",
+  "sparkling": "Sparkling",
+  "mineral": "Mineral",
+  "hotDrinks": "Hot Drinks",
+  "supplements": "Supplements",
+  "tea": "Tea",
+  "salt": "Salt (1/4 tsp)",
+  "electrolyteMix": "Electrolyte Mix",
+  "boneBroth": "Bone Broth",
+  "favoriteAssignmentComingSoon": "Favorite assignment coming soon",
+  "longPressToEditComingSoon": "Long press to edit - coming soon",
+  "proSubscriptionRequired": "PRO subscription required",
+  "saveToFavorites": "Save to favorites",
+  "@saveToFavorites": {
+    "description": "Button to save current settings as favorite"
+  },
+  "savedToFavorites": "Saved to favorites",
+  "@savedToFavorites": {
+    "description": "Success message when saved to favorites"
+  },
+  "selectFavoriteSlot": "Select favorite slot",
+  "@selectFavoriteSlot": {
+    "description": "Title for favorite slot selection dialog"
+  },
+  "slot": "Slot",
+  "@slot": {
+    "description": "Favorite slot label"
+  },
+  "emptySlot": "Empty slot",
+  "@emptySlot": {
+    "description": "Label for empty favorite slot"
+  },
+  "upgradeToUnlock": "Upgrade to PRO to unlock",
+  "@upgradeToUnlock": {
+    "description": "Message for locked PRO slots"
+  },
+  "changeFavorite": "Change favorite",
+  "@changeFavorite": {
+    "description": "Option to change existing favorite"
+  },
+  "removeFavorite": "Remove favorite",
+  "@removeFavorite": {
+    "description": "Option to remove favorite"
+  },
+  "ok": "OK",
+  "@ok": {
+    "description": "OK button text"
+  },
+  "mineralWater": "Mineral Water",
+  "@mineralWater": {
+    "description": "Mineral water drink type"
+  },
+  "coconutWater": "Coconut Water",
+  "@coconutWater": {
+    "description": "Coconut water drink type"
+  },
+  "lemonWater": "Lemon Water",
+  "@lemonWater": {
+    "description": "Lemon water drink type"
+  },
+  "greenTea": "Green Tea",
+  "@greenTea": {
+    "description": "Green tea drink type"
+  },
+  "amount": "Amount",
+  "@amount": {
+    "description": "Amount label"
+  },
+  "createFavoriteHint": "To add a favorite, go to any drink screen below and tap 'Save to favorites' button after setting up your drink."
 }

@@ -54,6 +54,7 @@
     }
   },
   "water": "Вода",
+  "liquids": "Напитки",
   "sodium": "Натрий",
   "potassium": "Калий",
   "magnesium": "Магний",
@@ -576,6 +577,7 @@
   "dontForgetElectrolytes": "Не забывайте об электролитах",
   "startDayWithWater": "Начните день со стакана воды",
   "dontForgetElectrolytesReminder": "⚡ Не забывайте об электролитах",
+  "startDayWithWaterReminder": "Начните день со стакана воды для хорошего самочувствия",
   "takeElectrolytesMorning": "Принимайте электролиты утром",
   "purchaseFailed": "Покупка не удалась: {error}",
   "@purchaseFailed": {
@@ -807,5 +809,140 @@
   "recommendationDiluted": "Вы пьете много воды, но мало электролитов. Завтра добавьте больше соли или выпейте электролитный напиток. Попробуйте начать день с соленого бульона.",
   "recommendationDehydrated": "Недостаточно воды сегодня. Завтра поставьте напоминания каждые 2 часа. Держите бутылку воды на видном месте.",
   "recommendationLowSalt": "Низкий уровень натрия может вызвать усталость. Добавьте щепотку соли в воду или выпейте бульон. Особенно важно на кето или при голодании.",
-  "recommendationGeneral": "Стремитесь к балансу воды и электролитов. Пейте равномерно в течение дня и не забывайте про соль в жару."
+  "recommendationGeneral": "Стремитесь к балансу воды и электролитов. Пейте равномерно в течение дня и не забывайте про соль в жару.",
+  "category_water": "Вода",
+  "category_hot_drinks": "Горячие напитки",
+  "category_juice": "Соки",
+  "category_sports": "Спортивные",
+  "category_dairy": "Молочные",
+  "category_alcohol": "Алкоголь",
+  "category_supplements": "Добавки",
+  "category_other": "Другое",
+  "drink_water": "Вода",
+  "drink_sparkling_water": "Газированная вода",
+  "drink_mineral_water": "Минеральная вода",
+  "drink_coconut_water": "Кокосовая вода",
+  "drink_coffee": "Кофе",
+  "drink_espresso": "Эспрессо",
+  "drink_americano": "Американо",
+  "drink_cappuccino": "Капучино",
+  "drink_latte": "Латте",
+  "drink_black_tea": "Черный чай",
+  "drink_green_tea": "Зеленый чай",
+  "drink_herbal_tea": "Травяной чай",
+  "drink_matcha": "Матча",
+  "drink_hot_chocolate": "Горячий шоколад",
+  "drink_orange_juice": "Апельсиновый сок",
+  "drink_apple_juice": "Яблочный сок",
+  "drink_grapefruit_juice": "Грейпфрутовый сок",
+  "drink_tomato_juice": "Томатный сок",
+  "drink_vegetable_juice": "Овощной сок",
+  "drink_smoothie": "Смузи",
+  "drink_lemonade": "Лимонад",
+  "drink_isotonic": "Изотоник",
+  "drink_electrolyte": "Электролитный напиток",
+  "drink_protein_shake": "Протеиновый коктейль",
+  "drink_bcaa": "BCAA напиток",
+  "drink_energy": "Энергетик",
+  "drink_milk": "Молоко",
+  "drink_kefir": "Кефир",
+  "drink_yogurt": "Йогурт питьевой",
+  "drink_almond_milk": "Миндальное молоко",
+  "drink_soy_milk": "Соевое молоко",
+  "drink_oat_milk": "Овсяное молоко",
+  "drink_beer_light": "Легкое пиво",
+  "drink_beer_regular": "Обычное пиво",
+  "drink_beer_strong": "Крепкое пиво",
+  "drink_wine_red": "Красное вино",
+  "drink_wine_white": "Белое вино",
+  "drink_champagne": "Шампанское",
+  "drink_vodka": "Водка",
+  "drink_whiskey": "Виски",
+  "drink_rum": "Ром",
+  "drink_gin": "Джин",
+  "drink_tequila": "Текила",
+  "drink_mojito": "Мохито",
+  "drink_margarita": "Маргарита",
+  "drink_kombucha": "Комбуча",
+  "drink_kvass": "Квас",
+  "drink_bone_broth": "Костный бульон",
+  "drink_vegetable_broth": "Овощной бульон",
+  "drink_soda": "Газировка",
+  "drink_diet_soda": "Диетическая газировка",
+  "addedToFavorites": "Добавлено в избранное",
+  "favoriteLimitReached": "Достигнут лимит избранного (3 для FREE, 20 для PRO)",
+  "addFavorite": "Добавить избранное",
+  "hotAndSupplements": "Горячее и добавки",
+  "quickVolumes": "Быстрые объемы:",
+  "type": "Тип:",
+  "regular": "Обычная",
+  "coconut": "Кокосовая",
+  "sparkling": "Газированная",
+  "mineral": "Минеральная",
+  "hotDrinks": "Горячие напитки",
+  "supplements": "Добавки",
+  "tea": "Чай",
+  "salt": "Соль (1/4 ч.л.)",
+  "electrolyteMix": "Электролитная смесь",
+  "boneBroth": "Костный бульон",
+  "favoriteAssignmentComingSoon": "Назначение избранного скоро будет доступно",
+  "longPressToEditComingSoon": "Долгое нажатие для редактирования - скоро",
+  "proSubscriptionRequired": "Требуется подписка PRO",
+  "saveToFavorites": "Сохранить в избранное",
+  "@saveToFavorites": {
+    "description": "Кнопка для сохранения текущих настроек в избранное"
+  },
+  "savedToFavorites": "Сохранено в избранное",
+  "@savedToFavorites": {
+    "description": "Сообщение об успешном сохранении в избранное"
+  },
+  "selectFavoriteSlot": "Выберите слот избранного",
+  "@selectFavoriteSlot": {
+    "description": "Заголовок диалога выбора слота избранного"
+  },
+  "slot": "Слот",
+  "@slot": {
+    "description": "Метка слота избранного"
+  },
+  "emptySlot": "Пустой слот",
+  "@emptySlot": {
+    "description": "Метка для пустого слота избранного"
+  },
+  "upgradeToUnlock": "Обновитесь до PRO для разблокировки",
+  "@upgradeToUnlock": {
+    "description": "Сообщение для заблокированных PRO слотов"
+  },
+  "changeFavorite": "Изменить избранное",
+  "@changeFavorite": {
+    "description": "Опция изменения существующего избранного"
+  },
+  "removeFavorite": "Удалить из избранного",
+  "@removeFavorite": {
+    "description": "Опция удаления избранного"
+  },
+  "ok": "ОК",
+  "@ok": {
+    "description": "Текст кнопки ОК"
+  },
+  "mineralWater": "Минеральная вода",
+  "@mineralWater": {
+    "description": "Тип напитка - минеральная вода"
+  },
+  "coconutWater": "Кокосовая вода",
+  "@coconutWater": {
+    "description": "Тип напитка - кокосовая вода"
+  },
+  "lemonWater": "Вода с лимоном",
+  "@lemonWater": {
+    "description": "Тип напитка - вода с лимоном"
+  },
+  "greenTea": "Зеленый чай",
+  "@greenTea": {
+    "description": "Тип напитка - зеленый чай"
+  },
+  "amount": "Количество",
+  "@amount": {
+    "description": "Метка количества"
+  },
+    "createFavoriteHint": "Чтобы добавить избранное, перейдите в любой экран напитка ниже и нажмите кнопку 'Сохранить в избранное' после настройки напитка."
 }

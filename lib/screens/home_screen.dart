@@ -10,6 +10,7 @@ import '../services/subscription_service.dart';
 import '../services/alcohol_service.dart';
 import 'paywall_screen.dart';
 import '../main.dart';
+import '../widgets/quick_add_widget.dart';
 
 // ============================================================================
 // HOME SCREEN
@@ -268,7 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: _buildHRICard(hri, hriValue, status, l10n),
                 ),
 
-                // Quick Add Section
+                // Quick Add Section - ИСПОЛЬЗУЕМ НОВЫЙ ВИДЖЕТ
                 SliverToBoxAdapter(
                   child: _buildQuickAddSection(provider, alcohol, l10n),
                 ),
@@ -401,12 +402,12 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 if (weatherData != null) ...[
                   Text(
-  weatherData.getLocalizedDescription(context),
-  style: const TextStyle(
-    color: Colors.white,
-    fontSize: 13,
-  ),
-),
+                    weatherData.getLocalizedDescription(context),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                 ],
                 Row(
@@ -420,14 +421,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 6),
                     Flexible(
                       child: Text(
-                    weatherData != null 
-                    ? weatherData.getLocalizedHeatWarning(context)
-                    : l10n.loadingWeather,
-                    style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                                        ),
+                        weatherData != null 
+                            ? weatherData.getLocalizedHeatWarning(context)
+                            : l10n.loadingWeather,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -808,6 +809,7 @@ class _HomeScreenState extends State<HomeScreen> {
     ).animate().fadeIn(delay: 500.ms);
   }
 
+  // ИСПРАВЛЕННЫЙ МЕТОД - ИСПОЛЬЗУЕМ QuickAddWidget
   Widget _buildQuickAddSection(
     HydrationProvider provider,
     AlcoholService alcohol,
@@ -815,104 +817,12 @@ class _HomeScreenState extends State<HomeScreen> {
   ) {
     return Padding(
       padding: const EdgeInsets.all(kCardPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.quickAdd,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 16),
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 3,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 1.1,
-            children: [
-              _buildQuickButton(
-                context,
-                '💧',
-                l10n.water,
-                l10n.valueWithUnit(200, l10n.ml),
-                Colors.blue,
-                () {
-                  provider.addIntake('water', 200);
-                  _updateHRI();
-                },
-              ),
-              _buildQuickButton(
-                context,
-                '💧',
-                l10n.water,
-                l10n.valueWithUnit(300, l10n.ml),
-                Colors.blue,
-                () {
-                  provider.addIntake('water', 300);
-                  _updateHRI();
-                },
-              ),
-              _buildQuickButton(
-                context,
-                '💧',
-                l10n.water,
-                l10n.valueWithUnit(500, l10n.ml),
-                Colors.blue,
-                () {
-                  provider.addIntake('water', 500);
-                  _updateHRI();
-                },
-              ),
-              _buildQuickButton(
-                context,
-                '⚡',
-                l10n.electrolyte,
-                l10n.valueWithUnit(300, l10n.ml),
-                Colors.orange,
-                () {
-                  provider.addIntake('electrolyte', 300,
-                      sodium: 500, potassium: 200, magnesium: 50);
-                  _updateHRI();
-                },
-              ),
-              _buildQuickButton(
-                context,
-                '🍲',
-                l10n.broth,
-                l10n.valueWithUnit(250, l10n.ml),
-                Colors.amber,
-                () {
-                  provider.addIntake('broth', 250, sodium: 800, potassium: 100);
-                  _updateHRI();
-                },
-              ),
-              _buildQuickButton(
-                context,
-                '☕',
-                l10n.coffee,
-                l10n.valueWithUnit(200, l10n.ml),
-                Colors.brown,
-                () {
-                  provider.addIntake('coffee', 200);
-                  _updateHRI();
-                },
-              ),
-              if (!alcohol.soberModeEnabled)
-                _buildQuickButton(
-                  context,
-                  '🍺',
-                  l10n.alcohol,
-                  l10n.add,
-                  Colors.orange.shade600,
-                  () async {
-                    final result = await Navigator.pushNamed(context, '/alcohol');
-                    if (result == true && mounted) setState(() {});
-                  },
-                ),
-            ],
-          ),
-        ],
+      child: QuickAddWidget(
+        provider: provider,
+        onUpdate: () {
+          setState(() {});
+          _updateHRI();
+        },
       ),
     );
   }
@@ -1085,51 +995,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildQuickButton(
-    BuildContext context,
-    String icon,
-    String label,
-    String volume,
-    Color color,
-    VoidCallback onPress,
-  ) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPress,
-        borderRadius: BorderRadius.circular(16),
-        splashColor: color.withOpacity(0.2),
-        highlightColor: color.withOpacity(0.1),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color, width: 2),
-          ),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(icon, style: const TextStyle(fontSize: 28)),
-                const SizedBox(height: 4),
-                Text(
-                  label,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-                ),
-                Text(
-                  volume,
-                  style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    ).animate()
-        .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1), duration: 200.ms)
-        .fadeIn(duration: 300.ms, delay: 100.ms);
-  }
-
   List<Widget> _getCombinedIntakes(HydrationProvider provider, AlcoholService alcohol, AppLocalizations l10n) {
     final List<MapEntry<DateTime, Widget>> all = [];
 
@@ -1165,6 +1030,17 @@ class _HomeScreenState extends State<HomeScreen> {
         typeIcon = '☕';
         typeName = l10n.coffee;
         break;
+      case 'tea':
+        typeIcon = '🍵';
+        typeName = l10n.tea;
+        break;
+      case 'supplement':
+        typeIcon = '💊';
+        typeName = l10n.supplements;
+        break;
+      default:
+        typeIcon = '🥤';
+        typeName = intake.type;
     }
 
     return Dismissible(

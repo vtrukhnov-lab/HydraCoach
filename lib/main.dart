@@ -20,6 +20,7 @@ import 'screens/home_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/alcohol_log_screen.dart';
+import 'screens/drink_catalog_screen.dart';
 import 'services/notification_service.dart' as notif;
 import 'services/subscription_service.dart';
 import 'services/remote_config_service.dart';
@@ -137,10 +138,10 @@ void main() async {
   final fcmToken = await messaging.getToken();
   
   if (kDebugMode && fcmToken != null) {
-    print('═══════════════════════════════════════════════════════════════');
+    print('╔══════════════════════════════════════════════════════════╗');
     print('FCM TOKEN (copy for testing):');
     print(fcmToken);
-    print('═══════════════════════════════════════════════════════════════');
+    print('╚══════════════════════════════════════════════════════════╝');
   }
   
   await notif.NotificationService.initialize();
@@ -230,6 +231,7 @@ class MyApp extends StatelessWidget {
             '/settings': (context) => const SettingsScreen(),
             '/onboarding': (context) => const OnboardingScreen(),
             '/alcohol': (context) => const AlcoholLogScreen(),
+            '/drink_catalog': (context) => const DrinkCatalogScreen(),
           },
         );
       },
@@ -554,7 +556,7 @@ class HydrationProvider extends ChangeNotifier {
     
     if (kDebugMode) {
       print('➕ Added: $type, volume: $volume ml');
-      print('🔋 Total records: ${todayIntakes.length}');
+      print('📋 Total records: ${todayIntakes.length}');
     }
     
     // IMPORTANT: First notify UI about changes

@@ -94,6 +94,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get water => 'Water';
 
   @override
+  String get liquids => 'Liquids';
+
+  @override
   String get sodium => 'Sodium';
 
   @override
@@ -1323,25 +1326,306 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get tomorrowRecommendations => 'Recomendaciones para mañana';
+  String get tomorrowRecommendations => 'Recommendations for tomorrow';
 
   @override
   String get recommendationExcellent =>
-      '¡Excelente trabajo! Continúa así. Trata de comenzar el día con un vaso de agua y mantener un consumo uniforme.';
+      'Excellent work! Keep it up. Try to start the day with a glass of water and maintain even consumption.';
 
   @override
   String get recommendationDiluted =>
-      'Bebes mucha agua pero pocos electrolitos. Mañana agrega más sal o bebe una bebida electrolítica. Intenta comenzar el día con caldo salado.';
+      'You drink a lot of water but few electrolytes. Tomorrow add more salt or drink an electrolyte beverage. Try starting the day with salty broth.';
 
   @override
   String get recommendationDehydrated =>
-      'No suficiente agua hoy. Mañana pon recordatorios cada 2 horas. Mantén una botella de agua a la vista.';
+      'Not enough water today. Tomorrow set reminders every 2 hours. Keep a water bottle in sight.';
 
   @override
   String get recommendationLowSalt =>
-      'Los niveles bajos de sodio pueden causar fatiga. Agrega una pizca de sal al agua o bebe caldo. Especialmente importante en keto o ayuno.';
+      'Low sodium levels can cause fatigue. Add a pinch of salt to water or drink broth. Especially important on keto or fasting.';
 
   @override
   String get recommendationGeneral =>
-      'Busca el equilibrio entre agua y electrolitos. Bebe uniformemente durante el día y no olvides la sal en el calor.';
+      'Aim for balance between water and electrolytes. Drink evenly throughout the day and don\'t forget salt in heat.';
+
+  @override
+  String get category_water => 'Water';
+
+  @override
+  String get category_hot_drinks => 'Hot Drinks';
+
+  @override
+  String get category_juice => 'Juices';
+
+  @override
+  String get category_sports => 'Sports';
+
+  @override
+  String get category_dairy => 'Dairy';
+
+  @override
+  String get category_alcohol => 'Alcohol';
+
+  @override
+  String get category_supplements => 'Supplements';
+
+  @override
+  String get category_other => 'Other';
+
+  @override
+  String get drink_water => 'Water';
+
+  @override
+  String get drink_sparkling_water => 'Sparkling Water';
+
+  @override
+  String get drink_mineral_water => 'Mineral Water';
+
+  @override
+  String get drink_coconut_water => 'Coconut Water';
+
+  @override
+  String get drink_coffee => 'Coffee';
+
+  @override
+  String get drink_espresso => 'Espresso';
+
+  @override
+  String get drink_americano => 'Americano';
+
+  @override
+  String get drink_cappuccino => 'Cappuccino';
+
+  @override
+  String get drink_latte => 'Latte';
+
+  @override
+  String get drink_black_tea => 'Black Tea';
+
+  @override
+  String get drink_green_tea => 'Green Tea';
+
+  @override
+  String get drink_herbal_tea => 'Herbal Tea';
+
+  @override
+  String get drink_matcha => 'Matcha';
+
+  @override
+  String get drink_hot_chocolate => 'Hot Chocolate';
+
+  @override
+  String get drink_orange_juice => 'Orange Juice';
+
+  @override
+  String get drink_apple_juice => 'Apple Juice';
+
+  @override
+  String get drink_grapefruit_juice => 'Grapefruit Juice';
+
+  @override
+  String get drink_tomato_juice => 'Tomato Juice';
+
+  @override
+  String get drink_vegetable_juice => 'Vegetable Juice';
+
+  @override
+  String get drink_smoothie => 'Smoothie';
+
+  @override
+  String get drink_lemonade => 'Lemonade';
+
+  @override
+  String get drink_isotonic => 'Isotonic Drink';
+
+  @override
+  String get drink_electrolyte => 'Electrolyte Drink';
+
+  @override
+  String get drink_protein_shake => 'Protein Shake';
+
+  @override
+  String get drink_bcaa => 'BCAA Drink';
+
+  @override
+  String get drink_energy => 'Energy Drink';
+
+  @override
+  String get drink_milk => 'Milk';
+
+  @override
+  String get drink_kefir => 'Kefir';
+
+  @override
+  String get drink_yogurt => 'Yogurt Drink';
+
+  @override
+  String get drink_almond_milk => 'Almond Milk';
+
+  @override
+  String get drink_soy_milk => 'Soy Milk';
+
+  @override
+  String get drink_oat_milk => 'Oat Milk';
+
+  @override
+  String get drink_beer_light => 'Light Beer';
+
+  @override
+  String get drink_beer_regular => 'Regular Beer';
+
+  @override
+  String get drink_beer_strong => 'Strong Beer';
+
+  @override
+  String get drink_wine_red => 'Red Wine';
+
+  @override
+  String get drink_wine_white => 'White Wine';
+
+  @override
+  String get drink_champagne => 'Champagne';
+
+  @override
+  String get drink_vodka => 'Vodka';
+
+  @override
+  String get drink_whiskey => 'Whiskey';
+
+  @override
+  String get drink_rum => 'Rum';
+
+  @override
+  String get drink_gin => 'Gin';
+
+  @override
+  String get drink_tequila => 'Tequila';
+
+  @override
+  String get drink_mojito => 'Mojito';
+
+  @override
+  String get drink_margarita => 'Margarita';
+
+  @override
+  String get drink_kombucha => 'Kombucha';
+
+  @override
+  String get drink_kvass => 'Kvass';
+
+  @override
+  String get drink_bone_broth => 'Bone Broth';
+
+  @override
+  String get drink_vegetable_broth => 'Vegetable Broth';
+
+  @override
+  String get drink_soda => 'Soda';
+
+  @override
+  String get drink_diet_soda => 'Diet Soda';
+
+  @override
+  String get addedToFavorites => 'Added to favorites';
+
+  @override
+  String get favoriteLimitReached =>
+      'Favorites limit reached (3 for FREE, 20 for PRO)';
+
+  @override
+  String get addFavorite => 'Add favorite';
+
+  @override
+  String get hotAndSupplements => 'Hot & Supplements';
+
+  @override
+  String get quickVolumes => 'Quick volumes:';
+
+  @override
+  String get type => 'Type:';
+
+  @override
+  String get regular => 'Regular';
+
+  @override
+  String get coconut => 'Coconut';
+
+  @override
+  String get sparkling => 'Sparkling';
+
+  @override
+  String get mineral => 'Mineral';
+
+  @override
+  String get hotDrinks => 'Hot Drinks';
+
+  @override
+  String get supplements => 'Supplements';
+
+  @override
+  String get tea => 'Tea';
+
+  @override
+  String get salt => 'Salt (1/4 tsp)';
+
+  @override
+  String get electrolyteMix => 'Electrolyte Mix';
+
+  @override
+  String get boneBroth => 'Bone Broth';
+
+  @override
+  String get favoriteAssignmentComingSoon => 'Favorite assignment coming soon';
+
+  @override
+  String get longPressToEditComingSoon => 'Long press to edit - coming soon';
+
+  @override
+  String get proSubscriptionRequired => 'PRO subscription required';
+
+  @override
+  String get saveToFavorites => 'Save to favorites';
+
+  @override
+  String get savedToFavorites => 'Saved to favorites';
+
+  @override
+  String get selectFavoriteSlot => 'Select favorite slot';
+
+  @override
+  String get slot => 'Slot';
+
+  @override
+  String get emptySlot => 'Empty slot';
+
+  @override
+  String get upgradeToUnlock => 'Upgrade to PRO to unlock';
+
+  @override
+  String get changeFavorite => 'Change favorite';
+
+  @override
+  String get removeFavorite => 'Remove favorite';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get mineralWater => 'Mineral Water';
+
+  @override
+  String get coconutWater => 'Coconut Water';
+
+  @override
+  String get lemonWater => 'Lemon Water';
+
+  @override
+  String get greenTea => 'Green Tea';
+
+  @override
+  String get amount => 'Amount';
+
+  @override
+  String get createFavoriteHint =>
+      'To add a favorite, go to any drink screen below and tap \'Save to favorites\' button after setting up your drink.';
 }

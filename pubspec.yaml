@@ -2,7 +2,8 @@ name: hydracoach
 description: "Smart hydration tracking with electrolyte balance"
 publish_to: 'none'
 
-# Версия приложения: 0.6.0 (полный рефактор локализации) + номер сборки 9
+# Версия приложения: 0.6.0 (рефактор алкоголя и фаворитов) + номер сборки 10
+version: 0.6.0+10
 
 environment:
   sdk: ^3.9.0

@@ -14,6 +14,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dark theme support
 - Home screen widgets
 
+## [0.6.0] - 2025-09-07
+### Added
+- **Complete Alcohol Tracking Revamp**
+  - Redesigned alcohol logging screen with 3x3 grid (3 FREE, 6 PRO types)
+  - 9 alcohol types: Beer, Wine, Spirits + 6 PRO variants (Vodka, Whiskey, Rum, Tequila, Gin, Cocktail)
+  - Unified icon system: beer mug, wine glass, bottle for spirits, cocktail glass
+  - Save to favorites functionality with slot selection
+  - Automatic Standard Drinks (SD) calculation
+
+- **Favorites System Enhancement**
+  - Full AlcoholService integration for instant logging
+  - Dynamic icon selection based on alcohol type
+  - Fixed alcohol favorites not logging to history
+  - Material Design icons in favorite slots
+
+- **UI/UX Improvements**
+  - Increased drink selection icons to 60px for better visibility
+  - Updated text format to "Type: X%" in single line (e.g., "Beer: 5%")
+  - Improved icon centering in selection grid
+  - Renamed Water category to Liquids for future expansion
+
+### Changed
+- Optimized code structure: 700→580 lines in alcohol_log_screen.dart
+- Removed unused emoji system in favor of Material Design icons
+- Gin and Tequila positions swapped in grid layout
+
+### Fixed
+- Alcohol favorites now properly log to history via AlcoholService
+- Icon centering in alcohol selection grid
+- Removed all hardcoded text strings - full localization support
+
+### Technical
+- Clean architecture without redundant enums
+- Proper state management for alcohol tracking
+- Complete localization integration
 
 [0.5.0] - 2025-09-06
 Added
@@ -43,7 +78,7 @@ Error messages configured per language
 
 
 
-Fixed
+Fixed06
 
 Fixed missing placeholders in hydration status messages
 Resolved RTL layout issues for future Arabic support

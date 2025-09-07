@@ -94,6 +94,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get water => 'Вода';
 
   @override
+  String get liquids => 'Напитки';
+
+  @override
   String get sodium => 'Натрий';
 
   @override
@@ -1346,4 +1349,287 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get recommendationGeneral =>
       'Стремитесь к балансу воды и электролитов. Пейте равномерно в течение дня и не забывайте про соль в жару.';
+
+  @override
+  String get category_water => 'Вода';
+
+  @override
+  String get category_hot_drinks => 'Горячие напитки';
+
+  @override
+  String get category_juice => 'Соки';
+
+  @override
+  String get category_sports => 'Спортивные';
+
+  @override
+  String get category_dairy => 'Молочные';
+
+  @override
+  String get category_alcohol => 'Алкоголь';
+
+  @override
+  String get category_supplements => 'Добавки';
+
+  @override
+  String get category_other => 'Другое';
+
+  @override
+  String get drink_water => 'Вода';
+
+  @override
+  String get drink_sparkling_water => 'Газированная вода';
+
+  @override
+  String get drink_mineral_water => 'Минеральная вода';
+
+  @override
+  String get drink_coconut_water => 'Кокосовая вода';
+
+  @override
+  String get drink_coffee => 'Кофе';
+
+  @override
+  String get drink_espresso => 'Эспрессо';
+
+  @override
+  String get drink_americano => 'Американо';
+
+  @override
+  String get drink_cappuccino => 'Капучино';
+
+  @override
+  String get drink_latte => 'Латте';
+
+  @override
+  String get drink_black_tea => 'Черный чай';
+
+  @override
+  String get drink_green_tea => 'Зеленый чай';
+
+  @override
+  String get drink_herbal_tea => 'Травяной чай';
+
+  @override
+  String get drink_matcha => 'Матча';
+
+  @override
+  String get drink_hot_chocolate => 'Горячий шоколад';
+
+  @override
+  String get drink_orange_juice => 'Апельсиновый сок';
+
+  @override
+  String get drink_apple_juice => 'Яблочный сок';
+
+  @override
+  String get drink_grapefruit_juice => 'Грейпфрутовый сок';
+
+  @override
+  String get drink_tomato_juice => 'Томатный сок';
+
+  @override
+  String get drink_vegetable_juice => 'Овощной сок';
+
+  @override
+  String get drink_smoothie => 'Смузи';
+
+  @override
+  String get drink_lemonade => 'Лимонад';
+
+  @override
+  String get drink_isotonic => 'Изотоник';
+
+  @override
+  String get drink_electrolyte => 'Электролитный напиток';
+
+  @override
+  String get drink_protein_shake => 'Протеиновый коктейль';
+
+  @override
+  String get drink_bcaa => 'BCAA напиток';
+
+  @override
+  String get drink_energy => 'Энергетик';
+
+  @override
+  String get drink_milk => 'Молоко';
+
+  @override
+  String get drink_kefir => 'Кефир';
+
+  @override
+  String get drink_yogurt => 'Йогурт питьевой';
+
+  @override
+  String get drink_almond_milk => 'Миндальное молоко';
+
+  @override
+  String get drink_soy_milk => 'Соевое молоко';
+
+  @override
+  String get drink_oat_milk => 'Овсяное молоко';
+
+  @override
+  String get drink_beer_light => 'Легкое пиво';
+
+  @override
+  String get drink_beer_regular => 'Обычное пиво';
+
+  @override
+  String get drink_beer_strong => 'Крепкое пиво';
+
+  @override
+  String get drink_wine_red => 'Красное вино';
+
+  @override
+  String get drink_wine_white => 'Белое вино';
+
+  @override
+  String get drink_champagne => 'Шампанское';
+
+  @override
+  String get drink_vodka => 'Водка';
+
+  @override
+  String get drink_whiskey => 'Виски';
+
+  @override
+  String get drink_rum => 'Ром';
+
+  @override
+  String get drink_gin => 'Джин';
+
+  @override
+  String get drink_tequila => 'Текила';
+
+  @override
+  String get drink_mojito => 'Мохито';
+
+  @override
+  String get drink_margarita => 'Маргарита';
+
+  @override
+  String get drink_kombucha => 'Комбуча';
+
+  @override
+  String get drink_kvass => 'Квас';
+
+  @override
+  String get drink_bone_broth => 'Костный бульон';
+
+  @override
+  String get drink_vegetable_broth => 'Овощной бульон';
+
+  @override
+  String get drink_soda => 'Газировка';
+
+  @override
+  String get drink_diet_soda => 'Диетическая газировка';
+
+  @override
+  String get addedToFavorites => 'Добавлено в избранное';
+
+  @override
+  String get favoriteLimitReached =>
+      'Достигнут лимит избранного (3 для FREE, 20 для PRO)';
+
+  @override
+  String get addFavorite => 'Добавить избранное';
+
+  @override
+  String get hotAndSupplements => 'Горячее и добавки';
+
+  @override
+  String get quickVolumes => 'Быстрые объемы:';
+
+  @override
+  String get type => 'Тип:';
+
+  @override
+  String get regular => 'Обычная';
+
+  @override
+  String get coconut => 'Кокосовая';
+
+  @override
+  String get sparkling => 'Газированная';
+
+  @override
+  String get mineral => 'Минеральная';
+
+  @override
+  String get hotDrinks => 'Горячие напитки';
+
+  @override
+  String get supplements => 'Добавки';
+
+  @override
+  String get tea => 'Чай';
+
+  @override
+  String get salt => 'Соль (1/4 ч.л.)';
+
+  @override
+  String get electrolyteMix => 'Электролитная смесь';
+
+  @override
+  String get boneBroth => 'Костный бульон';
+
+  @override
+  String get favoriteAssignmentComingSoon =>
+      'Назначение избранного скоро будет доступно';
+
+  @override
+  String get longPressToEditComingSoon =>
+      'Долгое нажатие для редактирования - скоро';
+
+  @override
+  String get proSubscriptionRequired => 'Требуется подписка PRO';
+
+  @override
+  String get saveToFavorites => 'Сохранить в избранное';
+
+  @override
+  String get savedToFavorites => 'Сохранено в избранное';
+
+  @override
+  String get selectFavoriteSlot => 'Выберите слот избранного';
+
+  @override
+  String get slot => 'Слот';
+
+  @override
+  String get emptySlot => 'Пустой слот';
+
+  @override
+  String get upgradeToUnlock => 'Обновитесь до PRO для разблокировки';
+
+  @override
+  String get changeFavorite => 'Изменить избранное';
+
+  @override
+  String get removeFavorite => 'Удалить из избранного';
+
+  @override
+  String get ok => 'ОК';
+
+  @override
+  String get mineralWater => 'Минеральная вода';
+
+  @override
+  String get coconutWater => 'Кокосовая вода';
+
+  @override
+  String get lemonWater => 'Вода с лимоном';
+
+  @override
+  String get greenTea => 'Зеленый чай';
+
+  @override
+  String get amount => 'Количество';
+
+  @override
+  String get createFavoriteHint =>
+      'Чтобы добавить избранное, перейдите в любой экран напитка ниже и нажмите кнопку \'Сохранить в избранное\' после настройки напитка.';
 }

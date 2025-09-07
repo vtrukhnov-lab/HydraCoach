@@ -262,6 +262,12 @@ abstract class AppLocalizations {
   /// **'Water'**
   String get water;
 
+  /// No description provided for @liquids.
+  ///
+  /// In en, this message translates to:
+  /// **'Liquids'**
+  String get liquids;
+
   /// No description provided for @sodium.
   ///
   /// In en, this message translates to:
@@ -2455,38 +2461,596 @@ abstract class AppLocalizations {
   /// No description provided for @tomorrowRecommendations.
   ///
   /// In en, this message translates to:
-  /// **'Recomendaciones para mañana'**
+  /// **'Recommendations for tomorrow'**
   String get tomorrowRecommendations;
 
   /// No description provided for @recommendationExcellent.
   ///
   /// In en, this message translates to:
-  /// **'¡Excelente trabajo! Continúa así. Trata de comenzar el día con un vaso de agua y mantener un consumo uniforme.'**
+  /// **'Excellent work! Keep it up. Try to start the day with a glass of water and maintain even consumption.'**
   String get recommendationExcellent;
 
   /// No description provided for @recommendationDiluted.
   ///
   /// In en, this message translates to:
-  /// **'Bebes mucha agua pero pocos electrolitos. Mañana agrega más sal o bebe una bebida electrolítica. Intenta comenzar el día con caldo salado.'**
+  /// **'You drink a lot of water but few electrolytes. Tomorrow add more salt or drink an electrolyte beverage. Try starting the day with salty broth.'**
   String get recommendationDiluted;
 
   /// No description provided for @recommendationDehydrated.
   ///
   /// In en, this message translates to:
-  /// **'No suficiente agua hoy. Mañana pon recordatorios cada 2 horas. Mantén una botella de agua a la vista.'**
+  /// **'Not enough water today. Tomorrow set reminders every 2 hours. Keep a water bottle in sight.'**
   String get recommendationDehydrated;
 
   /// No description provided for @recommendationLowSalt.
   ///
   /// In en, this message translates to:
-  /// **'Los niveles bajos de sodio pueden causar fatiga. Agrega una pizca de sal al agua o bebe caldo. Especialmente importante en keto o ayuno.'**
+  /// **'Low sodium levels can cause fatigue. Add a pinch of salt to water or drink broth. Especially important on keto or fasting.'**
   String get recommendationLowSalt;
 
   /// No description provided for @recommendationGeneral.
   ///
   /// In en, this message translates to:
-  /// **'Busca el equilibrio entre agua y electrolitos. Bebe uniformemente durante el día y no olvides la sal en el calor.'**
+  /// **'Aim for balance between water and electrolytes. Drink evenly throughout the day and don\'t forget salt in heat.'**
   String get recommendationGeneral;
+
+  /// No description provided for @category_water.
+  ///
+  /// In en, this message translates to:
+  /// **'Water'**
+  String get category_water;
+
+  /// No description provided for @category_hot_drinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot Drinks'**
+  String get category_hot_drinks;
+
+  /// No description provided for @category_juice.
+  ///
+  /// In en, this message translates to:
+  /// **'Juices'**
+  String get category_juice;
+
+  /// No description provided for @category_sports.
+  ///
+  /// In en, this message translates to:
+  /// **'Sports'**
+  String get category_sports;
+
+  /// No description provided for @category_dairy.
+  ///
+  /// In en, this message translates to:
+  /// **'Dairy'**
+  String get category_dairy;
+
+  /// No description provided for @category_alcohol.
+  ///
+  /// In en, this message translates to:
+  /// **'Alcohol'**
+  String get category_alcohol;
+
+  /// No description provided for @category_supplements.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplements'**
+  String get category_supplements;
+
+  /// No description provided for @category_other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get category_other;
+
+  /// No description provided for @drink_water.
+  ///
+  /// In en, this message translates to:
+  /// **'Water'**
+  String get drink_water;
+
+  /// No description provided for @drink_sparkling_water.
+  ///
+  /// In en, this message translates to:
+  /// **'Sparkling Water'**
+  String get drink_sparkling_water;
+
+  /// No description provided for @drink_mineral_water.
+  ///
+  /// In en, this message translates to:
+  /// **'Mineral Water'**
+  String get drink_mineral_water;
+
+  /// No description provided for @drink_coconut_water.
+  ///
+  /// In en, this message translates to:
+  /// **'Coconut Water'**
+  String get drink_coconut_water;
+
+  /// No description provided for @drink_coffee.
+  ///
+  /// In en, this message translates to:
+  /// **'Coffee'**
+  String get drink_coffee;
+
+  /// No description provided for @drink_espresso.
+  ///
+  /// In en, this message translates to:
+  /// **'Espresso'**
+  String get drink_espresso;
+
+  /// No description provided for @drink_americano.
+  ///
+  /// In en, this message translates to:
+  /// **'Americano'**
+  String get drink_americano;
+
+  /// No description provided for @drink_cappuccino.
+  ///
+  /// In en, this message translates to:
+  /// **'Cappuccino'**
+  String get drink_cappuccino;
+
+  /// No description provided for @drink_latte.
+  ///
+  /// In en, this message translates to:
+  /// **'Latte'**
+  String get drink_latte;
+
+  /// No description provided for @drink_black_tea.
+  ///
+  /// In en, this message translates to:
+  /// **'Black Tea'**
+  String get drink_black_tea;
+
+  /// No description provided for @drink_green_tea.
+  ///
+  /// In en, this message translates to:
+  /// **'Green Tea'**
+  String get drink_green_tea;
+
+  /// No description provided for @drink_herbal_tea.
+  ///
+  /// In en, this message translates to:
+  /// **'Herbal Tea'**
+  String get drink_herbal_tea;
+
+  /// No description provided for @drink_matcha.
+  ///
+  /// In en, this message translates to:
+  /// **'Matcha'**
+  String get drink_matcha;
+
+  /// No description provided for @drink_hot_chocolate.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot Chocolate'**
+  String get drink_hot_chocolate;
+
+  /// No description provided for @drink_orange_juice.
+  ///
+  /// In en, this message translates to:
+  /// **'Orange Juice'**
+  String get drink_orange_juice;
+
+  /// No description provided for @drink_apple_juice.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple Juice'**
+  String get drink_apple_juice;
+
+  /// No description provided for @drink_grapefruit_juice.
+  ///
+  /// In en, this message translates to:
+  /// **'Grapefruit Juice'**
+  String get drink_grapefruit_juice;
+
+  /// No description provided for @drink_tomato_juice.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomato Juice'**
+  String get drink_tomato_juice;
+
+  /// No description provided for @drink_vegetable_juice.
+  ///
+  /// In en, this message translates to:
+  /// **'Vegetable Juice'**
+  String get drink_vegetable_juice;
+
+  /// No description provided for @drink_smoothie.
+  ///
+  /// In en, this message translates to:
+  /// **'Smoothie'**
+  String get drink_smoothie;
+
+  /// No description provided for @drink_lemonade.
+  ///
+  /// In en, this message translates to:
+  /// **'Lemonade'**
+  String get drink_lemonade;
+
+  /// No description provided for @drink_isotonic.
+  ///
+  /// In en, this message translates to:
+  /// **'Isotonic Drink'**
+  String get drink_isotonic;
+
+  /// No description provided for @drink_electrolyte.
+  ///
+  /// In en, this message translates to:
+  /// **'Electrolyte Drink'**
+  String get drink_electrolyte;
+
+  /// No description provided for @drink_protein_shake.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein Shake'**
+  String get drink_protein_shake;
+
+  /// No description provided for @drink_bcaa.
+  ///
+  /// In en, this message translates to:
+  /// **'BCAA Drink'**
+  String get drink_bcaa;
+
+  /// No description provided for @drink_energy.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy Drink'**
+  String get drink_energy;
+
+  /// No description provided for @drink_milk.
+  ///
+  /// In en, this message translates to:
+  /// **'Milk'**
+  String get drink_milk;
+
+  /// No description provided for @drink_kefir.
+  ///
+  /// In en, this message translates to:
+  /// **'Kefir'**
+  String get drink_kefir;
+
+  /// No description provided for @drink_yogurt.
+  ///
+  /// In en, this message translates to:
+  /// **'Yogurt Drink'**
+  String get drink_yogurt;
+
+  /// No description provided for @drink_almond_milk.
+  ///
+  /// In en, this message translates to:
+  /// **'Almond Milk'**
+  String get drink_almond_milk;
+
+  /// No description provided for @drink_soy_milk.
+  ///
+  /// In en, this message translates to:
+  /// **'Soy Milk'**
+  String get drink_soy_milk;
+
+  /// No description provided for @drink_oat_milk.
+  ///
+  /// In en, this message translates to:
+  /// **'Oat Milk'**
+  String get drink_oat_milk;
+
+  /// No description provided for @drink_beer_light.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Beer'**
+  String get drink_beer_light;
+
+  /// No description provided for @drink_beer_regular.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular Beer'**
+  String get drink_beer_regular;
+
+  /// No description provided for @drink_beer_strong.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong Beer'**
+  String get drink_beer_strong;
+
+  /// No description provided for @drink_wine_red.
+  ///
+  /// In en, this message translates to:
+  /// **'Red Wine'**
+  String get drink_wine_red;
+
+  /// No description provided for @drink_wine_white.
+  ///
+  /// In en, this message translates to:
+  /// **'White Wine'**
+  String get drink_wine_white;
+
+  /// No description provided for @drink_champagne.
+  ///
+  /// In en, this message translates to:
+  /// **'Champagne'**
+  String get drink_champagne;
+
+  /// No description provided for @drink_vodka.
+  ///
+  /// In en, this message translates to:
+  /// **'Vodka'**
+  String get drink_vodka;
+
+  /// No description provided for @drink_whiskey.
+  ///
+  /// In en, this message translates to:
+  /// **'Whiskey'**
+  String get drink_whiskey;
+
+  /// No description provided for @drink_rum.
+  ///
+  /// In en, this message translates to:
+  /// **'Rum'**
+  String get drink_rum;
+
+  /// No description provided for @drink_gin.
+  ///
+  /// In en, this message translates to:
+  /// **'Gin'**
+  String get drink_gin;
+
+  /// No description provided for @drink_tequila.
+  ///
+  /// In en, this message translates to:
+  /// **'Tequila'**
+  String get drink_tequila;
+
+  /// No description provided for @drink_mojito.
+  ///
+  /// In en, this message translates to:
+  /// **'Mojito'**
+  String get drink_mojito;
+
+  /// No description provided for @drink_margarita.
+  ///
+  /// In en, this message translates to:
+  /// **'Margarita'**
+  String get drink_margarita;
+
+  /// No description provided for @drink_kombucha.
+  ///
+  /// In en, this message translates to:
+  /// **'Kombucha'**
+  String get drink_kombucha;
+
+  /// No description provided for @drink_kvass.
+  ///
+  /// In en, this message translates to:
+  /// **'Kvass'**
+  String get drink_kvass;
+
+  /// No description provided for @drink_bone_broth.
+  ///
+  /// In en, this message translates to:
+  /// **'Bone Broth'**
+  String get drink_bone_broth;
+
+  /// No description provided for @drink_vegetable_broth.
+  ///
+  /// In en, this message translates to:
+  /// **'Vegetable Broth'**
+  String get drink_vegetable_broth;
+
+  /// No description provided for @drink_soda.
+  ///
+  /// In en, this message translates to:
+  /// **'Soda'**
+  String get drink_soda;
+
+  /// No description provided for @drink_diet_soda.
+  ///
+  /// In en, this message translates to:
+  /// **'Diet Soda'**
+  String get drink_diet_soda;
+
+  /// No description provided for @addedToFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to favorites'**
+  String get addedToFavorites;
+
+  /// No description provided for @favoriteLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites limit reached (3 for FREE, 20 for PRO)'**
+  String get favoriteLimitReached;
+
+  /// No description provided for @addFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Add favorite'**
+  String get addFavorite;
+
+  /// No description provided for @hotAndSupplements.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot & Supplements'**
+  String get hotAndSupplements;
+
+  /// No description provided for @quickVolumes.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick volumes:'**
+  String get quickVolumes;
+
+  /// No description provided for @type.
+  ///
+  /// In en, this message translates to:
+  /// **'Type:'**
+  String get type;
+
+  /// No description provided for @regular.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular'**
+  String get regular;
+
+  /// No description provided for @coconut.
+  ///
+  /// In en, this message translates to:
+  /// **'Coconut'**
+  String get coconut;
+
+  /// No description provided for @sparkling.
+  ///
+  /// In en, this message translates to:
+  /// **'Sparkling'**
+  String get sparkling;
+
+  /// No description provided for @mineral.
+  ///
+  /// In en, this message translates to:
+  /// **'Mineral'**
+  String get mineral;
+
+  /// No description provided for @hotDrinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot Drinks'**
+  String get hotDrinks;
+
+  /// No description provided for @supplements.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplements'**
+  String get supplements;
+
+  /// No description provided for @tea.
+  ///
+  /// In en, this message translates to:
+  /// **'Tea'**
+  String get tea;
+
+  /// No description provided for @salt.
+  ///
+  /// In en, this message translates to:
+  /// **'Salt (1/4 tsp)'**
+  String get salt;
+
+  /// No description provided for @electrolyteMix.
+  ///
+  /// In en, this message translates to:
+  /// **'Electrolyte Mix'**
+  String get electrolyteMix;
+
+  /// No description provided for @boneBroth.
+  ///
+  /// In en, this message translates to:
+  /// **'Bone Broth'**
+  String get boneBroth;
+
+  /// No description provided for @favoriteAssignmentComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite assignment coming soon'**
+  String get favoriteAssignmentComingSoon;
+
+  /// No description provided for @longPressToEditComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Long press to edit - coming soon'**
+  String get longPressToEditComingSoon;
+
+  /// No description provided for @proSubscriptionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'PRO subscription required'**
+  String get proSubscriptionRequired;
+
+  /// Button to save current settings as favorite
+  ///
+  /// In en, this message translates to:
+  /// **'Save to favorites'**
+  String get saveToFavorites;
+
+  /// Success message when saved to favorites
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to favorites'**
+  String get savedToFavorites;
+
+  /// Title for favorite slot selection dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Select favorite slot'**
+  String get selectFavoriteSlot;
+
+  /// Favorite slot label
+  ///
+  /// In en, this message translates to:
+  /// **'Slot'**
+  String get slot;
+
+  /// Label for empty favorite slot
+  ///
+  /// In en, this message translates to:
+  /// **'Empty slot'**
+  String get emptySlot;
+
+  /// Message for locked PRO slots
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to PRO to unlock'**
+  String get upgradeToUnlock;
+
+  /// Option to change existing favorite
+  ///
+  /// In en, this message translates to:
+  /// **'Change favorite'**
+  String get changeFavorite;
+
+  /// Option to remove favorite
+  ///
+  /// In en, this message translates to:
+  /// **'Remove favorite'**
+  String get removeFavorite;
+
+  /// OK button text
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// Mineral water drink type
+  ///
+  /// In en, this message translates to:
+  /// **'Mineral Water'**
+  String get mineralWater;
+
+  /// Coconut water drink type
+  ///
+  /// In en, this message translates to:
+  /// **'Coconut Water'**
+  String get coconutWater;
+
+  /// Lemon water drink type
+  ///
+  /// In en, this message translates to:
+  /// **'Lemon Water'**
+  String get lemonWater;
+
+  /// Green tea drink type
+  ///
+  /// In en, this message translates to:
+  /// **'Green Tea'**
+  String get greenTea;
+
+  /// Amount label
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get amount;
+
+  /// No description provided for @createFavoriteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'To add a favorite, go to any drink screen below and tap \'Save to favorites\' button after setting up your drink.'**
+  String get createFavoriteHint;
 }
 
 class _AppLocalizationsDelegate
