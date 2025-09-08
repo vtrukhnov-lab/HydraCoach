@@ -3327,6 +3327,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No electrolyte content'**
   String get noElectrolyteContent;
+
+  /// No description provided for @blackTea.
+  ///
+  /// In en, this message translates to:
+  /// **'Black Tea'**
+  String get blackTea;
+
+  /// No description provided for @herbalTea.
+  ///
+  /// In en, this message translates to:
+  /// **'Herbal Tea'**
+  String get herbalTea;
+
+  /// No description provided for @espresso.
+  ///
+  /// In en, this message translates to:
+  /// **'Espresso'**
+  String get espresso;
+
+  /// No description provided for @cappuccino.
+  ///
+  /// In en, this message translates to:
+  /// **'Cappuccino'**
+  String get cappuccino;
+
+  /// No description provided for @latte.
+  ///
+  /// In en, this message translates to:
+  /// **'Latte'**
+  String get latte;
+
+  /// No description provided for @matcha.
+  ///
+  /// In en, this message translates to:
+  /// **'Matcha'**
+  String get matcha;
+
+  /// No description provided for @hotChocolate.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot Chocolate'**
+  String get hotChocolate;
+
+  /// No description provided for @caffeine.
+  ///
+  /// In en, this message translates to:
+  /// **'Caffeine'**
+  String get caffeine;
+
+  /// No description provided for @sports.
+  ///
+  /// In en, this message translates to:
+  /// **'Sports'**
+  String get sports;
+
+  /// No description provided for @walking.
+  ///
+  /// In en, this message translates to:
+  /// **'Walking'**
+  String get walking;
+
+  /// No description provided for @running.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get running;
+
+  /// No description provided for @gym.
+  ///
+  /// In en, this message translates to:
+  /// **'Gym'**
+  String get gym;
+
+  /// No description provided for @cycling.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycling'**
+  String get cycling;
+
+  /// No description provided for @swimming.
+  ///
+  /// In en, this message translates to:
+  /// **'Swimming'**
+  String get swimming;
+
+  /// No description provided for @yoga.
+  ///
+  /// In en, this message translates to:
+  /// **'Yoga'**
+  String get yoga;
+
+  /// No description provided for @hiit.
+  ///
+  /// In en, this message translates to:
+  /// **'HIIT'**
+  String get hiit;
+
+  /// No description provided for @crossfit.
+  ///
+  /// In en, this message translates to:
+  /// **'CrossFit'**
+  String get crossfit;
+
+  /// No description provided for @boxing.
+  ///
+  /// In en, this message translates to:
+  /// **'Boxing'**
+  String get boxing;
+
+  /// No description provided for @dancing.
+  ///
+  /// In en, this message translates to:
+  /// **'Dancing'**
+  String get dancing;
+
+  /// No description provided for @tennis.
+  ///
+  /// In en, this message translates to:
+  /// **'Tennis'**
+  String get tennis;
+
+  /// No description provided for @teamSports.
+  ///
+  /// In en, this message translates to:
+  /// **'Team Sports'**
+  String get teamSports;
+
+  /// No description provided for @selectActivityType.
+  ///
+  /// In en, this message translates to:
+  /// **'Select activity type:'**
+  String get selectActivityType;
+
+  /// No description provided for @duration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get duration;
+
+  /// No description provided for @minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'minutes'**
+  String get minutes;
+
+  /// No description provided for @enterDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter duration'**
+  String get enterDuration;
+
+  /// No description provided for @lowIntensity.
+  ///
+  /// In en, this message translates to:
+  /// **'Low intensity'**
+  String get lowIntensity;
+
+  /// No description provided for @mediumIntensity.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium intensity'**
+  String get mediumIntensity;
+
+  /// No description provided for @highIntensity.
+  ///
+  /// In en, this message translates to:
+  /// **'High intensity'**
+  String get highIntensity;
+
+  /// No description provided for @recommendedIntake.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended intake:'**
+  String get recommendedIntake;
+
+  /// No description provided for @basedOnWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on weight'**
+  String get basedOnWeight;
+
+  /// No description provided for @logActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Activity'**
+  String get logActivity;
+
+  /// No description provided for @activityLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity logged'**
+  String get activityLogged;
+
+  /// No description provided for @enterValidDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter valid duration'**
+  String get enterValidDuration;
 }
 
 class _AppLocalizationsDelegate

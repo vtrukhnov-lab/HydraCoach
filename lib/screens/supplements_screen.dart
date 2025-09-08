@@ -3,11 +3,11 @@
 // 
 // PURPOSE: Supplements Screen for vitamins and minerals
 // Allows users to select and log various supplements.
-// Uses the same UI/UX pattern as electrolytes_screen for consistency.
+// Uses the same UI/UX pattern as alcohol_log_screen for consistency.
 // 
 // FEATURES:
-// - Grid of supplement types (3 FREE, 9+ PRO)
-// - Dosage input
+// - 3x3 grid of supplement types (3 FREE, 9+ PRO)
+// - Dosage input with quick selection buttons
 // - Electrolyte content calculation where applicable
 // - Save to favorites functionality
 // - PRO gating for premium supplements
@@ -37,6 +37,14 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
   final QuickFavoritesManager _favoritesManager = QuickFavoritesManager();
   bool _isPro = false;
 
+  // Быстрые значения дозировки для каждого типа добавки
+  Map<String, List<int>> _quickDosages = {
+    'default': [1, 2, 3],
+    'magnesium_citrate': [10, 20, 30], // ml
+    'vitamin_d3': [1000, 2000, 5000], // IU
+    'vitamin_c': [500, 1000, 2000], // mg
+  };
+
   @override
   void initState() {
     super.initState();
@@ -57,22 +65,24 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
       // FREE типы
       {
         'type': 'magnesium_glycinate',
-        'label': l10n.magnesiumGlycinate ?? 'Magnesium Glycinate',
+        'label': l10n.magnesiumGlycinate ?? 'Mg Glycinate',
         'icon': Icons.medication_liquid,
         'dosageUnit': 'caps',
         'sodium': 0,
         'potassium': 0,
         'magnesium': 200,  // per capsule
+        'defaultDosage': 1,
         'isPro': false
       },
       {
         'type': 'potassium_citrate',
-        'label': l10n.potassiumCitrate ?? 'Potassium Citrate',
+        'label': l10n.potassiumCitrate ?? 'K Citrate',
         'icon': Icons.medication,
         'dosageUnit': 'caps',
         'sodium': 0,
         'potassium': 99,  // per capsule (standard US dose)
         'magnesium': 0,
+        'defaultDosage': 1,
         'isPro': false
       },
       {
@@ -83,47 +93,52 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
         'sodium': 0,
         'potassium': 50,
         'magnesium': 50,
+        'defaultDosage': 1,
         'isPro': false
       },
       // PRO типы
       {
         'type': 'magnesium_citrate',
-        'label': l10n.magnesiumCitrate ?? 'Magnesium Citrate',
+        'label': l10n.magnesiumCitrate ?? 'Mg Citrate',
         'icon': Icons.water_drop,
         'dosageUnit': 'ml',
         'sodium': 0,
         'potassium': 0,
-        'magnesium': 30,  // per 10ml
+        'magnesium': 3,  // per ml
+        'defaultDosage': 10,
         'isPro': true
       },
       {
         'type': 'magnesium_threonate',
-        'label': l10n.magnesiumThreonate ?? 'Magnesium L-Threonate',
+        'label': l10n.magnesiumThreonate ?? 'Mg L-Threonate',
         'icon': Icons.psychology,
         'dosageUnit': 'caps',
         'sodium': 0,
         'potassium': 0,
         'magnesium': 144,  // per capsule
+        'defaultDosage': 1,
         'isPro': true
       },
       {
         'type': 'calcium_citrate',
-        'label': l10n.calciumCitrate ?? 'Calcium Citrate',
+        'label': l10n.calciumCitrate ?? 'Ca Citrate',
         'icon': Icons.healing,
         'dosageUnit': 'tabs',
         'sodium': 0,
         'potassium': 0,
         'magnesium': 0,
+        'defaultDosage': 1,
         'isPro': true
       },
       {
         'type': 'zinc_glycinate',
-        'label': l10n.zincGlycinate ?? 'Zinc Glycinate',
+        'label': l10n.zincGlycinate ?? 'Zinc',
         'icon': Icons.shield,
         'dosageUnit': 'caps',
         'sodium': 0,
         'potassium': 0,
         'magnesium': 0,
+        'defaultDosage': 1,
         'isPro': true
       },
       {
@@ -134,6 +149,7 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
         'sodium': 0,
         'potassium': 0,
         'magnesium': 0,
+        'defaultDosage': 2000,
         'isPro': true
       },
       {
@@ -144,6 +160,7 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
         'sodium': 0,
         'potassium': 0,
         'magnesium': 0,
+        'defaultDosage': 1000,
         'isPro': true
       },
       {
@@ -154,6 +171,7 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
         'sodium': 0,
         'potassium': 0,
         'magnesium': 0,
+        'defaultDosage': 1,
         'isPro': true
       },
       {
@@ -164,16 +182,18 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
         'sodium': 0,
         'potassium': 0,
         'magnesium': 0,
+        'defaultDosage': 1,
         'isPro': true
       },
       {
         'type': 'iron_bisglycinate',
-        'label': l10n.ironBisglycinate ?? 'Iron Bisglycinate',
+        'label': l10n.ironBisglycinate ?? 'Iron',
         'icon': Icons.fitness_center,
         'dosageUnit': 'caps',
         'sodium': 0,
         'potassium': 0,
         'magnesium': 0,
+        'defaultDosage': 1,
         'isPro': true
       },
     ];
@@ -189,6 +209,7 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
             final index = _supplementTypes.indexWhere((s) => s['type'] == typeKey);
             if (index != -1) {
               _selectedIndex = index;
+              _dosageController.text = _supplementTypes[index]['defaultDosage'].toString();
             }
           }
           if (args['dosage'] != null) {
@@ -222,7 +243,7 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
     setState(() {
       _selectedIndex = index;
       // Устанавливаем рекомендуемую дозировку
-      _dosageController.text = '1';
+      _dosageController.text = supplement['defaultDosage'].toString();
     });
   }
 
@@ -234,6 +255,15 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
         fullscreenDialog: true,
       ),
     );
+  }
+
+  List<int> _getQuickDosages() {
+    if (_supplementTypes.isEmpty) return [1, 2, 3];
+    
+    final supplement = _supplementTypes[_selectedIndex];
+    final type = supplement['type'] as String;
+    
+    return _quickDosages[type] ?? _quickDosages['default']!;
   }
 
   Map<String, int> _calculateElectrolytes() {
@@ -401,9 +431,9 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
     
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: currentFavorite != null ? Colors.purple.shade50 : Colors.green.shade50,
+        backgroundColor: currentFavorite != null ? Colors.orange.shade50 : Colors.green.shade50,
         child: currentFavorite != null 
-          ? Icon(_getFavoriteIcon(currentFavorite), color: Colors.purple.shade600)
+          ? Icon(_getFavoriteIcon(currentFavorite), color: Colors.orange.shade600)
           : Icon(Icons.add, color: Colors.green.shade600),
       ),
       title: Text('${l10n.slot} ${slot + 1}'),
@@ -411,7 +441,7 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
         ? Text(currentFavorite.label)
         : Text(l10n.emptySlot),
       trailing: currentFavorite != null 
-        ? Icon(Icons.swap_horiz, color: Colors.purple.shade400)
+        ? Icon(Icons.swap_horiz, color: Colors.orange.shade400)
         : const Icon(Icons.arrow_forward_ios, size: 16),
       onTap: () => Navigator.pop(context, slot),
     );
@@ -451,7 +481,7 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.selectSupplementType ?? 'Select supplement type:',
+              l10n.selectSupplementType ?? 'Select supplement type',
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -467,7 +497,7 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
                 crossAxisCount: 3,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
-                childAspectRatio: 0.85,
+                childAspectRatio: 1.0, // Квадратные ячейки как в alcohol_log_screen
               ),
               itemCount: _supplementTypes.isEmpty ? 12 : _supplementTypes.length,
               itemBuilder: (context, index) {
@@ -530,23 +560,23 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
                               children: [
                                 Icon(
                                   supplement['icon'] as IconData,
-                                  size: 32,
+                                  size: 60, // Размер как в alcohol_log_screen
                                   color: isLocked 
                                       ? Colors.grey[400]
-                                      : (isSelected ? Colors.purple[600] : Colors.grey[700]),
+                                      : (isSelected ? Colors.purple[500] : Colors.grey[700]),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   supplement['label'],
                                   style: TextStyle(
-                                    fontSize: 10,
+                                    fontSize: 13, // Размер как в alcohol_log_screen
                                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                                     color: isLocked 
                                         ? Colors.grey[400]
                                         : (isSelected ? Colors.purple[700] : Colors.grey[800]),
                                   ),
                                   textAlign: TextAlign.center,
-                                  maxLines: 2,
+                                  maxLines: 1, // Одна строка как в alcohol_log_screen
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ],
@@ -587,39 +617,87 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            TextField(
-              controller: _dosageController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,1}')),
-                LengthLimitingTextInputFormatter(4),
+            
+            // Поле ввода с быстрыми кнопками как в hot_drinks_screen
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: TextField(
+                    controller: _dosageController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,1}')),
+                      LengthLimitingTextInputFormatter(5),
+                    ],
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      hintText: l10n.enterDosage ?? 'Enter dosage',
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.purple[500]!, width: 2),
+                      ),
+                      suffixText: _supplementTypes.isNotEmpty 
+                          ? _supplementTypes[_selectedIndex]['dosageUnit']
+                          : '',
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Быстрые кнопки выбора дозировки
+                ...List.generate(3, (index) {
+                  final quickDosages = _getQuickDosages();
+                  final value = quickDosages[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _dosageController.text = value.toString();
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _dosageController.text == value.toString()
+                            ? Colors.purple[500]
+                            : Colors.white,
+                        foregroundColor: _dosageController.text == value.toString()
+                            ? Colors.white
+                            : Colors.purple[700],
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: _dosageController.text == value.toString()
+                                ? Colors.purple[500]!
+                                : Colors.purple[200]!,
+                            width: 1.5,
+                          ),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        value.toString(),
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  );
+                }),
               ],
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                hintText: l10n.enterDosage ?? 'Enter dosage',
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.purple[500]!, width: 2),
-                ),
-                suffixText: _supplementTypes.isNotEmpty 
-                    ? _supplementTypes[_selectedIndex]['dosageUnit']
-                    : '',
-              ),
             ),
             
             const SizedBox(height: 24),
             
-            // Информационная карточка
+            // Улучшенная информационная карточка
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -632,56 +710,85 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
               ),
               child: Column(
                 children: [
-                  Icon(
-                    Icons.medication,
-                    size: 48,
-                    color: Colors.purple[600],
-                  ),
-                  const SizedBox(height: 12),
-                  if (_supplementTypes.isNotEmpty)
+                  // Выбранная добавка
+                  if (_supplementTypes.isNotEmpty) ...[
+                    Icon(
+                      _supplementTypes[_selectedIndex]['icon'] as IconData,
+                      size: 48,
+                      color: Colors.purple[600],
+                    ),
+                    const SizedBox(height: 12),
                     Text(
                       _supplementTypes[_selectedIndex]['label'],
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Colors.purple[700],
                       ),
                       textAlign: TextAlign.center,
                     ),
-                  const SizedBox(height: 8),
-                  if (hasElectrolytes) ...[
+                    const SizedBox(height: 8),
+                    // Дозировка крупным шрифтом
                     Text(
-                      l10n.electrolyteContent,
+                      '${_dosageController.text.isEmpty ? '0' : _dosageController.text} ${_supplementTypes[_selectedIndex]['dosageUnit']}',
                       style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.purple[800],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    if (electrolyteAmounts['sodium']! > 0)
-                      _buildElectrolyteRow(
-                        l10n.sodiumContent(electrolyteAmounts['sodium']!),
-                        Colors.blue,
-                      ),
-                    if (electrolyteAmounts['potassium']! > 0)
-                      _buildElectrolyteRow(
-                        l10n.potassiumContent(electrolyteAmounts['potassium']!),
-                        Colors.green,
-                      ),
-                    if (electrolyteAmounts['magnesium']! > 0)
-                      _buildElectrolyteRow(
-                        l10n.magnesiumContent(electrolyteAmounts['magnesium']!),
-                        Colors.purple,
-                      ),
-                  ] else
-                    Text(
-                      l10n.noElectrolyteContent ?? 'No electrolyte content',
-                      style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
                         color: Colors.purple[600],
                       ),
                     ),
+                  ],
+                  
+                  // Электролиты в отдельном белом блоке
+                  if (hasElectrolytes) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            l10n.electrolyteContent,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.purple[800],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              if (electrolyteAmounts['sodium']! > 0)
+                                _buildElectrolyteItem(
+                                  '${electrolyteAmounts['sodium']} ${l10n.mg}',
+                                  l10n.sodium,
+                                  Icons.water_drop,
+                                  Colors.blue,
+                                ),
+                              if (electrolyteAmounts['potassium']! > 0)
+                                _buildElectrolyteItem(
+                                  '${electrolyteAmounts['potassium']} ${l10n.mg}',
+                                  l10n.potassium,
+                                  Icons.grain,
+                                  Colors.green,
+                                ),
+                              if (electrolyteAmounts['magnesium']! > 0)
+                                _buildElectrolyteItem(
+                                  '${electrolyteAmounts['magnesium']} ${l10n.mg}',
+                                  l10n.magnesium,
+                                  Icons.spa,
+                                  Colors.purple,
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -759,29 +866,26 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
     );
   }
 
-  Widget _buildElectrolyteRow(String text, Color color) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+  Widget _buildElectrolyteItem(String value, String label, IconData icon, Color color) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 24),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[600],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

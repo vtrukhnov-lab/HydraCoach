@@ -8,6 +8,7 @@
 // FEATURES:
 // - 3x3 grid of alcohol types (3 FREE, 6 PRO)
 // - Auto-calculation of standard drinks based on volume and ABV
+// - Quick volume selection buttons
 // - Shows hydration corrections needed (water, sodium, HRI impact)
 // - Save to favorites functionality
 // - PRO gating for premium alcohol types
@@ -38,6 +39,29 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
   
   List<Map<String, dynamic>> _drinkTypes = [];
   int _selectedIndex = 0;
+  
+  // Быстрые объемы для разных типов напитков
+  List<int> _getQuickVolumes() {
+    if (_drinkTypes.isEmpty) return [330, 500, 750];
+    
+    final drinkType = _drinkTypes[_selectedIndex]['type'] as AlcoholType;
+    switch (drinkType) {
+      case AlcoholType.beer:
+        return [330, 500, 750]; // Стандартные объемы пива
+      case AlcoholType.wine:
+        return [150, 250, 375]; // Стандартные объемы вина
+      case AlcoholType.spirits:
+        final subtype = _drinkTypes[_selectedIndex]['subtype'];
+        if (subtype != null) {
+          return [30, 50, 100]; // Для конкретных крепких напитков
+        }
+        return [50, 100, 200]; // Общие крепкие напитки
+      case AlcoholType.cocktail:
+        return [200, 300, 400]; // Стандартные объемы коктейлей
+      default:
+        return [250, 500, 750];
+    }
+  }
   
   double get _standardDrinks {
     final volume = double.tryParse(_volumeController.text) ?? 0;
@@ -72,16 +96,16 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
     
     _drinkTypes = [
       // FREE типы
-      {'type': AlcoholType.beer, 'label': l10n.beer, 'icon': Icons.sports_bar, 'abv': 5.0, 'isPro': false},
-      {'type': AlcoholType.wine, 'label': l10n.wine, 'icon': Icons.wine_bar, 'abv': 12.0, 'isPro': false},
-      {'type': AlcoholType.spirits, 'label': l10n.spirits, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': false},
+      {'type': AlcoholType.beer, 'label': l10n.beer, 'icon': Icons.sports_bar, 'abv': 5.0, 'isPro': false, 'defaultVolume': 500},
+      {'type': AlcoholType.wine, 'label': l10n.wine, 'icon': Icons.wine_bar, 'abv': 12.0, 'isPro': false, 'defaultVolume': 150},
+      {'type': AlcoholType.spirits, 'label': l10n.spirits, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': false, 'defaultVolume': 50},
       // PRO типы
-      {'type': AlcoholType.cocktail, 'label': l10n.cocktail, 'icon': Icons.local_drink, 'abv': 15.0, 'isPro': true},
-      {'type': AlcoholType.spirits, 'label': l10n.drink_vodka, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': true, 'subtype': 'vodka'},
-      {'type': AlcoholType.spirits, 'label': l10n.drink_whiskey, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': true, 'subtype': 'whiskey'},
-      {'type': AlcoholType.spirits, 'label': l10n.drink_rum, 'icon': Icons.liquor, 'abv': 38.0, 'isPro': true, 'subtype': 'rum'},
-      {'type': AlcoholType.spirits, 'label': l10n.drink_tequila, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': true, 'subtype': 'tequila'},
-      {'type': AlcoholType.spirits, 'label': l10n.drink_gin, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': true, 'subtype': 'gin'},
+      {'type': AlcoholType.cocktail, 'label': l10n.cocktail, 'icon': Icons.local_drink, 'abv': 15.0, 'isPro': true, 'defaultVolume': 200},
+      {'type': AlcoholType.spirits, 'label': l10n.drink_vodka, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': true, 'subtype': 'vodka', 'defaultVolume': 50},
+      {'type': AlcoholType.spirits, 'label': l10n.drink_whiskey, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': true, 'subtype': 'whiskey', 'defaultVolume': 50},
+      {'type': AlcoholType.spirits, 'label': l10n.drink_rum, 'icon': Icons.liquor, 'abv': 38.0, 'isPro': true, 'subtype': 'rum', 'defaultVolume': 50},
+      {'type': AlcoholType.spirits, 'label': l10n.drink_tequila, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': true, 'subtype': 'tequila', 'defaultVolume': 30},
+      {'type': AlcoholType.spirits, 'label': l10n.drink_gin, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': true, 'subtype': 'gin', 'defaultVolume': 50},
     ];
   }
 
@@ -98,6 +122,8 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
             if (index != -1) {
               _selectedIndex = index;
               _selectedType = _drinkTypes[index]['type'] as AlcoholType;
+              // Устанавливаем рекомендуемый объем
+              _volumeController.text = _drinkTypes[index]['defaultVolume'].toString();
             }
           }
           if (args['volume'] != null) {
@@ -131,6 +157,8 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
     setState(() {
       _selectedIndex = index;
       _selectedType = drink['type'] as AlcoholType;
+      // Устанавливаем рекомендуемый объем при выборе напитка
+      _volumeController.text = drink['defaultVolume'].toString();
     });
   }
 
@@ -476,32 +504,78 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            TextField(
-              controller: _volumeController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(4),
+            
+            // Поле ввода с быстрыми кнопками как в других экранах
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: TextField(
+                    controller: _volumeController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(4),
+                    ],
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      hintText: l10n.enterVolume,
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.red[500]!, width: 2),
+                      ),
+                      suffixText: l10n.ml,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Быстрые кнопки выбора объема
+                ..._getQuickVolumes().map((volume) {
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _volumeController.text = volume.toString();
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _volumeController.text == volume.toString()
+                            ? Colors.red[500]
+                            : Colors.white,
+                        foregroundColor: _volumeController.text == volume.toString()
+                            ? Colors.white
+                            : Colors.red[700],
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: _volumeController.text == volume.toString()
+                                ? Colors.red[500]!
+                                : Colors.red[200]!,
+                            width: 1.5,
+                          ),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        volume.toString(),
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  );
+                }).toList(),
               ],
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                hintText: l10n.enterVolume,
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.red[500]!, width: 2),
-                ),
-                suffixText: l10n.ml,
-              ),
             ),
             
             const SizedBox(height: 24),

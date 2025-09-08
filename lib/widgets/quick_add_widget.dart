@@ -502,20 +502,28 @@ class _QuickAddWidgetState extends State<QuickAddWidget> {
   }
   
   Widget _buildCategoryHotDrinks(AppLocalizations l10n) {
-    return _buildCategoryTile(
-      icon: Icons.coffee,
-      iconColor: Colors.white,
-      label: l10n.hotDrinks,
-      gradientColors: [Colors.brown.shade400, Colors.brown.shade600],
-      onTap: () {
-        widget.provider.addIntake('coffee', 200);
-        widget.onUpdate();
-        _showSuccessMessage('${l10n.coffee} 200 ml');
-      },
-    );
-  }
+  return _buildCategoryTile(
+    icon: Icons.coffee,
+    iconColor: Colors.white,
+    label: l10n.hotDrinks,
+    gradientColors: [Colors.brown.shade400, Colors.brown.shade600],
+    onTap: () async {
+      if (widget.onNavigate != null) {
+        widget.onNavigate!('/hot_drinks');
+      } else {
+        final result = await Navigator.pushNamed(context, '/hot_drinks');
+        if (result == true) {
+          widget.onUpdate();
+          await _loadFavorites();
+        }
+      }
+    },
+  );
+}
   
   // Найдите метод _buildCategorySupplements (около строки 420) и замените его на:
+
+// Найдите метод _buildCategorySupplements (около строки 420) и замените его на:
 
 Widget _buildCategorySupplements(AppLocalizations l10n) {
   return _buildCategoryTile(
@@ -562,15 +570,17 @@ Widget _buildCategorySupplements(AppLocalizations l10n) {
   return _buildCategoryTile(
     icon: Icons.fitness_center,
     iconColor: Colors.white,
-    label: 'Sports', // TODO: добавить в локализацию
+    label: l10n.sports ?? 'Sports',
     gradientColors: [Colors.teal.shade400, Colors.teal.shade600],
-    onTap: () {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Sports tracking coming soon!'),
-          duration: const Duration(seconds: 2),
-        ),
-      );
+    onTap: () async {
+      if (widget.onNavigate != null) {
+        widget.onNavigate!('/sports');
+      } else {
+        final result = await Navigator.pushNamed(context, '/sports');
+        if (result == true) {
+          widget.onUpdate();
+        }
+      }
     },
   );
 }

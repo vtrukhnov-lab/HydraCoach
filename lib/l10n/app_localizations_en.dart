@@ -1772,4 +1772,103 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noElectrolyteContent => 'No electrolyte content';
+
+  @override
+  String get blackTea => 'Black Tea';
+
+  @override
+  String get herbalTea => 'Herbal Tea';
+
+  @override
+  String get espresso => 'Espresso';
+
+  @override
+  String get cappuccino => 'Cappuccino';
+
+  @override
+  String get latte => 'Latte';
+
+  @override
+  String get matcha => 'Matcha';
+
+  @override
+  String get hotChocolate => 'Hot Chocolate';
+
+  @override
+  String get caffeine => 'Caffeine';
+
+  @override
+  String get sports => 'Sports';
+
+  @override
+  String get walking => 'Walking';
+
+  @override
+  String get running => 'Running';
+
+  @override
+  String get gym => 'Gym';
+
+  @override
+  String get cycling => 'Cycling';
+
+  @override
+  String get swimming => 'Swimming';
+
+  @override
+  String get yoga => 'Yoga';
+
+  @override
+  String get hiit => 'HIIT';
+
+  @override
+  String get crossfit => 'CrossFit';
+
+  @override
+  String get boxing => 'Boxing';
+
+  @override
+  String get dancing => 'Dancing';
+
+  @override
+  String get tennis => 'Tennis';
+
+  @override
+  String get teamSports => 'Team Sports';
+
+  @override
+  String get selectActivityType => 'Select activity type:';
+
+  @override
+  String get duration => 'Duration';
+
+  @override
+  String get minutes => 'minutes';
+
+  @override
+  String get enterDuration => 'Enter duration';
+
+  @override
+  String get lowIntensity => 'Low intensity';
+
+  @override
+  String get mediumIntensity => 'Medium intensity';
+
+  @override
+  String get highIntensity => 'High intensity';
+
+  @override
+  String get recommendedIntake => 'Recommended intake:';
+
+  @override
+  String get basedOnWeight => 'Based on weight';
+
+  @override
+  String get logActivity => 'Log Activity';
+
+  @override
+  String get activityLogged => 'Activity logged';
+
+  @override
+  String get enterValidDuration => 'Please enter valid duration';
 }

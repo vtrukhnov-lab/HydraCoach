@@ -1,13 +1,13 @@
 // ============================================================================
 // FILE: lib/screens/electrolytes_screen.dart
 // 
-// PURPOSE: Electrolytes Screen (Based on Alcohol Log Screen template)
-// Allows users to select and log various electrolyte supplements with water.
-// Uses the same UI/UX pattern as alcohol_log_screen for consistency.
+// PURPOSE: Electrolytes Screen with consistent UI/UX
+// Allows users to select and log various electrolyte supplements.
+// Matches the style of alcohol and hot drinks screens.
 // 
 // FEATURES:
-// - 3x3+ grid of electrolyte types (3 FREE, 10 PRO)
-// - Volume input for water-based electrolyte drinks
+// - 3x4 grid of electrolyte types (3 FREE, 9 PRO)
+// - Volume input with quick preset buttons
 // - Proportional calculation of Na/K/Mg based on volume
 // - Save to favorites functionality
 // - PRO gating for premium electrolyte types
@@ -31,7 +31,6 @@ class ElectrolytesScreen extends StatefulWidget {
 }
 
 class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
-  // Состояние экрана
   List<Map<String, dynamic>> _electrolyteTypes = [];
   int _selectedIndex = 0;
   final TextEditingController _volumeController = TextEditingController(text: '250');
@@ -55,12 +54,12 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
     final l10n = AppLocalizations.of(context);
     
     _electrolyteTypes = [
-      // FREE типы (базовый объем указан для расчета пропорций)
+      // FREE типы
       {
         'type': 'salt_water',
         'label': l10n.saltQuarterTsp,
         'icon': Icons.grain,
-        'baseVolume': 250,  // базовый объем для расчета
+        'defaultVolume': 250,
         'sodium': 600,      // на 250ml
         'potassium': 0,
         'magnesium': 0,
@@ -70,7 +69,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
         'type': 'electrolyte_mix',
         'label': l10n.electrolyteMix,
         'icon': Icons.water_drop,
-        'baseVolume': 250,
+        'defaultVolume': 250,
         'sodium': 500,
         'potassium': 200,
         'magnesium': 50,
@@ -80,7 +79,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
         'type': 'bone_broth',
         'label': l10n.boneBroth,
         'icon': Icons.soup_kitchen,
-        'baseVolume': 250,
+        'defaultVolume': 250,
         'sodium': 800,
         'potassium': 100,
         'magnesium': 0,
@@ -91,7 +90,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
         'type': 'lmnt_mix',
         'label': l10n.lmntMix ?? 'LMNT Mix',
         'icon': Icons.science,
-        'baseVolume': 250,
+        'defaultVolume': 250,
         'sodium': 1000,
         'potassium': 200,
         'magnesium': 60,
@@ -101,7 +100,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
         'type': 'pickle_juice',
         'label': l10n.pickleJuice ?? 'Pickle Juice',
         'icon': Icons.liquor,
-        'baseVolume': 100,
+        'defaultVolume': 100,
         'sodium': 900,
         'potassium': 70,
         'magnesium': 0,
@@ -111,7 +110,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
         'type': 'tomato_salt',
         'label': l10n.tomatoSalt ?? 'Tomato + Salt',
         'icon': Icons.local_drink,
-        'baseVolume': 200,
+        'defaultVolume': 200,
         'sodium': 650,
         'potassium': 400,
         'magnesium': 0,
@@ -121,7 +120,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
         'type': 'ketorade',
         'label': l10n.ketorade ?? 'Ketorade',
         'icon': Icons.battery_charging_full,
-        'baseVolume': 500,
+        'defaultVolume': 500,
         'sodium': 750,
         'potassium': 300,
         'magnesium': 100,
@@ -131,7 +130,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
         'type': 'alkaline_water',
         'label': l10n.alkalineWater ?? 'Alkaline Water',
         'icon': Icons.opacity,
-        'baseVolume': 500,
+        'defaultVolume': 500,
         'sodium': 100,
         'potassium': 50,
         'magnesium': 30,
@@ -139,9 +138,9 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
       },
       {
         'type': 'celtic_salt',
-        'label': l10n.celticSalt ?? 'Celtic Salt Water',
+        'label': l10n.celticSalt ?? 'Celtic Salt',
         'icon': Icons.waves,
-        'baseVolume': 250,
+        'defaultVolume': 250,
         'sodium': 480,
         'potassium': 40,
         'magnesium': 120,
@@ -151,7 +150,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
         'type': 'sole_water',
         'label': l10n.soleWater ?? 'Sole Water',
         'icon': Icons.water,
-        'baseVolume': 280,
+        'defaultVolume': 280,
         'sodium': 2000,
         'potassium': 0,
         'magnesium': 0,
@@ -161,7 +160,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
         'type': 'mineral_drops',
         'label': l10n.mineralDrops ?? 'Mineral Drops',
         'icon': Icons.water_drop_outlined,
-        'baseVolume': 500,
+        'defaultVolume': 500,
         'sodium': 50,
         'potassium': 100,
         'magnesium': 200,
@@ -171,23 +170,18 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
         'type': 'baking_soda',
         'label': l10n.bakingSoda ?? 'Baking Soda',
         'icon': Icons.bubble_chart,
-        'baseVolume': 250,
+        'defaultVolume': 250,
         'sodium': 630,
         'potassium': 0,
         'magnesium': 0,
         'isPro': true
       },
-      {
-        'type': 'cream_tartar',
-        'label': l10n.creamTartar ?? 'Cream of Tartar',
-        'icon': Icons.auto_awesome,
-        'baseVolume': 250,
-        'sodium': 0,
-        'potassium': 495,
-        'magnesium': 0,
-        'isPro': true
-      },
     ];
+    
+    // Set default volume for first electrolyte
+    if (_electrolyteTypes.isNotEmpty) {
+      _volumeController.text = _electrolyteTypes[0]['defaultVolume'].toString();
+    }
   }
 
   void _checkForPreselectedValues() {
@@ -200,6 +194,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
             final index = _electrolyteTypes.indexWhere((e) => e['type'] == typeKey);
             if (index != -1) {
               _selectedIndex = index;
+              _volumeController.text = _electrolyteTypes[index]['defaultVolume'].toString();
             }
           }
           if (args['volume'] != null) {
@@ -232,8 +227,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
     
     setState(() {
       _selectedIndex = index;
-      // Устанавливаем рекомендуемый объем для выбранного типа
-      _volumeController.text = electrolyte['baseVolume'].toString();
+      _volumeController.text = electrolyte['defaultVolume'].toString();
     });
   }
 
@@ -254,10 +248,10 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
     
     final electrolyte = _electrolyteTypes[_selectedIndex];
     final volume = double.tryParse(_volumeController.text) ?? 250;
-    final baseVolume = (electrolyte['baseVolume'] as int).toDouble();
+    final defaultVolume = (electrolyte['defaultVolume'] as int).toDouble();
     
-    // Рассчитываем электролиты пропорционально объему
-    final ratio = volume / baseVolume;
+    // Calculate electrolytes proportionally to volume
+    final ratio = volume / defaultVolume;
     
     return {
       'sodium': (electrolyte['sodium'] * ratio).round(),
@@ -268,7 +262,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
 
   Future<void> _saveIntake() async {
     final l10n = AppLocalizations.of(context);
-    final volume = double.tryParse(_volumeController.text);
+    final volume = int.tryParse(_volumeController.text);
     
     if (volume == null || volume <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -280,10 +274,9 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
     final amounts = _calculateElectrolytes();
     final provider = Provider.of<HydrationProvider>(context, listen: false);
     
-    // Сохраняем как прием электролитов с водой
     provider.addIntake(
       'electrolyte',
-      volume.toInt(), // Теперь добавляем объем воды
+      volume,
       sodium: amounts['sodium']!,
       potassium: amounts['potassium']!,
       magnesium: amounts['magnesium']!,
@@ -296,7 +289,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
 
   Future<void> _saveToFavorites() async {
     final l10n = AppLocalizations.of(context);
-    final volume = double.tryParse(_volumeController.text);
+    final volume = int.tryParse(_volumeController.text);
     
     if (volume == null || volume <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -310,14 +303,14 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
 
     final electrolyte = _electrolyteTypes[_selectedIndex];
     final amounts = _calculateElectrolytes();
-    final label = '${electrolyte['label']} ${volume.toInt()}${l10n.ml}';
+    final label = '${electrolyte['label']} ${volume}ml';
     
     final favorite = QuickFavorite(
-      id: 'electrolyte_${electrolyte['type']}_${volume.toInt()}',
+      id: 'electrolyte_${electrolyte['type']}_$volume',
       type: 'electrolyte',
       label: label,
       emoji: '',
-      volumeMl: volume.toInt(),
+      volumeMl: volume,
       sodiumMg: amounts['sodium']!,
       potassiumMg: amounts['potassium']!,
       magnesiumMg: amounts['magnesium']!,
@@ -388,22 +381,22 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
     if (isLocked) {
       return ListTile(
         leading: CircleAvatar(
-          backgroundColor: Colors.purple.shade50,
+          backgroundColor: Colors.orange.shade50,
           child: Stack(
             alignment: Alignment.center,
             children: [
-              Icon(Icons.star, color: Colors.purple.shade600),
+              Icon(Icons.star, color: Colors.orange.shade600),
               Positioned(
                 bottom: 0,
                 right: 0,
-                child: Icon(Icons.lock, size: 12, color: Colors.purple.shade600),
+                child: Icon(Icons.lock, size: 12, color: Colors.orange.shade600),
               ),
             ],
           ),
         ),
         title: Text('${l10n.slot} ${slot + 1} (PRO)'),
         subtitle: Text(l10n.upgradeToUnlock),
-        trailing: Icon(Icons.lock_outline, color: Colors.purple.shade400),
+        trailing: Icon(Icons.lock_outline, color: Colors.orange.shade400),
         onTap: () {
           Navigator.pop(context);
           _showProPaywall();
@@ -468,7 +461,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
             ),
             const SizedBox(height: 16),
             
-            // Grid для электролитов (адаптивный под количество)
+            // Grid for electrolytes
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -476,21 +469,15 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
                 crossAxisCount: 3,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
-                childAspectRatio: 0.9,
+                childAspectRatio: 1.0,
               ),
-              itemCount: _electrolyteTypes.isEmpty ? 13 : _electrolyteTypes.length,
+              itemCount: _electrolyteTypes.isEmpty ? 12 : _electrolyteTypes.length,
               itemBuilder: (context, index) {
                 if (_electrolyteTypes.isEmpty) {
                   return Container(
                     decoration: BoxDecoration(
                       color: Colors.grey[100],
                       borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation(Colors.grey[400]),
-                      ),
                     ),
                   );
                 }
@@ -539,7 +526,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
                               children: [
                                 Icon(
                                   electrolyte['icon'] as IconData,
-                                  size: 32,
+                                  size: 60,
                                   color: isLocked 
                                       ? Colors.grey[400]
                                       : (isSelected ? Colors.orange[600] : Colors.grey[700]),
@@ -548,28 +535,16 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
                                 Text(
                                   electrolyte['label'],
                                   style: TextStyle(
-                                    fontSize: 10,
+                                    fontSize: 13,
                                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                                     color: isLocked 
                                         ? Colors.grey[400]
                                         : (isSelected ? Colors.orange[700] : Colors.grey[800]),
                                   ),
                                   textAlign: TextAlign.center,
-                                  maxLines: 2,
+                                  maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                if (electrolyte['baseVolume'] != null) ...[
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    '${electrolyte['baseVolume']} ml',
-                                    style: TextStyle(
-                                      fontSize: 9,
-                                      color: isLocked 
-                                          ? Colors.grey[300]
-                                          : (isSelected ? Colors.orange[500] : Colors.grey[500]),
-                                    ),
-                                  ),
-                                ],
                               ],
                             ),
                           ),
@@ -581,7 +556,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
-                                color: Colors.purple.shade600,
+                                color: Colors.orange.shade600,
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -608,37 +583,53 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            TextField(
-              controller: _volumeController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(4),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _volumeController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(4),
+                    ],
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      hintText: l10n.enterVolume,
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey[300]!),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.orange[500]!, width: 2),
+                      ),
+                      suffixText: l10n.ml,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Quick volume buttons
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    _buildVolumeChip('250'),
+                    _buildVolumeChip('500'),
+                    _buildVolumeChip('750'),
+                  ],
+                ),
               ],
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                hintText: l10n.enterVolume,
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.orange[500]!, width: 2),
-                ),
-                suffixText: l10n.ml,
-              ),
             ),
             
             const SizedBox(height: 24),
             
-            // Информационная карточка с содержанием электролитов
+            // Information card with electrolyte content
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -657,43 +648,69 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
                     color: Colors.orange[600],
                   ),
                   const SizedBox(height: 12),
+                  if (_electrolyteTypes.isNotEmpty)
+                    Text(
+                      _electrolyteTypes[_selectedIndex]['label'],
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange[700],
+                      ),
+                    ),
+                  const SizedBox(height: 8),
                   Text(
-                    l10n.electrolyteContent,
+                    '${_volumeController.text} ${l10n.ml}',
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w300,
                       color: Colors.orange[800],
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Sodium
-                  if (electrolyteAmounts['sodium']! > 0)
-                    _buildElectrolyteRow(
-                      l10n.sodiumContent(electrolyteAmounts['sodium']!),
-                      Colors.blue,
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  // Potassium
-                  if (electrolyteAmounts['potassium']! > 0)
-                    _buildElectrolyteRow(
-                      l10n.potassiumContent(electrolyteAmounts['potassium']!),
-                      Colors.green,
+                    child: Column(
+                      children: [
+                        Text(
+                          l10n.electrolyteContent,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        if (electrolyteAmounts['sodium']! > 0)
+                          _buildElectrolyteRow(
+                            l10n.sodiumContent(electrolyteAmounts['sodium']!),
+                            Colors.blue,
+                          ),
+                        if (electrolyteAmounts['potassium']! > 0)
+                          _buildElectrolyteRow(
+                            l10n.potassiumContent(electrolyteAmounts['potassium']!),
+                            Colors.green,
+                          ),
+                        if (electrolyteAmounts['magnesium']! > 0)
+                          _buildElectrolyteRow(
+                            l10n.magnesiumContent(electrolyteAmounts['magnesium']!),
+                            Colors.purple,
+                          ),
+                        if (electrolyteAmounts['sodium'] == 0 && 
+                            electrolyteAmounts['potassium'] == 0 && 
+                            electrolyteAmounts['magnesium'] == 0)
+                          Text(
+                            l10n.noElectrolytes,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                      ],
                     ),
-                  // Magnesium
-                  if (electrolyteAmounts['magnesium']! > 0)
-                    _buildElectrolyteRow(
-                      l10n.magnesiumContent(electrolyteAmounts['magnesium']!),
-                      Colors.purple,
-                    ),
-                  if (electrolyteAmounts['sodium'] == 0 && 
-                      electrolyteAmounts['potassium'] == 0 && 
-                      electrolyteAmounts['magnesium'] == 0)
-                    Text(
-                      l10n.noElectrolytes,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.orange[600],
-                      ),
-                    ),
+                  ),
                 ],
               ),
             ),
@@ -767,6 +784,23 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
             const SizedBox(height: 32),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildVolumeChip(String volume) {
+    final isSelected = _volumeController.text == volume;
+    return ActionChip(
+      label: Text('$volume ml'),
+      onPressed: () {
+        setState(() {
+          _volumeController.text = volume;
+        });
+      },
+      backgroundColor: isSelected ? Colors.orange[100] : Colors.grey[100],
+      labelStyle: TextStyle(
+        color: isSelected ? Colors.orange[700] : Colors.grey[700],
+        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
       ),
     );
   }

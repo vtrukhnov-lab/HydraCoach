@@ -1,16 +1,17 @@
 // ============================================================================
-// FILE: lib/screens/liquids_catalog_screen.dart
+// FILE: lib/screens/hot_drinks_screen.dart
 // 
-// PURPOSE: Liquids Catalog Screen (Based on Alcohol Log Screen template)
-// Allows users to select and log various liquid/drink types.
-// Uses the same UI/UX pattern as alcohol_log_screen for consistency.
+// PURPOSE: Hot Drinks Screen for coffee, tea and other hot beverages
+// Allows users to select and log various hot drinks with caffeine tracking.
+// Uses the same UI/UX pattern as other catalog screens for consistency.
 // 
 // FEATURES:
-// - 3x3 grid of drink types (3 FREE, 6 PRO)
+// - Grid of hot drink types (3 FREE, 6 PRO)
 // - Volume input with quick selection buttons
+// - Caffeine content display
 // - Save to favorites functionality
-// - PRO gating for premium drink types
-// - Consistent design with alcohol screen
+// - PRO gating for premium drinks
+// - Brown color scheme
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -22,43 +23,41 @@ import '../services/subscription_service.dart';
 import '../screens/paywall_screen.dart';
 import '../main.dart';
 
-class LiquidsCatalogScreen extends StatefulWidget {
-  const LiquidsCatalogScreen({super.key});
+class HotDrinksScreen extends StatefulWidget {
+  const HotDrinksScreen({super.key});
 
   @override
-  State<LiquidsCatalogScreen> createState() => _LiquidsCatalogScreenState();
+  State<HotDrinksScreen> createState() => _HotDrinksScreenState();
 }
 
-class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
-  // Состояние экрана - точно как в AlcoholLogScreen
+class _HotDrinksScreenState extends State<HotDrinksScreen> {
   List<Map<String, dynamic>> _drinkTypes = [];
   int _selectedIndex = 0;
-  final TextEditingController _volumeController = TextEditingController(text: '250');
+  final TextEditingController _volumeController = TextEditingController(text: '200');
   final QuickFavoritesManager _favoritesManager = QuickFavoritesManager();
   bool _isPro = false;
 
   // Быстрые объемы для разных типов напитков
   List<int> _getQuickVolumes() {
-    if (_drinkTypes.isEmpty) return [250, 500, 750];
+    if (_drinkTypes.isEmpty) return [100, 200, 250];
     
     final drinkType = _drinkTypes[_selectedIndex]['type'] as String;
     switch (drinkType) {
-      case 'water':
-      case 'sparkling':
-      case 'lemon':
-      case 'mineral':
-        return [250, 500, 750]; // Стандартные объемы воды
-      case 'coconut':
-        return [330, 500, 750]; // Кокосовая вода обычно в банках 330мл
-      case 'cola':
-      case 'energy':
-        return [250, 330, 500]; // Газировка и энергетики
-      case 'juice':
-        return [200, 300, 500]; // Соки
-      case 'sports':
-        return [500, 750, 1000]; // Спортивные напитки
+      case 'espresso':
+        return [30, 60, 90]; // Эспрессо порции
+      case 'coffee':
+      case 'cappuccino':
+      case 'latte':
+        return [150, 200, 300]; // Кофейные напитки
+      case 'black_tea':
+      case 'green_tea':
+      case 'herbal_tea':
+      case 'matcha':
+        return [200, 250, 350]; // Чаи
+      case 'hot_chocolate':
+        return [200, 250, 300]; // Горячий шоколад
       default:
-        return [250, 500, 750];
+        return [150, 200, 250];
     }
   }
 
@@ -80,17 +79,85 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
     
     _drinkTypes = [
       // FREE типы
-      {'type': 'water', 'label': l10n.water, 'icon': Icons.water_drop, 'isPro': false, 'defaultVolume': 250},
-      {'type': 'sparkling', 'label': l10n.sparklingWater, 'icon': Icons.bubble_chart, 'isPro': false, 'defaultVolume': 250},
-      {'type': 'lemon', 'label': l10n.lemonWater, 'icon': Icons.eco, 'isPro': false, 'defaultVolume': 250},
+      {
+        'type': 'coffee',
+        'label': l10n.coffee,
+        'icon': Icons.coffee,
+        'defaultVolume': 200,
+        'caffeine': 80,  // mg кофеина
+        'isPro': false
+      },
+      {
+        'type': 'black_tea',
+        'label': l10n.blackTea ?? 'Black Tea',
+        'icon': Icons.emoji_food_beverage,
+        'defaultVolume': 250,
+        'caffeine': 40,
+        'isPro': false
+      },
+      {
+        'type': 'herbal_tea',
+        'label': l10n.herbalTea ?? 'Herbal Tea',
+        'icon': Icons.local_florist,
+        'defaultVolume': 250,
+        'caffeine': 0,
+        'isPro': false
+      },
       // PRO типы
-      {'type': 'coconut', 'label': l10n.coconutWater, 'icon': Icons.beach_access, 'isPro': true, 'defaultVolume': 330},
-      {'type': 'mineral', 'label': l10n.mineralWater, 'icon': Icons.opacity, 'isPro': true, 'defaultVolume': 500},
-      {'type': 'cola', 'label': l10n.cola, 'icon': Icons.local_drink, 'isPro': true, 'defaultVolume': 330},
-      {'type': 'juice', 'label': l10n.juice, 'icon': Icons.local_bar, 'isPro': true, 'defaultVolume': 200},
-      {'type': 'energy', 'label': l10n.energyDrink, 'icon': Icons.battery_charging_full, 'isPro': true, 'defaultVolume': 250},
-      {'type': 'sports', 'label': l10n.sportsDrink, 'icon': Icons.fitness_center, 'isPro': true, 'defaultVolume': 500},
+      {
+        'type': 'espresso',
+        'label': l10n.espresso ?? 'Espresso',
+        'icon': Icons.coffee_maker,
+        'defaultVolume': 30,
+        'caffeine': 64,
+        'isPro': true
+      },
+      {
+        'type': 'cappuccino',
+        'label': l10n.cappuccino ?? 'Cappuccino',
+        'icon': Icons.coffee,
+        'defaultVolume': 180,
+        'caffeine': 75,
+        'isPro': true
+      },
+      {
+        'type': 'latte',
+        'label': l10n.latte ?? 'Latte',
+        'icon': Icons.coffee,
+        'defaultVolume': 250,
+        'caffeine': 75,
+        'isPro': true
+      },
+      {
+        'type': 'green_tea',
+        'label': l10n.greenTea ?? 'Green Tea',
+        'icon': Icons.eco,
+        'defaultVolume': 250,
+        'caffeine': 25,
+        'isPro': true
+      },
+      {
+        'type': 'matcha',
+        'label': l10n.matcha ?? 'Matcha',
+        'icon': Icons.grass,
+        'defaultVolume': 200,
+        'caffeine': 70,
+        'isPro': true
+      },
+      {
+        'type': 'hot_chocolate',
+        'label': l10n.hotChocolate ?? 'Hot Chocolate',
+        'icon': Icons.local_cafe,
+        'defaultVolume': 250,
+        'caffeine': 5,
+        'isPro': true
+      },
     ];
+    
+    // Set default volume for first drink
+    if (_drinkTypes.isNotEmpty) {
+      _volumeController.text = _drinkTypes[0]['defaultVolume'].toString();
+    }
   }
 
   void _checkForPreselectedValues() {
@@ -103,7 +170,6 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
             final index = _drinkTypes.indexWhere((d) => d['type'] == typeKey);
             if (index != -1) {
               _selectedIndex = index;
-              // Устанавливаем рекомендуемый объем
               _volumeController.text = _drinkTypes[index]['defaultVolume'].toString();
             }
           }
@@ -137,7 +203,6 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
     
     setState(() {
       _selectedIndex = index;
-      // Устанавливаем рекомендуемый объем при выборе напитка
       _volumeController.text = drink['defaultVolume'].toString();
     });
   }
@@ -152,9 +217,21 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
     );
   }
 
+  int _calculateCaffeine() {
+    if (_drinkTypes.isEmpty) return 0;
+    
+    final drink = _drinkTypes[_selectedIndex];
+    final volume = double.tryParse(_volumeController.text) ?? 0;
+    final defaultVolume = drink['defaultVolume'] as int;
+    final caffeine = drink['caffeine'] as int;
+    
+    // Пропорциональный расчет кофеина
+    return ((caffeine * volume) / defaultVolume).round();
+  }
+
   Future<void> _saveIntake() async {
     final l10n = AppLocalizations.of(context);
-    final volume = double.tryParse(_volumeController.text);
+    final volume = int.tryParse(_volumeController.text);
     
     if (volume == null || volume <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -163,17 +240,14 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
       return;
     }
 
-    final drink = _drinkTypes[_selectedIndex];
     final provider = Provider.of<HydrationProvider>(context, listen: false);
+    final drinkType = _drinkTypes[_selectedIndex]['type'];
     
-    // Сохраняем как обычный прием жидкости
-    provider.addIntake(
-      drink['type'] as String,
-      volume.toInt(),
-      sodium: 0,
-      potassium: 0,
-      magnesium: 0,
-    );
+    // Для горячих напитков всегда используем тип 'coffee' в старой системе
+    // чтобы активировать post-coffee reminder
+    final intakeType = drinkType == 'herbal_tea' ? 'hot' : 'coffee';
+    
+    provider.addIntake(intakeType, volume);
 
     if (mounted) {
       Navigator.of(context).pop(true);
@@ -182,7 +256,7 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
 
   Future<void> _saveToFavorites() async {
     final l10n = AppLocalizations.of(context);
-    final volume = double.tryParse(_volumeController.text);
+    final volume = int.tryParse(_volumeController.text);
     
     if (volume == null || volume <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -195,16 +269,25 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
     if (slot == null) return;
 
     final drink = _drinkTypes[_selectedIndex];
-    final label = '${drink['label']} ${volume.toInt()}${l10n.ml}';
+    final caffeine = _calculateCaffeine();
+    
+    String label = '${drink['label']} ${volume}ml';
+    if (caffeine > 0) {
+      label += ' (${caffeine}mg caff)';
+    }
     
     final favorite = QuickFavorite(
-      id: 'liquid_${drink['type']}_${volume.toInt()}',
-      type: 'water', // Используем 'water' как тип для всех жидкостей
+      id: 'hot_${drink['type']}_$volume',
+      type: drink['type'] == 'herbal_tea' ? 'hot' : 'coffee',
       label: label,
-      emoji: '', // Не используем эмодзи
-      volumeMl: volume.toInt(),
+      emoji: '',
+      volumeMl: volume,
+      sodiumMg: 0,
+      potassiumMg: 0,
+      magnesiumMg: 0,
       metadata: {
-        'liquidType': drink['type'],
+        'hotDrinkType': drink['type'],
+        'caffeine': caffeine,
       },
     );
 
@@ -296,7 +379,7 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
       leading: CircleAvatar(
         backgroundColor: currentFavorite != null ? Colors.orange.shade50 : Colors.green.shade50,
         child: currentFavorite != null 
-          ? Icon(_getFavoriteIcon(currentFavorite), color: Colors.orange.shade600)
+          ? Icon(Icons.coffee, color: Colors.orange.shade600)
           : Icon(Icons.add, color: Colors.green.shade600),
       ),
       title: Text('${l10n.slot} ${slot + 1}'),
@@ -309,32 +392,6 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
       onTap: () => Navigator.pop(context, slot),
     );
   }
-  
-  IconData _getFavoriteIcon(QuickFavorite favorite) {
-    final liquidType = favorite.metadata?['liquidType'] ?? 'water';
-    switch (liquidType) {
-      case 'water':
-        return Icons.water_drop;
-      case 'sparkling':
-        return Icons.bubble_chart;
-      case 'lemon':
-        return Icons.eco;
-      case 'coconut':
-        return Icons.beach_access;
-      case 'mineral':
-        return Icons.opacity;
-      case 'cola':
-        return Icons.local_drink;
-      case 'juice':
-        return Icons.local_bar;
-      case 'energy':
-        return Icons.battery_charging_full;
-      case 'sports':
-        return Icons.fitness_center;
-      default:
-        return Icons.water_drop;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -342,12 +399,14 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
     final subscription = Provider.of<SubscriptionProvider>(context);
     _isPro = subscription.isPro;
     
+    final caffeine = _calculateCaffeine();
+    
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text(l10n.selectDrinkType),
+        title: Text(l10n.hotDrinks ?? 'Hot Drinks'),
         elevation: 0,
-        backgroundColor: Colors.blue[500],
+        backgroundColor: Colors.brown[500],
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
@@ -356,7 +415,7 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.selectDrinkType,
+              l10n.selectDrinkType ?? 'Select drink type',
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -364,6 +423,7 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
             ),
             const SizedBox(height: 16),
             
+            // Grid для напитков
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -371,7 +431,7 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
                 crossAxisCount: 3,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
-                childAspectRatio: 1.0,
+                childAspectRatio: 1.0, // Квадратные ячейки как в других экранах
               ),
               itemCount: _drinkTypes.isEmpty ? 9 : _drinkTypes.length,
               itemBuilder: (context, index) {
@@ -401,17 +461,17 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
                     decoration: BoxDecoration(
                       color: isLocked 
                           ? Colors.grey[50] 
-                          : (isSelected ? Colors.blue[50] : Colors.white),
+                          : (isSelected ? Colors.brown[50] : Colors.white),
                       border: Border.all(
                         color: isLocked 
                             ? Colors.grey[200]! 
-                            : (isSelected ? Colors.blue[400]! : Colors.grey[200]!),
+                            : (isSelected ? Colors.brown[400]! : Colors.grey[200]!),
                         width: isSelected ? 2.5 : 1.5,
                       ),
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: isSelected ? [
                         BoxShadow(
-                          color: Colors.blue.withOpacity(0.2),
+                          color: Colors.brown.withOpacity(0.2),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -434,23 +494,23 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
                               children: [
                                 Icon(
                                   drink['icon'] as IconData,
-                                  size: 60,
+                                  size: 60, // Размер как в других экранах
                                   color: isLocked 
                                       ? Colors.grey[400]
-                                      : (isSelected ? Colors.blue[500] : Colors.grey[700]),
+                                      : (isSelected ? Colors.brown[600] : Colors.grey[700]),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   drink['label'],
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 13, // Размер как в других экранах
                                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                                     color: isLocked 
                                         ? Colors.grey[400]
-                                        : (isSelected ? Colors.blue[700] : Colors.grey[800]),
+                                        : (isSelected ? Colors.brown[700] : Colors.grey[800]),
                                   ),
                                   textAlign: TextAlign.center,
-                                  maxLines: 1,
+                                  maxLines: 1, // Одна строка как в других экранах
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ],
@@ -519,7 +579,7 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.blue[500]!, width: 2),
+                        borderSide: BorderSide(color: Colors.brown[500]!, width: 2),
                       ),
                       suffixText: l10n.ml,
                     ),
@@ -538,18 +598,18 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _volumeController.text == volume.toString()
-                            ? Colors.blue[500]
+                            ? Colors.brown[500]
                             : Colors.white,
                         foregroundColor: _volumeController.text == volume.toString()
                             ? Colors.white
-                            : Colors.blue[700],
+                            : Colors.brown[700],
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                           side: BorderSide(
                             color: _volumeController.text == volume.toString()
-                                ? Colors.blue[500]!
-                                : Colors.blue[200]!,
+                                ? Colors.brown[500]!
+                                : Colors.brown[200]!,
                             width: 1.5,
                           ),
                         ),
@@ -572,7 +632,7 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.blue[50]!, Colors.blue[100]!],
+                  colors: [Colors.brown[50]!, Colors.brown[100]!],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -584,7 +644,7 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
                     Icon(
                       _drinkTypes[_selectedIndex]['icon'] as IconData,
                       size: 48,
-                      color: Colors.blue[600],
+                      color: Colors.brown[600],
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -592,8 +652,9 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue[700],
+                        color: Colors.brown[700],
                       ),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
                     // Объем крупным шрифтом
@@ -602,11 +663,14 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
                       style: TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue[600],
+                        color: Colors.brown[600],
                       ),
                     ),
+                  ],
+                  
+                  // Кофеин в отдельном белом блоке
+                  if (caffeine > 0) ...[
                     const SizedBox(height: 16),
-                    // Информация о гидратации
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -617,17 +681,45 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            Icons.water_drop,
-                            color: Colors.blue[500],
+                            Icons.bolt,
                             size: 20,
+                            color: Colors.orange[700],
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            l10n.hydrationStatus,
+                            '${l10n.caffeine ?? 'Caffeine'}: $caffeine mg',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.orange[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ] else ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.eco,
+                            size: 20,
+                            color: Colors.green[600],
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            l10n.caffeine != null ? '${l10n.caffeine}: 0 mg' : 'Caffeine free',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: Colors.blue[700],
+                              color: Colors.green[700],
                             ),
                           ),
                         ],
@@ -655,7 +747,7 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[500],
+                      backgroundColor: Colors.brown[500],
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(

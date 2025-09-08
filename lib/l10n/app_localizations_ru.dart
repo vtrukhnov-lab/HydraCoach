@@ -1776,4 +1776,103 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get noElectrolyteContent => 'Нет электролитов';
+
+  @override
+  String get blackTea => 'Черный чай';
+
+  @override
+  String get herbalTea => 'Травяной чай';
+
+  @override
+  String get espresso => 'Эспрессо';
+
+  @override
+  String get cappuccino => 'Капучино';
+
+  @override
+  String get latte => 'Латте';
+
+  @override
+  String get matcha => 'Матча';
+
+  @override
+  String get hotChocolate => 'Горячий шоколад';
+
+  @override
+  String get caffeine => 'Кофеин';
+
+  @override
+  String get sports => 'Спорт';
+
+  @override
+  String get walking => 'Ходьба';
+
+  @override
+  String get running => 'Бег';
+
+  @override
+  String get gym => 'Тренажерный зал';
+
+  @override
+  String get cycling => 'Велосипед';
+
+  @override
+  String get swimming => 'Плавание';
+
+  @override
+  String get yoga => 'Йога';
+
+  @override
+  String get hiit => 'ВИИТ';
+
+  @override
+  String get crossfit => 'Кроссфит';
+
+  @override
+  String get boxing => 'Бокс';
+
+  @override
+  String get dancing => 'Танцы';
+
+  @override
+  String get tennis => 'Теннис';
+
+  @override
+  String get teamSports => 'Командный спорт';
+
+  @override
+  String get selectActivityType => 'Выберите тип активности:';
+
+  @override
+  String get duration => 'Длительность';
+
+  @override
+  String get minutes => 'минут';
+
+  @override
+  String get enterDuration => 'Введите длительность';
+
+  @override
+  String get lowIntensity => 'Низкая интенсивность';
+
+  @override
+  String get mediumIntensity => 'Средняя интенсивность';
+
+  @override
+  String get highIntensity => 'Высокая интенсивность';
+
+  @override
+  String get recommendedIntake => 'Рекомендуемый прием:';
+
+  @override
+  String get basedOnWeight => 'На основе веса';
+
+  @override
+  String get logActivity => 'Записать активность';
+
+  @override
+  String get activityLogged => 'Активность записана';
+
+  @override
+  String get enterValidDuration => 'Введите корректную длительность';
 }

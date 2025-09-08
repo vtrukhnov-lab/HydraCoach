@@ -21,6 +21,8 @@ import 'screens/alcohol_log_screen.dart';
 import 'screens/liquids_catalog_screen.dart';
 import 'screens/electrolytes_screen.dart';
 import 'screens/supplements_screen.dart';
+import 'screens/hot_drinks_screen.dart';
+import 'screens/sports_screen.dart';
 import 'services/notification_service.dart' as notif;
 import 'services/subscription_service.dart';
 import 'services/remote_config_service.dart';
@@ -160,6 +162,8 @@ class MyApp extends StatelessWidget {
             '/liquids': (context) => const LiquidsCatalogScreen(),
             '/electrolytes': (context) => const ElectrolytesScreen(),
             '/supplements': (context) => const SupplementsScreen(),
+            '/hot_drinks': (context) => const HotDrinksScreen(),
+            '/sports': (context) => const SportsScreen(),
           },
         );
       },

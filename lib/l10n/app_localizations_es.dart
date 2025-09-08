@@ -1787,4 +1787,103 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get noElectrolyteContent => 'Sin electrolitos';
+
+  @override
+  String get blackTea => 'Té Negro';
+
+  @override
+  String get herbalTea => 'Té de Hierbas';
+
+  @override
+  String get espresso => 'Espresso';
+
+  @override
+  String get cappuccino => 'Cappuccino';
+
+  @override
+  String get latte => 'Latte';
+
+  @override
+  String get matcha => 'Matcha';
+
+  @override
+  String get hotChocolate => 'Chocolate Caliente';
+
+  @override
+  String get caffeine => 'Cafeína';
+
+  @override
+  String get sports => 'Deportes';
+
+  @override
+  String get walking => 'Caminar';
+
+  @override
+  String get running => 'Correr';
+
+  @override
+  String get gym => 'Gimnasio';
+
+  @override
+  String get cycling => 'Ciclismo';
+
+  @override
+  String get swimming => 'Natación';
+
+  @override
+  String get yoga => 'Yoga';
+
+  @override
+  String get hiit => 'HIIT';
+
+  @override
+  String get crossfit => 'CrossFit';
+
+  @override
+  String get boxing => 'Boxeo';
+
+  @override
+  String get dancing => 'Baile';
+
+  @override
+  String get tennis => 'Tenis';
+
+  @override
+  String get teamSports => 'Deportes de equipo';
+
+  @override
+  String get selectActivityType => 'Seleccionar tipo de actividad:';
+
+  @override
+  String get duration => 'Duración';
+
+  @override
+  String get minutes => 'minutos';
+
+  @override
+  String get enterDuration => 'Ingrese duración';
+
+  @override
+  String get lowIntensity => 'Intensidad baja';
+
+  @override
+  String get mediumIntensity => 'Intensidad media';
+
+  @override
+  String get highIntensity => 'Intensidad alta';
+
+  @override
+  String get recommendedIntake => 'Ingesta recomendada:';
+
+  @override
+  String get basedOnWeight => 'Basado en peso';
+
+  @override
+  String get logActivity => 'Registrar actividad';
+
+  @override
+  String get activityLogged => 'Actividad registrada';
+
+  @override
+  String get enterValidDuration => 'Ingrese una duración válida';
 }
