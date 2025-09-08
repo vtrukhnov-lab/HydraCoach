@@ -1,36 +1,34 @@
-// ============================================================================
-// FILE: lib/screens/home_screen.dart
+// lib/screens/home_screen.dart
 // 
-// PURPOSE: Main home screen of HydraCoach app
-// Displays hydration progress, weather info, quick add buttons, and daily history.
-// Manages favorites refresh when returning from any drink screen.
-// 
-// FEATURES:
-// - Real-time hydration progress rings
-// - Weather-based adjustments
-// - Quick Add widget with favorites management
-// - Today's intake history
-// - Smart hydration advice
-// - Automatic favorites refresh on screen focus
-// ============================================================================
+// Main home screen - Complete rewrite with all fixes
+// Shows hydration status, HRI, active factors, and daily progress
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+// Localization
 import '../l10n/app_localizations.dart';
 
-// === App imports ===
+// Services
 import '../services/hri_service.dart';
 import '../services/weather_service.dart';
 import '../services/subscription_service.dart';
 import '../services/alcohol_service.dart';
+
+// Providers
+import '../providers/hydration_provider.dart';
+
+// Models
+import '../models/intake.dart';
+
+// Screens
 import 'paywall_screen.dart';
-import '../main.dart';
+
+// Widgets
 import '../widgets/quick_add_widget.dart';
 
-// ============================================================================
-// HOME SCREEN
-// ============================================================================
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -39,81 +37,99 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
-  // Constants
-  static const double kProgressRingSize = 140.0;
-  static const double kProgressStrokeWidth = 12.0;
+  // ============================================================================
+  // CONSTANTS
+  // ============================================================================
+  
   static const double kCardRadius = 20.0;
   static const double kCardPadding = 20.0;
-  static const double kSectionSpacing = 20.0;
+  static const double kProgressRingSize = 140.0;
+  static const double kProgressStrokeWidth = 12.0;
   static const int kEveningReportHour = 21;
   static const int kMaxHistoryItems = 10;
 
-  bool _showDailyReport = false;
+  // ============================================================================
+  // STATE
+  // ============================================================================
   
-  // Key для принудительного обновления QuickAddWidget
+  bool _showDailyReport = false;
+  String _fastingSchedule = '16:8';
   Key _quickAddKey = UniqueKey();
+  bool _isInitialized = false;
 
+  // ============================================================================
+  // LIFECYCLE
+  // ============================================================================
+  
   @override
   void initState() {
     super.initState();
-    // Добавляем observer для отслеживания жизненного цикла
     WidgetsBinding.instance.addObserver(this);
-    
-    _checkDailyReport();
-    _checkMorningCheckin();
-
-    // Применяем алкогольные корректировки после первого кадра
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      _applyAlcoholAdjustments();
-      _updateHRI();
-    });
-
-    // Подписка на изменения алкоголя
-    final alcohol = Provider.of<AlcoholService>(context, listen: false);
-    alcohol.addListener(_onAlcoholServiceChanged);
+    _initialize();
   }
 
   @override
   void dispose() {
-    // Удаляем observer
     WidgetsBinding.instance.removeObserver(this);
-    
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
-    alcohol.removeListener(_onAlcoholServiceChanged);
+    alcohol.removeListener(_onAlcoholChanged);
+    final weather = Provider.of<WeatherService>(context, listen: false);
+    weather.removeListener(_onWeatherChanged);
     super.dispose();
   }
 
-  // Вызывается когда приложение возвращается из фона или при навигации
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Empty - no extra updates needed here
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _refreshQuickAdd();
+      _updateHRI();
     }
   }
 
-  // Метод для обновления QuickAddWidget
-  void _refreshQuickAdd() {
+  // ============================================================================
+  // INITIALIZATION
+  // ============================================================================
+  
+  Future<void> _initialize() async {
+    // Load user preferences
+    await _loadPreferences();
+    
+    // Check if we should show daily report
+    _checkDailyReport();
+    
+    // Setup listeners
+    final alcohol = Provider.of<AlcoholService>(context, listen: false);
+    alcohol.addListener(_onAlcoholChanged);
+
+    // Listen for weather updates to recalc HRI immediately when data arrives
+    final weather = Provider.of<WeatherService>(context, listen: false);
+    weather.addListener(_onWeatherChanged);
+    // Ensure a fetch is in flight on startup (guarded in the service)
+    await weather.loadWeather();
+    
+    // Initialize HRI after frame renders
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _applyAlcoholAdjustments();
+      _updateHRI();
+      _checkMorningCheckin();
+      setState(() => _isInitialized = true);
+    });
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
     if (mounted) {
       setState(() {
-        _quickAddKey = UniqueKey();
+        _fastingSchedule = prefs.getString('fastingSchedule') ?? '16:8';
       });
     }
-  }
-
-  void _onAlcoholServiceChanged() {
-    if (!mounted) return;
-    _applyAlcoholAdjustments();
-    _updateHRI();
-  }
-
-  void _applyAlcoholAdjustments() {
-    final provider = Provider.of<HydrationProvider>(context, listen: false);
-    final alcohol = Provider.of<AlcoholService>(context, listen: false);
-    provider.updateAlcoholAdjustments(
-      alcohol.totalWaterCorrection,
-      alcohol.totalSodiumCorrection.round(),
-    );
   }
 
   void _checkDailyReport() {
@@ -123,15 +139,47 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
-  void _checkMorningCheckin() async {
-    // TODO: Реализовать проверку алкоголя вчера
-    // final alcohol = Provider.of<AlcoholService>(context, listen: false);
-    // if (alcohol.hadAlcoholYesterday()) {
-    //   await Future.delayed(const Duration(seconds: 2));
-    //   if (mounted) {
-    //     AlcoholCheckinDialog.show(context);
-    //   }
-    // }
+  void _checkMorningCheckin() {
+    final alcohol = Provider.of<AlcoholService>(context, listen: false);
+    
+    if (alcohol.totalStandardDrinks > 0 && DateTime.now().hour < 12) {
+      // TODO: Show morning check-in dialog
+      print('Morning check-in needed after alcohol');
+    }
+  }
+
+  // ============================================================================
+  // UPDATE METHODS
+  // ============================================================================
+  
+  void _refreshQuickAdd() {
+    if (mounted) {
+      setState(() {
+        _quickAddKey = UniqueKey();
+      });
+    }
+  }
+
+  void _onAlcoholChanged() {
+    if (!mounted) return;
+    _applyAlcoholAdjustments();
+    _updateHRI();
+  }
+
+  void _onWeatherChanged() {
+    if (!mounted) return;
+    // Update HRI when weather data changes
+    _updateHRI();
+  }
+
+  void _applyAlcoholAdjustments() {
+    final provider = Provider.of<HydrationProvider>(context, listen: false);
+    final alcohol = Provider.of<AlcoholService>(context, listen: false);
+    
+    provider.updateAlcoholAdjustments(
+      alcohol.totalWaterCorrection,
+      alcohol.totalSodiumCorrection.round(),
+    );
   }
 
   void _updateHRI() {
@@ -142,47 +190,57 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
     final weather = Provider.of<WeatherService>(context, listen: false);
 
-    int activity = provider.activityLevel == 'low' 
-        ? 0 
-        : provider.activityLevel == 'high' 
-            ? 2 
-            : 1;
-
+    // Get last intake time
     DateTime? lastIntakeTime;
     if (provider.todayIntakes.isNotEmpty) {
       lastIntakeTime = provider.todayIntakes.last.timestamp;
     }
 
+    // Check if fasting
+    bool isFasting = _isCurrentlyFasting(provider);
+    hri.setFastingStatus(isFasting);
+
+    // Update HRI with all parameters
     hri.calculateHRI(
       waterIntake: provider.totalWaterToday,
       waterGoal: provider.goals.waterOpt.toDouble(),
       sodiumIntake: provider.totalSodiumToday.toDouble(),
       sodiumGoal: provider.goals.sodium.toDouble(),
+      potassiumIntake: provider.totalPotassiumToday.toDouble(),
+      potassiumGoal: provider.goals.potassium.toDouble(),
+      magnesiumIntake: provider.totalMagnesiumToday.toDouble(),
+      magnesiumGoal: provider.goals.magnesium.toDouble(),
       heatIndex: weather.heatIndex,
-      activityLevel: activity,
       coffeeCups: provider.coffeeCupsToday,
       alcoholSD: alcohol.totalStandardDrinks,
       lastIntakeTime: lastIntakeTime,
+      userWeightKg: provider.weight,
     );
   }
 
-  // Универсальный метод навигации с обновлением фаворитов при возврате
-  Future<void> _navigateToDrinkScreen(String route, {Object? arguments}) async {
-    final result = await Navigator.pushNamed(
-      context, 
-      route,
-      arguments: arguments,
-    );
+  bool _isCurrentlyFasting(HydrationProvider provider) {
+    if (provider.dietMode != 'fasting') return false;
     
-    // Обновляем QuickAddWidget при любом возврате из экрана напитков
-    _refreshQuickAdd();
-    
-    // Если добавили напиток, обновляем HRI
-    if (result == true) {
-      _updateHRI();
+    final hour = DateTime.now().hour;
+    switch (_fastingSchedule) {
+      case '16:8':
+        return hour < 12 || hour >= 20;
+      case 'OMAD':
+        return hour < 18 || hour >= 19;
+      case 'ADF':
+        final dayOfYear = DateTime.now().difference(
+          DateTime(DateTime.now().year, 1, 1)
+        ).inDays;
+        return dayOfYear % 2 == 0;
+      default:
+        return hour < 12 || hour >= 20;
     }
   }
 
+  // ============================================================================
+  // BUILD METHOD
+  // ============================================================================
+  
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -192,145 +250,51 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final hri = Provider.of<HRIService>(context);
     final weather = Provider.of<WeatherService>(context);
 
-    final progress = provider.getProgress();
-    final status = provider.getHydrationStatus(l10n);
-    final hriValue = hri.currentHRI.round();
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
         child: Stack(
           children: [
             CustomScrollView(
+              physics: const BouncingScrollPhysics(),
               slivers: [
                 // Header
                 SliverToBoxAdapter(
-                  child: Container(
-                    padding: const EdgeInsets.all(kCardPadding),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  l10n.appTitle,
-                                  style: const TextStyle(
-                                    fontSize: 32, 
-                                    fontWeight: FontWeight.bold
-                                  ),
-                                ).animate().fadeIn(duration: 350.ms),
-                                if (sub.isPro) ...[
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, 
-                                      vertical: 4
-                                    ),
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Colors.amber.shade400, 
-                                          Colors.amber.shade600
-                                        ],
-                                      ),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: const Text(
-                                      'PRO',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _getFormattedDate(l10n),
-                              style: TextStyle(
-                                fontSize: 16, 
-                                color: Colors.grey[600]
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            if (!sub.isPro)
-                              IconButton(
-                                icon: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Colors.purple.shade400, 
-                                        Colors.purple.shade600
-                                      ],
-                                    ),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.star, 
-                                    color: Colors.white, 
-                                    size: 20
-                                  ),
-                                ),
-                                onPressed: () => _showPaywall(context),
-                                tooltip: l10n.getPro,
-                              ),
-                            IconButton(
-                              icon: const Icon(Icons.history),
-                              onPressed: () => Navigator.pushNamed(context, '/history'),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.settings),
-                              onPressed: () => Navigator.pushNamed(context, '/settings'),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                  child: _buildHeader(l10n, sub),
                 ),
 
-                // Compact Weather Card
+                // Weather Card
                 SliverToBoxAdapter(
-                  child: _buildCompactWeatherCard(weather, l10n),
+                  child: _buildWeatherCard(weather, l10n),
                 ),
 
                 // Main Progress Card
                 SliverToBoxAdapter(
-                  child: _buildMainProgressCard(provider, progress, alcohol, l10n),
+                  child: _buildMainProgressCard(provider, l10n),
                 ),
 
                 // Smart Advice Card
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: kCardPadding),
-                    child: _buildSmartAdviceCard(
-                      provider: provider,
-                      alcoholService: alcohol,
-                      hriService: hri,
-                      weatherService: weather,
-                      l10n: l10n,
-                    ),
+                    child: _buildSmartAdviceCard(provider, alcohol, hri, weather, l10n),
                   ).animate().fadeIn(delay: 450.ms),
                 ),
 
                 // HRI Status Card
                 SliverToBoxAdapter(
-                  child: _buildHRICard(hri, hriValue, status, l10n),
+                  child: _buildHRIStatusCard(hri, provider, alcohol, weather, l10n),
                 ),
 
-                // Quick Add Section с обновляемым ключом
+                // Workouts Section
+                if (hri.todayWorkouts.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: _buildWorkoutsSection(hri, l10n),
+                  ),
+
+                // Quick Add Section
                 SliverToBoxAdapter(
-                  child: _buildQuickAddSection(provider, alcohol, l10n),
+                  child: _buildQuickAddSection(provider, l10n),
                 ),
 
                 // Today's History
@@ -339,17 +303,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     child: _buildTodayHistory(provider, alcohol, l10n),
                   ),
 
-                const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                // Bottom padding
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: 100),
+                ),
               ],
             ),
 
-            // Daily Report Floating Card
+            // Daily Report Overlay
             if (_showDailyReport)
               Positioned(
                 bottom: 20,
                 left: 20,
                 right: 20,
-                child: _buildDailyReportFloatingCard(l10n),
+                child: _buildDailyReportCard(l10n),
               ),
           ],
         ),
@@ -357,11 +324,97 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
-  // =========================================================================
-  // UI COMPONENTS
-  // =========================================================================
+  // ============================================================================
+  // UI BUILDERS - HEADER
+  // ============================================================================
+  
+  Widget _buildHeader(AppLocalizations l10n, SubscriptionProvider sub) {
+    return Container(
+      padding: const EdgeInsets.all(kCardPadding),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    l10n.appTitle,
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ).animate().fadeIn(duration: 350.ms),
+                  if (sub.isPro) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.amber.shade400, Colors.amber.shade600],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        'PRO',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                _getFormattedDate(l10n),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              if (!sub.isPro)
+                IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.purple.shade400, Colors.purple.shade600],
+                      ),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.star, color: Colors.white, size: 20),
+                  ),
+                  onPressed: () => _showPaywall(context),
+                  tooltip: l10n.getPro,
+                ),
+              IconButton(
+                icon: const Icon(Icons.history),
+                onPressed: () => Navigator.pushNamed(context, '/history'),
+              ),
+              IconButton(
+                icon: const Icon(Icons.settings),
+                onPressed: () => Navigator.pushNamed(context, '/settings'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
-  Widget _buildCompactWeatherCard(WeatherService weather, AppLocalizations l10n) {
+  // ============================================================================
+  // UI BUILDERS - WEATHER
+  // ============================================================================
+  
+  Widget _buildWeatherCard(WeatherService weather, AppLocalizations l10n) {
     final weatherData = weather.currentWeather;
     final heatIndex = weather.heatIndex;
     
@@ -370,161 +423,80 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.green.shade400, Colors.green.shade600],
+          colors: _getWeatherGradient(heatIndex),
         ),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Column(
+      child: Row(
         children: [
-          // Первая строка - температура и город
-          Row(
+          Icon(
+            _getWeatherIcon(heatIndex),
+            color: Colors.white,
+            size: 32,
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.thermostat, color: Colors.white, size: 32),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Text(
+                weatherData != null 
+                    ? '${weatherData.temperature.round()}°C'
+                    : '--°C',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                weatherData?.city ?? l10n.loading,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          if (heatIndex != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
                 children: [
                   Text(
-                    weatherData != null 
-                        ? '${weatherData.temperature.round()}°C'
-                        : '--°C',
+                    l10n.heatIndex,
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
+                      color: Colors.white70,
+                      fontSize: 10,
                     ),
                   ),
                   Text(
-                    weatherData?.city ?? l10n.loading,
+                    '${heatIndex.round()}°',
                     style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
-              const Spacer(),
-              if (heatIndex != null) 
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            l10n.heatIndex,
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 10,
-                            ),
-                          ),
-                          Text(
-                            '${heatIndex.round()}°',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (heatIndex >= 32) ...[
-                      const SizedBox(height: 4),
-                      const Icon(
-                        Icons.warning,
-                        color: Colors.yellow,
-                        size: 24,
-                      ),
-                    ],
-                  ],
-                ),
-            ],
-          ),
-          
-          const SizedBox(height: 12),
-          
-          // Вторая строка - описание погоды и предупреждение
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(8),
             ),
-            child: Column(
-              children: [
-                if (weatherData != null) ...[
-                  Text(
-                    weatherData.getLocalizedDescription(context),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                ],
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      _getWeatherIcon(heatIndex),
-                      color: Colors.white,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 6),
-                    Flexible(
-                      child: Text(
-                        weatherData != null 
-                            ? weatherData.getLocalizedHeatWarning(context)
-                            : l10n.loadingWeather,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
-                if (weatherData != null && weatherData.humidity > 0) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    l10n.humidity(weatherData.humidity.round()),
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
         ],
       ),
-    );
+    ).animate().fadeIn(delay: 200.ms);
   }
 
-  IconData _getWeatherIcon(double? heatIndex) {
-    if (heatIndex == null) return Icons.cloud;
-    if (heatIndex < 27) return Icons.check_circle;
-    if (heatIndex < 32) return Icons.wb_sunny;
-    if (heatIndex < 39) return Icons.local_fire_department;
-    return Icons.warning;
-  }
-
-  Widget _buildMainProgressCard(
-    HydrationProvider provider,
-    Map<String, double> progress,
-    AlcoholService alcohol,
-    AppLocalizations l10n,
-  ) {
+  // ============================================================================
+  // UI BUILDERS - MAIN PROGRESS
+  // ============================================================================
+  
+  Widget _buildMainProgressCard(HydrationProvider provider, AppLocalizations l10n) {
+    final progress = provider.getProgress();
+    
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: kCardPadding, vertical: 10),
       padding: const EdgeInsets.all(kCardPadding),
@@ -542,57 +514,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       child: Column(
         children: [
           // Water Ring
-          Center(
-            child: SizedBox(
-              width: kProgressRingSize,
-              height: kProgressRingSize,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  SizedBox(
-                    width: kProgressRingSize,
-                    height: kProgressRingSize,
-                    child: CircularProgressIndicator(
-                      value: (progress['waterPercent'] ?? 0) / 100,
-                      strokeWidth: kProgressStrokeWidth,
-                      backgroundColor: Colors.grey[200],
-                      valueColor: const AlwaysStoppedAnimation(Colors.blue),
-                    ),
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${(progress['waterPercent'] ?? 0).toInt()}%',
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                        ),
-                      ),
-                      Text(
-                        l10n.water,
-                        style: const TextStyle(fontSize: 14, color: Colors.grey),
-                      ),
-                      Text(
-                        l10n.valueWithUnit(
-                          (progress['water'] ?? 0).toInt(),
-                          l10n.ml,
-                        ),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ).animate().scale(delay: 100.ms),
-
+          _buildWaterRing(progress, l10n),
           const SizedBox(height: 20),
-
+          
           // Electrolyte Bars
           _buildElectrolyteBar(
             l10n.sodium,
@@ -620,141 +544,174 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             Colors.pink,
             l10n,
           ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 300.ms);
+  }
 
-          // Adjustment Chips
-          if (provider.weatherWaterAdjustment > 0 || alcohol.totalStandardDrinks > 0) ...[
-            const SizedBox(height: 16),
-            const Divider(),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
+  Widget _buildWaterRing(Map<String, double> progress, AppLocalizations l10n) {
+    final waterPercent = progress['waterPercent'] ?? 0;
+    final waterAmount = progress['water'] ?? 0;
+    
+    return Center(
+      child: SizedBox(
+        width: kProgressRingSize,
+        height: kProgressRingSize,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Progress ring
+            SizedBox(
+              width: kProgressRingSize,
+              height: kProgressRingSize,
+              child: CircularProgressIndicator(
+                value: (waterPercent / 100).clamp(0.0, 1.0),
+                strokeWidth: kProgressStrokeWidth,
+                backgroundColor: Colors.grey[200],
+                valueColor: AlwaysStoppedAnimation(
+                  _getWaterColor(waterPercent),
+                ),
+              ),
+            ),
+            // Center text
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (provider.weatherWaterAdjustment > 0)
-                  _buildChip(
-                    icon: Icons.wb_sunny,
-                    label: l10n.heatAdjustment((provider.weatherWaterAdjustment * 100).toInt()),
-                    color: Colors.orange,
+                Text(
+                  '${waterPercent.toInt()}%',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: _getWaterColor(waterPercent),
                   ),
-                if (alcohol.totalStandardDrinks > 0)
-                  _buildChip(
-                    icon: Icons.local_bar,
-                    label: l10n.alcoholAdjustment(alcohol.totalWaterCorrection.toInt()),
-                    color: Colors.red,
+                ),
+                Text(
+                  l10n.water,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
                   ),
+                ),
+                Text(
+                  '${waterAmount.toInt()} ${l10n.ml}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
           ],
-        ],
+        ),
       ),
+    ).animate().scale(delay: 100.ms);
+  }
+
+  Widget _buildElectrolyteBar(
+    String name,
+    double percent,
+    int current,
+    int goal,
+    Color color,
+    AppLocalizations l10n,
+  ) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 100,
+          child: Text(
+            name,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: LinearProgressIndicator(
+                  value: (percent / 100).clamp(0.0, 1.0),
+                  backgroundColor: Colors.grey[200],
+                  valueColor: AlwaysStoppedAnimation(color),
+                  minHeight: 20,
+                ),
+              ),
+              Positioned.fill(
+                child: Center(
+                  child: Text(
+                    '${percent.toInt()}%',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: percent > 50 ? Colors.white : color,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          '$current/$goal ${l10n.mg}',
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildSmartAdviceCard({
-    required HydrationProvider provider,
-    required AlcoholService alcoholService,
-    required HRIService hriService,
-    required WeatherService weatherService,
-    required AppLocalizations l10n,
-  }) {
-    final waterRatio = provider.goals.waterOpt > 0 
-        ? provider.totalWaterToday / provider.goals.waterOpt 
-        : 0.0;
-    final sodiumRatio = provider.goals.sodium > 0 
-        ? provider.totalSodiumToday / provider.goals.sodium 
-        : 0.0;
-
-    final hasAlcohol = alcoholService.totalStandardDrinks > 0;
-    final hi = weatherService.heatIndex ?? 0;
-
-    final waterNeed = (provider.goals.waterOpt - provider.totalWaterToday).clamp(0, double.infinity);
-    final sodiumNeed = (provider.goals.sodium - provider.totalSodiumToday).clamp(0, double.infinity);
-
-    String title = l10n.smartAdviceTitle;
-    String body = l10n.smartAdviceDefault;
-    Color tone = Colors.blue.shade50;
-    Color border = Colors.blue.shade300;
-    IconData icon = Icons.tips_and_updates;
-
-    if (waterRatio > 2.0) {
-      title = l10n.adviceOverhydrationSevere;
-      body = l10n.adviceOverhydrationSevereBody;
-      tone = const Color(0xFFFFEBEE);
-      border = Colors.red.shade300;
-      icon = Icons.error_outline;
-    } else if (waterRatio > 1.2) {
-      title = l10n.adviceOverhydration;
-      body = l10n.adviceOverhydrationBody;
-      tone = Colors.orange.shade50;
-      border = Colors.orange.shade300;
-      icon = Icons.warning_amber_outlined;
-    } else if (hasAlcohol) {
-      title = l10n.adviceAlcoholRecovery;
-      body = l10n.adviceAlcoholRecoveryBody;
-      tone = Colors.orange.shade50;
-      border = Colors.orange.shade300;
-      icon = Icons.local_bar;
-    } else if (sodiumRatio < 0.7) {
-      title = l10n.adviceLowSodium;
-      body = l10n.adviceLowSodiumBody(sodiumNeed.clamp(300, 1000).toInt());
-      tone = Colors.amber.shade50;
-      border = Colors.amber.shade300;
-      icon = Icons.science_outlined;
-    } else if (waterRatio < 0.5) {
-      title = l10n.adviceDehydration;
-      final drinkType = hi >= 32 ? l10n.electrolyte.toLowerCase() : l10n.water.toLowerCase();
-      body = l10n.adviceDehydrationBody(drinkType);
-      tone = Colors.blue.shade50;
-      border = Colors.blue.shade300;
-      icon = Icons.local_drink_outlined;
-    } else if (hriService.currentHRI >= 60) {
-      title = l10n.adviceHighRisk;
-      body = l10n.adviceHighRiskBody;
-      tone = const Color(0xFFFFF3E0);
-      border = Colors.deepOrange.shade300;
-      icon = Icons.priority_high_rounded;
-    } else if (hi >= 32) {
-      title = l10n.adviceHeat;
-      body = l10n.adviceHeatBody;
-      tone = const Color(0xFFFFF8E1);
-      border = Colors.orange.shade300;
-      icon = Icons.wb_sunny_outlined;
-    } else {
-      title = l10n.adviceAllGood;
-      body = l10n.adviceAllGoodBody(waterNeed.clamp(200, 800).toInt());
-      tone = Colors.green.shade50;
-      border = Colors.green.shade300;
-      icon = Icons.check_circle_outline;
-    }
-
+  // ============================================================================
+  // UI BUILDERS - SMART ADVICE
+  // ============================================================================
+  
+  Widget _buildSmartAdviceCard(
+    HydrationProvider provider,
+    AlcoholService alcoholService,
+    HRIService hriService,
+    WeatherService weatherService,
+    AppLocalizations l10n,
+  ) {
+    final advice = _getSmartAdvice(provider, alcoholService, hriService, weatherService, l10n);
+    
     return Container(
       margin: const EdgeInsets.only(top: 8, bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: tone,
+        color: advice['tone'] as Color,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: border),
+        border: Border.all(color: advice['border'] as Color),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: border),
+          Icon(
+            advice['icon'] as IconData,
+            color: advice['border'] as Color,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  advice['title'] as String,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: border,
+                    color: advice['border'] as Color,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  body,
+                  advice['body'] as String,
                   style: TextStyle(
                     fontSize: 13.5,
                     color: Colors.grey[800],
@@ -768,7 +725,117 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildHRICard(HRIService hri, int hriValue, String status, AppLocalizations l10n) {
+  Map<String, dynamic> _getSmartAdvice(
+    HydrationProvider provider,
+    AlcoholService alcoholService,
+    HRIService hriService,
+    WeatherService weatherService,
+    AppLocalizations l10n,
+  ) {
+    final waterRatio = provider.goals.waterOpt > 0 
+        ? provider.totalWaterToday / provider.goals.waterOpt 
+        : 0.0;
+    final sodiumRatio = provider.goals.sodium > 0 
+        ? provider.totalSodiumToday / provider.goals.sodium 
+        : 0.0;
+
+    // Critical overhydration
+    if (waterRatio > 2.0) {
+      return {
+        'title': l10n.adviceOverhydrationSevere,
+        'body': l10n.adviceOverhydrationSevereBody,
+        'tone': const Color(0xFFFFEBEE),
+        'border': Colors.red.shade300,
+        'icon': Icons.error_outline,
+      };
+    }
+
+    // Mild overhydration
+    if (waterRatio > 1.2) {
+      return {
+        'title': l10n.adviceOverhydration,
+        'body': l10n.adviceOverhydrationBody,
+        'tone': Colors.orange.shade50,
+        'border': Colors.orange.shade300,
+        'icon': Icons.warning_amber_outlined,
+      };
+    }
+
+    // Alcohol recovery needed
+    if (alcoholService.totalStandardDrinks > 0) {
+      return {
+        'title': l10n.adviceAlcoholRecovery,
+        'body': l10n.adviceAlcoholRecoveryBody,
+        'tone': Colors.orange.shade50,
+        'border': Colors.orange.shade300,
+        'icon': Icons.local_bar,
+      };
+    }
+
+    // Low sodium
+    if (sodiumRatio < 0.7) {
+      final sodiumNeed = (provider.goals.sodium - provider.totalSodiumToday)
+          .clamp(300, 1000);
+      return {
+        'title': l10n.adviceLowSodium,
+        'body': l10n.adviceLowSodiumBody(sodiumNeed),
+        'tone': Colors.amber.shade50,
+        'border': Colors.amber.shade300,
+        'icon': Icons.science_outlined,
+      };
+    }
+
+    // Dehydration
+    if (waterRatio < 0.5) {
+      return {
+        'title': l10n.adviceDehydration,
+        'body': l10n.adviceDehydrationBody(l10n.water.toLowerCase()),
+        'tone': Colors.blue.shade50,
+        'border': Colors.blue.shade300,
+        'icon': Icons.local_drink_outlined,
+      };
+    }
+
+    // High HRI
+    if (hriService.currentHRI >= 60) {
+      return {
+        'title': l10n.adviceHighRisk,
+        'body': l10n.adviceHighRiskBody,
+        'tone': const Color(0xFFFFF3E0),
+        'border': Colors.deepOrange.shade300,
+        'icon': Icons.priority_high_rounded,
+      };
+    }
+
+    // All good
+    final waterNeed = (provider.goals.waterOpt - provider.totalWaterToday)
+        .clamp(200, 800);
+    return {
+      'title': l10n.adviceAllGood,
+      'body': l10n.adviceAllGoodBody(waterNeed.toInt()),
+      'tone': Colors.green.shade50,
+      'border': Colors.green.shade300,
+      'icon': Icons.check_circle_outline,
+    };
+  }
+
+  // ============================================================================
+  // UI BUILDERS - HRI STATUS CARD
+  // ============================================================================
+  
+  Widget _buildHRIStatusCard(
+    HRIService hri,
+    HydrationProvider provider,
+    AlcoholService alcohol,
+    WeatherService weather,
+    AppLocalizations l10n,
+  ) {
+    final hriValue = hri.currentHRI.round();
+    final status = provider.getHydrationStatus(l10n);
+    final localizedHRIStatus = _getLocalizedHRIStatus(hri, l10n);
+    final components = hri.getComponentsBreakdown();
+    final isFasting = _isCurrentlyFasting(provider);
+    
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: kCardPadding, vertical: 10),
       padding: const EdgeInsets.all(kCardPadding),
@@ -786,12 +853,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header with status badge
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 l10n.hydrationStatus,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -809,7 +880,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
             ],
           ),
+          
           const SizedBox(height: 16),
+          
+          // HRI Label with zone badge
           Row(
             children: [
               Text(l10n.hydrationRiskIndex),
@@ -831,7 +905,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
             ],
           ),
+          
           const SizedBox(height: 8),
+          
+          // HRI Progress bar
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: LinearProgressIndicator(
@@ -841,7 +918,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               minHeight: 12,
             ),
           ),
+          
           const SizedBox(height: 8),
+          
+          // HRI Value and status
           Row(
             children: [
               Text(
@@ -854,7 +934,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
               const SizedBox(width: 8),
               Text(
-                hri.hriStatus,
+                localizedHRIStatus,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -863,34 +943,328 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
             ],
           ),
+          
+          // Active factors
+          if (_hasActiveFactors(components, alcohol, weather)) ...[
+            const SizedBox(height: 12),
+            const Divider(),
+            const SizedBox(height: 8),
+            Text(
+              l10n.hriBreakdownTitle,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: _buildActiveFactorChips(components, alcohol, weather, l10n),
+            ),
+          ],
+          
+          // Fasting mode indicator
+          if (isFasting) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.purple.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.purple.withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.schedule,
+                    size: 16,
+                    color: Colors.purple,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    l10n.fastingModeActive,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.purple[700],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    _fastingSchedule,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.purple[700],
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     ).animate().fadeIn(delay: 500.ms);
   }
 
-  // Обновленный метод с использованием ключа для принудительного обновления
-  
-    Widget _buildQuickAddSection(
-      HydrationProvider provider,
-      AlcoholService alcohol,
-      AppLocalizations l10n,
-    ) {
-      return Padding(
-        padding: const EdgeInsets.all(kCardPadding),
-        child: QuickAddWidget(
-          key: _quickAddKey,
-          provider: provider,
-          onUpdate: () {
-            setState(() {});
-            _updateHRI();
-          },
-          // Убираем onNavigate - пусть QuickAddWidget использует свою дефолтную навигацию
-          // onNavigate будет null, и QuickAddWidget будет использовать Navigator.pushNamed напрямую
-        ),
-      );
-    }
+  bool _hasActiveFactors(
+    Map<String, double> components,
+    AlcoholService alcohol,
+    WeatherService weather,
+  ) {
+    return components['workouts']! > 0 ||
+           components['caffeine']! > 0 ||
+           alcohol.totalStandardDrinks > 0 ||
+           weather.heatIndex != null;
+  }
 
-  Widget _buildTodayHistory(HydrationProvider provider, AlcoholService alcohol, AppLocalizations l10n) {
+  List<Widget> _buildActiveFactorChips(
+    Map<String, double> components,
+    AlcoholService alcohol,
+    WeatherService weather,
+    AppLocalizations l10n,
+  ) {
+    final chips = <Widget>[];
+    
+    // Workouts
+    if (components['workouts']! > 0) {
+      chips.add(_buildFactorChip(
+        '${l10n.hriComponentWorkout} +${components['workouts']!.toInt()}',
+        Icons.fitness_center,
+        Colors.teal,
+      ));
+    }
+    
+    // Heat/Weather - Always show if we have data
+    if (weather.heatIndex != null) {
+      final heatImpact = components['heat'] ?? 0;
+      String label;
+      Color color;
+      IconData icon;
+      
+      if (weather.heatIndex! < 27) {
+        label = '${l10n.hriComponentHeat} OK';
+        color = Colors.green;
+        icon = Icons.thermostat;
+      } else if (weather.heatIndex! < 32) {
+        label = '${l10n.hriComponentHeat} +${heatImpact.toInt()}';
+        color = Colors.orange;
+        icon = Icons.wb_sunny;
+      } else {
+        label = '${l10n.hriComponentHeat} +${heatImpact.toInt()}';
+        color = Colors.red;
+        icon = Icons.local_fire_department;
+      }
+      
+      chips.add(_buildFactorChip(label, icon, color));
+    }
+    
+    // Caffeine
+    if (components['caffeine']! > 0) {
+      chips.add(_buildFactorChip(
+        '${l10n.hriComponentCaffeine} +${components['caffeine']!.toInt()}',
+        Icons.coffee,
+        Colors.brown,
+      ));
+    }
+    
+    // Alcohol
+    if (alcohol.totalStandardDrinks > 0) {
+      final sd = alcohol.totalStandardDrinks;
+      final alcoholImpact = components['alcohol'] ?? 0;
+      chips.add(_buildFactorChip(
+        '${l10n.alcohol} ${sd.toStringAsFixed(1)} SD +${alcoholImpact.toInt()}',
+        Icons.local_bar,
+        Colors.red,
+      ));
+    }
+    
+    return chips;
+  }
+
+  Widget _buildFactorChip(String label, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // UI BUILDERS - WORKOUTS
+  // ============================================================================
+  
+  Widget _buildWorkoutsSection(HRIService hri, AppLocalizations l10n) {
+    return Padding(
+      padding: const EdgeInsets.all(kCardPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.fitness_center, color: Colors.teal[600], size: 24),
+              const SizedBox(width: 8),
+              Text(
+                l10n.todaysWorkouts ?? 'Today\'s Activities',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              children: hri.todayWorkouts.map((workout) {
+                return _buildWorkoutItem(workout, l10n);
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWorkoutItem(Workout workout, AppLocalizations l10n) {
+    final hoursSince = DateTime.now().difference(workout.timestamp).inHours;
+    final impact = workout.getHRIImpact();
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Colors.grey[200]!),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.teal.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              _getWorkoutIcon(workout.type),
+              color: Colors.teal[600],
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _getWorkoutLabel(workout.type, l10n),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
+                ),
+                Text(
+                  '${workout.durationMinutes} ${l10n.minutes} • '
+                  '${_getIntensityLabel(workout.intensity, l10n)}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '$hoursSince${l10n.hoursAgo}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[500],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.teal.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'HRI +${impact.toStringAsFixed(1)}',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.teal[700],
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // UI BUILDERS - QUICK ADD
+  // ============================================================================
+  
+  Widget _buildQuickAddSection(HydrationProvider provider, AppLocalizations l10n) {
+    return Padding(
+      padding: const EdgeInsets.all(kCardPadding),
+      child: QuickAddWidget(
+        key: _quickAddKey,
+        provider: provider,
+        onUpdate: () {
+          setState(() {});
+          _updateHRI();
+        },
+      ),
+    );
+  }
+
+  // ============================================================================
+  // UI BUILDERS - TODAY'S HISTORY
+  // ============================================================================
+  
+  Widget _buildTodayHistory(
+    HydrationProvider provider,
+    AlcoholService alcohol,
+    AppLocalizations l10n,
+  ) {
     return Padding(
       padding: const EdgeInsets.all(kCardPadding),
       child: Column(
@@ -901,7 +1275,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             children: [
               Text(
                 l10n.todaysDrinks,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               TextButton(
                 onPressed: () => Navigator.pushNamed(context, '/history'),
@@ -914,6 +1291,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Column(
               children: _getCombinedIntakes(provider, alcohol, l10n),
@@ -924,13 +1308,131 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildDailyReportFloatingCard(AppLocalizations l10n) {
+  List<Widget> _getCombinedIntakes(
+    HydrationProvider provider,
+    AlcoholService alcohol,
+    AppLocalizations l10n,
+  ) {
+    final List<MapEntry<DateTime, Widget>> all = [];
+
+    // Add regular intakes
+    for (var intake in provider.todayIntakes) {
+      all.add(MapEntry(
+        intake.timestamp,
+        _buildIntakeItem(intake, l10n),
+      ));
+    }
+
+    // Add alcohol intakes
+    for (var intake in alcohol.todayIntakes) {
+      all.add(MapEntry(
+        intake.timestamp,
+        _buildAlcoholItem(intake, l10n),
+      ));
+    }
+
+    // Sort by time (newest first)
+    all.sort((a, b) => b.key.compareTo(a.key));
+    
+    // Take only latest items
+    return all.take(kMaxHistoryItems).map((e) => e.value).toList();
+  }
+
+  Widget _buildIntakeItem(Intake intake, AppLocalizations l10n) {
+    final typeData = _getIntakeTypeData(intake.type, l10n);
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Colors.grey[200]!),
+        ),
+      ),
+      child: Row(
+        children: [
+          Text(
+            intake.formattedTime,
+            style: TextStyle(color: Colors.grey[600]),
+          ),
+          const SizedBox(width: 16),
+          Text('${typeData['icon']} ${typeData['name']}'),
+          const Spacer(),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${intake.volume} ${l10n.ml}',
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              if (intake.totalElectrolytes > 0)
+                Text(
+                  'Na: ${intake.sodium} K: ${intake.potassium} Mg: ${intake.magnesium}',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.grey[600],
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAlcoholItem(dynamic intake, AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.orange.shade50,
+        border: Border(
+          bottom: BorderSide(color: Colors.orange.shade200),
+        ),
+      ),
+      child: Row(
+        children: [
+          Text(
+            intake.formattedTime,
+            style: TextStyle(color: Colors.grey[600]),
+          ),
+          const SizedBox(width: 16),
+          Icon(
+            intake.type.icon,
+            color: Colors.orange.shade600,
+            size: 20,
+          ),
+          const SizedBox(width: 8),
+          Text(intake.type.getLabel(context)),
+          const Spacer(),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${intake.volumeMl.toInt()} ${l10n.ml}, ${intake.abv}%',
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              Text(
+                intake.formattedSD,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.red.shade600,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================================
+  // UI BUILDERS - DAILY REPORT
+  // ============================================================================
+  
+  Widget _buildDailyReportCard(AppLocalizations l10n) {
     return GestureDetector(
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.dailyReportComingSoon),
-          ),
+          SnackBar(content: Text(l10n.dailyReportComingSoon)),
         );
       },
       child: Container(
@@ -966,7 +1468,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   ),
                   Text(
                     l10n.viewDayResults,
-                    style: const TextStyle(color: Colors.white70, fontSize: 13),
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 13,
+                    ),
                   ),
                 ],
               ),
@@ -974,254 +1479,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             const Icon(Icons.chevron_right, color: Colors.white),
           ],
         ),
-      ).animate().fadeIn(duration: 400.ms).slideY(begin: 1, end: 0),
-    );
+      ),
+    ).animate()
+       .fadeIn(duration: 400.ms)
+       .slideY(begin: 1, end: 0);
   }
 
-  // =========================================================================
-  // HELPER WIDGETS & METHODS
-  // =========================================================================
-
-  Widget _buildElectrolyteBar(
-    String name,
-    double percent,
-    int current,
-    int goal,
-    Color color,
-    AppLocalizations l10n,
-  ) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 60,
-          child: Text(
-            name,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: LinearProgressIndicator(
-                  value: (percent / 100).clamp(0.0, 1.0),
-                  backgroundColor: Colors.grey[200],
-                  valueColor: AlwaysStoppedAnimation(color),
-                  minHeight: 20,
-                ),
-              ),
-              Positioned.fill(
-                child: Center(
-                  child: Text(
-                    '${percent.toInt()}%',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: percent > 50 ? Colors.white : color,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          l10n.goalFormat(current, goal, l10n.mg),
-          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildChip({
-    required IconData icon,
-    required String label,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: 6),
-          Text(label, style: TextStyle(fontSize: 12, color: color)),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _getCombinedIntakes(HydrationProvider provider, AlcoholService alcohol, AppLocalizations l10n) {
-    final List<MapEntry<DateTime, Widget>> all = [];
-
-    for (var intake in provider.todayIntakes) {
-      all.add(MapEntry(intake.timestamp, _buildIntakeItem(intake, provider, l10n)));
-    }
-    for (var intake in alcohol.todayIntakes) {
-      all.add(MapEntry(intake.timestamp, _buildAlcoholItem(intake, alcohol, l10n)));
-    }
-
-    all.sort((a, b) => b.key.compareTo(a.key));
-    return all.take(kMaxHistoryItems).map((e) => e.value).toList();
-  }
-
-  Widget _buildIntakeItem(Intake intake, HydrationProvider provider, AppLocalizations l10n) {
-    String typeIcon = '';
-    String typeName = '';
-
-    switch (intake.type) {
-      case 'water':
-        typeIcon = '💧';
-        typeName = l10n.water;
-        break;
-      case 'electrolyte':
-        typeIcon = '⚡';
-        typeName = l10n.electrolyte;
-        break;
-      case 'broth':
-        typeIcon = '🍲';
-        typeName = l10n.broth;
-        break;
-      case 'coffee':
-        typeIcon = '☕';
-        typeName = l10n.coffee;
-        break;
-      case 'tea':
-        typeIcon = '🍵';
-        typeName = l10n.tea;
-        break;
-      case 'supplement':
-        typeIcon = '💊';
-        typeName = l10n.supplements;
-        break;
-      default:
-        typeIcon = '🥤';
-        typeName = intake.type;
-    }
-
-    return Dismissible(
-      key: Key(intake.id),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        decoration: const BoxDecoration(color: Colors.red),
-        child: const Icon(Icons.delete, color: Colors.white),
-      ),
-      onDismissed: (direction) {
-        provider.removeIntake(intake.id);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.itemDeleted(typeName)),
-            action: SnackBarAction(
-              label: l10n.undo,
-              onPressed: () {
-                provider.addIntake(
-                  intake.type,
-                  intake.volume,
-                  sodium: intake.sodium,
-                  potassium: intake.potassium,
-                  magnesium: intake.magnesium,
-                );
-              },
-            ),
-          ),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
-        ),
-        child: Row(
-          children: [
-            Text(
-              '${intake.timestamp.hour.toString().padLeft(2, '0')}:'
-              '${intake.timestamp.minute.toString().padLeft(2, '0')}',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-            const SizedBox(width: 16),
-            Text('$typeIcon $typeName'),
-            const Spacer(),
-            Text(
-              l10n.valueWithUnit(intake.volume, l10n.ml),
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAlcoholItem(dynamic intake, AlcoholService alcohol, AppLocalizations l10n) {
-    return Dismissible(
-      key: Key(intake.id),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        decoration: const BoxDecoration(color: Colors.red),
-        child: const Icon(Icons.delete, color: Colors.white),
-      ),
-      onDismissed: (direction) {
-        alcohol.removeIntake(intake.id);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.itemDeleted(intake.type.getLabel(context))),
-            action: SnackBarAction(
-              label: l10n.undo,
-              onPressed: () => alcohol.addIntake(intake),
-            ),
-          ),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.orange.shade50,
-          border: Border(bottom: BorderSide(color: Colors.orange.shade200)),
-        ),
-        child: Row(
-          children: [
-            Text(
-              intake.formattedTime,
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-            const SizedBox(width: 16),
-            Icon(intake.type.icon, color: Colors.orange.shade600, size: 20),
-            const SizedBox(width: 8),
-            Text(intake.type.getLabel(context)),
-            const Spacer(),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '${intake.volumeMl.toInt()} ${l10n.ml}, ${intake.abv}%',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  intake.formattedSD,
-                  style: TextStyle(fontSize: 12, color: Colors.red.shade600),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // =========================================================================
-  // UTILITY METHODS
-  // =========================================================================
-
+  // ============================================================================
+  // HELPER METHODS
+  // ============================================================================
+  
   void _showPaywall(BuildContext context) {
     Navigator.push(
       context,
@@ -1232,13 +1499,28 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
+  Color _getWaterColor(double percent) {
+    if (percent < 30) return Colors.red;
+    if (percent < 60) return Colors.orange;
+    if (percent < 100) return Colors.blue;
+    if (percent < 120) return Colors.green;
+    return Colors.deepOrange;
+  }
+
   Color _getStatusColor(String status) {
-    if (status.contains('Normal') || status.contains('Норма')) return Colors.green;
-    if (status.contains('Low salt') || status.contains('Мало соли') || 
-        status.contains('Diluting') || status.contains('Разбавляешь')) {
+    if (status.contains('Normal') || status.contains('Норма')) {
+      return Colors.green;
+    }
+    if (status.contains('Low salt') || 
+        status.contains('Мало соли') ||
+        status.contains('Diluting') || 
+        status.contains('Разбавляешь')) {
       return Colors.orange;
     }
-    if (status.contains('Under-hydrated') || status.contains('Недобор воды')) return Colors.red;
+    if (status.contains('Under-hydrated') || 
+        status.contains('Недобор воды')) {
+      return Colors.red;
+    }
     return Colors.grey;
   }
 
@@ -1248,9 +1530,101 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     return Colors.red;
   }
 
+  String _getLocalizedHRIStatus(HRIService hri, AppLocalizations l10n) {
+    final hriValue = hri.currentHRI;
+    
+    if (hriValue <= 20) return l10n.hriStatusExcellent;
+    if (hriValue <= 40) return l10n.hriStatusGood;
+    if (hriValue <= 60) return l10n.hriStatusModerate;
+    if (hriValue <= 80) return l10n.hriStatusHighRisk;
+    return l10n.hriStatusCritical;
+  }
+
+  List<Color> _getWeatherGradient(double? heatIndex) {
+    if (heatIndex == null) {
+      return [Colors.blue.shade400, Colors.blue.shade600];
+    }
+    if (heatIndex < 20) {
+      return [Colors.blue.shade400, Colors.blue.shade600];
+    }
+    if (heatIndex < 30) {
+      return [Colors.green.shade400, Colors.green.shade600];
+    }
+    if (heatIndex < 40) {
+      return [Colors.orange.shade400, Colors.orange.shade600];
+    }
+    return [Colors.red.shade400, Colors.red.shade600];
+  }
+
+  IconData _getWeatherIcon(double? heatIndex) {
+    if (heatIndex == null) return Icons.thermostat;
+    if (heatIndex < 20) return Icons.ac_unit;
+    if (heatIndex < 30) return Icons.thermostat;
+    if (heatIndex < 40) return Icons.wb_sunny;
+    return Icons.local_fire_department;
+  }
+
+  IconData _getWorkoutIcon(String type) {
+    switch (type) {
+      case 'walking': return Icons.directions_walk;
+      case 'running': return Icons.directions_run;
+      case 'gym': return Icons.fitness_center;
+      case 'swimming': return Icons.pool;
+      case 'cycling': return Icons.directions_bike;
+      case 'yoga': return Icons.self_improvement;
+      case 'sauna': return Icons.hot_tub;
+      default: return Icons.sports;
+    }
+  }
+
+  String _getWorkoutLabel(String type, AppLocalizations l10n) {
+    switch (type) {
+      case 'walking': return l10n.walking;
+      case 'running': return l10n.running;
+      case 'gym': return l10n.gym;
+      case 'swimming': return l10n.swimming;
+      case 'cycling': return l10n.cycling;
+      case 'yoga': return l10n.yoga;
+      case 'sauna': return l10n.sauna;
+      default: return type;
+    }
+  }
+
+  String _getIntensityLabel(int intensity, AppLocalizations l10n) {
+    switch (intensity) {
+      case 1:
+      case 2:
+        return l10n.lowIntensity;
+      case 3:
+        return l10n.mediumIntensity;
+      case 4:
+        return l10n.highIntensity;
+      case 5:
+        return l10n.veryHighIntensity;
+      default:
+        return '';
+    }
+  }
+
+  Map<String, String> _getIntakeTypeData(String type, AppLocalizations l10n) {
+    switch (type) {
+      case 'water':
+        return {'icon': '💧', 'name': l10n.water};
+      case 'electrolyte':
+        return {'icon': '⚡', 'name': l10n.electrolyte};
+      case 'broth':
+        return {'icon': '🍲', 'name': l10n.broth};
+      case 'coffee':
+        return {'icon': '☕', 'name': l10n.coffee};
+      case 'tea':
+        return {'icon': '🍵', 'name': l10n.tea};
+      default:
+        return {'icon': '🥤', 'name': type};
+    }
+  }
+
   String _getFormattedDate(AppLocalizations l10n) {
     final now = DateTime.now();
-    
     final weekDays = [
       l10n.sunday,
       l10n.monday,
@@ -1260,7 +1634,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       l10n.friday,
       l10n.saturday,
     ];
-    
     final months = [
       l10n.january,
       l10n.february,
@@ -1276,10 +1649,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       l10n.december,
     ];
     
-    return l10n.dateFormat(
-      weekDays[now.weekday % 7],
-      now.day,
-      months[now.month - 1],
-    );
+    return '${weekDays[now.weekday % 7]}, ${now.day} ${months[now.month - 1]}';
   }
 }

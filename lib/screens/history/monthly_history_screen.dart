@@ -3,8 +3,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../l10n/app_localizations.dart';
-
-import '../../main.dart';
+import '../../providers/hydration_provider.dart';
+import '../../models/intake.dart';
 import '../../models/alcohol_intake.dart';
 import '../../services/alcohol_service.dart';
 import 'weekly_history_screen.dart';
@@ -107,7 +107,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final alcoholService = Provider.of<AlcoholService>(context);
 
     if (isLoadingMonthData) return const Center(child: CircularProgressIndicator());

@@ -84,7 +84,30 @@ class RemoteConfigService {
       'heat_sodium_adjustment_medium': 1000, // мг
       'heat_sodium_adjustment_high': 1500,   // мг
       
-      // 📊 Пороги HRI и статусов гидратации
+      // 📊 HRI - ВЕСА КОМПОНЕНТОВ (сумма = 100)
+      'hri_weight_water': 26.0,
+      'hri_weight_sodium': 12.0,
+      'hri_weight_potassium': 8.0,
+      'hri_weight_magnesium': 8.0,
+      'hri_weight_heat': 10.0,
+      'hri_weight_workout': 12.0,
+      'hri_weight_caffeine': 8.0,
+      'hri_weight_alcohol': 8.0,
+      'hri_weight_time': 4.0,
+      'hri_weight_morning': 4.0,
+      
+      // 📊 HRI - ПАРАМЕТРЫ РАСЧЕТА
+      'caffeine_half_life_hours': 6.0,
+      'caffeine_scale_factor': 2.0,
+      'alcohol_risk_half_life_hours': 4.0,
+      'alc_hri_risk_per_sd': 5.0,
+      'alc_hri_risk_cap': 15.0,
+      'time_since_last_intake_threshold': 3.0,
+      'fasting_suppresses_time_component': true,
+      'morning_weight_drop_threshold': 1.0, // % от массы тела
+      'heat_index_hysteresis': 0.5, // °C для предотвращения дребезга
+      
+      // 📊 Пороги статусов гидратации
       'hydration_dehydration_threshold': 0.9,  // < 90% от цели воды
       'hydration_dilution_water_threshold': 1.15, // > 115% воды
       'hydration_dilution_sodium_threshold': 0.6, // < 60% натрия
@@ -152,6 +175,16 @@ class RemoteConfigService {
       // 🎯 A/B тестирование
       'ab_paywall_variant': 'default',
       'ab_onboarding_variant': 'standard',
+      
+      // 🍺 АЛКОГОЛЬ параметры
+      'std_drink_grams': 10.0,
+      'alcohol_drink_bonus_ml': 250.0,
+      'na_per_sd_mg': 500.0,
+      'mg_per_day_after_alc_mg': 100.0,
+      'alc_evening_cutoff_local': 20, // 20:00
+      'alc_reminders_max_per_day': 2,
+      'sobriety_goals_enabled': true,
+      'sober_mode_enabled_default': false,
     };
   }
   
@@ -180,17 +213,40 @@ class RemoteConfigService {
     return defaultValue;
   }
   
-  // Добавьте этот метод для совместимости с HRI сервисом
+  // 📊 МЕТОДЫ ДЛЯ HRI СЕРВИСА
+  
+  // Универсальный метод для получения double значений
   double getDouble(String key) {
-    switch (key) {
-      case 'alc_hri_risk_per_sd':
-        return 5.0;
-      case 'alc_hri_risk_cap':
-        return 15.0;
-      default:
-        return _getValue<double>(key, 0.0);
-    }
+    return _getValue<double>(key, 0.0);
   }
+  
+  // Веса компонентов HRI (сумма = 100)
+  double getHRIWaterWeight() => _getValue('hri_weight_water', 26.0);
+  double getHRISodiumWeight() => _getValue('hri_weight_sodium', 12.0);
+  double getHRIPotassiumWeight() => _getValue('hri_weight_potassium', 8.0);
+  double getHRIMagnesiumWeight() => _getValue('hri_weight_magnesium', 8.0);
+  double getHRIHeatWeight() => _getValue('hri_weight_heat', 10.0);
+  double getHRIWorkoutWeight() => _getValue('hri_weight_workout', 12.0);
+  double getHRICaffeineWeight() => _getValue('hri_weight_caffeine', 8.0);
+  double getHRIAlcoholWeight() => _getValue('hri_weight_alcohol', 8.0);
+  double getHRITimeWeight() => _getValue('hri_weight_time', 4.0);
+  double getHRIMorningWeight() => _getValue('hri_weight_morning', 4.0);
+  
+  // Параметры расчета HRI
+  double getCaffeineHalfLife() => _getValue('caffeine_half_life_hours', 6.0);
+  double getCaffeineScaleFactor() => _getValue('caffeine_scale_factor', 2.0);
+  double getAlcoholRiskHalfLife() => _getValue('alcohol_risk_half_life_hours', 4.0);
+  double getAlcoholHRIRiskPerSD() => _getValue('alc_hri_risk_per_sd', 5.0);
+  double getAlcoholHRIRiskCap() => _getValue('alc_hri_risk_cap', 15.0);
+  double getTimeSinceLastIntakeThreshold() => _getValue('time_since_last_intake_threshold', 3.0);
+  bool getFastingSuppressesTimeComponent() => _getValue('fasting_suppresses_time_component', true);
+  double getMorningWeightDropThreshold() => _getValue('morning_weight_drop_threshold', 1.0);
+  double getHeatIndexHysteresis() => _getValue('heat_index_hysteresis', 0.5);
+  
+  // Пороги Heat Index для HRI
+  double getHeatIndexLowThreshold() => _getValue('heat_index_low', 27.0);
+  double getHeatIndexMediumThreshold() => _getValue('heat_index_medium', 32.0);
+  double getHeatIndexHighThreshold() => _getValue('heat_index_high', 39.0);
   
   // 🔥 ФОРМУЛЫ ВОДЫ
   double get waterMinPerKg => _getValue('water_min_per_kg', 22.0);
@@ -244,29 +300,29 @@ class RemoteConfigService {
   bool get trialEnabled => _getValue('trial_enabled', true);
   int get trialDurationDays => _getValue('trial_duration_days', 7);
   
-  // Цены
+  // Getters для цен (возвращаем базовые значения, форматирование делаем в UI)
   double get priceAnnual => _getValue('price_annual', 9.99);
   double get priceAnnualOriginal => _getValue('price_annual_original', 16.99);
   int get priceAnnualDiscount => _getValue('price_annual_discount', 41);
-  String get priceAnnualCurrency => _getValue('price_annual_currency', '\$');
-  String get priceAnnualPeriod => _getValue('price_annual_period', 'в год');
+  String get priceAnnualCurrency => _getValue('price_annual_currency', 'USD');
+  String get priceAnnualPeriod => _getValue('price_annual_period', 'year');
   
   double get priceMonthly => _getValue('price_monthly', 1.99);
-  String get priceMonthlyCurrency => _getValue('price_monthly_currency', '\$');
-  String get priceMonthlyPeriod => _getValue('price_monthly_period', 'в месяц');
+  String get priceMonthlyCurrency => _getValue('price_monthly_currency', 'USD');
+  String get priceMonthlyPeriod => _getValue('price_monthly_period', 'month');
   
   double get priceLifetime => _getValue('price_lifetime', 24.99);
-  String get priceLifetimeCurrency => _getValue('price_lifetime_currency', '\$');
+  String get priceLifetimeCurrency => _getValue('price_lifetime_currency', 'USD');
   
-  // Тексты пейвола
+  // Тексты пейвола (базовые английские значения)
   String get paywallTitle => _getValue('paywall_title', 'HydraCoach PRO');
-  String get paywallSubtitle => _getValue('paywall_subtitle', 'Стань героем водного баланса!');
-  String get paywallButtonText => _getValue('paywall_button_text', 'Продолжить');
-  String get paywallTrialText => _getValue('paywall_trial_text', 'Попробуйте 7 дней бесплатно');
-  String get paywallCancelText => _getValue('paywall_cancel_text', 'Отменить можно в любое время');
-  String get paywallBestValueText => _getValue('paywall_best_value_text', 'ВЫГОДНО');
-  String get paywallLifetimeText => _getValue('paywall_lifetime_text', 'Доступ навсегда');
-  String get paywallLifetimeSubtitle => _getValue('paywall_lifetime_subtitle', 'без повторных платежей');
+  String get paywallSubtitle => _getValue('paywall_subtitle', 'Become a hydration hero!');
+  String get paywallButtonText => _getValue('paywall_button_text', 'Continue');
+  String get paywallTrialText => _getValue('paywall_trial_text', 'Try 7 days free');
+  String get paywallCancelText => _getValue('paywall_cancel_text', 'Cancel anytime');
+  String get paywallBestValueText => _getValue('paywall_best_value_text', 'BEST VALUE');
+  String get paywallLifetimeText => _getValue('paywall_lifetime_text', 'Lifetime access');
+  String get paywallLifetimeSubtitle => _getValue('paywall_lifetime_subtitle', 'no recurring payments');
   
   // 🔧 ФИЧ ФЛАГИ
   bool get featureSmartReminders => _getValue('feature_smart_reminders', true);

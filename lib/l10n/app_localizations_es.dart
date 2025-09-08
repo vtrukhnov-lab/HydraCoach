@@ -1886,4 +1886,163 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get enterValidDuration => 'Ingrese una duración válida';
+
+  @override
+  String get sauna => 'Sauna';
+
+  @override
+  String get veryHighIntensity => 'Intensidad muy alta';
+
+  @override
+  String get hriStatusExcellent => 'Excelente';
+
+  @override
+  String get hriStatusGood => 'Bueno';
+
+  @override
+  String get hriStatusModerate => 'Riesgo Moderado';
+
+  @override
+  String get hriStatusHighRisk => 'Riesgo Alto';
+
+  @override
+  String get hriStatusCritical => 'Crítico';
+
+  @override
+  String get hriComponentWater => 'Balance de agua';
+
+  @override
+  String get hriComponentSodium => 'Nivel de sodio';
+
+  @override
+  String get hriComponentPotassium => 'Nivel de potasio';
+
+  @override
+  String get hriComponentMagnesium => 'Nivel de magnesio';
+
+  @override
+  String get hriComponentHeat => 'Estrés por calor';
+
+  @override
+  String get hriComponentWorkout => 'Actividad física';
+
+  @override
+  String get hriComponentCaffeine => 'Impacto de cafeína';
+
+  @override
+  String get hriComponentAlcohol => 'Impacto de alcohol';
+
+  @override
+  String get hriComponentTime => 'Tiempo desde ingesta';
+
+  @override
+  String get hriComponentMorning => 'Factores matutinos';
+
+  @override
+  String get hriBreakdownTitle => 'Desglose de factores de riesgo';
+
+  @override
+  String hriComponentValue(Object component, Object max, Object value) {
+    return '$component: $value/$max pts';
+  }
+
+  @override
+  String get fastingModeActive => 'Modo ayuno activo';
+
+  @override
+  String get fastingSuppressionNote => 'Factor tiempo suprimido durante ayuno';
+
+  @override
+  String get morningCheckInTitle => 'Chequeo Matutino';
+
+  @override
+  String get howAreYouFeeling => '¿Cómo te sientes?';
+
+  @override
+  String get feelingScale1 => 'Mal';
+
+  @override
+  String get feelingScale2 => 'Por debajo del promedio';
+
+  @override
+  String get feelingScale3 => 'Normal';
+
+  @override
+  String get feelingScale4 => 'Bien';
+
+  @override
+  String get feelingScale5 => 'Excelente';
+
+  @override
+  String get weightChange => 'Cambio de peso desde ayer';
+
+  @override
+  String get urineColorScale => 'Color de orina (escala 1-8)';
+
+  @override
+  String get urineColor1 => '1 - Muy pálido';
+
+  @override
+  String get urineColor2 => '2 - Pálido';
+
+  @override
+  String get urineColor3 => '3 - Amarillo claro';
+
+  @override
+  String get urineColor4 => '4 - Amarillo';
+
+  @override
+  String get urineColor5 => '5 - Amarillo oscuro';
+
+  @override
+  String get urineColor6 => '6 - Ámbar';
+
+  @override
+  String get urineColor7 => '7 - Ámbar oscuro';
+
+  @override
+  String get urineColor8 => '8 - Marrón';
+
+  @override
+  String get alcoholWithDecay => 'Impacto de alcohol (decayendo)';
+
+  @override
+  String standardDrinksToday(Object count) {
+    return 'Bebidas estándar hoy: $count';
+  }
+
+  @override
+  String activeCaffeineLevel(Object amount) {
+    return 'Cafeína activa: $amount mg';
+  }
+
+  @override
+  String get hriDebugInfo => 'Info Depuración HRI';
+
+  @override
+  String hriNormalized(Object value) {
+    return 'HRI (normalizado): $value/100';
+  }
+
+  @override
+  String get fastingWindowActive => 'Ventana de ayuno activa';
+
+  @override
+  String get eatingWindowActive => 'Ventana de alimentación activa';
+
+  @override
+  String nextFastingWindow(Object time) {
+    return 'Próximo ayuno: $time';
+  }
+
+  @override
+  String nextEatingWindow(Object time) {
+    return 'Próxima comida: $time';
+  }
+
+  @override
+  String get todaysWorkouts => 'Entrenamientos de hoy';
+
+  @override
+  String get hoursAgo => 'h atrás';
 }

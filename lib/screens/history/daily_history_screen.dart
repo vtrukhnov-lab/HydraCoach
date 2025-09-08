@@ -4,7 +4,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../l10n/app_localizations.dart';
-import '../../main.dart';
+import '../../providers/hydration_provider.dart';
+import '../../models/intake.dart';
 import '../../models/alcohol_intake.dart';
 import '../../services/alcohol_service.dart';
 
@@ -158,7 +159,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
   
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     
     return Consumer2<HydrationProvider, AlcoholService>(
       builder: (context, provider, alcoholService, child) {

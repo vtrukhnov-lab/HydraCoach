@@ -23,6 +23,8 @@ import '../models/quick_favorites.dart';
 import '../services/alcohol_service.dart';
 import '../services/subscription_service.dart';
 import '../screens/paywall_screen.dart';
+import 'package:hydracoach/providers/hydration_provider.dart';
+
 
 class AlcoholLogScreen extends StatefulWidget {
   const AlcoholLogScreen({super.key});
@@ -574,7 +576,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
                       ),
                     ),
                   );
-                }).toList(),
+                }),
               ],
             ),
             

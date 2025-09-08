@@ -21,7 +21,7 @@ import '../l10n/app_localizations.dart';
 import '../models/quick_favorites.dart';
 import '../services/subscription_service.dart';
 import '../screens/paywall_screen.dart';
-import '../main.dart';
+import 'package:hydracoach/providers/hydration_provider.dart';
 
 class ElectrolytesScreen extends StatefulWidget {
   const ElectrolytesScreen({super.key});

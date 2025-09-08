@@ -1875,4 +1875,163 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get enterValidDuration => 'Введите корректную длительность';
+
+  @override
+  String get sauna => 'Сауна';
+
+  @override
+  String get veryHighIntensity => 'Очень высокая интенсивность';
+
+  @override
+  String get hriStatusExcellent => 'Отлично';
+
+  @override
+  String get hriStatusGood => 'Хорошо';
+
+  @override
+  String get hriStatusModerate => 'Умеренный риск';
+
+  @override
+  String get hriStatusHighRisk => 'Высокий риск';
+
+  @override
+  String get hriStatusCritical => 'Критично';
+
+  @override
+  String get hriComponentWater => 'Баланс воды';
+
+  @override
+  String get hriComponentSodium => 'Уровень натрия';
+
+  @override
+  String get hriComponentPotassium => 'Уровень калия';
+
+  @override
+  String get hriComponentMagnesium => 'Уровень магния';
+
+  @override
+  String get hriComponentHeat => 'Тепловой стресс';
+
+  @override
+  String get hriComponentWorkout => 'Физическая активность';
+
+  @override
+  String get hriComponentCaffeine => 'Влияние кофеина';
+
+  @override
+  String get hriComponentAlcohol => 'Влияние алкоголя';
+
+  @override
+  String get hriComponentTime => 'Время с последнего приёма';
+
+  @override
+  String get hriComponentMorning => 'Утренние факторы';
+
+  @override
+  String get hriBreakdownTitle => 'Разбор факторов риска';
+
+  @override
+  String hriComponentValue(Object component, Object max, Object value) {
+    return '$component: $value/$max баллов';
+  }
+
+  @override
+  String get fastingModeActive => 'Режим поста активен';
+
+  @override
+  String get fastingSuppressionNote => 'Фактор времени подавлен во время поста';
+
+  @override
+  String get morningCheckInTitle => 'Утренний чек-ин';
+
+  @override
+  String get howAreYouFeeling => 'Как вы себя чувствуете?';
+
+  @override
+  String get feelingScale1 => 'Плохо';
+
+  @override
+  String get feelingScale2 => 'Ниже среднего';
+
+  @override
+  String get feelingScale3 => 'Нормально';
+
+  @override
+  String get feelingScale4 => 'Хорошо';
+
+  @override
+  String get feelingScale5 => 'Отлично';
+
+  @override
+  String get weightChange => 'Изменение веса со вчера';
+
+  @override
+  String get urineColorScale => 'Цвет мочи (шкала 1-8)';
+
+  @override
+  String get urineColor1 => '1 - Очень бледный';
+
+  @override
+  String get urineColor2 => '2 - Бледный';
+
+  @override
+  String get urineColor3 => '3 - Светло-жёлтый';
+
+  @override
+  String get urineColor4 => '4 - Жёлтый';
+
+  @override
+  String get urineColor5 => '5 - Тёмно-жёлтый';
+
+  @override
+  String get urineColor6 => '6 - Янтарный';
+
+  @override
+  String get urineColor7 => '7 - Тёмно-янтарный';
+
+  @override
+  String get urineColor8 => '8 - Коричневый';
+
+  @override
+  String get alcoholWithDecay => 'Влияние алкоголя (затухающее)';
+
+  @override
+  String standardDrinksToday(Object count) {
+    return 'Стандартных дринков сегодня: $count';
+  }
+
+  @override
+  String activeCaffeineLevel(Object amount) {
+    return 'Активный кофеин: $amount мг';
+  }
+
+  @override
+  String get hriDebugInfo => 'Отладка HRI';
+
+  @override
+  String hriNormalized(Object value) {
+    return 'HRI (нормализован): $value/100';
+  }
+
+  @override
+  String get fastingWindowActive => 'Окно поста активно';
+
+  @override
+  String get eatingWindowActive => 'Окно питания активно';
+
+  @override
+  String nextFastingWindow(Object time) {
+    return 'Следующий пост: $time';
+  }
+
+  @override
+  String nextEatingWindow(Object time) {
+    return 'Следующий приём пищи: $time';
+  }
+
+  @override
+  String get todaysWorkouts => 'Тренировки сегодня';
+
+  @override
+  String get hoursAgo => 'ч назад';
 }

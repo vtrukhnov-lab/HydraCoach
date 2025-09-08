@@ -14,6 +14,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dark theme support
 - Home screen widgets
 
+## [0.6.1] - 2025-09-08
+
+### Architecture
+- Refactored HRI system following established service/screen/model pattern
+- Improved separation of concerns between UI and business logic
+- Better state management using existing Provider infrastructure
+
+### Added
+- Automatic HRI updates when weather data loads
+- Weather change listener for real-time heat stress updates
+- Workout and CaffeineIntake models within HRI service
+- Debug mode checks for production-safe console output
+
+### Changed
+- Complete HRI Service rewrite (lib/services/hri_service.dart)
+- Home screen rebuilt with better state management (lib/screens/home_screen.dart)
+- Optimized performance by removing unnecessary update cycles
+
+### Fixed
+- Heat stress not showing on app startup in hot weather
+- Alcohol showing +0 impact despite having standard drinks
+- Water ring visualization issues on main progress card
+- Magnesium text overflow in electrolyte progress bars
+- HRI calculation timing issues with weather data
+
+
 ## [0.6.0] - 2025-09-07
 ### Added
 - **Complete Alcohol Tracking Revamp**

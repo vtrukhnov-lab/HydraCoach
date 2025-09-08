@@ -1,17 +1,17 @@
 // ============================================================================
 // FILE: lib/screens/sports_screen.dart
 // 
-// PURPOSE: Sports Activity Screen for tracking workouts and calculating water needs
-// Allows users to log various sports activities and calculates additional hydration.
-// Uses the same UI/UX pattern as other screens for consistency.
+// PURPOSE: Sports Activity Screen with HRI integration
+// Tracks workouts and automatically calculates hydration needs.
+// Integrates with HRI Service for dynamic risk calculation.
 // 
 // FEATURES:
 // - Grid of sport types (3 FREE, 9 PRO)
-// - Duration input in minutes
-// - Water calculation based on intensity and user weight
-// - Automatic water and electrolyte adjustment
+// - Duration and intensity tracking
+// - Automatic water/electrolyte calculation based on weight
+// - Full HRI workout integration
+// - Smart hydration recommendations
 // - PRO gating for premium activities
-// - Teal color scheme
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -19,8 +19,9 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../services/subscription_service.dart';
+import '../services/hri_service.dart';
 import '../screens/paywall_screen.dart';
-import '../main.dart';
+import 'package:hydracoach/providers/hydration_provider.dart';
 
 class SportsScreen extends StatefulWidget {
   const SportsScreen({super.key});
@@ -34,7 +35,7 @@ class _SportsScreenState extends State<SportsScreen> {
   int _selectedIndex = 0;
   final TextEditingController _durationController = TextEditingController(text: '30');
   bool _isPro = false;
-  double _userWeight = 70; // кг
+  double _userWeight = 70; // kg
 
   @override
   void initState() {
@@ -53,115 +54,163 @@ class _SportsScreenState extends State<SportsScreen> {
     final l10n = AppLocalizations.of(context);
     
     _sportTypes = [
-      // FREE типы
+      // FREE types
       {
         'type': 'walking',
         'label': l10n.walking ?? 'Walking',
         'icon': Icons.directions_walk,
-        'intensity': 'low', // низкая интенсивность
-        'mlPerKgPerHour': 12, // мл на кг веса в час
-        'sodiumMgPerHour': 200, // мг натрия в час
-        'isPro': false
+        'intensity': 'low',
+        'intensityValue': 2, // For HRI: 1-5 scale
+        'mlPerKgPerHour': 12,
+        'sodiumMgPerHour': 200,
+        'potassiumMgPerHour': 50,
+        'magnesiumMgPerHour': 10,
+        'isPro': false,
+        'color': Colors.green,
       },
       {
         'type': 'running',
         'label': l10n.running ?? 'Running',
         'icon': Icons.directions_run,
         'intensity': 'medium',
+        'intensityValue': 3,
         'mlPerKgPerHour': 17,
         'sodiumMgPerHour': 400,
-        'isPro': false
+        'potassiumMgPerHour': 100,
+        'magnesiumMgPerHour': 20,
+        'isPro': false,
+        'color': Colors.orange,
       },
       {
         'type': 'gym',
         'label': l10n.gym ?? 'Gym',
         'icon': Icons.fitness_center,
         'intensity': 'high',
+        'intensityValue': 4,
         'mlPerKgPerHour': 24,
         'sodiumMgPerHour': 600,
-        'isPro': false
+        'potassiumMgPerHour': 150,
+        'magnesiumMgPerHour': 30,
+        'isPro': false,
+        'color': Colors.red,
       },
-      // PRO типы
+      // PRO types
       {
         'type': 'cycling',
         'label': l10n.cycling ?? 'Cycling',
         'icon': Icons.directions_bike,
         'intensity': 'medium',
+        'intensityValue': 3,
         'mlPerKgPerHour': 16,
         'sodiumMgPerHour': 350,
-        'isPro': true
+        'potassiumMgPerHour': 90,
+        'magnesiumMgPerHour': 18,
+        'isPro': true,
+        'color': Colors.orange,
       },
       {
         'type': 'swimming',
         'label': l10n.swimming ?? 'Swimming',
         'icon': Icons.pool,
         'intensity': 'high',
+        'intensityValue': 4,
         'mlPerKgPerHour': 20,
-        'sodiumMgPerHour': 300, // меньше натрия, т.к. нет потоотделения
-        'isPro': true
+        'sodiumMgPerHour': 300, // Less due to no sweating
+        'potassiumMgPerHour': 80,
+        'magnesiumMgPerHour': 15,
+        'isPro': true,
+        'color': Colors.blue,
       },
       {
         'type': 'yoga',
         'label': l10n.yoga ?? 'Yoga',
         'icon': Icons.self_improvement,
         'intensity': 'low',
+        'intensityValue': 1,
         'mlPerKgPerHour': 10,
         'sodiumMgPerHour': 150,
-        'isPro': true
+        'potassiumMgPerHour': 40,
+        'magnesiumMgPerHour': 8,
+        'isPro': true,
+        'color': Colors.purple,
       },
       {
         'type': 'hiit',
         'label': l10n.hiit ?? 'HIIT',
         'icon': Icons.flash_on,
-        'intensity': 'high',
+        'intensity': 'very_high',
+        'intensityValue': 5,
         'mlPerKgPerHour': 30,
         'sodiumMgPerHour': 800,
-        'isPro': true
+        'potassiumMgPerHour': 200,
+        'magnesiumMgPerHour': 40,
+        'isPro': true,
+        'color': Colors.deepOrange,
       },
       {
         'type': 'crossfit',
         'label': l10n.crossfit ?? 'CrossFit',
         'icon': Icons.sports_mma,
-        'intensity': 'high',
+        'intensity': 'very_high',
+        'intensityValue': 5,
         'mlPerKgPerHour': 28,
         'sodiumMgPerHour': 700,
-        'isPro': true
+        'potassiumMgPerHour': 180,
+        'magnesiumMgPerHour': 35,
+        'isPro': true,
+        'color': Colors.deepOrange,
       },
       {
         'type': 'boxing',
         'label': l10n.boxing ?? 'Boxing',
         'icon': Icons.sports_kabaddi,
         'intensity': 'high',
+        'intensityValue': 4,
         'mlPerKgPerHour': 25,
         'sodiumMgPerHour': 650,
-        'isPro': true
+        'potassiumMgPerHour': 160,
+        'magnesiumMgPerHour': 32,
+        'isPro': true,
+        'color': Colors.red,
       },
       {
         'type': 'dancing',
         'label': l10n.dancing ?? 'Dancing',
         'icon': Icons.music_note,
         'intensity': 'medium',
+        'intensityValue': 3,
         'mlPerKgPerHour': 15,
         'sodiumMgPerHour': 300,
-        'isPro': true
+        'potassiumMgPerHour': 75,
+        'magnesiumMgPerHour': 15,
+        'isPro': true,
+        'color': Colors.pink,
       },
       {
         'type': 'tennis',
         'label': l10n.tennis ?? 'Tennis',
         'icon': Icons.sports_tennis,
         'intensity': 'medium',
+        'intensityValue': 3,
         'mlPerKgPerHour': 18,
         'sodiumMgPerHour': 450,
-        'isPro': true
+        'potassiumMgPerHour': 110,
+        'magnesiumMgPerHour': 22,
+        'isPro': true,
+        'color': Colors.lime,
       },
       {
         'type': 'team_sports',
         'label': l10n.teamSports ?? 'Team Sports',
         'icon': Icons.sports_soccer,
         'intensity': 'high',
+        'intensityValue': 4,
         'mlPerKgPerHour': 22,
         'sodiumMgPerHour': 500,
-        'isPro': true
+        'potassiumMgPerHour': 130,
+        'magnesiumMgPerHour': 25,
+        'isPro': true,
+        'color': Colors.green,
       },
     ];
   }
@@ -223,22 +272,24 @@ class _SportsScreenState extends State<SportsScreen> {
 
   Map<String, int> _calculateHydrationNeeds() {
     if (_sportTypes.isEmpty) {
-      return {'water': 0, 'sodium': 0};
+      return {'water': 0, 'sodium': 0, 'potassium': 0, 'magnesium': 0};
     }
     
     final sport = _sportTypes[_selectedIndex];
     final duration = double.tryParse(_durationController.text) ?? 0;
-    final hours = duration / 60; // конвертируем минуты в часы
+    final hours = duration / 60;
     
-    // Расчет воды: мл/кг/час * вес * часы
+    // Calculate needs based on weight and duration
     final waterMl = (sport['mlPerKgPerHour'] as int) * _userWeight * hours;
-    
-    // Расчет натрия: мг/час * часы
     final sodiumMg = (sport['sodiumMgPerHour'] as int) * hours;
+    final potassiumMg = (sport['potassiumMgPerHour'] as int) * hours;
+    final magnesiumMg = (sport['magnesiumMgPerHour'] as int) * hours;
     
     return {
       'water': waterMl.round(),
       'sodium': sodiumMg.round(),
+      'potassium': potassiumMg.round(),
+      'magnesium': magnesiumMg.round(),
     };
   }
 
@@ -248,24 +299,61 @@ class _SportsScreenState extends State<SportsScreen> {
     
     if (duration == null || duration <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.enterValidDuration ?? 'Please enter valid duration')),
+        SnackBar(
+          content: Text(l10n.enterValidDuration ?? 'Please enter valid duration'),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
 
     final needs = _calculateHydrationNeeds();
     final provider = Provider.of<HydrationProvider>(context, listen: false);
+    final hriService = Provider.of<HRIService>(context, listen: false);
+    final sport = _sportTypes[_selectedIndex];
     
-    // Добавляем воду с пометкой о спорте
-    provider.addIntake('water', needs['water']!, sodium: needs['sodium']!);
-
+    // Add water and electrolytes to hydration tracking
+    provider.addIntake(
+      'water', 
+      needs['water']!,
+      sodium: needs['sodium']!,
+      potassium: needs['potassium']!,
+      magnesium: needs['magnesium']!,
+    );
+    
+    // IMPORTANT: Add workout to HRI Service
+    await hriService.addWorkout(
+      type: sport['type'],
+      intensity: sport['intensityValue'],
+      durationMinutes: duration,
+    );
+    
+    // Calculate HRI impact
+    final workoutImpact = sport['intensityValue'] * (duration / 30.0);
+    
     if (mounted) {
+      // Show detailed success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${l10n.activityLogged ?? 'Activity logged'}: +${needs['water']} ml, +${needs['sodium']} mg Na'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${sport['label']} logged successfully!',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Text('Hydration: +${needs['water']} ml'),
+              Text('Electrolytes: Na +${needs['sodium']}mg, K +${needs['potassium']}mg'),
+              Text('HRI Impact: +${workoutImpact.toStringAsFixed(1)} points'),
+            ],
+          ),
           backgroundColor: Colors.green,
+          duration: const Duration(seconds: 3),
         ),
       );
+      
       Navigator.of(context).pop(true);
     }
   }
@@ -279,6 +367,8 @@ class _SportsScreenState extends State<SportsScreen> {
         return l10n.mediumIntensity ?? 'Medium intensity';
       case 'high':
         return l10n.highIntensity ?? 'High intensity';
+      case 'very_high':
+        return l10n.veryHighIntensity ?? 'Very high intensity';
       default:
         return intensity;
     }
@@ -292,6 +382,8 @@ class _SportsScreenState extends State<SportsScreen> {
         return Colors.orange;
       case 'high':
         return Colors.red;
+      case 'very_high':
+        return Colors.deepOrange;
       default:
         return Colors.grey;
     }
@@ -304,11 +396,12 @@ class _SportsScreenState extends State<SportsScreen> {
     _isPro = subscription.isPro;
     
     final hydrationNeeds = _calculateHydrationNeeds();
+    final selectedSport = _sportTypes.isNotEmpty ? _sportTypes[_selectedIndex] : null;
     
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text(l10n.sports ?? 'Sports'),
+        title: Text(l10n.sports ?? 'Sports & Activities'),
         elevation: 0,
         backgroundColor: Colors.teal[500],
         foregroundColor: Colors.white,
@@ -319,7 +412,7 @@ class _SportsScreenState extends State<SportsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.selectActivityType ?? 'Select activity type:',
+              l10n.selectActivityType ?? 'Select activity type',
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -327,7 +420,7 @@ class _SportsScreenState extends State<SportsScreen> {
             ),
             const SizedBox(height: 16),
             
-            // Grid для видов спорта
+            // Sports grid
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -337,17 +430,8 @@ class _SportsScreenState extends State<SportsScreen> {
                 crossAxisSpacing: 10,
                 childAspectRatio: 0.85,
               ),
-              itemCount: _sportTypes.isEmpty ? 12 : _sportTypes.length,
+              itemCount: _sportTypes.length,
               itemBuilder: (context, index) {
-                if (_sportTypes.isEmpty) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  );
-                }
-                
                 final sport = _sportTypes[index];
                 final isSelected = _selectedIndex == index;
                 final isLocked = sport['isPro'] && !_isPro;
@@ -392,16 +476,18 @@ class _SportsScreenState extends State<SportsScreen> {
                               children: [
                                 Icon(
                                   sport['icon'] as IconData,
-                                  size: 60,
+                                  size: 50,
                                   color: isLocked 
                                       ? Colors.grey[400]
-                                      : (isSelected ? Colors.teal[600] : Colors.grey[700]),
+                                      : (isSelected 
+                                          ? sport['color'] as Color
+                                          : Colors.grey[700]),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   sport['label'],
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 12,
                                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                                     color: isLocked 
                                         ? Colors.grey[400]
@@ -433,7 +519,7 @@ class _SportsScreenState extends State<SportsScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
-                                color: Colors.teal.shade600,
+                                color: Colors.purple.shade600,
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -452,6 +538,7 @@ class _SportsScreenState extends State<SportsScreen> {
             
             const SizedBox(height: 24),
             
+            // Duration input
             Text(
               l10n.duration ?? 'Duration',
               style: const TextStyle(
@@ -492,7 +579,7 @@ class _SportsScreenState extends State<SportsScreen> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                // Быстрые кнопки времени
+                // Quick duration buttons
                 Wrap(
                   spacing: 8,
                   children: [
@@ -506,30 +593,30 @@ class _SportsScreenState extends State<SportsScreen> {
             
             const SizedBox(height: 24),
             
-            // Информационная карточка
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.teal[50]!, Colors.teal[100]!],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.fitness_center,
-                    size: 48,
-                    color: Colors.teal[600],
+            // Information card
+            if (selectedSport != null)
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.teal[50]!, Colors.teal[100]!],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  const SizedBox(height: 12),
-                  if (_sportTypes.isNotEmpty) ...[
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      selectedSport['icon'] as IconData,
+                      size: 48,
+                      color: selectedSport['color'] as Color,
+                    ),
+                    const SizedBox(height: 12),
                     Text(
-                      _sportTypes[_selectedIndex]['label'],
+                      selectedSport['label'],
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Colors.teal[700],
                       ),
@@ -538,122 +625,129 @@ class _SportsScreenState extends State<SportsScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       decoration: BoxDecoration(
-                        color: _getIntensityColor(_sportTypes[_selectedIndex]['intensity']).withOpacity(0.2),
+                        color: _getIntensityColor(selectedSport['intensity']).withOpacity(0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        _getIntensityLabel(_sportTypes[_selectedIndex]['intensity']),
+                        _getIntensityLabel(selectedSport['intensity']),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: _getIntensityColor(_sportTypes[_selectedIndex]['intensity']),
+                          color: _getIntensityColor(selectedSport['intensity']),
                         ),
                       ),
                     ),
-                  ],
-                  const SizedBox(height: 12),
-                  Text(
-                    '${_durationController.text} ${l10n.minutes ?? 'minutes'}',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w300,
-                      color: Colors.teal[800],
+                    const SizedBox(height: 12),
+                    Text(
+                      '${_durationController.text} ${l10n.minutes ?? 'minutes'}',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w300,
+                        color: Colors.teal[800],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          l10n.recommendedIntake ?? 'Recommended intake:',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                    const SizedBox(height: 16),
+                    
+                    // Hydration needs
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            l10n.recommendedIntake ?? 'Recommended intake',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Column(
-                              children: [
-                                Icon(
-                                  Icons.water_drop,
-                                  color: Colors.blue[600],
-                                  size: 24,
+                          const SizedBox(height: 12),
+                          // Water
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.water_drop, color: Colors.blue[600], size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${hydrationNeeds['water']} ml',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue[700],
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${hydrationNeeds['water']} ml',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue[700],
-                                  ),
-                                ),
-                                Text(
-                                  l10n.water,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Container(
-                              width: 1,
-                              height: 40,
-                              color: Colors.grey[300],
-                            ),
-                            Column(
-                              children: [
-                                Icon(
-                                  Icons.grain,
-                                  color: Colors.orange[600],
-                                  size: 24,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${hydrationNeeds['sodium']} mg',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.orange[700],
-                                  ),
-                                ),
-                                Text(
-                                  l10n.sodium,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          // Electrolytes
+                          Wrap(
+                            spacing: 16,
+                            runSpacing: 8,
+                            alignment: WrapAlignment.center,
+                            children: [
+                              _buildElectrolyteChip(
+                                'Na',
+                                hydrationNeeds['sodium']!,
+                                Colors.orange,
+                              ),
+                              _buildElectrolyteChip(
+                                'K',
+                                hydrationNeeds['potassium']!,
+                                Colors.purple,
+                              ),
+                              _buildElectrolyteChip(
+                                'Mg',
+                                hydrationNeeds['magnesium']!,
+                                Colors.pink,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${l10n.basedOnWeight ?? 'Based on'}: ${_userWeight.round()} ${l10n.kg}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.teal[600],
+                    const SizedBox(height: 12),
+                    
+                    // HRI Impact
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.teal.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.trending_up, size: 16, color: Colors.teal[600]),
+                          const SizedBox(width: 6),
+                          Text(
+                            'HRI Impact: +${(selectedSport['intensityValue'] * (int.tryParse(_durationController.text) ?? 0) / 30.0).toStringAsFixed(1)} points',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.teal[700],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      '${l10n.basedOnWeight ?? 'Based on'}: ${_userWeight.round()} ${l10n.kg ?? 'kg'}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.teal[600],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
             
             const SizedBox(height: 24),
             
+            // Action buttons
             Column(
               children: [
                 SizedBox(
@@ -718,6 +812,38 @@ class _SportsScreenState extends State<SportsScreen> {
       labelStyle: TextStyle(
         color: isSelected ? Colors.teal[700] : Colors.grey[700],
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+      ),
+    );
+  }
+  
+  Widget _buildElectrolyteChip(String label, int value, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '${value}mg',
+            style: TextStyle(
+              fontSize: 12,
+              color: color.withOpacity(0.8),
+            ),
+          ),
+        ],
       ),
     );
   }

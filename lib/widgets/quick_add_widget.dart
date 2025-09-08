@@ -17,12 +17,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:hydracoach/providers/hydration_provider.dart';
 import '../models/quick_favorites.dart';
 import '../models/alcohol_intake.dart';
 import '../services/subscription_service.dart';
 import '../services/alcohol_service.dart';
 import '../l10n/app_localizations.dart';
-import '../main.dart';
 import '../screens/paywall_screen.dart';
 
 class QuickAddWidget extends StatefulWidget {

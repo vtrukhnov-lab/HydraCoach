@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hydracoach/providers/hydration_provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../l10n/app_localizations.dart';
-import '../main.dart';
 import 'home_screen.dart';
 import 'paywall_screen.dart';
 
@@ -27,7 +27,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),

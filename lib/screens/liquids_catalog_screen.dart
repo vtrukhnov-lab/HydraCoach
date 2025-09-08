@@ -16,11 +16,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:hydracoach/providers/hydration_provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/quick_favorites.dart';
 import '../services/subscription_service.dart';
 import '../screens/paywall_screen.dart';
-import '../main.dart';
 
 class LiquidsCatalogScreen extends StatefulWidget {
   const LiquidsCatalogScreen({super.key});

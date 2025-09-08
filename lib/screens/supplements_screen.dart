@@ -21,7 +21,7 @@ import '../l10n/app_localizations.dart';
 import '../models/quick_favorites.dart';
 import '../services/subscription_service.dart';
 import '../screens/paywall_screen.dart';
-import '../main.dart';
+import 'package:hydracoach/providers/hydration_provider.dart';
 
 class SupplementsScreen extends StatefulWidget {
   const SupplementsScreen({super.key});
@@ -38,7 +38,7 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
   bool _isPro = false;
 
   // Быстрые значения дозировки для каждого типа добавки
-  Map<String, List<int>> _quickDosages = {
+  final Map<String, List<int>> _quickDosages = {
     'default': [1, 2, 3],
     'magnesium_citrate': [10, 20, 30], // ml
     'vitamin_d3': [1000, 2000, 5000], // IU

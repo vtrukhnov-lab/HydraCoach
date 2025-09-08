@@ -1,121 +1,393 @@
+// lib/services/hri_service.dart
+// 
+// HRI (Hydration Risk Index) Service - Complete Rewrite
+// Manages hydration risk calculation with all factors
+
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
 import 'remote_config_service.dart';
 
+// ============================================================================
+// DATA MODELS
+// ============================================================================
+
+class Workout {
+  final String id;
+  final DateTime timestamp;
+  final String type;
+  final int intensity; // 1-5
+  final int durationMinutes;
+  
+  Workout({
+    required this.id,
+    required this.timestamp,
+    required this.type,
+    required this.intensity,
+    required this.durationMinutes,
+  });
+  
+  // Calculate HRI impact based on intensity, duration and time elapsed
+  double getHRIImpact() {
+    // Base impact: intensity * duration factor
+    double base = intensity * (durationMinutes / 30.0);
+    
+    // Decay over time
+    final hoursSince = DateTime.now().difference(timestamp).inHours;
+    if (hoursSince > 24) return 0;
+    if (hoursSince > 12) return base * 0.3;
+    if (hoursSince > 6) return base * 0.6;
+    if (hoursSince > 3) return base * 0.8;
+    return base;
+  }
+  
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'timestamp': timestamp.toIso8601String(),
+    'type': type,
+    'intensity': intensity,
+    'durationMinutes': durationMinutes,
+  };
+  
+  factory Workout.fromJson(Map<String, dynamic> json) => Workout(
+    id: json['id'],
+    timestamp: DateTime.parse(json['timestamp']),
+    type: json['type'],
+    intensity: json['intensity'],
+    durationMinutes: json['durationMinutes'],
+  );
+}
+
+class CaffeineIntake {
+  final String id;
+  final DateTime timestamp;
+  final double caffeineMg;
+  final String source;
+  
+  CaffeineIntake({
+    required this.id,
+    required this.timestamp,
+    required this.caffeineMg,
+    required this.source,
+  });
+  
+  // Calculate active caffeine with half-life of 6 hours
+  double getActiveCaffeine() {
+    final hoursSince = DateTime.now().difference(timestamp).inHours;
+    if (hoursSince >= 24) return 0;
+    // Half-life decay formula
+    return caffeineMg * pow(0.5, hoursSince / 6.0);
+  }
+  
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'timestamp': timestamp.toIso8601String(),
+    'caffeineMg': caffeineMg,
+    'source': source,
+  };
+  
+  factory CaffeineIntake.fromJson(Map<String, dynamic> json) => CaffeineIntake(
+    id: json['id'],
+    timestamp: DateTime.parse(json['timestamp']),
+    caffeineMg: json['caffeineMg'].toDouble(),
+    source: json['source'],
+  );
+}
+
+// ============================================================================
+// HRI SERVICE
+// ============================================================================
+
 class HRIService extends ChangeNotifier {
+  // Storage keys
   static const String _hriKey = 'current_hri';
+  static const String _componentsKey = 'hri_components';
   static const String _lastUpdateKey = 'hri_last_update';
-
-  double _currentHRI = 50.0;
+  static const String _workoutsKey = 'today_workouts';
+  static const String _caffeineKey = 'today_caffeine';
+  static const String _alcoholKey = 'today_alcohol_sd';
+  
+  // Current HRI value and components
+  double _currentHRI = 25.0; // Start at low risk
   DateTime _lastUpdate = DateTime.now();
-
-  // Текущее состояние факторов (кэш последнего полного расчёта)
-  double _waterIntakeRatio = 0.0;
-  double _sodiumRatio = 0.0;
-  double _heatIndexFactor = 0.0;
-  double _activityFactor = 0.0;
-  double _caffeineFactor = 0.0;
-  double _alcoholFactor = 0.0;
-  double _timeSinceLastIntake = 0.0;
-  double _sleepQuality = 1.0;
+  
+  // Today's data
+  final List<Workout> _todayWorkouts = [];
+  final List<CaffeineIntake> _todayCaffeineIntakes = [];
+  double _todayAlcoholSD = 0.0;
+  
+  // Component breakdown (for display)
+  final Map<String, double> _components = {
+    'water': 0.0,
+    'sodium': 0.0,
+    'potassium': 0.0,
+    'magnesium': 0.0,
+    'heat': 0.0,
+    'workouts': 0.0,
+    'caffeine': 0.0,
+    'alcohol': 0.0,
+    'timeSinceIntake': 0.0,
+    'morning': 0.0,
+  };
+  
+  // State tracking for smart clamping
+  double _lastWaterRatio = 0.0;
+  double _lastWaterComponent = 0.0;
+  DateTime? _lastIntakeTime;
+  
+  // Morning check-in data
   double _morningWeight = 0.0;
   int _urineColor = 3;
-
-  // «Память» для водного компонента — чтобы не было скачков
-  double _lastWaterRatio = 0.0;
-  double _lastWaterComponent = 40.0;
-
+  double _sleepQuality = 1.0;
+  
+  // Fasting mode
+  bool _isFasting = false;
+  
+  // ============================================================================
+  // GETTERS
+  // ============================================================================
+  
   double get currentHRI => _currentHRI;
   DateTime get lastUpdate => _lastUpdate;
-
+  List<Workout> get todayWorkouts => List.unmodifiable(_todayWorkouts);
+  List<CaffeineIntake> get todayCaffeineIntakes => List.unmodifiable(_todayCaffeineIntakes);
+  double get todayAlcoholSD => _todayAlcoholSD;
+  Map<String, double> get components => Map.unmodifiable(_components);
+  
+  // Get total standard drinks (for compatibility)
+  double getTotalStandardDrinks() => _todayAlcoholSD;
+  
+  // Get HRI zone color
   String get hriZone {
     if (_currentHRI <= 30) return 'green';
     if (_currentHRI <= 60) return 'yellow';
     return 'red';
   }
-
+  
+  // Get HRI status text
   String get hriStatus {
-    if (_currentHRI <= 20) return 'Отличная гидратация';
-    if (_currentHRI <= 40) return 'Хорошая гидратация';
-    if (_currentHRI <= 60) return 'Умеренный риск';
-    if (_currentHRI <= 80) return 'Повышенный риск';
-    return 'Критический риск';
+    if (_currentHRI <= 20) return 'Excellent';
+    if (_currentHRI <= 40) return 'Good';
+    if (_currentHRI <= 60) return 'Moderate';
+    if (_currentHRI <= 80) return 'High Risk';
+    return 'Critical';
   }
-
+  
+  // Get components breakdown (for UI)
+  Map<String, double> getComponentsBreakdown() => Map.from(_components);
+  
+  // ============================================================================
+  // INITIALIZATION
+  // ============================================================================
+  
   HRIService() {
-    _loadHRI();
+    _initialize();
   }
-
-  Future<void> _loadHRI() async {
+  
+  Future<void> _initialize() async {
+    await _loadData();
+    _checkAndResetDaily();
+  }
+  
+  Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
-    _currentHRI = prefs.getDouble(_hriKey) ?? 50.0;
-
+    
+    // Load HRI value
+    _currentHRI = prefs.getDouble(_hriKey) ?? 25.0;
+    
+    // Load last update time
     final lastUpdateMillis = prefs.getInt(_lastUpdateKey);
     if (lastUpdateMillis != null) {
       _lastUpdate = DateTime.fromMillisecondsSinceEpoch(lastUpdateMillis);
     }
-
-    _lastWaterRatio = 0.0;
-    _lastWaterComponent = 40.0;
+    
+    // Load today's workouts
+    final workoutsJson = prefs.getStringList(_workoutsKey) ?? [];
+    _todayWorkouts.clear();
+    for (final json in workoutsJson) {
+      try {
+        final parts = json.split('|');
+        if (parts.length >= 5) {
+          _todayWorkouts.add(Workout(
+            id: parts[0],
+            timestamp: DateTime.parse(parts[1]),
+            type: parts[2],
+            intensity: int.parse(parts[3]),
+            durationMinutes: int.parse(parts[4]),
+          ));
+        }
+      } catch (e) {
+        print('Error loading workout: $e');
+      }
+    }
+    
+    // Load today's caffeine
+    final caffeineJson = prefs.getStringList(_caffeineKey) ?? [];
+    _todayCaffeineIntakes.clear();
+    for (final json in caffeineJson) {
+      try {
+        final parts = json.split('|');
+        if (parts.length >= 4) {
+          _todayCaffeineIntakes.add(CaffeineIntake(
+            id: parts[0],
+            timestamp: DateTime.parse(parts[1]),
+            caffeineMg: double.parse(parts[2]),
+            source: parts[3],
+          ));
+        }
+      } catch (e) {
+        print('Error loading caffeine: $e');
+      }
+    }
+    
+    // Load today's alcohol
+    _todayAlcoholSD = prefs.getDouble(_alcoholKey) ?? 0.0;
+    
+    // Load components
+    final componentsJson = prefs.getString(_componentsKey);
+    if (componentsJson != null) {
+      try {
+        final decoded = Map<String, double>.from(
+          (componentsJson.split(',').fold<Map<String, double>>({}, (map, item) {
+            final parts = item.split(':');
+            if (parts.length == 2) {
+              map[parts[0]] = double.parse(parts[1]);
+            }
+            return map;
+          }))
+        );
+        _components.addAll(decoded);
+      } catch (e) {
+        print('Error loading components: $e');
+      }
+    }
+    
     notifyListeners();
   }
-
-  Future<void> _saveHRI() async {
+  
+  Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();
+    
+    // Save HRI value
     await prefs.setDouble(_hriKey, _currentHRI);
-    await prefs.setInt(_lastUpdateKey, _lastUpdate.millisecondsSinceEpoch);
+    await prefs.setInt(_lastUpdateKey, DateTime.now().millisecondsSinceEpoch);
+    
+    // Save workouts
+    final workoutsJson = _todayWorkouts.map((w) =>
+      '${w.id}|${w.timestamp.toIso8601String()}|${w.type}|${w.intensity}|${w.durationMinutes}'
+    ).toList();
+    await prefs.setStringList(_workoutsKey, workoutsJson);
+    
+    // Save caffeine
+    final caffeineJson = _todayCaffeineIntakes.map((c) =>
+      '${c.id}|${c.timestamp.toIso8601String()}|${c.caffeineMg}|${c.source}'
+    ).toList();
+    await prefs.setStringList(_caffeineKey, caffeineJson);
+    
+    // Save alcohol
+    await prefs.setDouble(_alcoholKey, _todayAlcoholSD);
+    
+    // Save components as simple string
+    final componentsStr = _components.entries
+        .map((e) => '${e.key}:${e.value}')
+        .join(',');
+    await prefs.setString(_componentsKey, componentsStr);
   }
-
-  // ---- вспомогательные кривые ------------------------------------------------------
-
-  double _waterComponentByRatio(double r) {
-    if (r < 0.5) {
-      return 40 * (1 - r * 2);           // 0..0.5 → 40..0
-    } else if (r < 0.8) {
-      return 20 * (1 - (r - 0.5) / 0.3); // 0.5..0.8 → 20..0
-    } else if (r <= 1.2) {
-      return 0;                          // оптимум
-    } else {
-      return min(20, (r - 1.2) * 50);    // перепивание
+  
+  void _checkAndResetDaily() {
+    final now = DateTime.now();
+    if (_lastUpdate.day != now.day || 
+        _lastUpdate.month != now.month || 
+        _lastUpdate.year != now.year) {
+      // New day - reset daily data
+      _todayWorkouts.clear();
+      _todayCaffeineIntakes.clear();
+      _todayAlcoholSD = 0.0;
+      _lastIntakeTime = null;
+      _currentHRI = 25.0; // Reset to baseline
+      _components.updateAll((key, value) => 0.0);
+      _saveData();
     }
   }
-
-  double _sodiumComponentByRatio(double r) {
-    if (r < 0.3) return 20;
-    if (r < 0.7) return 20 * (1 - (r - 0.3) / 0.4);
-    if (r <= 1.3) return 0;
-    return min(10, (r - 1.3) * 20);
+  
+  // ============================================================================
+  // FASTING MODE
+  // ============================================================================
+  
+  void setFastingStatus(bool value) {
+    _isFasting = value;
+    // Could adjust HRI calculation if needed during fasting
   }
-
-  // Монокламп для воды:
-  // - При событии приёма и r выросло (и ≤1.2) — компонент НЕ может вырасти.
-  // - При системном изменении цели (r упало и ≤1.2) — тоже не даём ухудшить компонент рывком.
-  double _clampWaterComponent({
-    required double newComponent,
-    required double newRatio,
-    required bool likelyIntakeEvent,
-  }) {
-    final bool ratioGrew = newRatio >= _lastWaterRatio - 1e-9;
-    final bool ratioDropped = newRatio < _lastWaterRatio - 1e-9;
-
-    if (newRatio <= 1.2) {
-      if (likelyIntakeEvent && ratioGrew) {
-        return min(newComponent, _lastWaterComponent);
-      }
-      if (!likelyIntakeEvent && ratioDropped) {
-        return min(newComponent, _lastWaterComponent);
-      }
-    }
-    return newComponent;
+  
+  // ============================================================================
+  // DATA INPUT METHODS
+  // ============================================================================
+  
+  Future<void> addWorkout({
+    required String type,
+    required int intensity,
+    required int durationMinutes,
+  }) async {
+    final workout = Workout(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      timestamp: DateTime.now(),
+      type: type,
+      intensity: intensity.clamp(1, 5),
+      durationMinutes: durationMinutes,
+    );
+    
+    _todayWorkouts.add(workout);
+    await _recalculateHRI();
   }
-
-  // ------------------------------------------------------------------------------
+  
+  Future<void> addCaffeineIntake(double caffeineMg, {String source = 'coffee'}) async {
+    if (caffeineMg <= 0) return;
+    
+    final intake = CaffeineIntake(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      timestamp: DateTime.now(),
+      caffeineMg: caffeineMg,
+      source: source,
+    );
+    
+    _todayCaffeineIntakes.add(intake);
+    await _recalculateHRI();
+  }
+  
+  // Compatibility method for coffee intake
+  Future<void> addCoffeeIntake(int caffeineMg) async {
+    await addCaffeineIntake(caffeineMg.toDouble(), source: 'coffee');
+  }
+  
+  Future<void> addAlcoholIntake(double standardDrinks) async {
+    _todayAlcoholSD += standardDrinks;
+    await _recalculateHRI();
+  }
+  
+  Future<void> updateMorningCheckIn({
+    required int feeling,
+    double? weightChange,
+    int? urineColor,
+  }) async {
+    _sleepQuality = feeling / 5.0;
+    _morningWeight = weightChange ?? 0.0;
+    _urineColor = urineColor ?? 3;
+    await _recalculateHRI();
+  }
+  
+  // ============================================================================
+  // HRI CALCULATION - MAIN METHOD
+  // ============================================================================
+  
   Future<void> calculateHRI({
     required double waterIntake,
     required double waterGoal,
     required double sodiumIntake,
     required double sodiumGoal,
+    double potassiumIntake = 0,
+    double potassiumGoal = 0,
+    double magnesiumIntake = 0,
+    double magnesiumGoal = 0,
     double? heatIndex,
     int activityLevel = 0,
     int coffeeCups = 0,
@@ -124,175 +396,234 @@ class HRIService extends ChangeNotifier {
     double? morningWeightChange,
     int? urineColorValue,
     double? sleepQualityValue,
+    double? userWeightKg,
   }) async {
-    // 1) Вода
-    _waterIntakeRatio = waterGoal > 0 ? (waterIntake / waterGoal) : 0.0;
-    double waterComponentRaw = _waterComponentByRatio(_waterIntakeRatio);
-
-    final bool likelyIntakeEvent =
-        lastIntakeTime != null || DateTime.now().difference(_lastUpdate).inMinutes <= 2;
-
-    final double waterComponent = _clampWaterComponent(
-      newComponent: waterComponentRaw,
-      newRatio: _waterIntakeRatio,
-      likelyIntakeEvent: likelyIntakeEvent,
-    );
-
-    // 2) Натрий
-    _sodiumRatio = sodiumGoal > 0 ? (sodiumIntake / sodiumGoal) : 0.0;
-    final double sodiumComponent = _sodiumComponentByRatio(_sodiumRatio);
-
-    // 3) Жара (Heat Index)
-    _heatIndexFactor = 0.0;
-    if (heatIndex != null) {
-      if (heatIndex < 27) _heatIndexFactor = 0;
-      else if (heatIndex < 32) _heatIndexFactor = 5;
-      else if (heatIndex < 39) _heatIndexFactor = 10;
-      else _heatIndexFactor = 15;
+    _checkAndResetDaily();
+    
+    // Update alcohol SD if provided (FIXED: always update when provided)
+    if (alcoholSD >= 0) {
+      _todayAlcoholSD = alcoholSD;
     }
-
-    // 4) Активность
-    _activityFactor = activityLevel * 3.5; // как было
-
-    // 5) Кофеин
-    _caffeineFactor = min(8.0, coffeeCups * 2.0);
-
-    // 6) Алкоголь
-    final rc = RemoteConfigService.instance;
-    final alcPerSD = rc.getDouble('alc_hri_risk_per_sd'); // по умолчанию 5.0
-    final alcCap = rc.getDouble('alc_hri_risk_cap');      // по умолчанию 15.0
-    _alcoholFactor = min(alcCap, max(0.0, alcoholSD) * alcPerSD);
-
-    // 7) Время с последнего приёма
-    _timeSinceLastIntake = 0.0;
+    
+    // Update last intake time
     if (lastIntakeTime != null) {
-      final h = DateTime.now().difference(lastIntakeTime).inHours;
-      if (h > 3) _timeSinceLastIntake = min(10.0, (h - 3) * 2.0);
+      _lastIntakeTime = lastIntakeTime;
     }
-
-    // 8) Утро (вес/цвет мочи/сон)
-    double morning = 0.0;
-    if (morningWeightChange != null && morningWeightChange < -2.0) morning += 3;
-    if (urineColorValue != null) {
-      _urineColor = urineColorValue;
-      if (_urineColor >= 6) morning += 4;
-      else if (_urineColor >= 4) morning += 2;
-    }
-    if (sleepQualityValue != null) {
-      _sleepQuality = sleepQualityValue;
-      if (_sleepQuality < 0.5) morning += 3;
-    }
-
-    // Сумма
-    double total = waterComponent +
-        sodiumComponent +
-        _heatIndexFactor +
-        _activityFactor +
-        _caffeineFactor +
-        _alcoholFactor +
-        _timeSinceLastIntake +
-        morning;
-
-    _currentHRI = max(0, min(100, total));
-    _lastUpdate = DateTime.now();
-
-    // запоминаем водную историю для клампа
-    _lastWaterRatio = _waterIntakeRatio;
-    _lastWaterComponent = waterComponent;
-
-    if (kDebugMode) {
-      print('=== HRI Calculation ===');
-      print('Water: $waterComponent (ratio: $_waterIntakeRatio)');
-      print('Sodium: $sodiumComponent (ratio: $_sodiumRatio)');
-      print('Heat: $_heatIndexFactor');
-      print('Activity: $_activityFactor');
-      print('Caffeine: $_caffeineFactor');
-      print('Alcohol: $_alcoholFactor');
-      print('Time: $_timeSinceLastIntake');
-      print('Morning: $morning');
-      print('TOTAL HRI: $_currentHRI');
-      print('===================');
-    }
-
-    await _saveHRI();
-    notifyListeners();
-  }
-
-  // Быстрый апдейт после питья
-  Future<void> quickUpdate({
-    required double waterIntake,
-    required double waterGoal,
-    double? sodiumIntake,   // можно не передавать — возьмём прошлое
-    double? sodiumGoal,     // можно не передавать — возьмём прошлое
-    DateTime? intakeTime,
-  }) async {
-    _waterIntakeRatio = waterGoal > 0 ? (waterIntake / waterGoal) : 0.0;
-    _timeSinceLastIntake = 0.0;
-
-    final raw = _waterComponentByRatio(_waterIntakeRatio);
-    final clamped = _clampWaterComponent(
-      newComponent: raw,
-      newRatio: _waterIntakeRatio,
-      likelyIntakeEvent: true,
-    );
-
-    double sodiumComponent;
-    if (sodiumIntake != null && sodiumGoal != null && sodiumGoal > 0) {
-      _sodiumRatio = sodiumIntake / sodiumGoal;
-      sodiumComponent = _sodiumComponentByRatio(_sodiumRatio);
+    
+    // Update morning data if provided
+    if (morningWeightChange != null) _morningWeight = morningWeightChange;
+    if (urineColorValue != null) _urineColor = urineColorValue;
+    if (sleepQualityValue != null) _sleepQuality = sleepQualityValue;
+    
+    // ========== WATER COMPONENT ==========
+    final waterRatio = waterGoal > 0 ? (waterIntake / waterGoal) : 0.0;
+    _components['water'] = _calculateWaterComponent(waterRatio);
+    
+    // ========== ELECTROLYTE COMPONENTS ==========
+    final sodiumRatio = sodiumGoal > 0 ? (sodiumIntake / sodiumGoal) : 0.0;
+    _components['sodium'] = _calculateElectrolyteComponent(sodiumRatio, maxPoints: 15);
+    
+    final potassiumRatio = potassiumGoal > 0 ? (potassiumIntake / potassiumGoal) : 0.0;
+    _components['potassium'] = _calculateElectrolyteComponent(potassiumRatio, maxPoints: 10);
+    
+    final magnesiumRatio = magnesiumGoal > 0 ? (magnesiumIntake / magnesiumGoal) : 0.0;
+    _components['magnesium'] = _calculateElectrolyteComponent(magnesiumRatio, maxPoints: 10);
+    
+    // ========== HEAT COMPONENT ==========
+    _components['heat'] = 0.0;
+    if (heatIndex != null) {
+      // DEBUG: Log heat index calculation
+      print('=== HEAT COMPONENT DEBUG ===');
+      print('Heat Index received: $heatIndex°C');
+      
+      if (heatIndex >= 39) {
+        _components['heat'] = 15;
+        print('Heat component set to 15 (extreme heat)');
+      } else if (heatIndex >= 32) {
+        _components['heat'] = 10;
+        print('Heat component set to 10 (high heat)');
+      } else if (heatIndex >= 27) {
+        _components['heat'] = 5;
+        print('Heat component set to 5 (moderate heat)');
+      } else {
+        print('Heat component set to 0 (comfortable)');
+      }
+      print('Final heat component: ${_components['heat']}');
+      print('===========================');
     } else {
-      // пересчитаем из текущего _sodiumRatio
-      sodiumComponent = _sodiumComponentByRatio(_sodiumRatio);
+      print('WARNING: Heat Index is null');
     }
-
-    double total = clamped +
-        sodiumComponent +
-        _heatIndexFactor +
-        _activityFactor +
-        _caffeineFactor +
-        _alcoholFactor +
-        _timeSinceLastIntake;
-
-    _currentHRI = max(0, min(100, total));
+    
+    // ========== WORKOUT COMPONENT ==========
+    _components['workouts'] = 0.0;
+    for (final workout in _todayWorkouts) {
+      _components['workouts'] = (_components['workouts']! + workout.getHRIImpact());
+    }
+    _components['workouts'] = min(20.0, _components['workouts']!);
+    
+    // ========== CAFFEINE COMPONENT ==========
+    double totalActiveCaffeine = 0.0;
+    for (final intake in _todayCaffeineIntakes) {
+      totalActiveCaffeine += intake.getActiveCaffeine();
+    }
+    // Add coffee cups if provided
+    if (coffeeCups > 0) {
+      totalActiveCaffeine += coffeeCups * 95.0; // Average caffeine per cup
+    }
+    _components['caffeine'] = min(15.0, (totalActiveCaffeine / 100) * 2);
+    
+    // ========== ALCOHOL COMPONENT ==========
+    final rc = RemoteConfigService.instance;
+    final alcPerSD = rc.getDouble('alc_hri_risk_per_sd');
+    final alcCap = rc.getDouble('alc_hri_risk_cap');
+    
+    // Use the current total SD (FIXED: now properly updated)
+    _components['alcohol'] = min(alcCap, _todayAlcoholSD * alcPerSD);
+    
+    // ========== TIME SINCE INTAKE COMPONENT ==========
+    _components['timeSinceIntake'] = 0.0;
+    if (_lastIntakeTime != null) {
+      final hours = DateTime.now().difference(_lastIntakeTime!).inHours;
+      if (hours > 3) {
+        _components['timeSinceIntake'] = min(10.0, (hours - 3) * 2.0);
+      }
+    }
+    
+    // ========== MORNING CHECK-IN COMPONENT ==========
+    _components['morning'] = 0.0;
+    if (_morningWeight < -2.0) {
+      _components['morning'] = _components['morning']! + 3;
+    }
+    if (_urineColor >= 6) {
+      _components['morning'] = _components['morning']! + 4;
+    } else if (_urineColor >= 4) {
+      _components['morning'] = _components['morning']! + 2;
+    }
+    if (_sleepQuality < 0.5) {
+      _components['morning'] = _components['morning']! + 3;
+    }
+    
+    // ========== CALCULATE TOTAL HRI ==========
+    double total = 0.0;
+    _components.forEach((key, value) {
+      total += value;
+    });
+    
+    _currentHRI = total.clamp(0, 100);
     _lastUpdate = DateTime.now();
-
-    _lastWaterRatio = _waterIntakeRatio;
-    _lastWaterComponent = clamped;
-
+    
+    // Update state tracking
+    _lastWaterRatio = waterRatio;
+    _lastWaterComponent = _components['water']!;
+    
+    // Debug output
     if (kDebugMode) {
-      print('=== HRI Quick Update ===');
-      print('Water ratio: $_waterIntakeRatio');
-      print('Water component: $clamped');
-      print('Total HRI: $_currentHRI');
-      print('=====================');
+      print('=== HRI Calculation Update ===');
+      print('Water: ${_components['water']?.toStringAsFixed(1)} (ratio: ${waterRatio.toStringAsFixed(2)})');
+      print('Sodium: ${_components['sodium']?.toStringAsFixed(1)}');
+      print('Potassium: ${_components['potassium']?.toStringAsFixed(1)}');
+      print('Magnesium: ${_components['magnesium']?.toStringAsFixed(1)}');
+      print('Heat: ${_components['heat']?.toStringAsFixed(1)} (index: ${heatIndex?.toStringAsFixed(1)})');
+      print('Workouts: ${_components['workouts']?.toStringAsFixed(1)} (${_todayWorkouts.length} workouts)');
+      print('Caffeine: ${_components['caffeine']?.toStringAsFixed(1)} (${totalActiveCaffeine.toStringAsFixed(0)}mg active)');
+      print('Alcohol: ${_components['alcohol']?.toStringAsFixed(1)} (${_todayAlcoholSD.toStringAsFixed(1)} SD)');
+      print('Time: ${_components['timeSinceIntake']?.toStringAsFixed(1)}');
+      print('Morning: ${_components['morning']?.toStringAsFixed(1)}');
+      print('TOTAL HRI: ${_currentHRI.toStringAsFixed(1)}');
+      print('==============================');
     }
-
-    await _saveHRI();
+    
+    await _saveData();
     notifyListeners();
   }
-
-  Future<void> updateMorningCheckIn({
-    required int feeling, // 1..5
-    double? weightChange,
-    int? urineColor,
-  }) async {
-    _sleepQuality = feeling / 5.0;
-    _morningWeight = weightChange ?? 0;
-    _urineColor = urineColor ?? 3;
-    notifyListeners();
+  
+  // ============================================================================
+  // COMPONENT CALCULATIONS
+  // ============================================================================
+  
+  double _calculateWaterComponent(double ratio) {
+    if (ratio < 0.5) {
+      // Severely under-hydrated
+      return 40 * (1 - ratio * 2);
+    } else if (ratio < 0.8) {
+      // Mildly under-hydrated
+      return 20 * (1 - (ratio - 0.5) / 0.3);
+    } else if (ratio <= 1.2) {
+      // Normal range
+      return 0;
+    } else {
+      // Over-hydrated
+      return min(20, (ratio - 1.2) * 50);
+    }
   }
-
-  Future<void> resetDaily() async {
-    _currentHRI = 50.0;
-    _alcoholFactor = 0;
-    _caffeineFactor = 0;
-    _activityFactor = 0;
+  
+  double _calculateElectrolyteComponent(double ratio, {double maxPoints = 15}) {
+    if (ratio < 0.3) {
+      // Severely low
+      return maxPoints;
+    } else if (ratio < 0.7) {
+      // Mildly low
+      return maxPoints * (1 - (ratio - 0.3) / 0.4);
+    } else if (ratio <= 1.3) {
+      // Normal range
+      return 0;
+    } else {
+      // Excess
+      return min(maxPoints * 0.5, (ratio - 1.3) * maxPoints);
+    }
+  }
+  
+  // ============================================================================
+  // HELPER METHODS
+  // ============================================================================
+  
+  Future<void> _recalculateHRI() async {
+    // This method is called when we add workouts, caffeine, or alcohol
+    // but don't have full hydration data. We just update those components.
+    
+    // Recalculate workout component
+    _components['workouts'] = 0.0;
+    for (final workout in _todayWorkouts) {
+      _components['workouts'] = (_components['workouts']! + workout.getHRIImpact());
+    }
+    _components['workouts'] = min(20.0, _components['workouts']!);
+    
+    // Recalculate caffeine component
+    double totalActiveCaffeine = 0.0;
+    for (final intake in _todayCaffeineIntakes) {
+      totalActiveCaffeine += intake.getActiveCaffeine();
+    }
+    _components['caffeine'] = min(15.0, (totalActiveCaffeine / 100) * 2);
+    
+    // Recalculate alcohol component
+    final rc = RemoteConfigService.instance;
+    final alcPerSD = rc.getDouble('alc_hri_risk_per_sd');
+    final alcCap = rc.getDouble('alc_hri_risk_cap');
+    _components['alcohol'] = min(alcCap, _todayAlcoholSD * alcPerSD);
+    
+    // Recalculate total
+    double total = 0.0;
+    _components.forEach((key, value) {
+      total += value;
+    });
+    
+    _currentHRI = total.clamp(0, 100);
     _lastUpdate = DateTime.now();
-
-    _lastWaterRatio = 0.0;
-    _lastWaterComponent = 40.0;
-
-    await _saveHRI();
+    
+    await _saveData();
+    notifyListeners();
+  }
+  
+  Future<void> resetDaily() async {
+    _currentHRI = 25.0;
+    _todayWorkouts.clear();
+    _todayCaffeineIntakes.clear();
+    _todayAlcoholSD = 0.0;
+    _lastIntakeTime = null;
+    _components.updateAll((key, value) => 0.0);
+    _lastUpdate = DateTime.now();
+    
+    await _saveData();
     notifyListeners();
   }
 }

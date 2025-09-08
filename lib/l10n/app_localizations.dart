@@ -3525,6 +3525,300 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please enter valid duration'**
   String get enterValidDuration;
+
+  /// No description provided for @sauna.
+  ///
+  /// In en, this message translates to:
+  /// **'Sauna'**
+  String get sauna;
+
+  /// No description provided for @veryHighIntensity.
+  ///
+  /// In en, this message translates to:
+  /// **'Very high intensity'**
+  String get veryHighIntensity;
+
+  /// No description provided for @hriStatusExcellent.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent'**
+  String get hriStatusExcellent;
+
+  /// No description provided for @hriStatusGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get hriStatusGood;
+
+  /// No description provided for @hriStatusModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate Risk'**
+  String get hriStatusModerate;
+
+  /// No description provided for @hriStatusHighRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'High Risk'**
+  String get hriStatusHighRisk;
+
+  /// No description provided for @hriStatusCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical'**
+  String get hriStatusCritical;
+
+  /// No description provided for @hriComponentWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Water balance'**
+  String get hriComponentWater;
+
+  /// No description provided for @hriComponentSodium.
+  ///
+  /// In en, this message translates to:
+  /// **'Sodium level'**
+  String get hriComponentSodium;
+
+  /// No description provided for @hriComponentPotassium.
+  ///
+  /// In en, this message translates to:
+  /// **'Potassium level'**
+  String get hriComponentPotassium;
+
+  /// No description provided for @hriComponentMagnesium.
+  ///
+  /// In en, this message translates to:
+  /// **'Magnesium level'**
+  String get hriComponentMagnesium;
+
+  /// No description provided for @hriComponentHeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Heat stress'**
+  String get hriComponentHeat;
+
+  /// No description provided for @hriComponentWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Physical activity'**
+  String get hriComponentWorkout;
+
+  /// No description provided for @hriComponentCaffeine.
+  ///
+  /// In en, this message translates to:
+  /// **'Caffeine impact'**
+  String get hriComponentCaffeine;
+
+  /// No description provided for @hriComponentAlcohol.
+  ///
+  /// In en, this message translates to:
+  /// **'Alcohol impact'**
+  String get hriComponentAlcohol;
+
+  /// No description provided for @hriComponentTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time since intake'**
+  String get hriComponentTime;
+
+  /// No description provided for @hriComponentMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning factors'**
+  String get hriComponentMorning;
+
+  /// No description provided for @hriBreakdownTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk factors breakdown'**
+  String get hriBreakdownTitle;
+
+  /// No description provided for @hriComponentValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{component}: {value}/{max} pts'**
+  String hriComponentValue(Object component, Object max, Object value);
+
+  /// No description provided for @fastingModeActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Fasting mode active'**
+  String get fastingModeActive;
+
+  /// No description provided for @fastingSuppressionNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Time factor suppressed during fasting'**
+  String get fastingSuppressionNote;
+
+  /// No description provided for @morningCheckInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning Check-in'**
+  String get morningCheckInTitle;
+
+  /// No description provided for @howAreYouFeeling.
+  ///
+  /// In en, this message translates to:
+  /// **'How are you feeling?'**
+  String get howAreYouFeeling;
+
+  /// No description provided for @feelingScale1.
+  ///
+  /// In en, this message translates to:
+  /// **'Poor'**
+  String get feelingScale1;
+
+  /// No description provided for @feelingScale2.
+  ///
+  /// In en, this message translates to:
+  /// **'Below average'**
+  String get feelingScale2;
+
+  /// No description provided for @feelingScale3.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get feelingScale3;
+
+  /// No description provided for @feelingScale4.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get feelingScale4;
+
+  /// No description provided for @feelingScale5.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent'**
+  String get feelingScale5;
+
+  /// No description provided for @weightChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight change from yesterday'**
+  String get weightChange;
+
+  /// No description provided for @urineColorScale.
+  ///
+  /// In en, this message translates to:
+  /// **'Urine color (1-8 scale)'**
+  String get urineColorScale;
+
+  /// No description provided for @urineColor1.
+  ///
+  /// In en, this message translates to:
+  /// **'1 - Very pale'**
+  String get urineColor1;
+
+  /// No description provided for @urineColor2.
+  ///
+  /// In en, this message translates to:
+  /// **'2 - Pale'**
+  String get urineColor2;
+
+  /// No description provided for @urineColor3.
+  ///
+  /// In en, this message translates to:
+  /// **'3 - Light yellow'**
+  String get urineColor3;
+
+  /// No description provided for @urineColor4.
+  ///
+  /// In en, this message translates to:
+  /// **'4 - Yellow'**
+  String get urineColor4;
+
+  /// No description provided for @urineColor5.
+  ///
+  /// In en, this message translates to:
+  /// **'5 - Dark yellow'**
+  String get urineColor5;
+
+  /// No description provided for @urineColor6.
+  ///
+  /// In en, this message translates to:
+  /// **'6 - Amber'**
+  String get urineColor6;
+
+  /// No description provided for @urineColor7.
+  ///
+  /// In en, this message translates to:
+  /// **'7 - Dark amber'**
+  String get urineColor7;
+
+  /// No description provided for @urineColor8.
+  ///
+  /// In en, this message translates to:
+  /// **'8 - Brown'**
+  String get urineColor8;
+
+  /// No description provided for @alcoholWithDecay.
+  ///
+  /// In en, this message translates to:
+  /// **'Alcohol impact (decaying)'**
+  String get alcoholWithDecay;
+
+  /// No description provided for @standardDrinksToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard drinks today: {count}'**
+  String standardDrinksToday(Object count);
+
+  /// No description provided for @activeCaffeineLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Active caffeine: {amount} mg'**
+  String activeCaffeineLevel(Object amount);
+
+  /// No description provided for @hriDebugInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'HRI Debug Info'**
+  String get hriDebugInfo;
+
+  /// No description provided for @hriNormalized.
+  ///
+  /// In en, this message translates to:
+  /// **'HRI (normalized): {value}/100'**
+  String hriNormalized(Object value);
+
+  /// No description provided for @fastingWindowActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Fasting window active'**
+  String get fastingWindowActive;
+
+  /// No description provided for @eatingWindowActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Eating window active'**
+  String get eatingWindowActive;
+
+  /// No description provided for @nextFastingWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'Next fasting: {time}'**
+  String nextFastingWindow(Object time);
+
+  /// No description provided for @nextEatingWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'Next eating: {time}'**
+  String nextEatingWindow(Object time);
+
+  /// Title for today's workouts section
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Workouts'**
+  String get todaysWorkouts;
+
+  /// Hours ago suffix
+  ///
+  /// In en, this message translates to:
+  /// **'h ago'**
+  String get hoursAgo;
 }
 
 class _AppLocalizationsDelegate

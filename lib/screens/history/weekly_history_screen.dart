@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:hydracoach/providers/hydration_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../l10n/app_localizations.dart';
-
-import '../../main.dart';
 import '../../services/alcohol_service.dart';
 
 // Класс для хранения данных за день
@@ -136,7 +135,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     if (isLoadingWeekData) {
       return const Center(child: CircularProgressIndicator());
     }

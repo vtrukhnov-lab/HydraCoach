@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:hydracoach/providers/hydration_provider.dart';
 import '../l10n/app_localizations.dart';
-import '../main.dart';
 import '../services/notification_service.dart' as notif;
 import '../services/subscription_service.dart';
 import '../services/locale_service.dart';
-import '../widgets/pro_badge.dart';
 import '../screens/paywall_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -96,7 +94,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
   
   void _showLanguageDialog() {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final localeService = Provider.of<LocaleService>(context, listen: false);
     
     showDialog(
@@ -137,7 +135,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -872,7 +870,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: !isPro && freq > 4 ? const Text('PRO', style: TextStyle(color: Colors.orange)) : null,
               value: freq,
               groupValue: _reminderFrequency,
-              onChanged: (freq! <= 4 || isPro) ? (value) {
+              onChanged: (freq <= 4 || isPro) ? (value) {
                 setState(() {
                   _reminderFrequency = value!;
                 });
