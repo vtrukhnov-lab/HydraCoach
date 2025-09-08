@@ -2045,4 +2045,94 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get hoursAgo => 'h atrás';
+
+  @override
+  String get onboardingWelcomeTitle =>
+      'HydraCoach — hidratación inteligente cada día';
+
+  @override
+  String get onboardingWelcomeSubtitle =>
+      'Bebe de forma más inteligente, no más\nLa app considera el clima, electrolitos y tus hábitos\nAyuda a mantener mente clara y energía estable';
+
+  @override
+  String get onboardingBullet1 =>
+      'Norma personal de agua y sales según el clima y tú';
+
+  @override
+  String get onboardingBullet2 =>
+      'Consejos de «qué hacer ahora» en lugar de gráficos vacíos';
+
+  @override
+  String get onboardingBullet3 =>
+      'Alcohol en dosis estándar con límites seguros';
+
+  @override
+  String get onboardingBullet4 => 'Recordatorios inteligentes sin spam';
+
+  @override
+  String get onboardingStartButton => 'Comenzar';
+
+  @override
+  String get onboardingHaveAccount => 'Ya tengo una cuenta';
+
+  @override
+  String get onboardingPracticeFasting => 'Practico ayuno intermitente';
+
+  @override
+  String get onboardingPracticeFastingDesc =>
+      'Régimen especial de electrolitos para ventanas de ayuno';
+
+  @override
+  String get onboardingProfileReady => '¡Perfil listo!';
+
+  @override
+  String get onboardingWaterNorm => 'Norma de agua';
+
+  @override
+  String get onboardingIonWillHelp =>
+      'ION te ayudará a mantener el equilibrio cada día';
+
+  @override
+  String get onboardingContinue => 'Continuar';
+
+  @override
+  String get onboardingLocationTitle => 'El clima importa para la hidratación';
+
+  @override
+  String get onboardingLocationSubtitle =>
+      'Consideraremos el clima y la humedad. Es más preciso que solo una fórmula por peso';
+
+  @override
+  String get onboardingWeatherExample => '¡Hoy hace calor! +15% de agua';
+
+  @override
+  String get onboardingWeatherExampleDesc => '+500 mg de sodio por el calor';
+
+  @override
+  String get onboardingEnablePermission => 'Activar';
+
+  @override
+  String get onboardingEnableLater => 'Activar más tarde';
+
+  @override
+  String get onboardingNotificationTitle => 'Recordatorios inteligentes';
+
+  @override
+  String get onboardingNotificationSubtitle =>
+      'Consejos breves en el momento justo. Puedes cambiar la frecuencia con un toque';
+
+  @override
+  String get onboardingNotifExample1 => 'Hora de hidratarse';
+
+  @override
+  String get onboardingNotifExample2 => 'No olvides los electrolitos';
+
+  @override
+  String get onboardingNotifExample3 => '¡Calor! Bebe más agua';
+
+  @override
+  String get sportRecoveryProtocols => 'Protocolos de recuperación deportiva';
+
+  @override
+  String get allDrinksAndSupplements => 'Todas las bebidas y suplementos';
 }

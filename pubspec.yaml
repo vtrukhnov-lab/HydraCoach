@@ -3,7 +3,7 @@ description: "Smart hydration tracking with electrolyte balance"
 publish_to: 'none'
 
 # Версия приложения: 0.6.0 (рефактор алкоголя и фаворитов) + номер сборки 11
-version: 0.6.1+11
+version: 0.6.2+12
 
 environment:
   sdk: ^3.9.0
@@ -37,7 +37,7 @@ dependencies:
   # Разрешения и уведомления
   flutter_local_notifications: ^19.4.1
   geolocator: ^14.0.2
-  permission_handler: ^12.0.1
+  permission_handler: ^11.0.1
   
   # 🔥 FIREBASE - основные сервисы
   firebase_core: ^3.15.0

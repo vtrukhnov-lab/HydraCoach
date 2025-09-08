@@ -1160,5 +1160,138 @@
 "hoursAgo": "h ago",
 "@hoursAgo": {
   "description": "Hours ago suffix"
+},
+ "onboardingWelcomeTitle": "HydraCoach — smart hydration every day",
+  "@onboardingWelcomeTitle": {
+    "description": "Main welcome title with ION"
+  },
+  
+  "onboardingWelcomeSubtitle": "Drink smarter, not more\nThe app accounts for weather, electrolytes and your habits\nHelps maintain clear mind and stable energy",
+  "@onboardingWelcomeSubtitle": {
+    "description": "Welcome subtitle"
+  },
+  
+  "onboardingBullet1": "Personal water and salt norm based on weather and you",
+  "@onboardingBullet1": {
+    "description": "First benefit bullet"
+  },
+  
+  "onboardingBullet2": "\"What to do now\" tips instead of raw charts",
+  "@onboardingBullet2": {
+    "description": "Second benefit bullet"
+  },
+  
+  "onboardingBullet3": "Alcohol in standard doses with safe limits",
+  "@onboardingBullet3": {
+    "description": "Third benefit bullet"
+  },
+  
+  "onboardingBullet4": "Smart reminders without spam",
+  "@onboardingBullet4": {
+    "description": "Fourth benefit bullet"
+  },
+  
+  "onboardingStartButton": "Start",
+  "@onboardingStartButton": {
+    "description": "Main start button on welcome screen"
+  },
+  
+  "onboardingHaveAccount": "I already have an account",
+  "@onboardingHaveAccount": {
+    "description": "Link for existing users"
+  },
+  
+  "onboardingPracticeFasting": "I practice intermittent fasting",
+  "@onboardingPracticeFasting": {
+    "description": "Fasting checkbox title"
+  },
+  
+  "onboardingPracticeFastingDesc": "Special electrolyte regime for fasting windows",
+  "@onboardingPracticeFastingDesc": {
+    "description": "Fasting checkbox description"
+  },
+  
+  "onboardingProfileReady": "Profile ready!",
+  "@onboardingProfileReady": {
+    "description": "Completion screen title"
+  },
+  
+  "onboardingWaterNorm": "Water norm",
+  "@onboardingWaterNorm": {
+    "description": "Water norm label in summary"
+  },
+  
+  "onboardingIonWillHelp": "ION will help maintain balance every day",
+  "@onboardingIonWillHelp": {
+    "description": "ION helper text on completion"
+  },
+  
+  "onboardingContinue": "Continue",
+  "@onboardingContinue": {
+    "description": "Continue button text"
+  },
+  
+  "onboardingLocationTitle": "Weather matters for hydration",
+  "@onboardingLocationTitle": {
+    "description": "Location permission title"
+  },
+  
+  "onboardingLocationSubtitle": "We'll account for weather and humidity. This is more accurate than just a formula by weight",
+  "@onboardingLocationSubtitle": {
+    "description": "Location permission subtitle"
+  },
+  
+  "onboardingWeatherExample": "Hot today! +15% water",
+  "@onboardingWeatherExample": {
+    "description": "Weather example title"
+  },
+  
+  "onboardingWeatherExampleDesc": "+500 mg sodium for heat",
+  "@onboardingWeatherExampleDesc": {
+    "description": "Weather example description"
+  },
+  
+  "onboardingEnablePermission": "Enable",
+  "@onboardingEnablePermission": {
+    "description": "Enable permission button"
+  },
+  
+  "onboardingEnableLater": "Enable later",
+  "@onboardingEnableLater": {
+    "description": "Skip permission button"
+  },
+  
+  "onboardingNotificationTitle": "Smart reminders",
+  "@onboardingNotificationTitle": {
+    "description": "Notification permission title"
+  },
+  
+  "onboardingNotificationSubtitle": "Short tips at the right moment. You can change frequency in one tap",
+  "@onboardingNotificationSubtitle": {
+    "description": "Notification permission subtitle"
+  },
+  
+  "onboardingNotifExample1": "Time to hydrate",
+  "@onboardingNotifExample1": {
+    "description": "First notification example"
+  },
+  
+  "onboardingNotifExample2": "Don't forget electrolytes",
+  "@onboardingNotifExample2": {
+    "description": "Second notification example"
+  },
+  
+  "onboardingNotifExample3": "Hot! Drink more water",
+  "@onboardingNotifExample3": {
+    "description": "Third notification example"
+  },
+  "sportRecoveryProtocols": "Sport recovery protocols",
+"@sportRecoveryProtocols": {
+  "description": "PRO feature - sport recovery protocols"
+},
+
+"allDrinksAndSupplements": "All drinks & supplements",
+"@allDrinksAndSupplements": {
+  "description": "PRO feature - expanded drinks and supplements catalog"
 }
 }

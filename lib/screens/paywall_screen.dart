@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:hydracoach/l10n/app_localizations.dart';
 import '../services/remote_config_service.dart';
 import '../services/subscription_service.dart';
+import '../widgets/ion_character.dart';
 
 enum Plan { lifetime, annual, monthly }
 
@@ -111,40 +112,64 @@ class _PaywallScreenState extends State<PaywallScreen> {
             children: [
               Column(
                 children: [
-                  // Header / Illustration (без большого заголовка)
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 150,
-                            height: 150,
-                            decoration: BoxDecoration(
-                              color: isDark ? Colors.cyan.withValues(alpha: .08) : Colors.cyan.shade50,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Center(child: Text('💧', style: TextStyle(fontSize: 80))),
-                          ).animate().scale(),
-                          const SizedBox(height: 12),
-                          Text(
-                            l10n.trustedByUsers, // "⭐️ 4.9 — trusted by 12,000 users"
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isDark ? Colors.white70 : Colors.grey.shade600,
+                  // Header with Ion and benefits
+                  Container(
+                    height: 240,
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      children: [
+                        // Ion Character on the left
+                        Expanded(
+                          flex: 2,
+                          child: Center(
+                            child: const IonCharacter(
+                              size: 120,
+                              mood: IonMood.proud,
+                              showGlow: true,
+                            ).animate()
+                              .scale(duration: 600.ms, curve: Curves.elasticOut)
+                              .then()
+                              .shimmer(duration: 2000.ms, color: const Color(0xFF8AF5A3).withOpacity(0.2)),
+                          ),
+                        ),
+                        // Benefits on the right
+                        Expanded(
+                          flex: 3,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 20),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.unlockPro,
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark ? Colors.white : const Color(0xFF2D3436),
+                                  ),
+                                ).animate().fadeIn(delay: 300.ms),
+                                const SizedBox(height: 12),
+                                _buildQuickBenefit(Icons.sports_score, l10n.sportRecoveryProtocols, isDark),
+                                const SizedBox(height: 6),
+                                _buildQuickBenefit(Icons.local_bar, l10n.alcoholProtocols, isDark),
+                                const SizedBox(height: 6),
+                                _buildQuickBenefit(Icons.local_drink, l10n.allDrinksAndSupplements, isDark),
+                                const SizedBox(height: 6),
+                                _buildQuickBenefit(Icons.show_chart, l10n.weeklyReports, isDark),
+                                const SizedBox(height: 6),
+                                _buildQuickBenefit(Icons.notifications_active, l10n.smartReminders, isDark),
+                              ].animate(interval: 100.ms).fadeIn(),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
 
                   // Pricing & CTA
                   Expanded(
-                    flex: 3,
                     child: Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
@@ -167,8 +192,6 @@ class _PaywallScreenState extends State<PaywallScreen> {
                             const SizedBox(height: 8),
                             _buildAutoRenewNote(isDark, l10n),
                             const SizedBox(height: 24),
-                            _buildFeatures(isDark, l10n),
-                            const SizedBox(height: 16),
                             _buildPoliciesAndRestore(isDark, l10n),
                             const SizedBox(height: 8),
                           ],
@@ -189,7 +212,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     icon: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: (isDark ? Colors.white12 : Colors.white.withValues(alpha: .9)),
+                        color: (isDark ? Colors.white12 : Colors.white.withOpacity(0.9)),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.close, size: 20, color: isDark ? Colors.white : const Color(0xFF2D3436)),
@@ -200,6 +223,30 @@ class _PaywallScreenState extends State<PaywallScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildQuickBenefit(IconData icon, String text, bool isDark) {
+    return Row(
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: Colors.cyan.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Icon(icon, size: 14, color: Colors.cyan),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 13,
+            color: isDark ? Colors.white70 : Colors.grey.shade700,
+          ),
+        ),
+      ],
     );
   }
 
@@ -279,8 +326,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: (isDark ? Colors.cyanAccent.withValues(alpha: .08)
-                                   : Colors.cyan.withValues(alpha: .15)),
+                    color: (isDark ? Colors.cyanAccent.withOpacity(0.08)
+                                   : Colors.cyan.withOpacity(0.15)),
                     blurRadius: 20,
                     offset: const Offset(0, 6),
                   ),
@@ -375,7 +422,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: [BoxShadow(color: Colors.pink.withValues(alpha: .3), blurRadius: 8, offset: const Offset(0, 2))],
+                    boxShadow: [BoxShadow(color: Colors.pink.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 2))],
                   ),
                   child: Text(
                     original != null
@@ -433,7 +480,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
           decoration: BoxDecoration(
             color: Colors.cyan,
             borderRadius: BorderRadius.circular(30),
-            boxShadow: [BoxShadow(color: Colors.cyan.withValues(alpha: .3), blurRadius: 20, offset: const Offset(0, 10))],
+            boxShadow: [BoxShadow(color: Colors.cyan.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))],
           ),
           child: Center(
             child: _isLoading
@@ -478,8 +525,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l10n.everythingInPro, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: baseColor)),
-        const SizedBox(height: 14),
+        const SizedBox(height: 8),
         ...visible.map((f) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
@@ -489,7 +535,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 Container(
                   width: 36,
                   height: 36,
-                  decoration: BoxDecoration(color: Colors.cyan.withValues(alpha: .12), borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(color: Colors.cyan.withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
                   child: Icon(f['icon'] as IconData, color: Colors.cyan.shade600, size: 20),
                 ),
                 const SizedBox(width: 12),

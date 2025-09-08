@@ -2034,4 +2034,93 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get hoursAgo => 'ч назад';
+
+  @override
+  String get onboardingWelcomeTitle =>
+      'HydraCoach — умная гидратация каждый день';
+
+  @override
+  String get onboardingWelcomeSubtitle =>
+      'Пей умнее, а не больше\nПриложение учитывает погоду, электролиты и твои привычки\nПомогает держать ясную голову и стабильную энергию';
+
+  @override
+  String get onboardingBullet1 =>
+      'Индивидуальная норма воды и солей по погоде и тебе';
+
+  @override
+  String get onboardingBullet2 =>
+      'Подсказки «что делать сейчас» вместо голых графиков';
+
+  @override
+  String get onboardingBullet3 =>
+      'Алкоголь в стандартных дозах с безопасными лимитами';
+
+  @override
+  String get onboardingBullet4 => 'Умные напоминания без спама';
+
+  @override
+  String get onboardingStartButton => 'Начать';
+
+  @override
+  String get onboardingHaveAccount => 'У меня уже есть аккаунт';
+
+  @override
+  String get onboardingPracticeFasting => 'Я практикую интервальное голодание';
+
+  @override
+  String get onboardingPracticeFastingDesc =>
+      'Особый режим электролитов для окон поста';
+
+  @override
+  String get onboardingProfileReady => 'Профиль готов!';
+
+  @override
+  String get onboardingWaterNorm => 'Норма воды';
+
+  @override
+  String get onboardingIonWillHelp => 'ION поможет держать баланс каждый день';
+
+  @override
+  String get onboardingContinue => 'Продолжить';
+
+  @override
+  String get onboardingLocationTitle => 'Погода важна для гидратации';
+
+  @override
+  String get onboardingLocationSubtitle =>
+      'Учтём погоду и влажность. Это точнее чем просто формула по весу';
+
+  @override
+  String get onboardingWeatherExample => 'Сегодня жарко! +15% воды';
+
+  @override
+  String get onboardingWeatherExampleDesc => '+500 мг натрия на жару';
+
+  @override
+  String get onboardingEnablePermission => 'Включить';
+
+  @override
+  String get onboardingEnableLater => 'Включить позже';
+
+  @override
+  String get onboardingNotificationTitle => 'Умные напоминания';
+
+  @override
+  String get onboardingNotificationSubtitle =>
+      'Короткие подсказки в нужный момент. Можно менять частоту в один тап';
+
+  @override
+  String get onboardingNotifExample1 => 'Время пить воду';
+
+  @override
+  String get onboardingNotifExample2 => 'Не забудь электролиты';
+
+  @override
+  String get onboardingNotifExample3 => 'Жарко! Пей больше воды';
+
+  @override
+  String get sportRecoveryProtocols => 'Протоколы восстановления после спорта';
+
+  @override
+  String get allDrinksAndSupplements => 'Все напитки и добавки';
 }

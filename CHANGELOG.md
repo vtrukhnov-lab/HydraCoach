@@ -14,6 +14,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dark theme support
 - Home screen widgets
 
+## [0.6.2] - 2025-09-08
+- Добавлен Ion-персонаж в paywall вместо капли воды
+- Увеличены размеры Ion-персонажа в onboarding (60->120, 120->140)
+- Исправлен overflow на первом экране onboarding
+- Добавлены кнопки 'Назад' на экранах диеты и профиля
+- Убрана кнопка 'У меня есть аккаунт' с первого экрана
+- Расширен список бенефитов в paywall (5 пунктов)
+- Добавлены новые локализации: sportRecoveryProtocols, allDrinksAndSupplements
+- Обновлен ползунок веса: 50-200 кг, начальное значение 80 кг
+- Улучшен экран уведомлений с 6 примерами функций"
+
 ## [0.6.1] - 2025-09-08
 
 ### Architecture

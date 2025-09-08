@@ -30,7 +30,7 @@ import 'services/alcohol_service.dart';
 import 'services/hri_service.dart';
 import 'services/locale_service.dart';
 
-// Providers - теперь в отдельном файле
+// Providers
 import 'providers/hydration_provider.dart';
 
 // Background message handler
@@ -60,42 +60,18 @@ void main() async {
   await RemoteConfigService.instance.initialize();
   await SubscriptionService.instance.initialize();
   
-  // Setup Firebase Messaging
+  // Setup Firebase Messaging background handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   
-  final messaging = FirebaseMessaging.instance;
-  await messaging.requestPermission(
-    alert: true,
-    announcement: false,
-    badge: true,
-    carPlay: false,
-    criticalAlert: false,
-    provisional: false,
-    sound: true,
-  );
+  // НЕ запрашиваем разрешения здесь!
+  // Только базовая инициализация для получения токена позже
+  final prefs = await SharedPreferences.getInstance();
+  final onboardingCompleted = prefs.getBool('onboardingCompleted') ?? false;
   
-  final fcmToken = await messaging.getToken();
-  print('FCM Token: $fcmToken');
-  
-  await notif.NotificationService.initialize();
-  
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-    print('Got a message whilst in the foreground!');
-    print('Message data: ${message.data}');
-    
-    if (message.notification != null) {
-      await notif.NotificationService().showNotification(
-        id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        title: message.notification?.title ?? 'HydraCoach',
-        body: message.notification?.body ?? '',
-        payload: message.data.toString(),
-      );
-    }
-  });
-  
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    print('A new onMessageOpenedApp event was published!');
-  });
+  // Инициализируем уведомления только если онбординг пройден
+  if (onboardingCompleted) {
+    await _initializeNotifications();
+  }
   
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -115,6 +91,65 @@ void main() async {
       child: const MyApp(),
     ),
   );
+}
+
+// Вынесем инициализацию уведомлений в отдельную функцию
+Future<void> _initializeNotifications() async {
+  final messaging = FirebaseMessaging.instance;
+  
+  // Проверяем, есть ли уже разрешение
+  final settings = await messaging.getNotificationSettings();
+  
+  if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+      settings.authorizationStatus == AuthorizationStatus.provisional) {
+    // Если разрешение уже есть, инициализируем
+    final fcmToken = await messaging.getToken();
+    print('FCM Token: $fcmToken');
+    
+    await notif.NotificationService.initialize();
+    
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      print('Got a message whilst in the foreground!');
+      print('Message data: ${message.data}');
+      
+      if (message.notification != null) {
+        await notif.NotificationService().showNotification(
+          id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          title: message.notification?.title ?? 'HydraCoach',
+          body: message.notification?.body ?? '',
+          payload: message.data.toString(),
+        );
+      }
+    });
+    
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('A new onMessageOpenedApp event was published!');
+    });
+  }
+}
+
+// Публичная функция для инициализации уведомлений из онбординга
+Future<bool> initializeNotificationsFromOnboarding() async {
+  final messaging = FirebaseMessaging.instance;
+  
+  // Запрашиваем разрешение
+  final settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+  
+  if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+      settings.authorizationStatus == AuthorizationStatus.provisional) {
+    await _initializeNotifications();
+    return true;
+  }
+  
+  return false;
 }
 
 class MyApp extends StatelessWidget {

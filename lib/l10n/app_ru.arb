@@ -1088,5 +1088,39 @@
   "nextFastingWindow": "Следующий пост: {time}",
   "nextEatingWindow": "Следующий приём пищи: {time}",
   "todaysWorkouts": "Тренировки сегодня",
-"hoursAgo": "ч назад"
+"hoursAgo": "ч назад",
+"onboardingWelcomeTitle": "HydraCoach — умная гидратация каждый день",
+"onboardingWelcomeSubtitle": "Пей умнее, а не больше\nПриложение учитывает погоду, электролиты и твои привычки\nПомогает держать ясную голову и стабильную энергию",
+"onboardingBullet1": "Индивидуальная норма воды и солей по погоде и тебе",
+"onboardingBullet2": "Подсказки «что делать сейчас» вместо голых графиков",
+"onboardingBullet3": "Алкоголь в стандартных дозах с безопасными лимитами",
+"onboardingBullet4": "Умные напоминания без спама",
+"onboardingStartButton": "Начать",
+"onboardingHaveAccount": "У меня уже есть аккаунт",
+"onboardingPracticeFasting": "Я практикую интервальное голодание",
+"onboardingPracticeFastingDesc": "Особый режим электролитов для окон поста",
+"onboardingProfileReady": "Профиль готов!",
+"onboardingWaterNorm": "Норма воды",
+"onboardingIonWillHelp": "ION поможет держать баланс каждый день",
+"onboardingContinue": "Продолжить",
+"onboardingLocationTitle": "Погода важна для гидратации",
+"onboardingLocationSubtitle": "Учтём погоду и влажность. Это точнее чем просто формула по весу",
+"onboardingWeatherExample": "Сегодня жарко! +15% воды",
+"onboardingWeatherExampleDesc": "+500 мг натрия на жару",
+"onboardingEnablePermission": "Включить",
+"onboardingEnableLater": "Включить позже",
+"onboardingNotificationTitle": "Умные напоминания",
+"onboardingNotificationSubtitle": "Короткие подсказки в нужный момент. Можно менять частоту в один тап",
+"onboardingNotifExample1": "Время пить воду",
+"onboardingNotifExample2": "Не забудь электролиты",
+"onboardingNotifExample3": "Жарко! Пей больше воды",
+"sportRecoveryProtocols": "Протоколы восстановления после спорта",
+"@sportRecoveryProtocols": {
+  "description": "PRO функция - протоколы восстановления после спорта"
+},
+
+"allDrinksAndSupplements": "Все напитки и добавки",
+"@allDrinksAndSupplements": {
+  "description": "PRO функция - расширенный каталог напитков и добавок"
+}
 }

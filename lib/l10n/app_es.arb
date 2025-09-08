@@ -1090,5 +1090,39 @@
   "nextFastingWindow": "Próximo ayuno: {time}",
   "nextEatingWindow": "Próxima comida: {time}",
   "todaysWorkouts": "Entrenamientos de hoy",
-"hoursAgo": "h atrás"
+"hoursAgo": "h atrás",
+"onboardingWelcomeTitle": "HydraCoach — hidratación inteligente cada día",
+"onboardingWelcomeSubtitle": "Bebe de forma más inteligente, no más\nLa app considera el clima, electrolitos y tus hábitos\nAyuda a mantener mente clara y energía estable",
+"onboardingBullet1": "Norma personal de agua y sales según el clima y tú",
+"onboardingBullet2": "Consejos de «qué hacer ahora» en lugar de gráficos vacíos",
+"onboardingBullet3": "Alcohol en dosis estándar con límites seguros",
+"onboardingBullet4": "Recordatorios inteligentes sin spam",
+"onboardingStartButton": "Comenzar",
+"onboardingHaveAccount": "Ya tengo una cuenta",
+"onboardingPracticeFasting": "Practico ayuno intermitente",
+"onboardingPracticeFastingDesc": "Régimen especial de electrolitos para ventanas de ayuno",
+"onboardingProfileReady": "¡Perfil listo!",
+"onboardingWaterNorm": "Norma de agua",
+"onboardingIonWillHelp": "ION te ayudará a mantener el equilibrio cada día",
+"onboardingContinue": "Continuar",
+"onboardingLocationTitle": "El clima importa para la hidratación",
+"onboardingLocationSubtitle": "Consideraremos el clima y la humedad. Es más preciso que solo una fórmula por peso",
+"onboardingWeatherExample": "¡Hoy hace calor! +15% de agua",
+"onboardingWeatherExampleDesc": "+500 mg de sodio por el calor",
+"onboardingEnablePermission": "Activar",
+"onboardingEnableLater": "Activar más tarde",
+"onboardingNotificationTitle": "Recordatorios inteligentes",
+"onboardingNotificationSubtitle": "Consejos breves en el momento justo. Puedes cambiar la frecuencia con un toque",
+"onboardingNotifExample1": "Hora de hidratarse",
+"onboardingNotifExample2": "No olvides los electrolitos",
+"onboardingNotifExample3": "¡Calor! Bebe más agua",
+"sportRecoveryProtocols": "Protocolos de recuperación deportiva",
+"@sportRecoveryProtocols": {
+  "description": "Función PRO - protocolos de recuperación deportiva"
+},
+
+"allDrinksAndSupplements": "Todas las bebidas y suplementos",
+"@allDrinksAndSupplements": {
+  "description": "Función PRO - catálogo ampliado de bebidas y suplementos"
+}
 }

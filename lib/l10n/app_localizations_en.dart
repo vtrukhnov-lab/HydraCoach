@@ -2030,4 +2030,92 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hoursAgo => 'h ago';
+
+  @override
+  String get onboardingWelcomeTitle => 'HydraCoach — smart hydration every day';
+
+  @override
+  String get onboardingWelcomeSubtitle =>
+      'Drink smarter, not more\nThe app accounts for weather, electrolytes and your habits\nHelps maintain clear mind and stable energy';
+
+  @override
+  String get onboardingBullet1 =>
+      'Personal water and salt norm based on weather and you';
+
+  @override
+  String get onboardingBullet2 =>
+      '\"What to do now\" tips instead of raw charts';
+
+  @override
+  String get onboardingBullet3 => 'Alcohol in standard doses with safe limits';
+
+  @override
+  String get onboardingBullet4 => 'Smart reminders without spam';
+
+  @override
+  String get onboardingStartButton => 'Start';
+
+  @override
+  String get onboardingHaveAccount => 'I already have an account';
+
+  @override
+  String get onboardingPracticeFasting => 'I practice intermittent fasting';
+
+  @override
+  String get onboardingPracticeFastingDesc =>
+      'Special electrolyte regime for fasting windows';
+
+  @override
+  String get onboardingProfileReady => 'Profile ready!';
+
+  @override
+  String get onboardingWaterNorm => 'Water norm';
+
+  @override
+  String get onboardingIonWillHelp =>
+      'ION will help maintain balance every day';
+
+  @override
+  String get onboardingContinue => 'Continue';
+
+  @override
+  String get onboardingLocationTitle => 'Weather matters for hydration';
+
+  @override
+  String get onboardingLocationSubtitle =>
+      'We\'ll account for weather and humidity. This is more accurate than just a formula by weight';
+
+  @override
+  String get onboardingWeatherExample => 'Hot today! +15% water';
+
+  @override
+  String get onboardingWeatherExampleDesc => '+500 mg sodium for heat';
+
+  @override
+  String get onboardingEnablePermission => 'Enable';
+
+  @override
+  String get onboardingEnableLater => 'Enable later';
+
+  @override
+  String get onboardingNotificationTitle => 'Smart reminders';
+
+  @override
+  String get onboardingNotificationSubtitle =>
+      'Short tips at the right moment. You can change frequency in one tap';
+
+  @override
+  String get onboardingNotifExample1 => 'Time to hydrate';
+
+  @override
+  String get onboardingNotifExample2 => 'Don\'t forget electrolytes';
+
+  @override
+  String get onboardingNotifExample3 => 'Hot! Drink more water';
+
+  @override
+  String get sportRecoveryProtocols => 'Sport recovery protocols';
+
+  @override
+  String get allDrinksAndSupplements => 'All drinks & supplements';
 }

@@ -3819,6 +3819,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'h ago'**
   String get hoursAgo;
+
+  /// Main welcome title with ION
+  ///
+  /// In en, this message translates to:
+  /// **'HydraCoach — smart hydration every day'**
+  String get onboardingWelcomeTitle;
+
+  /// Welcome subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Drink smarter, not more\nThe app accounts for weather, electrolytes and your habits\nHelps maintain clear mind and stable energy'**
+  String get onboardingWelcomeSubtitle;
+
+  /// First benefit bullet
+  ///
+  /// In en, this message translates to:
+  /// **'Personal water and salt norm based on weather and you'**
+  String get onboardingBullet1;
+
+  /// Second benefit bullet
+  ///
+  /// In en, this message translates to:
+  /// **'\"What to do now\" tips instead of raw charts'**
+  String get onboardingBullet2;
+
+  /// Third benefit bullet
+  ///
+  /// In en, this message translates to:
+  /// **'Alcohol in standard doses with safe limits'**
+  String get onboardingBullet3;
+
+  /// Fourth benefit bullet
+  ///
+  /// In en, this message translates to:
+  /// **'Smart reminders without spam'**
+  String get onboardingBullet4;
+
+  /// Main start button on welcome screen
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get onboardingStartButton;
+
+  /// Link for existing users
+  ///
+  /// In en, this message translates to:
+  /// **'I already have an account'**
+  String get onboardingHaveAccount;
+
+  /// Fasting checkbox title
+  ///
+  /// In en, this message translates to:
+  /// **'I practice intermittent fasting'**
+  String get onboardingPracticeFasting;
+
+  /// Fasting checkbox description
+  ///
+  /// In en, this message translates to:
+  /// **'Special electrolyte regime for fasting windows'**
+  String get onboardingPracticeFastingDesc;
+
+  /// Completion screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Profile ready!'**
+  String get onboardingProfileReady;
+
+  /// Water norm label in summary
+  ///
+  /// In en, this message translates to:
+  /// **'Water norm'**
+  String get onboardingWaterNorm;
+
+  /// ION helper text on completion
+  ///
+  /// In en, this message translates to:
+  /// **'ION will help maintain balance every day'**
+  String get onboardingIonWillHelp;
+
+  /// Continue button text
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get onboardingContinue;
+
+  /// Location permission title
+  ///
+  /// In en, this message translates to:
+  /// **'Weather matters for hydration'**
+  String get onboardingLocationTitle;
+
+  /// Location permission subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll account for weather and humidity. This is more accurate than just a formula by weight'**
+  String get onboardingLocationSubtitle;
+
+  /// Weather example title
+  ///
+  /// In en, this message translates to:
+  /// **'Hot today! +15% water'**
+  String get onboardingWeatherExample;
+
+  /// Weather example description
+  ///
+  /// In en, this message translates to:
+  /// **'+500 mg sodium for heat'**
+  String get onboardingWeatherExampleDesc;
+
+  /// Enable permission button
+  ///
+  /// In en, this message translates to:
+  /// **'Enable'**
+  String get onboardingEnablePermission;
+
+  /// Skip permission button
+  ///
+  /// In en, this message translates to:
+  /// **'Enable later'**
+  String get onboardingEnableLater;
+
+  /// Notification permission title
+  ///
+  /// In en, this message translates to:
+  /// **'Smart reminders'**
+  String get onboardingNotificationTitle;
+
+  /// Notification permission subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Short tips at the right moment. You can change frequency in one tap'**
+  String get onboardingNotificationSubtitle;
+
+  /// First notification example
+  ///
+  /// In en, this message translates to:
+  /// **'Time to hydrate'**
+  String get onboardingNotifExample1;
+
+  /// Second notification example
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t forget electrolytes'**
+  String get onboardingNotifExample2;
+
+  /// Third notification example
+  ///
+  /// In en, this message translates to:
+  /// **'Hot! Drink more water'**
+  String get onboardingNotifExample3;
+
+  /// PRO feature - sport recovery protocols
+  ///
+  /// In en, this message translates to:
+  /// **'Sport recovery protocols'**
+  String get sportRecoveryProtocols;
+
+  /// PRO feature - expanded drinks and supplements catalog
+  ///
+  /// In en, this message translates to:
+  /// **'All drinks & supplements'**
+  String get allDrinksAndSupplements;
 }
 
 class _AppLocalizationsDelegate
