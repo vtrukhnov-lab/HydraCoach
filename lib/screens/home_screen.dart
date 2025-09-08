@@ -28,6 +28,7 @@ import 'paywall_screen.dart';
 
 // Widgets
 import '../widgets/quick_add_widget.dart';
+import '../widgets/ion_character.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -273,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   child: _buildMainProgressCard(provider, l10n),
                 ),
 
-                // Smart Advice Card
+                // Smart Advice Card with Ion
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: kCardPadding),
@@ -669,7 +670,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   // ============================================================================
-  // UI BUILDERS - SMART ADVICE
+  // UI BUILDERS - SMART ADVICE WITH ION
   // ============================================================================
   
   Widget _buildSmartAdviceCard(
@@ -683,23 +684,32 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     
     return Container(
       margin: const EdgeInsets.only(top: 8, bottom: 12),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: advice['tone'] as Color,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: advice['border'] as Color),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(
-            advice['icon'] as IconData,
-            color: advice['border'] as Color,
+          // Ion персонаж - увеличенный размер
+          SizedBox(
+            width: 65,
+            height: 65,
+            child: IonCharacter(
+              size: 55,
+              mood: advice['ionMood'] as IonMood,
+              showGlow: false,
+              showElectrolytes: false,
+              hydrationLevel: advice['ionHydrationLevel'] as HydrationLevel,
+            ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   advice['title'] as String,
@@ -709,12 +719,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     color: advice['border'] as Color,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
                   advice['body'] as String,
                   style: TextStyle(
                     fontSize: 13.5,
                     color: Colors.grey[800],
+                    height: 1.3,
                   ),
                 ),
               ],
@@ -747,6 +758,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         'tone': const Color(0xFFFFEBEE),
         'border': Colors.red.shade300,
         'icon': Icons.error_outline,
+        'ionMood': IonMood.worried,
+        'ionHydrationLevel': HydrationLevel.high,
       };
     }
 
@@ -758,6 +771,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         'tone': Colors.orange.shade50,
         'border': Colors.orange.shade300,
         'icon': Icons.warning_amber_outlined,
+        'ionMood': IonMood.thinking,
+        'ionHydrationLevel': HydrationLevel.high,
       };
     }
 
@@ -769,6 +784,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         'tone': Colors.orange.shade50,
         'border': Colors.orange.shade300,
         'icon': Icons.local_bar,
+        'ionMood': IonMood.worried,
+        'ionHydrationLevel': HydrationLevel.low,
       };
     }
 
@@ -782,6 +799,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         'tone': Colors.amber.shade50,
         'border': Colors.amber.shade300,
         'icon': Icons.science_outlined,
+        'ionMood': IonMood.thinking,
+        'ionHydrationLevel': HydrationLevel.normal,
       };
     }
 
@@ -793,6 +812,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         'tone': Colors.blue.shade50,
         'border': Colors.blue.shade300,
         'icon': Icons.local_drink_outlined,
+        'ionMood': IonMood.worried,
+        'ionHydrationLevel': HydrationLevel.low,
       };
     }
 
@@ -804,6 +825,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         'tone': const Color(0xFFFFF3E0),
         'border': Colors.deepOrange.shade300,
         'icon': Icons.priority_high_rounded,
+        'ionMood': IonMood.worried,
+        'ionHydrationLevel': HydrationLevel.low,
       };
     }
 
@@ -816,6 +839,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       'tone': Colors.green.shade50,
       'border': Colors.green.shade300,
       'icon': Icons.check_circle_outline,
+      'ionMood': IonMood.happy,
+      'ionHydrationLevel': HydrationLevel.perfect,
     };
   }
 
