@@ -3981,6 +3981,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All drinks & supplements'**
   String get allDrinksAndSupplements;
+
+  /// Default notification channel name
+  ///
+  /// In en, this message translates to:
+  /// **'Hydration Reminders'**
+  String get notificationChannelDefault;
+
+  /// Default notification channel description
+  ///
+  /// In en, this message translates to:
+  /// **'Water and electrolyte reminders'**
+  String get notificationChannelDefaultDesc;
+
+  /// Urgent notification channel name
+  ///
+  /// In en, this message translates to:
+  /// **'Important Notifications'**
+  String get notificationChannelUrgent;
+
+  /// Urgent notification channel description
+  ///
+  /// In en, this message translates to:
+  /// **'Heat warnings and critical hydration alerts'**
+  String get notificationChannelUrgentDesc;
+
+  /// Report notification channel name
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get notificationChannelReport;
+
+  /// Report notification channel description
+  ///
+  /// In en, this message translates to:
+  /// **'Daily and weekly reports'**
+  String get notificationChannelReportDesc;
+
+  /// No description provided for @notificationWaterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'💧 Time to hydrate'**
+  String get notificationWaterTitle;
+
+  /// No description provided for @notificationWaterBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t forget to drink water'**
+  String get notificationWaterBody;
+
+  /// No description provided for @notificationPostCoffeeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'☕ After coffee'**
+  String get notificationPostCoffeeTitle;
+
+  /// No description provided for @notificationPostCoffeeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink 250-300 ml water to restore balance'**
+  String get notificationPostCoffeeBody;
+
+  /// No description provided for @notificationDailyReportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'📊 Daily report ready'**
+  String get notificationDailyReportTitle;
+
+  /// No description provided for @notificationDailyReportBody.
+  ///
+  /// In en, this message translates to:
+  /// **'See how your hydration day went'**
+  String get notificationDailyReportBody;
+
+  /// No description provided for @notificationAlcoholCounterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'🍺 Recovery time'**
+  String get notificationAlcoholCounterTitle;
+
+  /// No description provided for @notificationAlcoholCounterBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink {ml} ml water with a pinch of salt'**
+  String notificationAlcoholCounterBody(int ml);
+
+  /// No description provided for @notificationHeatWarningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'🌡️ Heat warning'**
+  String get notificationHeatWarningTitle;
+
+  /// No description provided for @notificationHeatWarningExtremeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Extreme heat! +15% water and +1g salt'**
+  String get notificationHeatWarningExtremeBody;
+
+  /// No description provided for @notificationHeatWarningHotBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Hot! +10% water and electrolytes'**
+  String get notificationHeatWarningHotBody;
+
+  /// No description provided for @notificationHeatWarningWarmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm. Monitor your hydration'**
+  String get notificationHeatWarningWarmBody;
+
+  /// No description provided for @notificationWorkoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'💪 Workout'**
+  String get notificationWorkoutTitle;
+
+  /// No description provided for @notificationWorkoutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t forget water and electrolytes'**
+  String get notificationWorkoutBody;
+
+  /// No description provided for @notificationPostWorkoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'💪 After workout'**
+  String get notificationPostWorkoutTitle;
+
+  /// No description provided for @notificationPostWorkoutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'500 ml water + electrolytes for recovery'**
+  String get notificationPostWorkoutBody;
+
+  /// No description provided for @notificationFastingElectrolyteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'⚡ Electrolyte time'**
+  String get notificationFastingElectrolyteTitle;
+
+  /// No description provided for @notificationFastingElectrolyteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a pinch of salt to water or drink broth'**
+  String get notificationFastingElectrolyteBody;
+
+  /// No description provided for @notificationAlcoholRecoveryStepTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'💧 Recovery {hours}h'**
+  String notificationAlcoholRecoveryStepTitle(int hours);
+
+  /// No description provided for @notificationAlcoholRecoveryStepBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink {ml} ml water'**
+  String notificationAlcoholRecoveryStepBody(int ml);
+
+  /// No description provided for @notificationAlcoholRecoveryMidBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add electrolytes: Na/K/Mg'**
+  String get notificationAlcoholRecoveryMidBody;
+
+  /// No description provided for @notificationAlcoholRecoveryFinalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow morning - control check-in'**
+  String get notificationAlcoholRecoveryFinalBody;
+
+  /// No description provided for @notificationMorningCheckInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'☀️ Morning check-in'**
+  String get notificationMorningCheckInTitle;
+
+  /// No description provided for @notificationMorningCheckInBody.
+  ///
+  /// In en, this message translates to:
+  /// **'How are you feeling? Rate your condition and get a plan for the day'**
+  String get notificationMorningCheckInBody;
+
+  /// No description provided for @notificationMorningWaterBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Start your day with a glass of water'**
+  String get notificationMorningWaterBody;
+
+  /// No description provided for @notificationLowProgressBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve drunk only {percent}% of the norm. Time to catch up!'**
+  String notificationLowProgressBody(int percent);
+
+  /// No description provided for @notificationGoodProgressBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent progress! Keep going'**
+  String get notificationGoodProgressBody;
+
+  /// No description provided for @notificationMaintainBalanceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintain water balance'**
+  String get notificationMaintainBalanceBody;
+
+  /// No description provided for @notificationTestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'🧪 Test notification'**
+  String get notificationTestTitle;
+
+  /// No description provided for @notificationTestBody.
+  ///
+  /// In en, this message translates to:
+  /// **'If you see this - notifications work!'**
+  String get notificationTestBody;
+
+  /// No description provided for @notificationTestScheduledTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'⏰ Scheduled test'**
+  String get notificationTestScheduledTitle;
+
+  /// No description provided for @notificationTestScheduledBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This notification was scheduled 1 minute ago'**
+  String get notificationTestScheduledBody;
 }
 
 class _AppLocalizationsDelegate

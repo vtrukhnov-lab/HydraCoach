@@ -1293,5 +1293,110 @@
 "allDrinksAndSupplements": "All drinks & supplements",
 "@allDrinksAndSupplements": {
   "description": "PRO feature - expanded drinks and supplements catalog"
-}
+},
+"notificationChannelDefault": "Hydration Reminders",
+  "@notificationChannelDefault": {
+    "description": "Default notification channel name"
+  },
+  
+  "notificationChannelDefaultDesc": "Water and electrolyte reminders",
+  "@notificationChannelDefaultDesc": {
+    "description": "Default notification channel description"
+  },
+  
+  "notificationChannelUrgent": "Important Notifications",
+  "@notificationChannelUrgent": {
+    "description": "Urgent notification channel name"
+  },
+  
+  "notificationChannelUrgentDesc": "Heat warnings and critical hydration alerts",
+  "@notificationChannelUrgentDesc": {
+    "description": "Urgent notification channel description"
+  },
+  
+  "notificationChannelReport": "Reports",
+  "@notificationChannelReport": {
+    "description": "Report notification channel name"
+  },
+  
+  "notificationChannelReportDesc": "Daily and weekly reports",
+  "@notificationChannelReportDesc": {
+    "description": "Report notification channel description"
+  },
+  
+  "notificationWaterTitle": "💧 Time to hydrate",
+  "notificationWaterBody": "Don't forget to drink water",
+  
+  "notificationPostCoffeeTitle": "☕ After coffee",
+  "notificationPostCoffeeBody": "Drink 250-300 ml water to restore balance",
+  
+  "notificationDailyReportTitle": "📊 Daily report ready",
+  "notificationDailyReportBody": "See how your hydration day went",
+  
+  "notificationAlcoholCounterTitle": "🍺 Recovery time",
+  "notificationAlcoholCounterBody": "Drink {ml} ml water with a pinch of salt",
+  "@notificationAlcoholCounterBody": {
+    "placeholders": {
+      "ml": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "notificationHeatWarningTitle": "🌡️ Heat warning",
+  "notificationHeatWarningExtremeBody": "Extreme heat! +15% water and +1g salt",
+  "notificationHeatWarningHotBody": "Hot! +10% water and electrolytes",
+  "notificationHeatWarningWarmBody": "Warm. Monitor your hydration",
+  
+  "notificationWorkoutTitle": "💪 Workout",
+  "notificationWorkoutBody": "Don't forget water and electrolytes",
+  "notificationPostWorkoutTitle": "💪 After workout",
+  "notificationPostWorkoutBody": "500 ml water + electrolytes for recovery",
+  
+  "notificationFastingElectrolyteTitle": "⚡ Electrolyte time",
+  "notificationFastingElectrolyteBody": "Add a pinch of salt to water or drink broth",
+  
+  "notificationAlcoholRecoveryStepTitle": "💧 Recovery {hours}h",
+  "@notificationAlcoholRecoveryStepTitle": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "notificationAlcoholRecoveryStepBody": "Drink {ml} ml water",
+  "@notificationAlcoholRecoveryStepBody": {
+    "placeholders": {
+      "ml": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "notificationAlcoholRecoveryMidBody": "Add electrolytes: Na/K/Mg",
+  "notificationAlcoholRecoveryFinalBody": "Tomorrow morning - control check-in",
+  
+  "notificationMorningCheckInTitle": "☀️ Morning check-in",
+  "notificationMorningCheckInBody": "How are you feeling? Rate your condition and get a plan for the day",
+  
+  "notificationMorningWaterBody": "Start your day with a glass of water",
+  
+  "notificationLowProgressBody": "You've drunk only {percent}% of the norm. Time to catch up!",
+  "@notificationLowProgressBody": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "notificationGoodProgressBody": "Excellent progress! Keep going",
+  "notificationMaintainBalanceBody": "Maintain water balance",
+  
+  "notificationTestTitle": "🧪 Test notification",
+  "notificationTestBody": "If you see this - notifications work!",
+  "notificationTestScheduledTitle": "⏰ Scheduled test",
+  "notificationTestScheduledBody": "This notification was scheduled 1 minute ago"
+
 }

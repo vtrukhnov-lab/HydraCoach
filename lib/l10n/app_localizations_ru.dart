@@ -2123,4 +2123,138 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get allDrinksAndSupplements => 'Все напитки и добавки';
+
+  @override
+  String get notificationChannelDefault => 'Напоминания о гидратации';
+
+  @override
+  String get notificationChannelDefaultDesc =>
+      'Напоминания о воде и электролитах';
+
+  @override
+  String get notificationChannelUrgent => 'Важные уведомления';
+
+  @override
+  String get notificationChannelUrgentDesc =>
+      'Предупреждения о жаре и критических состояниях';
+
+  @override
+  String get notificationChannelReport => 'Отчеты';
+
+  @override
+  String get notificationChannelReportDesc => 'Дневные и недельные отчеты';
+
+  @override
+  String get notificationWaterTitle => '💧 Время гидратации';
+
+  @override
+  String get notificationWaterBody => 'Не забудьте выпить воды';
+
+  @override
+  String get notificationPostCoffeeTitle => '☕ После кофе';
+
+  @override
+  String get notificationPostCoffeeBody =>
+      'Выпейте 250-300 мл воды для восстановления баланса';
+
+  @override
+  String get notificationDailyReportTitle => '📊 Дневной отчет готов';
+
+  @override
+  String get notificationDailyReportBody =>
+      'Посмотрите, как прошел ваш день гидратации';
+
+  @override
+  String get notificationAlcoholCounterTitle => '🍺 Время восстановления';
+
+  @override
+  String notificationAlcoholCounterBody(int ml) {
+    return 'Выпейте $ml мл воды с щепоткой соли';
+  }
+
+  @override
+  String get notificationHeatWarningTitle => '🌡️ Предупреждение о жаре';
+
+  @override
+  String get notificationHeatWarningExtremeBody =>
+      'Экстремальная жара! +15% воды и +1г соли';
+
+  @override
+  String get notificationHeatWarningHotBody => 'Жарко! +10% воды и электролиты';
+
+  @override
+  String get notificationHeatWarningWarmBody => 'Тепло. Следите за гидратацией';
+
+  @override
+  String get notificationWorkoutTitle => '💪 Тренировка';
+
+  @override
+  String get notificationWorkoutBody => 'Не забудьте воду и электролиты';
+
+  @override
+  String get notificationPostWorkoutTitle => '💪 После тренировки';
+
+  @override
+  String get notificationPostWorkoutBody =>
+      '500 мл воды + электролиты для восстановления';
+
+  @override
+  String get notificationFastingElectrolyteTitle => '⚡ Время электролитов';
+
+  @override
+  String get notificationFastingElectrolyteBody =>
+      'Добавьте щепотку соли в воду или выпейте бульон';
+
+  @override
+  String notificationAlcoholRecoveryStepTitle(int hours) {
+    return '💧 Восстановление $hoursч';
+  }
+
+  @override
+  String notificationAlcoholRecoveryStepBody(int ml) {
+    return 'Выпейте $ml мл воды';
+  }
+
+  @override
+  String get notificationAlcoholRecoveryMidBody =>
+      'Добавьте электролиты: Na/K/Mg';
+
+  @override
+  String get notificationAlcoholRecoveryFinalBody =>
+      'Завтра утром - контрольный чек-ин';
+
+  @override
+  String get notificationMorningCheckInTitle => '☀️ Утренний чек-ин';
+
+  @override
+  String get notificationMorningCheckInBody =>
+      'Как самочувствие? Оцените состояние и получите план на день';
+
+  @override
+  String get notificationMorningWaterBody => 'Начните день со стакана воды';
+
+  @override
+  String notificationLowProgressBody(int percent) {
+    return 'Вы выпили только $percent% нормы. Время наверстать!';
+  }
+
+  @override
+  String get notificationGoodProgressBody => 'Отличный прогресс! Продолжайте';
+
+  @override
+  String get notificationMaintainBalanceBody => 'Поддерживайте водный баланс';
+
+  @override
+  String get notificationTestTitle => '🧪 Тест уведомления';
+
+  @override
+  String get notificationTestBody =>
+      'Если вы видите это - уведомления работают!';
+
+  @override
+  String get notificationTestScheduledTitle => '⏰ Запланированный тест';
+
+  @override
+  String get notificationTestScheduledBody =>
+      'Это уведомление было запланировано минуту назад';
 }

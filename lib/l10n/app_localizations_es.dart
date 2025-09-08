@@ -2135,4 +2135,140 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get allDrinksAndSupplements => 'Todas las bebidas y suplementos';
+
+  @override
+  String get notificationChannelDefault => 'Recordatorios de hidratación';
+
+  @override
+  String get notificationChannelDefaultDesc =>
+      'Recordatorios de agua y electrolitos';
+
+  @override
+  String get notificationChannelUrgent => 'Notificaciones importantes';
+
+  @override
+  String get notificationChannelUrgentDesc =>
+      'Alertas de calor y estados críticos';
+
+  @override
+  String get notificationChannelReport => 'Informes';
+
+  @override
+  String get notificationChannelReportDesc => 'Informes diarios y semanales';
+
+  @override
+  String get notificationWaterTitle => '💧 Hora de hidratarse';
+
+  @override
+  String get notificationWaterBody => 'No olvides beber agua';
+
+  @override
+  String get notificationPostCoffeeTitle => '☕ Después del café';
+
+  @override
+  String get notificationPostCoffeeBody =>
+      'Bebe 250-300 ml de agua para restaurar el equilibrio';
+
+  @override
+  String get notificationDailyReportTitle => '📊 Informe diario listo';
+
+  @override
+  String get notificationDailyReportBody => 'Ve cómo fue tu día de hidratación';
+
+  @override
+  String get notificationAlcoholCounterTitle => '🍺 Tiempo de recuperación';
+
+  @override
+  String notificationAlcoholCounterBody(int ml) {
+    return 'Bebe $ml ml de agua con una pizca de sal';
+  }
+
+  @override
+  String get notificationHeatWarningTitle => '🌡️ Alerta de calor';
+
+  @override
+  String get notificationHeatWarningExtremeBody =>
+      '¡Calor extremo! +15% agua y +1g sal';
+
+  @override
+  String get notificationHeatWarningHotBody =>
+      '¡Calor! +10% agua y electrolitos';
+
+  @override
+  String get notificationHeatWarningWarmBody =>
+      'Cálido. Monitorea tu hidratación';
+
+  @override
+  String get notificationWorkoutTitle => '💪 Entrenamiento';
+
+  @override
+  String get notificationWorkoutBody => 'No olvides agua y electrolitos';
+
+  @override
+  String get notificationPostWorkoutTitle => '💪 Después del entrenamiento';
+
+  @override
+  String get notificationPostWorkoutBody =>
+      '500 ml agua + electrolitos para recuperación';
+
+  @override
+  String get notificationFastingElectrolyteTitle => '⚡ Hora de electrolitos';
+
+  @override
+  String get notificationFastingElectrolyteBody =>
+      'Agrega una pizca de sal al agua o bebe caldo';
+
+  @override
+  String notificationAlcoholRecoveryStepTitle(int hours) {
+    return '💧 Recuperación ${hours}h';
+  }
+
+  @override
+  String notificationAlcoholRecoveryStepBody(int ml) {
+    return 'Bebe $ml ml de agua';
+  }
+
+  @override
+  String get notificationAlcoholRecoveryMidBody =>
+      'Agrega electrolitos: Na/K/Mg';
+
+  @override
+  String get notificationAlcoholRecoveryFinalBody =>
+      'Mañana por la mañana - chequeo de control';
+
+  @override
+  String get notificationMorningCheckInTitle => '☀️ Chequeo matutino';
+
+  @override
+  String get notificationMorningCheckInBody =>
+      '¿Cómo te sientes? Evalúa tu estado y obtén un plan para el día';
+
+  @override
+  String get notificationMorningWaterBody =>
+      'Comienza tu día con un vaso de agua';
+
+  @override
+  String notificationLowProgressBody(int percent) {
+    return 'Solo has bebido $percent% de la norma. ¡Es hora de ponerse al día!';
+  }
+
+  @override
+  String get notificationGoodProgressBody => '¡Excelente progreso! Continúa';
+
+  @override
+  String get notificationMaintainBalanceBody => 'Mantén el equilibrio hídrico';
+
+  @override
+  String get notificationTestTitle => '🧪 Notificación de prueba';
+
+  @override
+  String get notificationTestBody =>
+      'Si ves esto, ¡las notificaciones funcionan!';
+
+  @override
+  String get notificationTestScheduledTitle => '⏰ Prueba programada';
+
+  @override
+  String get notificationTestScheduledBody =>
+      'Esta notificación fue programada hace un minuto';
 }

@@ -367,14 +367,13 @@ class HydrationProvider extends ChangeNotifier {
     
     // Schedule post-coffee reminder if it's coffee
     if (type == 'coffee') {
-      notif.NotificationService().schedulePostCoffeeReminder().then((success) {
-        print('Post-coffee reminder scheduled: $success');
-      });
-      
-      // Log coffee to HRI (approximately 80mg caffeine per cup)
-      logCoffeeIntake(80);
-    }
+    // Просто вызываем без обработки результата
+    notif.NotificationService().schedulePostCoffeeReminder();
+  
+    // Log coffee to HRI (approximately 80mg caffeine per cup)
+    logCoffeeIntake(80);
   }
+}
   
   void removeIntake(String id) {
     todayIntakes.removeWhere((intake) => intake.id == id);

@@ -49,49 +49,59 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
   
-  Future<void> _loadNotificationStats() async {
-    final stats = await notif.NotificationService().getNotificationStats();
-    setState(() {
-      _notificationStats = stats;
-    });
+Future<void> _loadNotificationStats() async {
+  // Получаем статистику напрямую из SharedPreferences
+  final prefs = await SharedPreferences.getInstance();
+  final isPro = prefs.getBool('is_pro') ?? false;
+  final todayCount = prefs.getInt('notification_count_today') ?? 0;
+  
+  setState(() {
+    _notificationStats = {
+      'is_pro': isPro,
+      'today_count': todayCount,
+      'daily_limit': isPro ? -1 : 4,
+      'remaining_today': isPro ? -1 : (4 - todayCount),
+    };
+  });
+}
+
+Future<void> _saveSettings() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setBool('notificationsEnabled', _notificationsEnabled);
+  await prefs.setBool('postCoffeeReminders', _postCoffeeReminders);
+  await prefs.setBool('heatWarnings', _heatWarnings);
+  await prefs.setBool('postAlcoholReminder', _postAlcoholReminders);
+  await prefs.setString('units', _units);
+  await prefs.setString('morningTime', _morningTime);
+  await prefs.setString('eveningTime', _eveningTime);
+  await prefs.setInt('reminderFrequency', _reminderFrequency);
+  
+  // Сохраняем настройки для использования новым сервисом
+  await prefs.setBool('remindersEnabled', _notificationsEnabled);
+  await prefs.setString('quiet_hours_start', _eveningTime);
+  await prefs.setString('quiet_hours_end', _morningTime);
+  await prefs.setBool('quiet_hours_enabled', _notificationsEnabled);
+  
+  // Перепланируем уведомления если включены
+  if (_notificationsEnabled) {
+    await notif.NotificationService().scheduleSmartReminders();
+  } else {
+    await notif.NotificationService().cancelAllNotifications();
   }
   
-  Future<void> _saveSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('notificationsEnabled', _notificationsEnabled);
-    await prefs.setBool('postCoffeeReminders', _postCoffeeReminders);
-    await prefs.setBool('heatWarnings', _heatWarnings);
-    await prefs.setBool('postAlcoholReminder', _postAlcoholReminders);
-    await prefs.setString('units', _units);
-    await prefs.setString('morningTime', _morningTime);
-    await prefs.setString('eveningTime', _eveningTime);
-    await prefs.setInt('reminderFrequency', _reminderFrequency);
-    
-    await notif.NotificationService().saveSettings(
-      notif.ReminderSettings(
-        enabled: _notificationsEnabled,
-        frequency: _reminderFrequency,
-        morningTime: _morningTime,
-        eveningTime: _eveningTime,
-        postCoffee: _postCoffeeReminders,
-        heatWarnings: _heatWarnings,
-        postAlcohol: _postAlcoholReminders,
-      ),
-    );
-    
-    await _loadNotificationStats();
-  }
-  
-  void _showPaywall() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const PaywallScreen(showCloseButton: true),
-        fullscreenDialog: true,
-      ),
-    ).then((_) {
-      _loadNotificationStats();
-    });
-  }
+  await _loadNotificationStats();
+}
+
+void _showPaywall() {
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (context) => const PaywallScreen(showCloseButton: true),
+      fullscreenDialog: true,
+    ),
+  ).then((_) {
+    _loadNotificationStats();
+  });
+}
   
   void _showLanguageDialog() {
     final l10n = AppLocalizations.of(context);

@@ -22,7 +22,8 @@ import 'screens/electrolytes_screen.dart';
 import 'screens/supplements_screen.dart';
 import 'screens/hot_drinks_screen.dart';
 import 'screens/sports_screen.dart';
-import 'services/notification_service.dart' as notif;
+// ИЗМЕНЕНО: Используем новый сервис уведомлений
+import 'services/notification_service.dart';
 import 'services/subscription_service.dart';
 import 'services/remote_config_service.dart';
 import 'services/weather_service.dart';
@@ -106,25 +107,11 @@ Future<void> _initializeNotifications() async {
     final fcmToken = await messaging.getToken();
     print('FCM Token: $fcmToken');
     
-    await notif.NotificationService.initialize();
+    // ИЗМЕНЕНО: Используем новый сервис
+    await NotificationService.initialize();
     
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      print('Got a message whilst in the foreground!');
-      print('Message data: ${message.data}');
-      
-      if (message.notification != null) {
-        await notif.NotificationService().showNotification(
-          id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-          title: message.notification?.title ?? 'HydraCoach',
-          body: message.notification?.body ?? '',
-          payload: message.data.toString(),
-        );
-      }
-    });
-    
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('A new onMessageOpenedApp event was published!');
-    });
+    // FCM сообщения теперь обрабатываются внутри сервиса
+    // Дополнительная обработка не требуется
   }
 }
 
@@ -146,6 +133,10 @@ Future<bool> initializeNotificationsFromOnboarding() async {
   if (settings.authorizationStatus == AuthorizationStatus.authorized ||
       settings.authorizationStatus == AuthorizationStatus.provisional) {
     await _initializeNotifications();
+    
+    // ИЗМЕНЕНО: Планируем умные напоминания на день
+    await NotificationService().scheduleSmartReminders();
+    
     return true;
   }
   

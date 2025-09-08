@@ -1124,5 +1124,55 @@
 "allDrinksAndSupplements": "Todas las bebidas y suplementos",
 "@allDrinksAndSupplements": {
   "description": "Función PRO - catálogo ampliado de bebidas y suplementos"
-}
+},
+"notificationChannelDefault": "Recordatorios de hidratación",
+  "notificationChannelDefaultDesc": "Recordatorios de agua y electrolitos",
+  "notificationChannelUrgent": "Notificaciones importantes",
+  "notificationChannelUrgentDesc": "Alertas de calor y estados críticos",
+  "notificationChannelReport": "Informes",
+  "notificationChannelReportDesc": "Informes diarios y semanales",
+  
+  "notificationWaterTitle": "💧 Hora de hidratarse",
+  "notificationWaterBody": "No olvides beber agua",
+  
+  "notificationPostCoffeeTitle": "☕ Después del café",
+  "notificationPostCoffeeBody": "Bebe 250-300 ml de agua para restaurar el equilibrio",
+  
+  "notificationDailyReportTitle": "📊 Informe diario listo",
+  "notificationDailyReportBody": "Ve cómo fue tu día de hidratación",
+  
+  "notificationAlcoholCounterTitle": "🍺 Tiempo de recuperación",
+  "notificationAlcoholCounterBody": "Bebe {ml} ml de agua con una pizca de sal",
+  
+  "notificationHeatWarningTitle": "🌡️ Alerta de calor",
+  "notificationHeatWarningExtremeBody": "¡Calor extremo! +15% agua y +1g sal",
+  "notificationHeatWarningHotBody": "¡Calor! +10% agua y electrolitos",
+  "notificationHeatWarningWarmBody": "Cálido. Monitorea tu hidratación",
+  
+  "notificationWorkoutTitle": "💪 Entrenamiento",
+  "notificationWorkoutBody": "No olvides agua y electrolitos",
+  "notificationPostWorkoutTitle": "💪 Después del entrenamiento",
+  "notificationPostWorkoutBody": "500 ml agua + electrolitos para recuperación",
+  
+  "notificationFastingElectrolyteTitle": "⚡ Hora de electrolitos",
+  "notificationFastingElectrolyteBody": "Agrega una pizca de sal al agua o bebe caldo",
+  
+  "notificationAlcoholRecoveryStepTitle": "💧 Recuperación {hours}h",
+  "notificationAlcoholRecoveryStepBody": "Bebe {ml} ml de agua",
+  "notificationAlcoholRecoveryMidBody": "Agrega electrolitos: Na/K/Mg",
+  "notificationAlcoholRecoveryFinalBody": "Mañana por la mañana - chequeo de control",
+  
+  "notificationMorningCheckInTitle": "☀️ Chequeo matutino",
+  "notificationMorningCheckInBody": "¿Cómo te sientes? Evalúa tu estado y obtén un plan para el día",
+  
+  "notificationMorningWaterBody": "Comienza tu día con un vaso de agua",
+  "notificationLowProgressBody": "Solo has bebido {percent}% de la norma. ¡Es hora de ponerse al día!",
+  "notificationGoodProgressBody": "¡Excelente progreso! Continúa",
+  "notificationMaintainBalanceBody": "Mantén el equilibrio hídrico",
+  
+  "notificationTestTitle": "🧪 Notificación de prueba",
+  "notificationTestBody": "Si ves esto, ¡las notificaciones funcionan!",
+  "notificationTestScheduledTitle": "⏰ Prueba programada",
+  "notificationTestScheduledBody": "Esta notificación fue programada hace un minuto"
+
 }
