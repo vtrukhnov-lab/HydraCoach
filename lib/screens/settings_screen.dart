@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'; // Для kDebugMode
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -27,6 +28,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _reminderFrequency = 4;
   
   Map<String, dynamic> _notificationStats = {};
+  
+  // Debug: для отслеживания статуса тестовых уведомлений
+  bool _testNotificationScheduled = false;
   
   @override
   void initState() {
@@ -102,6 +106,299 @@ void _showPaywall() {
     _loadNotificationStats();
   });
 }
+
+// DEBUG: Методы для тестирования
+Future<void> _sendTestNotification() async {
+  try {
+    await notif.NotificationService().sendTestNotification();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('✅ Test notification sent!'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+}
+
+Future<void> _scheduleTestNotification() async {
+  try {
+    await notif.NotificationService().scheduleTestIn1Minute();
+    setState(() {
+      _testNotificationScheduled = true;
+    });
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('⏰ Notification scheduled for 1 minute from now'),
+          backgroundColor: Colors.blue,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+    // Reset flag after 2 minutes
+    Future.delayed(const Duration(minutes: 2), () {
+      if (mounted) {
+        setState(() {
+          _testNotificationScheduled = false;
+        });
+      }
+    });
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+}
+
+Future<void> _showNotificationStatus() async {
+  await notif.NotificationService().printNotificationStatus();
+  
+  final pending = await notif.NotificationService().getPendingNotifications();
+  
+  if (mounted) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('📋 Notification Status'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Pending: ${pending.length} notifications'),
+              const SizedBox(height: 8),
+              Text('PRO Status: ${_notificationStats['is_pro'] ? 'Yes' : 'No'}'),
+              Text('Sent Today: ${_notificationStats['today_count']}'),
+              if (!_notificationStats['is_pro'])
+                Text('Daily Limit: 4'),
+              const Divider(),
+              const Text('Scheduled:', style: TextStyle(fontWeight: FontWeight.bold)),
+              if (pending.isEmpty)
+                const Text('No pending notifications')
+              else
+                ...pending.take(5).map((n) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('• ${n.title}', style: const TextStyle(fontWeight: FontWeight.w500)),
+                      Text('  ${n.body}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    ],
+                  ),
+                )),
+              if (pending.length > 5)
+                Text('\n...and ${pending.length - 5} more'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Future<void> _cancelAllNotifications() async {
+  await notif.NotificationService().cancelAllNotifications();
+  if (mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('🗑️ All notifications cancelled'),
+        backgroundColor: Colors.orange,
+      ),
+    );
+  }
+}
+
+Future<void> _toggleProStatus() async {
+  final prefs = await SharedPreferences.getInstance();
+  final currentStatus = _notificationStats['is_pro'] == true;
+  final newStatus = !currentStatus;
+  
+  await prefs.setBool('is_pro', newStatus);
+  await _loadNotificationStats();
+  
+  if (mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(newStatus ? '⭐ PRO status enabled' : '🆓 FREE status set'),
+        backgroundColor: newStatus ? Colors.green : Colors.orange,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+}
+
+// DEBUG: Widget для тестового раздела
+Widget _buildDebugSection() {
+  if (!kDebugMode) return const SizedBox.shrink();
+  
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _buildSectionTitle('🧪 DEBUG TESTING'),
+      Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.purple.shade50,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.purple.shade200, width: 2),
+        ),
+        child: Column(
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.bug_report, color: Colors.purple, size: 24),
+                SizedBox(width: 8),
+                Text(
+                  'Testing Features',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.purple,
+                  ),
+                ),
+              ],
+            ),
+            const Divider(height: 16),
+            
+            // Test Notification Button
+            ListTile(
+              leading: const Icon(Icons.notifications_active, color: Colors.purple),
+              title: const Text('Send Test Notification'),
+              subtitle: const Text('Sends immediately'),
+              trailing: const Icon(Icons.send),
+              onTap: _sendTestNotification,
+            ),
+            
+            const Divider(height: 1),
+            
+            // Schedule Test Button
+            ListTile(
+              leading: const Icon(Icons.schedule, color: Colors.purple),
+              title: const Text('Schedule Test (1 min)'),
+              subtitle: Text(_testNotificationScheduled 
+                ? 'Scheduled ⏰' 
+                : 'Will arrive in 1 minute'),
+              trailing: Icon(
+                _testNotificationScheduled ? Icons.check_circle : Icons.timer,
+                color: _testNotificationScheduled ? Colors.green : null,
+              ),
+              onTap: _testNotificationScheduled ? null : _scheduleTestNotification,
+            ),
+            
+            const Divider(height: 1),
+            
+            // Show Status Button
+            ListTile(
+              leading: const Icon(Icons.info_outline, color: Colors.purple),
+              title: const Text('Show Notification Status'),
+              subtitle: const Text('View pending & stats'),
+              trailing: const Icon(Icons.visibility),
+              onTap: _showNotificationStatus,
+            ),
+            
+            const Divider(height: 1),
+            
+            // Cancel All Button
+            ListTile(
+              leading: const Icon(Icons.cancel, color: Colors.red),
+              title: const Text('Cancel All Notifications'),
+              subtitle: const Text('Clear all scheduled'),
+              trailing: const Icon(Icons.delete_forever),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Cancel All?'),
+                    content: const Text('This will cancel all scheduled notifications.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('No'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _cancelAllNotifications();
+                        },
+                        style: TextButton.styleFrom(foregroundColor: Colors.red),
+                        child: const Text('Yes, Cancel All'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            
+            const Divider(height: 1),
+            
+            // Toggle PRO Status Button
+            ListTile(
+              leading: Icon(
+                _notificationStats['is_pro'] == true ? Icons.star : Icons.star_outline,
+                color: Colors.purple,
+              ),
+              title: const Text('Toggle PRO Status'),
+              subtitle: Text(
+                'Current: ${_notificationStats['is_pro'] == true ? "PRO" : "FREE"}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: _notificationStats['is_pro'] == true ? Colors.green : Colors.grey,
+                ),
+              ),
+              trailing: const Icon(Icons.swap_horiz),
+              onTap: _toggleProStatus,
+            ),
+            
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.yellow.shade100,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.warning, size: 16, color: Colors.orange),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Debug features are only visible in development builds',
+                      style: TextStyle(fontSize: 11, color: Colors.brown),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1),
+    ],
+  );
+}
   
   void _showLanguageDialog() {
     final l10n = AppLocalizations.of(context);
@@ -172,6 +469,9 @@ void _showPaywall() {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // DEBUG SECTION - показывается только в debug режиме
+                _buildDebugSection(),
+                
                 // Language Selector
                 _buildSectionTitle(l10n.languageSection),
                 Container(

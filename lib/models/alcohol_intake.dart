@@ -16,7 +16,7 @@ enum AlcoholType {
   
   // Метод для получения локализованного названия
   String getLabel(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     switch (this) {
       case AlcoholType.beer:
         return l10n.beer;
@@ -121,7 +121,7 @@ class AlcoholCheckin {
   });
 
   List<String> getRecommendations(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     List<String> recommendations = [];
     
     if (feelingScore <= 2) {

@@ -10,11 +10,11 @@ class ProBadge extends StatelessWidget {
   final bool interactive; // Можно ли нажать для открытия пейвола
   
   const ProBadge({
-    Key? key,
+    super.key,
     this.showAlways = false,
     this.size = 16,
     this.interactive = true,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -70,13 +70,13 @@ class ProListTile extends StatelessWidget {
   final bool isPro; // Является ли эта функция PRO
   
   const ProListTile({
-    Key? key,
+    super.key,
     required this.title,
     this.subtitle,
     this.leading,
     this.onTap,
     this.isPro = false,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -149,13 +149,13 @@ class ProButton extends StatelessWidget {
   final ButtonStyle? style;
   
   const ProButton({
-    Key? key,
+    super.key,
     required this.text,
     this.onPressed,
     this.isPro = false,
     this.icon,
     this.style,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -211,12 +211,12 @@ class ProCard extends StatelessWidget {
   final VoidCallback? onTap;
   
   const ProCard({
-    Key? key,
+    super.key,
     required this.child,
     this.isPro = false,
     this.margin,
     this.onTap,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {

@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/hydration_provider.dart';
-import '../../models/intake.dart';
 import '../../models/alcohol_intake.dart';
 import '../../services/alcohol_service.dart';
 import 'weekly_history_screen.dart';

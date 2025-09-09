@@ -14,6 +14,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dark theme support
 - Home screen widgets
 
+## [1.5.0] - 2025-09-09
+🎯 Major Update: Notification System Overhaul
+## Added
+
+Event Notification Preservation: Event-based notifications (workout, alcohol, coffee) now persist when changing app language
+Smart Time Recovery: Improved algorithm for recovering notification times from IDs, especially for notifications scheduled after 4:40 PM
+Localized Text Updates: All notification texts properly update to new language while maintaining scheduled times
+Dual ID Scheme Support: Backward compatibility for existing notifications with new enhanced ID generation
+
+## Fixed
+
+Critical: Fixed loss of workout and alcohol notifications when changing language
+Time Calculation: Fixed incorrect time calculation for notifications with ID overflow (times after 16:40)
+Workout Notifications: Fixed workout reminder times being reset to midnight instead of correct time
+Alcohol Recovery Hours: Fixed recovery hour parameter showing 2699h instead of correct 2h, 4h, 6h
+ID Generation: Improved ID generation scheme to handle full 24-hour range properly
+Language Switch: All event notifications now properly reschedule with correct times and localized texts
+
+## Technical Details
+
+Refactored onLocaleChanged method in NotificationService to properly handle event notifications
+Added logic to detect and correct ID overflow for notifications scheduled after 4:40 PM (999 minutes)
+Implemented dual ID scheme support for backward compatibility
+Added comprehensive time extraction logic for different notification types
+Improved handling of alcohol recovery hour parameters from notification titles
+
+## Impact
+
+User Experience: Users can now change language without losing their scheduled notifications
+Reliability: Notification system is now more robust and handles edge cases properly
+Internationalization: Better support for multi-language usage
+
 ## [0.6.2] - 2025-09-08
 - Добавлен Ion-персонаж в paywall вместо капли воды
 - Увеличены размеры Ion-персонажа в onboarding (60->120, 120->140)

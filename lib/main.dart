@@ -22,7 +22,8 @@ import 'screens/electrolytes_screen.dart';
 import 'screens/supplements_screen.dart';
 import 'screens/hot_drinks_screen.dart';
 import 'screens/sports_screen.dart';
-// ИЗМЕНЕНО: Используем новый сервис уведомлений
+
+// Services
 import 'services/notification_service.dart';
 import 'services/subscription_service.dart';
 import 'services/remote_config_service.dart';
@@ -30,6 +31,7 @@ import 'services/weather_service.dart';
 import 'services/alcohol_service.dart';
 import 'services/hri_service.dart';
 import 'services/locale_service.dart';
+import 'services/analytics_service.dart';
 
 // Providers
 import 'providers/hydration_provider.dart';
@@ -56,23 +58,28 @@ void main() async {
     print('Firebase initialization error: $e');
   }
   
-  // Initialize localization
+  // Initialize core services
   await LocaleService.instance.initialize();
   await RemoteConfigService.instance.initialize();
   await SubscriptionService.instance.initialize();
   
+  // Initialize analytics (singleton)
+  await AnalyticsService().initialize();
+  
   // Setup Firebase Messaging background handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   
-  // НЕ запрашиваем разрешения здесь!
-  // Только базовая инициализация для получения токена позже
+  // Check if onboarding is completed
   final prefs = await SharedPreferences.getInstance();
   final onboardingCompleted = prefs.getBool('onboardingCompleted') ?? false;
   
-  // Инициализируем уведомления только если онбординг пройден
+  // Initialize notifications only if onboarding is completed
   if (onboardingCompleted) {
     await _initializeNotifications();
   }
+  
+  // Log app open event
+  await AnalyticsService().logAppOpen();
   
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -94,32 +101,35 @@ void main() async {
   );
 }
 
-// Вынесем инициализацию уведомлений в отдельную функцию
+// Initialize notifications function
 Future<void> _initializeNotifications() async {
   final messaging = FirebaseMessaging.instance;
   
-  // Проверяем, есть ли уже разрешение
+  // Check if permission is already granted
   final settings = await messaging.getNotificationSettings();
   
   if (settings.authorizationStatus == AuthorizationStatus.authorized ||
       settings.authorizationStatus == AuthorizationStatus.provisional) {
-    // Если разрешение уже есть, инициализируем
+    // Permission granted, initialize notifications
     final fcmToken = await messaging.getToken();
     print('FCM Token: $fcmToken');
     
-    // ИЗМЕНЕНО: Используем новый сервис
+    // Initialize notification service
     await NotificationService.initialize();
     
-    // FCM сообщения теперь обрабатываются внутри сервиса
-    // Дополнительная обработка не требуется
+    // Log notification status to analytics
+    await AnalyticsService().setNotificationStatus(true);
+  } else {
+    // Log that notifications are disabled
+    await AnalyticsService().setNotificationStatus(false);
   }
 }
 
-// Публичная функция для инициализации уведомлений из онбординга
+// Public function for initializing notifications from onboarding
 Future<bool> initializeNotificationsFromOnboarding() async {
   final messaging = FirebaseMessaging.instance;
   
-  // Запрашиваем разрешение
+  // Request permission
   final settings = await messaging.requestPermission(
     alert: true,
     announcement: false,
@@ -134,7 +144,7 @@ Future<bool> initializeNotificationsFromOnboarding() async {
       settings.authorizationStatus == AuthorizationStatus.provisional) {
     await _initializeNotifications();
     
-    // ИЗМЕНЕНО: Планируем умные напоминания на день
+    // Schedule smart reminders for the day
     await NotificationService().scheduleSmartReminders();
     
     return true;
@@ -166,6 +176,11 @@ class MyApp extends StatelessWidget {
             GlobalMaterialLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
+          ],
+          
+          // Navigator observer for analytics
+          navigatorObservers: [
+            AnalyticsService().observer,
           ],
           
           theme: ThemeData(
@@ -226,6 +241,14 @@ class _SplashScreenState extends State<SplashScreen> {
     // Check onboarding
     final prefs = await SharedPreferences.getInstance();
     final completed = prefs.getBool('onboardingCompleted') ?? false;
+    
+    // Set up analytics user properties
+    // AnalyticsService is a singleton, so we can just call it directly
+    await AnalyticsService().setProStatus(subscriptionProvider.isPro);
+    
+    // Set diet mode
+    final dietMode = prefs.getString('diet_mode') ?? 'normal';
+    await AnalyticsService().setDietMode(dietMode);
     
     if (mounted) {
       Navigator.of(context).pushReplacement(

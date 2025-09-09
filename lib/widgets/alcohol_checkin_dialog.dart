@@ -4,7 +4,7 @@ import '../models/alcohol_intake.dart';
 import '../services/alcohol_service.dart';
 
 class AlcoholCheckinDialog extends StatefulWidget {
-  const AlcoholCheckinDialog({Key? key}) : super(key: key);
+  const AlcoholCheckinDialog({super.key});
   
   static Future<void> show(BuildContext context) async {
     final alcoholService = Provider.of<AlcoholService>(context, listen: false);
@@ -230,7 +230,7 @@ class _AlcoholCheckinDialogState extends State<AlcoholCheckinDialog> {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: Theme.of(context).primaryColor,
+          activeThumbColor: Theme.of(context).primaryColor,
         ),
       ],
     );

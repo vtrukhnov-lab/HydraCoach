@@ -45,7 +45,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
   
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     
     return Consumer<SubscriptionProvider>(
       builder: (context, subscriptionProvider, _) {
@@ -172,7 +172,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
     required String description,
     required IconData icon,
   }) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     
     return Center(
       child: Padding(

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/alcohol_service.dart';
-import '../models/alcohol_intake.dart';
 
 class AlcoholCard extends StatelessWidget {
-  const AlcoholCard({Key? key}) : super(key: key);
+  const AlcoholCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +145,7 @@ class AlcoholCard extends StatelessWidget {
 }
 
 class AlcoholIndicator extends StatelessWidget {
-  const AlcoholIndicator({Key? key}) : super(key: key);
+  const AlcoholIndicator({super.key});
 
   @override
   Widget build(BuildContext context) {

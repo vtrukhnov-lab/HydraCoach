@@ -13,13 +13,13 @@ class ProFeatureGate extends StatelessWidget {
   final String? customMessage; // Кастомное сообщение
   
   const ProFeatureGate({
-    Key? key,
+    super.key,
     required this.feature,
     required this.child,
     this.showLockOverlay = true,
     this.allowTap = true,
     this.customMessage,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -168,11 +168,11 @@ class ProFeatureTeaser extends StatelessWidget {
   final bool showBadge;
   
   const ProFeatureTeaser({
-    Key? key,
+    super.key,
     required this.feature,
     required this.child,
     this.showBadge = true,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -257,10 +257,10 @@ class ProFeatureCard extends StatelessWidget {
   final VoidCallback? onUnlock;
   
   const ProFeatureCard({
-    Key? key,
+    super.key,
     required this.feature,
     this.onUnlock,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -388,9 +388,9 @@ class ProFeaturesList extends StatelessWidget {
   final String? highlightGroup;
   
   const ProFeaturesList({
-    Key? key,
+    super.key,
     this.highlightGroup,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {

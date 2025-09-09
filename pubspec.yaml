@@ -2,8 +2,8 @@ name: hydracoach
 description: "Smart hydration tracking with electrolyte balance"
 publish_to: 'none'
 
-# Версия приложения: 0.6.0 (рефактор алкоголя и фаворитов) + номер сборки 11
-version: 0.6.2+12
+# Версия приложения: 0.7.0 (major notification system overhaul) + номер сборки 14
+version: 0.7.0+14
 
 environment:
   sdk: ^3.9.0
@@ -29,6 +29,7 @@ dependencies:
   # Утилиты
   http: ^1.5.0
   timezone: ^0.10.0
+  # flutter_timezone удален - используем ручное определение таймзоны
   
   # UI компоненты
   fl_chart: ^1.0.0
@@ -72,6 +73,7 @@ flutter:
   # 🎨 Assets и иконки
   assets:
     - assets/images/
+    - assets/notifications/
   
   # Шрифты (если будем добавлять кастомные)
   # fonts:
@@ -83,32 +85,14 @@ flutter:
 
 # 🎨 КОНФИГУРАЦИЯ ИКОНОК
 flutter_launcher_icons:
-  android: "launcher_icon"
+  android: "ic_launcher"  # Важно: используем ic_launcher, не launcher_icon
   ios: true
   image_path: "assets/images/app_icon.png"
-  min_sdk_android: 21 # Android 5.0 и выше
+  min_sdk_android: 21
   
-  # Web иконка
-  web:
-    generate: true
-    image_path: "assets/images/app_icon.png"
-    background_color: "#00A693"
-    theme_color: "#00A693"
+  # Адаптивная иконка для Android
+  adaptive_icon_background: "#00D4DB"  # Бирюзовый фон
+  adaptive_icon_foreground: "assets/images/app_icon.png"  # Пока та же капля, нужно будет заменить на белую
   
-  # Windows иконка
-  windows:
-    generate: true
-    image_path: "assets/images/app_icon.png"
-    icon_size: 48
-  
-  # macOS иконка
-  macos:
-    generate: true
-    image_path: "assets/images/app_icon.png"
-  
-  # 🎨 Адаптивная иконка для Android
-  adaptive_icon_background: "#00A693"
-  adaptive_icon_foreground: "assets/images/app_icon.png"
-  
-  # Удаление альфа-канала для iOS
+  # iOS настройки
   remove_alpha_ios: true

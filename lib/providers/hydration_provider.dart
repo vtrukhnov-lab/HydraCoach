@@ -2,7 +2,7 @@
 // FILE: lib/providers/hydration_provider.dart
 // 
 // PURPOSE: Provider for hydration tracking and goals management
-// FIXED: Extracted from main.dart for better architecture
+// UPDATED: Added WaterProgressCache integration for notification system
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -13,6 +13,8 @@ import 'dart:math' as math;
 
 import '../l10n/app_localizations.dart';
 import '../services/notification_service.dart' as notif;
+import '../services/notification_texts.dart';
+import '../services/water_progress_cache.dart';
 import '../services/remote_config_service.dart';
 import '../services/hri_service.dart';
 import '../services/alcohol_service.dart';
@@ -40,6 +42,9 @@ class HydrationProvider extends ChangeNotifier {
   // Alcohol adjustments
   double alcoholWaterAdjustment = 0;
   int alcoholSodiumAdjustment = 0;
+  
+  // Track last reschedule time to prevent too frequent updates
+  DateTime? _lastRescheduleTime;
   
   late DailyGoals goals;
   
@@ -234,6 +239,9 @@ class HydrationProvider extends ChangeNotifier {
       potassium: potassium,
       magnesium: magnesium,
     );
+    
+    // Update water progress cache whenever goals change
+    _updateWaterProgressCache();
   }
   
   void updateAlcoholAdjustments(double waterAdjustment, int sodiumAdjustment) {
@@ -273,7 +281,32 @@ class HydrationProvider extends ChangeNotifier {
     }).toList();
     
     _calculateGoals();
+    
+    // Update water progress cache after loading data
+    await _updateWaterProgressCache();
+    
     notifyListeners();
+  }
+  
+  // NEW: Update water progress cache for notifications
+  Future<void> _updateWaterProgressCache() async {
+    final consumedMl = totalWaterToday.round();
+    final goalMl = goals.waterOpt;
+    await WaterProgressCache.set(consumedMl: consumedMl, goalMl: goalMl);
+    print('Water progress cached: $consumedMl / $goalMl ml (${(consumedMl * 100 / goalMl).round()}%)');
+    
+    // Reschedule notifications with debouncing (max once per second)
+    final now = DateTime.now();
+    if (_lastRescheduleTime == null || 
+        now.difference(_lastRescheduleTime!).inSeconds > 1) {
+      _lastRescheduleTime = now;
+      try {
+        await notif.NotificationService().scheduleSmartReminders();
+        print('Notifications rescheduled with updated progress');
+      } catch (e) {
+        print('Failed to reschedule notifications: $e');
+      }
+    }
   }
   
   // Save method
@@ -291,6 +324,9 @@ class HydrationProvider extends ChangeNotifier {
       
       final progress = getProgress();
       await prefs.setDouble('waterProgress', progress['waterPercent']!);
+      
+      // Update water progress cache after saving
+      await _updateWaterProgressCache();
     } catch (e) {
       print('Error saving intakes: $e');
     }
@@ -300,19 +336,23 @@ class HydrationProvider extends ChangeNotifier {
     final now = DateTime.now();
     const lastResetKey = 'lastReset';
     
-    SharedPreferences.getInstance().then((prefs) {
+    SharedPreferences.getInstance().then((prefs) async {
       final lastResetStr = prefs.getString(lastResetKey);
       if (lastResetStr != null) {
         final lastReset = DateTime.parse(lastResetStr);
         if (lastReset.day != now.day) {
           todayIntakes.clear();
-          prefs.setString(lastResetKey, now.toIso8601String());
+          await prefs.setString(lastResetKey, now.toIso8601String());
+          
+          // Reset water progress cache for new day
+          await _updateWaterProgressCache();
+          
           notifyListeners();
           
           notif.NotificationService().scheduleEveningReport();
         }
       } else {
-        prefs.setString(lastResetKey, now.toIso8601String());
+        await prefs.setString(lastResetKey, now.toIso8601String());
       }
     });
   }
@@ -339,7 +379,7 @@ class HydrationProvider extends ChangeNotifier {
     await prefs.setString('activityLevel', activityLevel);
   }
   
-  // Updated addIntake with HRI integration for coffee
+  // FIXED: Added async handling and locale loading for coffee notifications
   void addIntake(String type, int volume, {int sodium = 0, int potassium = 0, int magnesium = 0}) {
     // Add to list
     todayIntakes.add(Intake(
@@ -358,7 +398,7 @@ class HydrationProvider extends ChangeNotifier {
     // First notify UI about changes
     notifyListeners();
     
-    // Then save asynchronously
+    // Then save asynchronously (includes water progress cache update)
     _saveIntakes().then((_) {
       print('Intake saved successfully');
     }).catchError((error) {
@@ -367,13 +407,28 @@ class HydrationProvider extends ChangeNotifier {
     
     // Schedule post-coffee reminder if it's coffee
     if (type == 'coffee') {
-    // Просто вызываем без обработки результата
-    notif.NotificationService().schedulePostCoffeeReminder();
-  
-    // Log coffee to HRI (approximately 80mg caffeine per cup)
-    logCoffeeIntake(80);
+      // FIXED: Ensure locale is loaded before scheduling notification
+      _schedulePostCoffeeWithLocale();
+      
+      // Log coffee to HRI (approximately 80mg caffeine per cup)
+      logCoffeeIntake(80);
+    }
   }
-}
+  
+  // NEW: Helper method to ensure locale is loaded before scheduling
+  Future<void> _schedulePostCoffeeWithLocale() async {
+    try {
+      // Load current locale from preferences
+      await NotificationTexts.loadLocale();
+      
+      // Now schedule the notification with correct locale
+      await notif.NotificationService().schedulePostCoffeeReminder();
+      
+      print('Post-coffee reminder scheduled with correct locale');
+    } catch (e) {
+      print('Error scheduling post-coffee reminder: $e');
+    }
+  }
   
   void removeIntake(String id) {
     todayIntakes.removeWhere((intake) => intake.id == id);
@@ -381,7 +436,7 @@ class HydrationProvider extends ChangeNotifier {
     // First update UI
     notifyListeners();
     
-    // Then save
+    // Then save (includes water progress cache update)
     _saveIntakes().then((_) {
       print('Intake removed successfully');
     });

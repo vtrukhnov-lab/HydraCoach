@@ -12,6 +12,7 @@
 // - Full HRI workout integration
 // - Smart hydration recommendations
 // - PRO gating for premium activities
+// - Post-workout notifications (PRO)
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../services/subscription_service.dart';
 import '../services/hri_service.dart';
+import '../services/notification_service.dart';
 import '../screens/paywall_screen.dart';
 import 'package:hydracoach/providers/hydration_provider.dart';
 
@@ -330,6 +332,24 @@ class _SportsScreenState extends State<SportsScreen> {
     
     // Calculate HRI impact
     final workoutImpact = sport['intensityValue'] * (duration / 30.0);
+    
+    // НОВОЕ: Планируем уведомление после тренировки (для PRO пользователей)
+    try {
+      final NotificationService notificationService = NotificationService();
+      
+      // Рассчитываем время окончания тренировки (сейчас + длительность)
+      final workoutEndTime = DateTime.now().add(Duration(minutes: duration));
+      
+      // Планируем post-workout напоминание через 30 минут после окончания
+      await notificationService.sendWorkoutReminder(
+        workoutEndTime: workoutEndTime,
+      );
+      
+      print('✅ Post-workout reminder scheduled for ${workoutEndTime.add(const Duration(minutes: 30))}');
+    } catch (e) {
+      print('⚠️ Failed to schedule workout reminder: $e');
+      // Не прерываем основной процесс, если уведомление не удалось запланировать
+    }
     
     if (mounted) {
       // Show detailed success message

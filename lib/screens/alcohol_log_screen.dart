@@ -12,6 +12,7 @@
 // - Shows hydration corrections needed (water, sodium, HRI impact)
 // - Save to favorites functionality
 // - PRO gating for premium alcohol types
+// - Automatic scheduling of counter-hydration reminders
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -22,9 +23,9 @@ import '../models/alcohol_intake.dart';
 import '../models/quick_favorites.dart';
 import '../services/alcohol_service.dart';
 import '../services/subscription_service.dart';
+import '../services/notification_service.dart';
 import '../screens/paywall_screen.dart';
 import 'package:hydracoach/providers/hydration_provider.dart';
-
 
 class AlcoholLogScreen extends StatefulWidget {
   const AlcoholLogScreen({super.key});
@@ -194,6 +195,16 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
 
     final alcoholService = Provider.of<AlcoholService>(context, listen: false);
     await alcoholService.addIntake(intake);
+
+    // ВАЖНО: Планируем уведомление после добавления алкоголя
+    try {
+      print('🍺 Scheduling alcohol counter reminder...');
+      final standardDrinks = intake.standardDrinks;
+      await NotificationService().scheduleAlcoholCounterReminder(standardDrinks.toInt());
+      print('✅ Alcohol reminder scheduled for ${standardDrinks.toStringAsFixed(1)} SD');
+    } catch (e) {
+      print('⚠️ Failed to schedule alcohol reminder: $e');
+    }
 
     if (mounted) {
       Navigator.of(context).pop(true);

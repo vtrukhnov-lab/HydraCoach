@@ -368,7 +368,7 @@ class WeatherData {
 
   // Локализованный текст состояния
   String getLocalizedDescription(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final key = description.trim().toLowerCase();
 
     switch (key) {
@@ -407,7 +407,7 @@ class WeatherData {
 
 // Предупреждение по индексу жары (ключи как в твоём ARB)
   String getLocalizedHeatWarning(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     // Полоса «холодно»
     if (heatIndex <= 10) return l10n.heatWarningCold;
