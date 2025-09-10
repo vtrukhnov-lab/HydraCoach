@@ -1,7 +1,6 @@
 // lib/screens/home_screen.dart
 // 
-// Main home screen - Updated with UnitsService integration
-// Shows hydration status, HRI, active factors, and daily progress
+// Main home screen - Refactored with separate UI widgets AND Sticky Quick Add feature
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -16,20 +15,19 @@ import '../services/hri_service.dart';
 import '../services/weather_service.dart';
 import '../services/subscription_service.dart';
 import '../services/alcohol_service.dart';
-import '../services/units_service.dart';  // ДОБАВЛЕН ИМПОРТ
+import '../services/units_service.dart';
 
 // Providers
 import '../providers/hydration_provider.dart';
 
-// Models
-import '../models/intake.dart';
-
-// Screens
-import 'paywall_screen.dart';
-
 // Widgets
 import '../widgets/quick_add_widget.dart';
-import '../widgets/ion_character.dart';
+import '../widgets/home/home_header.dart';
+import '../widgets/home/weather_card.dart';
+import '../widgets/home/main_progress_card.dart';
+import '../widgets/home/smart_advice_card.dart';
+import '../widgets/home/hri_status_card.dart';
+import '../widgets/home/today_history_section.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -43,17 +41,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   // CONSTANTS
   // ============================================================================
   
-  static const double kCardRadius = 20.0;
-  static const double kCardPadding = 20.0;
-  static const double kProgressRingSize = 140.0;
-  static const double kProgressStrokeWidth = 12.0;
   static const int kEveningReportHour = 21;
-  static const int kMaxHistoryItems = 10;
+  static const double kStickyQuickAddScrollOffset = 280.0;
 
   // ============================================================================
   // STATE
   // ============================================================================
   
+  // 1. Контроллер скролла и флаг для управления "липким" виджетом
+  final ScrollController _scrollController = ScrollController();
+  bool _showStickyQuickAdd = false;
+
   bool _showDailyReport = false;
   String _fastingSchedule = '16:8';
   Key _quickAddKey = UniqueKey();
@@ -67,25 +65,29 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // Добавляем слушатель к контроллеру
+    _scrollController.addListener(_scrollListener);
     _initialize();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    final alcohol = Provider.of<AlcoholService>(context, listen: false);
-    alcohol.removeListener(_onAlcoholChanged);
-    final weather = Provider.of<WeatherService>(context, listen: false);
-    weather.removeListener(_onWeatherChanged);
+    // Очищаем ресурсы контроллера и слушателя
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    
+    try {
+      final alcohol = Provider.of<AlcoholService>(context, listen: false);
+      alcohol.removeListener(_onAlcoholChanged);
+      final weather = Provider.of<WeatherService>(context, listen: false);
+      weather.removeListener(_onWeatherChanged);
+    } catch (e) {
+      print("Error removing listeners: $e");
+    }
     super.dispose();
   }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Empty - no extra updates needed here
-  }
-
+  
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -95,27 +97,41 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   // ============================================================================
-  // INITIALIZATION
+  // SCROLL LISTENER LOGIC
+  // ============================================================================
+
+  // 2. Логика слушателя: меняем флаг в зависимости от смещения
+  void _scrollListener() {
+    if (_scrollController.offset > kStickyQuickAddScrollOffset && !_showStickyQuickAdd) {
+      if (mounted) {
+        setState(() {
+          _showStickyQuickAdd = true;
+        });
+      }
+    } else if (_scrollController.offset <= kStickyQuickAddScrollOffset && _showStickyQuickAdd) {
+      if (mounted) {
+        setState(() {
+          _showStickyQuickAdd = false;
+        });
+      }
+    }
+  }
+
+  // ============================================================================
+  // INITIALIZATION & CORE LOGIC
   // ============================================================================
   
   Future<void> _initialize() async {
-    // Load user preferences
     await _loadPreferences();
-    
-    // Check if we should show daily report
     _checkDailyReport();
     
-    // Setup listeners
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
     alcohol.addListener(_onAlcoholChanged);
 
-    // Listen for weather updates to recalc HRI immediately when data arrives
     final weather = Provider.of<WeatherService>(context, listen: false);
     weather.addListener(_onWeatherChanged);
-    // Ensure a fetch is in flight on startup (guarded in the service)
     await weather.loadWeather();
     
-    // Initialize HRI after frame renders
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _applyAlcoholAdjustments();
@@ -143,16 +159,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   void _checkMorningCheckin() {
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
-    
     if (alcohol.totalStandardDrinks > 0 && DateTime.now().hour < 12) {
-      // TODO: Show morning check-in dialog
       print('Morning check-in needed after alcohol');
     }
   }
-
-  // ============================================================================
-  // UPDATE METHODS
-  // ============================================================================
   
   void _refreshQuickAdd() {
     if (mounted) {
@@ -170,7 +180,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   void _onWeatherChanged() {
     if (!mounted) return;
-    // Update HRI when weather data changes
     _updateHRI();
   }
 
@@ -186,23 +195,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   void _updateHRI() {
     if (!mounted) return;
-
     final provider = Provider.of<HydrationProvider>(context, listen: false);
     final hri = Provider.of<HRIService>(context, listen: false);
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
     final weather = Provider.of<WeatherService>(context, listen: false);
 
-    // Get last intake time
-    DateTime? lastIntakeTime;
-    if (provider.todayIntakes.isNotEmpty) {
-      lastIntakeTime = provider.todayIntakes.last.timestamp;
-    }
-
-    // Check if fasting
+    DateTime? lastIntakeTime = provider.todayIntakes.isNotEmpty ? provider.todayIntakes.last.timestamp : null;
     bool isFasting = _isCurrentlyFasting(provider);
     hri.setFastingStatus(isFasting);
 
-    // Update HRI with all parameters
     hri.calculateHRI(
       waterIntake: provider.totalWaterToday,
       waterGoal: provider.goals.waterOpt.toDouble(),
@@ -222,20 +223,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   bool _isCurrentlyFasting(HydrationProvider provider) {
     if (provider.dietMode != 'fasting') return false;
-    
     final hour = DateTime.now().hour;
     switch (_fastingSchedule) {
-      case '16:8':
-        return hour < 12 || hour >= 20;
-      case 'OMAD':
-        return hour < 18 || hour >= 19;
+      case '16:8': return hour < 12 || hour >= 20;
+      case 'OMAD': return hour < 18 || hour >= 19;
       case 'ADF':
-        final dayOfYear = DateTime.now().difference(
-          DateTime(DateTime.now().year, 1, 1)
-        ).inDays;
+        final dayOfYear = DateTime.now().difference(DateTime(DateTime.now().year, 1, 1)).inDays;
         return dayOfYear % 2 == 0;
-      default:
-        return hour < 12 || hour >= 20;
+      default: return hour < 12 || hour >= 20;
     }
   }
 
@@ -245,75 +240,60 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<HydrationProvider>(context, listen: false);
     final l10n = AppLocalizations.of(context);
-    final provider = Provider.of<HydrationProvider>(context);
-    final sub = Provider.of<SubscriptionProvider>(context);
-    final alcohol = Provider.of<AlcoholService>(context);
-    final hri = Provider.of<HRIService>(context);
-    final weather = Provider.of<WeatherService>(context);
-    final units = Provider.of<UnitsService>(context);  // ПОЛУЧАЕМ СЕРВИС
 
+    if (!_isInitialized) {
+      return const Scaffold(
+        backgroundColor: Color(0xFFF8F9FA),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
         child: Stack(
           children: [
             CustomScrollView(
+              // 3. Привязка контроллера к списку
+              controller: _scrollController,
               physics: const BouncingScrollPhysics(),
               slivers: [
-                // Header
+                const SliverToBoxAdapter(child: HomeHeader()),
+                const SliverToBoxAdapter(child: WeatherCard()),
+                const SliverToBoxAdapter(child: MainProgressCard()),
+                const SliverToBoxAdapter(child: SmartAdviceCard()),
                 SliverToBoxAdapter(
-                  child: _buildHeader(l10n, sub),
+                  child: HRIStatusCard(
+                    isFasting: _isCurrentlyFasting(provider),
+                    fastingSchedule: _fastingSchedule,
+                  ),
                 ),
-
-                // Weather Card
-                SliverToBoxAdapter(
-                  child: _buildWeatherCard(weather, units, l10n),
-                ),
-
-                // Main Progress Card
-                SliverToBoxAdapter(
-                  child: _buildMainProgressCard(provider, units, l10n),
-                ),
-
-                // Smart Advice Card with Ion
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: kCardPadding),
-                    child: _buildSmartAdviceCard(provider, alcohol, hri, weather, units, l10n),
-                  ).animate().fadeIn(delay: 450.ms),
-                ),
-
-                // HRI Status Card
-                SliverToBoxAdapter(
-                  child: _buildHRIStatusCard(hri, provider, alcohol, weather, l10n),
-                ),
-
-                // Workouts Section
-                if (hri.todayWorkouts.isNotEmpty)
+                
+                // 4. Встроенный Quick Add теперь отображается по условию
+                if (!_showStickyQuickAdd)
                   SliverToBoxAdapter(
-                    child: _buildWorkoutsSection(hri, l10n),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: QuickAddWidget(
+                        key: _quickAddKey,
+                        provider: provider,
+                        onUpdate: () {
+                          setState(() {});
+                          _updateHRI();
+                        },
+                      ),
+                    ),
                   ),
 
-                // Quick Add Section
-                SliverToBoxAdapter(
-                  child: _buildQuickAddSection(provider, l10n),
-                ),
+                const SliverToBoxAdapter(child: TodayHistorySection()),
 
-                // Today's History
-                if (provider.todayIntakes.isNotEmpty || alcohol.todayIntakes.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: _buildTodayHistory(provider, alcohol, units, l10n),
-                  ),
-
-                // Bottom padding
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: 100),
-                ),
+                // 5. Увеличиваем нижний отступ, чтобы "док" не перекрывал контент
+                const SliverToBoxAdapter(child: SizedBox(height: 120)),
               ],
             ),
 
-            // Daily Report Overlay
             if (_showDailyReport)
               Positioned(
                 bottom: 20,
@@ -321,1164 +301,73 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 right: 20,
                 child: _buildDailyReportCard(l10n),
               ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ============================================================================
-  // UI BUILDERS - HEADER
-  // ============================================================================
-  
-  Widget _buildHeader(AppLocalizations l10n, SubscriptionProvider sub) {
-    return Container(
-      padding: const EdgeInsets.all(kCardPadding),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    l10n.appTitle,
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ).animate().fadeIn(duration: 350.ms),
-                  if (sub.isPro) ...[
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.amber.shade400, Colors.amber.shade600],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        'PRO',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                _getFormattedDate(l10n),
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              if (!sub.isPro)
-                IconButton(
-                  icon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.purple.shade400, Colors.purple.shade600],
-                      ),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.star, color: Colors.white, size: 20),
-                  ),
-                  onPressed: () => _showPaywall(context),
-                  tooltip: l10n.getPro,
-                ),
-              IconButton(
-                icon: const Icon(Icons.history),
-                onPressed: () => Navigator.pushNamed(context, '/history'),
-              ),
-              IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: () => Navigator.pushNamed(context, '/settings'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ============================================================================
-  // UI BUILDERS - WEATHER
-  // ============================================================================
-  
-  Widget _buildWeatherCard(WeatherService weather, UnitsService units, AppLocalizations l10n) {
-    final weatherData = weather.currentWeather;
-    final heatIndex = weather.heatIndex;
-    
-    // Конвертируем температуру в выбранные единицы
-    final displayTemp = weatherData != null 
-        ? units.formatTemperature(weatherData.temperature)
-        : '--°';
-    final displayHeatIndex = heatIndex != null
-        ? units.toDisplayTemperature(heatIndex).round()
-        : null;
-    
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: kCardPadding, vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: _getWeatherGradient(heatIndex),
-        ),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            _getWeatherIcon(heatIndex),
-            color: Colors.white,
-            size: 32,
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                displayTemp,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                weatherData?.city ?? l10n.loading,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-          const Spacer(),
-          if (displayHeatIndex != null)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    l10n.heatIndex,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 10,
-                    ),
-                  ),
-                  Text(
-                    '$displayHeatIndex${units.temperatureUnit.substring(1)}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 200.ms);
-  }
-
-  // ============================================================================
-  // UI BUILDERS - MAIN PROGRESS
-  // ============================================================================
-  
-  Widget _buildMainProgressCard(HydrationProvider provider, UnitsService units, AppLocalizations l10n) {
-    final progress = provider.getProgress();
-    
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: kCardPadding, vertical: 10),
-      padding: const EdgeInsets.all(kCardPadding),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(kCardRadius),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Water Ring
-          _buildWaterRing(progress, units, l10n),
-          const SizedBox(height: 20),
-          
-          // Electrolyte Bars
-          _buildElectrolyteBar(
-            l10n.sodium,
-            progress['sodiumPercent'] ?? 0,
-            (progress['sodium'] ?? 0).toInt(),
-            provider.goals.sodium,
-            Colors.orange,
-            l10n,
-          ),
-          const SizedBox(height: 12),
-          _buildElectrolyteBar(
-            l10n.potassium,
-            progress['potassiumPercent'] ?? 0,
-            (progress['potassium'] ?? 0).toInt(),
-            provider.goals.potassium,
-            Colors.purple,
-            l10n,
-          ),
-          const SizedBox(height: 12),
-          _buildElectrolyteBar(
-            l10n.magnesium,
-            progress['magnesiumPercent'] ?? 0,
-            (progress['magnesium'] ?? 0).toInt(),
-            provider.goals.magnesium,
-            Colors.pink,
-            l10n,
-          ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 300.ms);
-  }
-
-  Widget _buildWaterRing(Map<String, double> progress, UnitsService units, AppLocalizations l10n) {
-    final waterPercent = progress['waterPercent'] ?? 0;
-    final waterAmount = progress['water'] ?? 0;
-    
-    // Форматируем объём в выбранных единицах
-    final displayVolume = units.formatVolume(waterAmount.toInt());
-    
-    return Center(
-      child: SizedBox(
-        width: kProgressRingSize,
-        height: kProgressRingSize,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Progress ring
-            SizedBox(
-              width: kProgressRingSize,
-              height: kProgressRingSize,
-              child: CircularProgressIndicator(
-                value: (waterPercent / 100).clamp(0.0, 1.0),
-                strokeWidth: kProgressStrokeWidth,
-                backgroundColor: Colors.grey[200],
-                valueColor: AlwaysStoppedAnimation(
-                  _getWaterColor(waterPercent),
-                ),
-              ),
-            ),
-            // Center text
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '${waterPercent.toInt()}%',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: _getWaterColor(waterPercent),
-                  ),
-                ),
-                Text(
-                  l10n.water,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                ),
-                Text(
-                  displayVolume,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+            
+            // 6. Добавляем "липкий" виджет в Stack
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: _buildStickyQuickAdd(),
             ),
           ],
         ),
       ),
-    ).animate().scale(delay: 100.ms);
-  }
-
-  Widget _buildElectrolyteBar(
-    String name,
-    double percent,
-    int current,
-    int goal,
-    Color color,
-    AppLocalizations l10n,
-  ) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 100,
-          child: Text(
-            name,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: LinearProgressIndicator(
-                  value: (percent / 100).clamp(0.0, 1.0),
-                  backgroundColor: Colors.grey[200],
-                  valueColor: AlwaysStoppedAnimation(color),
-                  minHeight: 20,
-                ),
-              ),
-              Positioned.fill(
-                child: Center(
-                  child: Text(
-                    '${percent.toInt()}%',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: percent > 50 ? Colors.white : color,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          '$current/$goal ${l10n.mg}',
-          style: const TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
     );
   }
 
   // ============================================================================
-  // UI BUILDERS - SMART ADVICE WITH ION
+  // UI BUILDERS
   // ============================================================================
-  
-  Widget _buildSmartAdviceCard(
-    HydrationProvider provider,
-    AlcoholService alcoholService,
-    HRIService hriService,
-    WeatherService weatherService,
-    UnitsService units,
-    AppLocalizations l10n,
-  ) {
-    final advice = _getSmartAdvice(provider, alcoholService, hriService, weatherService, units, l10n);
-    
-    return Container(
-      margin: const EdgeInsets.only(top: 8, bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: advice['tone'] as Color,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: advice['border'] as Color),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Ion персонаж - увеличенный размер
-          SizedBox(
-            width: 65,
-            height: 65,
-            child: IonCharacter(
-              size: 55,
-              mood: advice['ionMood'] as IonMood,
-              showGlow: false,
-              showElectrolytes: false,
-              hydrationLevel: advice['ionHydrationLevel'] as HydrationLevel,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  advice['title'] as String,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: advice['border'] as Color,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  advice['body'] as String,
-                  style: TextStyle(
-                    fontSize: 13.5,
-                    color: Colors.grey[800],
-                    height: 1.3,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Map<String, dynamic> _getSmartAdvice(
-    HydrationProvider provider,
-    AlcoholService alcoholService,
-    HRIService hriService,
-    WeatherService weatherService,
-    UnitsService units,
-    AppLocalizations l10n,
-  ) {
-    final waterRatio = provider.goals.waterOpt > 0 
-        ? provider.totalWaterToday / provider.goals.waterOpt 
-        : 0.0;
-    final sodiumRatio = provider.goals.sodium > 0 
-        ? provider.totalSodiumToday / provider.goals.sodium 
-        : 0.0;
+  // 7. Метод для построения анимированного "липкого" виджета
+  Widget _buildStickyQuickAdd() {
+    final provider = Provider.of<HydrationProvider>(context, listen: false);
 
-    // Critical overhydration - конвертируем объёмы
-    if (waterRatio > 2.0) {
-      final volumeToShow = units.formatVolume(units.isImperial ? 500 : 500);
-      return {
-        'title': l10n.adviceOverhydrationSevere,
-        'body': 'Pause 60-90 minutes. Add electrolytes: $volumeToShow with 500-1000 mg sodium.',
-        'tone': const Color(0xFFFFEBEE),
-        'border': Colors.red.shade300,
-        'icon': Icons.error_outline,
-        'ionMood': IonMood.worried,
-        'ionHydrationLevel': HydrationLevel.high,
-      };
-    }
-
-    // Mild overhydration
-    if (waterRatio > 1.2) {
-      return {
-        'title': l10n.adviceOverhydration,
-        'body': l10n.adviceOverhydrationBody,
-        'tone': Colors.orange.shade50,
-        'border': Colors.orange.shade300,
-        'icon': Icons.warning_amber_outlined,
-        'ionMood': IonMood.thinking,
-        'ionHydrationLevel': HydrationLevel.high,
-      };
-    }
-
-    // Alcohol recovery needed - конвертируем объёмы
-    if (alcoholService.totalStandardDrinks > 0) {
-      final volumeToShow = units.formatVolume(units.isImperial ? 400 : 400);
-      return {
-        'title': l10n.adviceAlcoholRecovery,
-        'body': 'No more alcohol today. Drink $volumeToShow in small portions and add sodium.',
-        'tone': Colors.orange.shade50,
-        'border': Colors.orange.shade300,
-        'icon': Icons.local_bar,
-        'ionMood': IonMood.worried,
-        'ionHydrationLevel': HydrationLevel.low,
-      };
-    }
-
-    // Low sodium
-    if (sodiumRatio < 0.7) {
-      final sodiumNeed = (provider.goals.sodium - provider.totalSodiumToday)
-          .clamp(300, 1000);
-      return {
-        'title': l10n.adviceLowSodium,
-        'body': l10n.adviceLowSodiumBody(sodiumNeed),
-        'tone': Colors.amber.shade50,
-        'border': Colors.amber.shade300,
-        'icon': Icons.science_outlined,
-        'ionMood': IonMood.thinking,
-        'ionHydrationLevel': HydrationLevel.normal,
-      };
-    }
-
-    // Dehydration - конвертируем объёмы
-    if (waterRatio < 0.5) {
-      final volumeToShow = units.formatVolume(units.isImperial ? 400 : 400);
-      return {
-        'title': l10n.adviceDehydration,
-        'body': 'Drink $volumeToShow ${l10n.water.toLowerCase()}.',
-        'tone': Colors.blue.shade50,
-        'border': Colors.blue.shade300,
-        'icon': Icons.local_drink_outlined,
-        'ionMood': IonMood.worried,
-        'ionHydrationLevel': HydrationLevel.low,
-      };
-    }
-
-    // High HRI - конвертируем объёмы
-    if (hriService.currentHRI >= 60) {
-      final volumeToShow = units.formatVolume(units.isImperial ? 400 : 400);
-      return {
-        'title': l10n.adviceHighRisk,
-        'body': 'Urgently drink water with electrolytes ($volumeToShow) and reduce activity.',
-        'tone': const Color(0xFFFFF3E0),
-        'border': Colors.deepOrange.shade300,
-        'icon': Icons.priority_high_rounded,
-        'ionMood': IonMood.worried,
-        'ionHydrationLevel': HydrationLevel.low,
-      };
-    }
-
-    // All good - конвертируем объёмы
-    final waterNeed = (provider.goals.waterOpt - provider.totalWaterToday)
-        .clamp(200, 800);
-    final displayNeed = units.formatVolume(waterNeed.toInt(), hideUnit: true);
-    return {
-      'title': l10n.adviceAllGood,
-      'body': 'Keep the pace. Target: ~$displayNeed ${units.volumeUnit} more to goal.',
-      'tone': Colors.green.shade50,
-      'border': Colors.green.shade300,
-      'icon': Icons.check_circle_outline,
-      'ionMood': IonMood.happy,
-      'ionHydrationLevel': HydrationLevel.perfect,
-    };
-  }
-
-  // ============================================================================
-  // UI BUILDERS - HRI STATUS CARD
-  // ============================================================================
-  
-  Widget _buildHRIStatusCard(
-    HRIService hri,
-    HydrationProvider provider,
-    AlcoholService alcohol,
-    WeatherService weather,
-    AppLocalizations l10n,
-  ) {
-    final hriValue = hri.currentHRI.round();
-    final status = provider.getHydrationStatus(l10n);
-    final localizedHRIStatus = _getLocalizedHRIStatus(hri, l10n);
-    final components = hri.getComponentsBreakdown();
-    final isFasting = _isCurrentlyFasting(provider);
-    
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: kCardPadding, vertical: 10),
-      padding: const EdgeInsets.all(kCardPadding),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(kCardRadius),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header with status badge
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                l10n.hydrationStatus,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: _getStatusColor(status),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  status,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // HRI Label with zone badge
-          Row(
-            children: [
-              Text(l10n.hydrationRiskIndex),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: _getHRIColor(hriValue).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  hri.hriZone.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: _getHRIColor(hriValue),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 8),
-          
-          // HRI Progress bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: hriValue / 100,
-              backgroundColor: Colors.grey[200],
-              valueColor: AlwaysStoppedAnimation(_getHRIColor(hriValue)),
-              minHeight: 12,
-            ),
-          ),
-          
-          const SizedBox(height: 8),
-          
-          // HRI Value and status
-          Row(
-            children: [
-              Text(
-                '$hriValue',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: _getHRIColor(hriValue),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                localizedHRIStatus,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: _getHRIColor(hriValue),
-                ),
-              ),
-            ],
-          ),
-          
-          // Active factors
-          if (_hasActiveFactors(components, alcohol, weather)) ...[
-            const SizedBox(height: 12),
-            const Divider(),
-            const SizedBox(height: 8),
-            Text(
-              l10n.hriBreakdownTitle,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Wrap(
-              spacing: 6,
-              runSpacing: 4,
-              children: _buildActiveFactorChips(components, alcohol, weather, l10n),
-            ),
-          ],
-          
-          // Fasting mode indicator
-          if (isFasting) ...[
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.purple.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.purple.withOpacity(0.3)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.schedule,
-                    size: 16,
-                    color: Colors.purple,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    l10n.fastingModeActive,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.purple[700],
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    _fastingSchedule,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.purple[700],
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
-    ).animate().fadeIn(delay: 500.ms);
-  }
-
-  bool _hasActiveFactors(
-    Map<String, double> components,
-    AlcoholService alcohol,
-    WeatherService weather,
-  ) {
-    return components['workouts']! > 0 ||
-           components['caffeine']! > 0 ||
-           alcohol.totalStandardDrinks > 0 ||
-           weather.heatIndex != null;
-  }
-
-  List<Widget> _buildActiveFactorChips(
-    Map<String, double> components,
-    AlcoholService alcohol,
-    WeatherService weather,
-    AppLocalizations l10n,
-  ) {
-    final chips = <Widget>[];
-    
-    // Workouts
-    if (components['workouts']! > 0) {
-      chips.add(_buildFactorChip(
-        '${l10n.hriComponentWorkout} +${components['workouts']!.toInt()}',
-        Icons.fitness_center,
-        Colors.teal,
-      ));
-    }
-    
-    // Heat/Weather - Always show if we have data
-    if (weather.heatIndex != null) {
-      final heatImpact = components['heat'] ?? 0;
-      String label;
-      Color color;
-      IconData icon;
-      
-      if (weather.heatIndex! < 27) {
-        label = '${l10n.hriComponentHeat} OK';
-        color = Colors.green;
-        icon = Icons.thermostat;
-      } else if (weather.heatIndex! < 32) {
-        label = '${l10n.hriComponentHeat} +${heatImpact.toInt()}';
-        color = Colors.orange;
-        icon = Icons.wb_sunny;
-      } else {
-        label = '${l10n.hriComponentHeat} +${heatImpact.toInt()}';
-        color = Colors.red;
-        icon = Icons.local_fire_department;
-      }
-      
-      chips.add(_buildFactorChip(label, icon, color));
-    }
-    
-    // Caffeine
-    if (components['caffeine']! > 0) {
-      chips.add(_buildFactorChip(
-        '${l10n.hriComponentCaffeine} +${components['caffeine']!.toInt()}',
-        Icons.coffee,
-        Colors.brown,
-      ));
-    }
-    
-    // Alcohol
-    if (alcohol.totalStandardDrinks > 0) {
-      final sd = alcohol.totalStandardDrinks;
-      final alcoholImpact = components['alcohol'] ?? 0;
-      chips.add(_buildFactorChip(
-        '${l10n.alcohol} ${sd.toStringAsFixed(1)} SD +${alcoholImpact.toInt()}',
-        Icons.local_bar,
-        Colors.red,
-      ));
-    }
-    
-    return chips;
-  }
-
-  Widget _buildFactorChip(String label, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: color,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ============================================================================
-  // UI BUILDERS - WORKOUTS
-  // ============================================================================
-  
-  Widget _buildWorkoutsSection(HRIService hri, AppLocalizations l10n) {
-    return Padding(
-      padding: const EdgeInsets.all(kCardPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.fitness_center, color: Colors.teal[600], size: 24),
-              const SizedBox(width: 8),
-              Text(
-                l10n.todaysWorkouts ?? 'Today\'s Activities',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
+    return AnimatedSlide(
+      offset: _showStickyQuickAdd ? Offset.zero : const Offset(0, 1),
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+      child: AnimatedOpacity(
+        opacity: _showStickyQuickAdd ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 220),
+        // IgnorePointer предотвращает случайные нажатия на невидимый виджет
+        child: IgnorePointer(
+          ignoring: !_showStickyQuickAdd,
+          child: Container(
+            padding: const EdgeInsets.only(top: 16),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+                  color: Colors.black.withOpacity(0.08),
+                  blurRadius: 12,
+                  spreadRadius: -4,
+                  offset: const Offset(0, -3),
                 ),
               ],
             ),
-            child: Column(
-              children: hri.todayWorkouts.map((workout) {
-                return _buildWorkoutItem(workout, l10n);
-              }).toList(),
+            // SafeArea защищает от системных элементов (например, "полоска" навигации)
+            child: SafeArea(
+              top: false,
+              child: QuickAddWidget(
+                key: _quickAddKey,
+                provider: provider,
+                onUpdate: () {
+                  setState(() {});
+                  _updateHRI();
+                },
+              ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWorkoutItem(Workout workout, AppLocalizations l10n) {
-    final hoursSince = DateTime.now().difference(workout.timestamp).inHours;
-    final impact = workout.getHRIImpact();
-    
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[200]!),
         ),
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Colors.teal.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              _getWorkoutIcon(workout.type),
-              color: Colors.teal[600],
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _getWorkoutLabel(workout.type, l10n),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                  ),
-                ),
-                Text(
-                  '${workout.durationMinutes} ${l10n.minutes} • '
-                  '${_getIntensityLabel(workout.intensity, l10n)}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '$hoursSince${l10n.hoursAgo}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[500],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.teal.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'HRI +${impact.toStringAsFixed(1)}',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.teal[700],
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 
-  // ============================================================================
-  // UI BUILDERS - QUICK ADD
-  // ============================================================================
-  
-  Widget _buildQuickAddSection(HydrationProvider provider, AppLocalizations l10n) {
-    return Padding(
-      padding: const EdgeInsets.all(kCardPadding),
-      child: QuickAddWidget(
-        key: _quickAddKey,
-        provider: provider,
-        onUpdate: () {
-          setState(() {});
-          _updateHRI();
-        },
-      ),
-    );
-  }
-
-  // ============================================================================
-  // UI BUILDERS - TODAY'S HISTORY
-  // ============================================================================
-  
-  Widget _buildTodayHistory(
-    HydrationProvider provider,
-    AlcoholService alcohol,
-    UnitsService units,
-    AppLocalizations l10n,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.all(kCardPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                l10n.todaysDrinks,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pushNamed(context, '/history'),
-                child: Text(l10n.allRecords),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              children: _getCombinedIntakes(provider, alcohol, units, l10n),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _getCombinedIntakes(
-    HydrationProvider provider,
-    AlcoholService alcohol,
-    UnitsService units,
-    AppLocalizations l10n,
-  ) {
-    final List<MapEntry<DateTime, Widget>> all = [];
-
-    // Add regular intakes
-    for (var intake in provider.todayIntakes) {
-      all.add(MapEntry(
-        intake.timestamp,
-        _buildIntakeItem(intake, units, l10n),
-      ));
-    }
-
-    // Add alcohol intakes
-    for (var intake in alcohol.todayIntakes) {
-      all.add(MapEntry(
-        intake.timestamp,
-        _buildAlcoholItem(intake, units, l10n),
-      ));
-    }
-
-    // Sort by time (newest first)
-    all.sort((a, b) => b.key.compareTo(a.key));
-    
-    // Take only latest items
-    return all.take(kMaxHistoryItems).map((e) => e.value).toList();
-  }
-
-  Widget _buildIntakeItem(Intake intake, UnitsService units, AppLocalizations l10n) {
-    final typeData = _getIntakeTypeData(intake.type, l10n);
-    
-    // Форматируем объём в выбранных единицах
-    final displayVolume = units.formatVolume(intake.volume);
-    
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[200]!),
-        ),
-      ),
-      child: Row(
-        children: [
-          Text(
-            intake.formattedTime,
-            style: TextStyle(color: Colors.grey[600]),
-          ),
-          const SizedBox(width: 16),
-          Text('${typeData['icon']} ${typeData['name']}'),
-          const Spacer(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                displayVolume,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              if (intake.totalElectrolytes > 0)
-                Text(
-                  'Na: ${intake.sodium} K: ${intake.potassium} Mg: ${intake.magnesium}',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.grey[600],
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAlcoholItem(dynamic intake, UnitsService units, AppLocalizations l10n) {
-    // Форматируем объём в выбранных единицах
-    final displayVolume = units.formatVolume(intake.volumeMl.toInt());
-    
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.orange.shade50,
-        border: Border(
-          bottom: BorderSide(color: Colors.orange.shade200),
-        ),
-      ),
-      child: Row(
-        children: [
-          Text(
-            intake.formattedTime,
-            style: TextStyle(color: Colors.grey[600]),
-          ),
-          const SizedBox(width: 16),
-          Icon(
-            intake.type.icon,
-            color: Colors.orange.shade600,
-            size: 20,
-          ),
-          const SizedBox(width: 8),
-          Text(intake.type.getLabel(context)),
-          const Spacer(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '$displayVolume, ${intake.abv}%',
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-              Text(
-                intake.formattedSD,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.red.shade600,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ============================================================================
-  // UI BUILDERS - DAILY REPORT
-  // ============================================================================
-  
   Widget _buildDailyReportCard(AppLocalizations l10n) {
     return GestureDetector(
       onTap: () {
@@ -1489,17 +378,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blue.shade600, Colors.blue.shade800],
-          ),
+          gradient: LinearGradient(colors: [Colors.blue.shade600, Colors.blue.shade800]),
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.blue.withOpacity(0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.blue.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))],
         ),
         child: Row(
           children: [
@@ -1509,21 +390,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    l10n.dailyReportReady,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    l10n.viewDayResults,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13,
-                    ),
-                  ),
+                  Text(l10n.dailyReportReady, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(l10n.viewDayResults, style: const TextStyle(color: Colors.white70, fontSize: 13)),
                 ],
               ),
             ),
@@ -1531,175 +399,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ],
         ),
       ),
-    ).animate()
-       .fadeIn(duration: 400.ms)
-       .slideY(begin: 1, end: 0);
-  }
-
-  // ============================================================================
-  // HELPER METHODS
-  // ============================================================================
-  
-  void _showPaywall(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const PaywallScreen(),
-        fullscreenDialog: true,
-      ),
-    );
-  }
-
-  Color _getWaterColor(double percent) {
-    if (percent < 30) return Colors.red;
-    if (percent < 60) return Colors.orange;
-    if (percent < 100) return Colors.blue;
-    if (percent < 120) return Colors.green;
-    return Colors.deepOrange;
-  }
-
-  Color _getStatusColor(String status) {
-    if (status.contains('Normal') || status.contains('Норма')) {
-      return Colors.green;
-    }
-    if (status.contains('Low salt') || 
-        status.contains('Мало соли') ||
-        status.contains('Diluting') || 
-        status.contains('Разбавляешь')) {
-      return Colors.orange;
-    }
-    if (status.contains('Under-hydrated') || 
-        status.contains('Недобор воды')) {
-      return Colors.red;
-    }
-    return Colors.grey;
-  }
-
-  Color _getHRIColor(int hri) {
-    if (hri < 30) return Colors.green;
-    if (hri < 60) return Colors.orange;
-    return Colors.red;
-  }
-
-  String _getLocalizedHRIStatus(HRIService hri, AppLocalizations l10n) {
-    final hriValue = hri.currentHRI;
-    
-    if (hriValue <= 20) return l10n.hriStatusExcellent;
-    if (hriValue <= 40) return l10n.hriStatusGood;
-    if (hriValue <= 60) return l10n.hriStatusModerate;
-    if (hriValue <= 80) return l10n.hriStatusHighRisk;
-    return l10n.hriStatusCritical;
-  }
-
-  List<Color> _getWeatherGradient(double? heatIndex) {
-    if (heatIndex == null) {
-      return [Colors.blue.shade400, Colors.blue.shade600];
-    }
-    if (heatIndex < 20) {
-      return [Colors.blue.shade400, Colors.blue.shade600];
-    }
-    if (heatIndex < 30) {
-      return [Colors.green.shade400, Colors.green.shade600];
-    }
-    if (heatIndex < 40) {
-      return [Colors.orange.shade400, Colors.orange.shade600];
-    }
-    return [Colors.red.shade400, Colors.red.shade600];
-  }
-
-  IconData _getWeatherIcon(double? heatIndex) {
-    if (heatIndex == null) return Icons.thermostat;
-    if (heatIndex < 20) return Icons.ac_unit;
-    if (heatIndex < 30) return Icons.thermostat;
-    if (heatIndex < 40) return Icons.wb_sunny;
-    return Icons.local_fire_department;
-  }
-
-  IconData _getWorkoutIcon(String type) {
-    switch (type) {
-      case 'walking': return Icons.directions_walk;
-      case 'running': return Icons.directions_run;
-      case 'gym': return Icons.fitness_center;
-      case 'swimming': return Icons.pool;
-      case 'cycling': return Icons.directions_bike;
-      case 'yoga': return Icons.self_improvement;
-      case 'sauna': return Icons.hot_tub;
-      default: return Icons.sports;
-    }
-  }
-
-  String _getWorkoutLabel(String type, AppLocalizations l10n) {
-    switch (type) {
-      case 'walking': return l10n.walking;
-      case 'running': return l10n.running;
-      case 'gym': return l10n.gym;
-      case 'swimming': return l10n.swimming;
-      case 'cycling': return l10n.cycling;
-      case 'yoga': return l10n.yoga;
-      case 'sauna': return l10n.sauna;
-      default: return type;
-    }
-  }
-
-  String _getIntensityLabel(int intensity, AppLocalizations l10n) {
-    switch (intensity) {
-      case 1:
-      case 2:
-        return l10n.lowIntensity;
-      case 3:
-        return l10n.mediumIntensity;
-      case 4:
-        return l10n.highIntensity;
-      case 5:
-        return l10n.veryHighIntensity;
-      default:
-        return '';
-    }
-  }
-
-  Map<String, String> _getIntakeTypeData(String type, AppLocalizations l10n) {
-    switch (type) {
-      case 'water':
-        return {'icon': '💧', 'name': l10n.water};
-      case 'electrolyte':
-        return {'icon': '⚡', 'name': l10n.electrolyte};
-      case 'broth':
-        return {'icon': '🍲', 'name': l10n.broth};
-      case 'coffee':
-        return {'icon': '☕', 'name': l10n.coffee};
-      case 'tea':
-        return {'icon': '🍵', 'name': l10n.tea};
-      default:
-        return {'icon': '🥤', 'name': type};
-    }
-  }
-
-  String _getFormattedDate(AppLocalizations l10n) {
-    final now = DateTime.now();
-    final weekDays = [
-      l10n.sunday,
-      l10n.monday,
-      l10n.tuesday,
-      l10n.wednesday,
-      l10n.thursday,
-      l10n.friday,
-      l10n.saturday,
-    ];
-    final months = [
-      l10n.january,
-      l10n.february,
-      l10n.march,
-      l10n.april,
-      l10n.may,
-      l10n.june,
-      l10n.july,
-      l10n.august,
-      l10n.september,
-      l10n.october,
-      l10n.november,
-      l10n.december,
-    ];
-    
-    return '${weekDays[now.weekday % 7]}, ${now.day} ${months[now.month - 1]}';
+    ).animate().fadeIn(duration: 400.ms).slideY(begin: 1, end: 0);
   }
 }
