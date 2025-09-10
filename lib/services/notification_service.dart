@@ -1,5 +1,5 @@
 // lib/services/notification_service.dart
-// РЕФАКТОРИНГ: Используем новые модули для уменьшения размера файла
+// ИСПРАВЛЕНО: Гарантированное планирование уведомлений при запуске
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +12,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'dart:io';
 import 'dart:convert';
+import 'dart:math';
 
 // Старые импорты
 import '../l10n/app_localizations.dart';
@@ -26,6 +27,7 @@ import 'notifications/notification_types.dart';
 import 'notifications/notification_config.dart';
 import 'notifications/helpers/timezone_helper.dart';
 import 'notifications/helpers/notification_limits_helper.dart';
+import 'notifications/helpers/schedule_window_helper.dart';
 
 /// Основной сервис уведомлений HydraCoach
 class NotificationService {
@@ -45,7 +47,7 @@ class NotificationService {
 
   bool _isInitialized = false;
 
-  // Кэш для быстрых проверок
+  // Кеш для быстрых проверок
   bool? _cachedProStatus;
   DateTime? _cacheExpiry;
 
@@ -69,42 +71,348 @@ class NotificationService {
 
     print('🚀 Initializing NotificationService...');
 
-    // 1. Инициализация helper'ов
-    _limitsHelper = NotificationLimitsHelper(_remoteConfig);
-
-    // 2. Настройка timezone через новый helper
-    await TimezoneHelper.initialize();
-    
-    // 3. Инициализация текстов уведомлений
-    await NotificationTexts.initialize();
-    await NotificationTexts.loadLocale();
-
-    // 4. Инициализация локальных уведомлений
-    await _initializeLocalNotifications();
-
-    // 5. Firebase Messaging
-    await _initializeFirebaseMessaging();
-
-    // 6. Загрузка Remote Config
-    await _loadRemoteConfig();
-
-    // 7. Запрос разрешений
-    await _requestPermissions();
-
-    // 8. Очистка старых уведомлений и восстановление запланированных
-    await _cleanupAndRestoreNotifications();
-
-    _isInitialized = true;
-    print('✅ NotificationService initialized successfully');
-
-    await printNotificationStatus();
-    
-    // 9. Автоматически планируем базовые уведомления при старте
     try {
-      print('🔄 Auto-scheduling baseline reminders at startup...');
-      await scheduleSmartReminders();
+      // 1. Инициализация helper'ов
+      _limitsHelper = NotificationLimitsHelper(_remoteConfig);
+
+      // 2. Настройка timezone через новый helper
+      await TimezoneHelper.initialize();
+      
+      // 3. Инициализация текстов уведомлений
+      await NotificationTexts.initialize();
+      await NotificationTexts.loadLocale();
+
+      // 4. Инициализация локальных уведомлений
+      await _initializeLocalNotifications();
+
+      // 5. Firebase Messaging
+      await _initializeFirebaseMessaging();
+
+      // 6. Загрузка Remote Config
+      await _loadRemoteConfig();
+
+      // 7. Запрос разрешений
+      await _requestPermissions();
+
+      // 8. Очистка старых уведомлений
+      await _cleanupAndRestoreNotifications();
+
+      _isInitialized = true;
+      print('✅ NotificationService initialized successfully');
+
+      // 9. КРИТИЧНО: Планируем уведомления на сегодня
+      await _scheduleInitialNotifications();
+      
     } catch (e) {
-      print('⚠️ Failed to schedule smart reminders at init: $e');
+      print('❌ Critical error during initialization: $e');
+      _isInitialized = false;
+      rethrow;
+    }
+  }
+
+  /// НОВЫЙ МЕТОД: Гарантированное планирование при запуске
+  Future<void> _scheduleInitialNotifications() async {
+    print('📱 Scheduling initial notifications...');
+    
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final notificationsEnabled = prefs.getBool(NotificationConfig.prefNotificationsEnabled) ?? true;
+      
+      if (!notificationsEnabled) {
+        print('⚠️ Notifications disabled by user');
+        return;
+      }
+
+      // ВСЕГДА планируем на сегодня при запуске
+      await _ensureTodayNotifications();
+      
+      // Затем планируем будущие дни
+      await _scheduleFutureDays();
+      
+      // Выводим статус
+      await printNotificationStatus();
+      
+    } catch (e) {
+      print('❌ Failed to schedule initial notifications: $e');
+      // Не прерываем инициализацию, но логируем ошибку
+      await _analytics.logNotificationError(
+        type: 'initialization',
+        error: e.toString(),
+      );
+    }
+  }
+
+  /// Гарантированное планирование на сегодня
+  Future<void> _ensureTodayNotifications() async {
+    print('💧 Ensuring today\'s notifications...');
+    
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    
+    // Отменяем существующие уведомления на сегодня чтобы избежать дублей
+    await _cancelTodayNotifications();
+    
+    // Проверяем режим поста
+    final isInFasting = await _limitsHelper.isInFastingWindow();
+    
+    if (!isInFasting) {
+      // Планируем напоминания о воде
+      await _scheduleWaterRemindersToday();
+    } else {
+      print('🥗 Fasting mode - scheduling electrolyte reminders');
+      if (await _isProUser()) {
+        await _scheduleFastingRemindersToday();
+      }
+    }
+    
+    // Всегда планируем вечерний отчет
+    await _scheduleEveningReportToday();
+    
+    print('✅ Today\'s notifications scheduled');
+  }
+
+  /// Планирование напоминаний о воде на сегодня
+  Future<void> _scheduleWaterRemindersToday() async {
+    print('💧 Scheduling water reminders for today...');
+    
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    
+    // Получаем текущий прогресс
+    final waterPercent = (await WaterProgressCache.readPercent() ?? 0).toDouble();
+    
+    int scheduledCount = 0;
+    
+    for (final hm in NotificationConfig.baseReminderTimes) {
+      final scheduledTime = DateTime(today.year, today.month, today.day, hm[0], hm[1]);
+      
+      // Пропускаем прошедшее время
+      if (scheduledTime.isBefore(now)) {
+        print('  ⏭️ Skipping ${hm[0]}:${hm[1].toString().padLeft(2, '0')} - already passed');
+        continue;
+      }
+      
+      // Добавляем небольшой рандомный сдвиг (±3 минуты)
+      final random = Random();
+      final jitter = random.nextInt(7) - 3;
+      final adjustedTime = scheduledTime.add(Duration(minutes: jitter));
+      
+      print('  📅 Scheduling at ${adjustedTime.hour}:${adjustedTime.minute.toString().padLeft(2, '0')}');
+      
+      await sendNotification(
+        type: NotificationType.waterReminder,
+        title: NotificationTexts.waterReminderTitle,
+        body: NotificationTexts.waterReminderBody(adjustedTime.hour, waterPercent),
+        scheduledTime: adjustedTime,
+        payload: {'action': 'drink_water'},
+      );
+      
+      scheduledCount++;
+    }
+    
+    print('  ✅ Scheduled $scheduledCount water reminders');
+  }
+
+  /// Планирование электролитных напоминаний на сегодня (PRO)
+  Future<void> _scheduleFastingRemindersToday() async {
+    print('🧂 Scheduling fasting electrolyte reminders...');
+    
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    
+    for (final hm in NotificationConfig.fastingElectrolyteTimes) {
+      final scheduledTime = DateTime(today.year, today.month, today.day, hm[0], hm[1]);
+      
+      if (scheduledTime.isBefore(now)) {
+        continue;
+      }
+      
+      await sendNotification(
+        type: NotificationType.fastingElectrolyte,
+        title: NotificationTexts.fastingElectrolyteTitle,
+        body: NotificationTexts.fastingElectrolyteBody,
+        scheduledTime: scheduledTime,
+        payload: {'action': 'add_electrolytes'},
+      );
+    }
+  }
+
+  /// Планирование вечернего отчета на сегодня
+  Future<void> _scheduleEveningReportToday() async {
+    final prefs = await SharedPreferences.getInstance();
+    final reportTime = prefs.getString(NotificationConfig.prefEveningReportTime) 
+        ?? NotificationConfig.defaultEveningReportTime;
+    
+    final timeParts = reportTime.split(':');
+    final now = DateTime.now();
+    
+    final scheduledTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      int.parse(timeParts[0]),
+      int.parse(timeParts[1]),
+    );
+    
+    if (scheduledTime.isAfter(now)) {
+      print('📊 Scheduling evening report at $reportTime');
+      
+      await sendNotification(
+        type: NotificationType.dailyReport,
+        title: NotificationTexts.dailyReportTitle,
+        body: NotificationTexts.dailyReportBody,
+        scheduledTime: scheduledTime,
+        payload: {'action': 'show_report'},
+      );
+    }
+  }
+
+  /// Отмена уведомлений на сегодня
+  Future<void> _cancelTodayNotifications() async {
+    final pending = await getPendingNotifications();
+    final now = DateTime.now();
+    final todayEnd = DateTime(now.year, now.month, now.day, 23, 59);
+    
+    for (final notification in pending) {
+      // Проверяем по ID (день года в ID)
+      final dayFromId = (notification.id % 1000) ~/ 1440;
+      final todayDay = TimezoneHelper.dayOfYear(now);
+      
+      if (dayFromId == todayDay) {
+        await cancelNotification(notification.id);
+      }
+    }
+  }
+
+  /// Планирование на будущие дни
+  Future<void> _scheduleFutureDays() async {
+    print('📅 Scheduling future days...');
+    
+    if (!await ScheduleWindowHelper.shouldRefreshWindow()) {
+      print('  Window is fresh, skipping');
+      return;
+    }
+    
+    await ScheduleWindowHelper.cleanupOldMetadata();
+    
+    final (windowStart, windowEnd) = ScheduleWindowHelper.getWindowDates();
+    
+    // Начинаем с завтра
+    var currentDate = windowStart.add(const Duration(days: 1));
+    
+    while (currentDate.isBefore(windowEnd)) {
+      if (!await ScheduleWindowHelper.canScheduleMore()) {
+        print('  iOS limit reached');
+        break;
+      }
+      
+      await _scheduleForDate(currentDate);
+      currentDate = currentDate.add(const Duration(days: 1));
+    }
+    
+    await ScheduleWindowHelper.markWindowRefreshed();
+  }
+
+  /// Планирование уведомлений на конкретную дату
+  Future<void> _scheduleForDate(DateTime date) async {
+    print('  📆 Scheduling for ${date.day}/${date.month}');
+    
+    final isPro = await _isProUser();
+    
+    // Базовые напоминания о воде
+    if (!await _limitsHelper.isInFastingWindow()) {
+      await _scheduleWaterRemindersForDate(date);
+    }
+    
+    // Вечерний отчет
+    await _scheduleEveningReportForDate(date);
+    
+    // PRO функции
+    if (isPro) {
+      if (await _limitsHelper.isInFastingWindow()) {
+        await _scheduleFastingRemindersForDate(date);
+      }
+    }
+  }
+
+  Future<void> _scheduleWaterRemindersForDate(DateTime date) async {
+    final random = Random();
+    
+    for (final hm in NotificationConfig.baseReminderTimes) {
+      DateTime time = DateTime(date.year, date.month, date.day, hm[0], hm[1]);
+      
+      // Добавляем jitter
+      final jitterMinutes = random.nextInt(7) - 3;
+      time = time.add(Duration(minutes: jitterMinutes));
+      
+      final notificationId = _generateNotificationId(NotificationType.waterReminder, when: time);
+      
+      await ScheduleWindowHelper.saveScheduledMetadata(
+        notificationId,
+        time,
+        NotificationType.waterReminder.name,
+      );
+      
+      await sendNotification(
+        type: NotificationType.waterReminder,
+        title: NotificationTexts.waterReminderTitle,
+        body: NotificationTexts.waterReminderBody(time.hour, 0),
+        scheduledTime: time,
+        payload: {'action': 'drink_water'},
+      );
+    }
+  }
+
+  Future<void> _scheduleEveningReportForDate(DateTime date) async {
+    final prefs = await SharedPreferences.getInstance();
+    final reportTime = prefs.getString(NotificationConfig.prefEveningReportTime) 
+        ?? NotificationConfig.defaultEveningReportTime;
+    final timeParts = reportTime.split(':');
+    
+    final scheduledTime = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      int.parse(timeParts[0]),
+      int.parse(timeParts[1]),
+    );
+    
+    final notificationId = _generateNotificationId(NotificationType.dailyReport, when: scheduledTime);
+    
+    await ScheduleWindowHelper.saveScheduledMetadata(
+      notificationId,
+      scheduledTime,
+      NotificationType.dailyReport.name,
+    );
+    
+    await sendNotification(
+      type: NotificationType.dailyReport,
+      title: NotificationTexts.dailyReportTitle,
+      body: NotificationTexts.dailyReportBody,
+      scheduledTime: scheduledTime,
+      payload: {'action': 'show_report'},
+    );
+  }
+
+  Future<void> _scheduleFastingRemindersForDate(DateTime date) async {
+    for (final hm in NotificationConfig.fastingElectrolyteTimes) {
+      final time = DateTime(date.year, date.month, date.day, hm[0], hm[1]);
+      
+      final notificationId = _generateNotificationId(NotificationType.fastingElectrolyte, when: time);
+      
+      await ScheduleWindowHelper.saveScheduledMetadata(
+        notificationId,
+        time,
+        NotificationType.fastingElectrolyte.name,
+      );
+      
+      await sendNotification(
+        type: NotificationType.fastingElectrolyte,
+        title: NotificationTexts.fastingElectrolyteTitle,
+        body: NotificationTexts.fastingElectrolyteBody,
+        scheduledTime: time,
+        payload: {'action': 'add_electrolytes'},
+      );
     }
   }
 
@@ -328,7 +636,7 @@ class NotificationService {
 
     if (scheduledTime == null && !skipChecks) {
       if (!await _canSendNotification()) {
-        print('❌ Cannot send: daily limit or anti-spam');
+        print('⌛ Cannot send: daily limit or anti-spam');
         await _analytics.logNotificationError(
           type: type.toString(),
           error: 'Daily limit or anti-spam',
@@ -338,7 +646,7 @@ class NotificationService {
 
       if (await _isProUser()) {
         if (!await _limitsHelper.checkProDailyCap()) {
-          print('❌ PRO hard cap reached');
+          print('⌛ PRO hard cap reached');
           await _analytics.logNotificationError(
             type: type.toString(),
             error: 'PRO hard cap',
@@ -496,7 +804,7 @@ class NotificationService {
 
         _pendingNotificationIds.add(notificationId);
 
-        print('📅 Notification scheduled for $scheduledTime: $title');
+        print('📅 Notification scheduled for ${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}: $title');
 
         await _analytics.logNotificationScheduled(
           type: type.toString(),
@@ -702,113 +1010,13 @@ class NotificationService {
 
     await _ensureTextsLoaded();
 
-    await cancelByTypes({
-      NotificationType.waterReminder,
-      NotificationType.fastingElectrolyte,
-      NotificationType.smartReminder,
-    });
-
-    final isPro = await _isProUser();
-
-    await _scheduleBasicReminders();
-
-    if (isPro) {
-      await _scheduleContextualReminders();
-      await _scheduleFastingReminders();
-    }
-
-    await scheduleEveningReport();
-
+    // Сначала гарантируем сегодняшние
+    await _ensureTodayNotifications();
+    
+    // Затем будущие
+    await _scheduleFutureDays();
+    
     print('✅ Smart reminders scheduled');
-  }
-
-  Future<void> _scheduleBasicReminders() async {
-    final now = DateTime.now();
-
-    if (await _limitsHelper.isInFastingWindow()) {
-      return;
-    }
-
-    final waterProgressPercent = await WaterProgressCache.readPercent();
-
-    final reminderTimes = <DateTime>[];
-    for (final hm in NotificationConfig.baseReminderTimes) {
-      DateTime time = DateTime(now.year, now.month, now.day, hm[0], hm[1]);
-      
-      if (time.isBefore(now.subtract(const Duration(hours: 1)))) {
-        time = time.add(const Duration(days: 1));
-      } else if (time.isBefore(now)) {
-        time = now.add(const Duration(hours: 1));
-      }
-      
-      reminderTimes.add(time);
-    }
-
-    for (final time in reminderTimes) {
-      final title = NotificationTexts.waterReminderTitle;
-      final body = NotificationTexts.waterReminderBody(
-        time.hour, 
-        (waterProgressPercent ?? 0).toDouble()
-      );
-
-      await sendNotification(
-        type: NotificationType.waterReminder,
-        title: title,
-        body: body,
-        scheduledTime: time,
-        payload: {'action': 'drink_water'},
-      );
-    }
-  }
-  
-  Future<void> _scheduleContextualReminders() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final hasWorkoutToday = prefs.getBool(NotificationConfig.prefHasWorkoutToday) ?? false;
-    final heatIndex = prefs.getDouble(NotificationConfig.prefHeatIndex) ?? 20;
-
-    if (heatIndex > 27) {
-      await sendHeatWarning(heatIndex);
-    }
-
-    if (hasWorkoutToday) {
-      final workoutTimeStr = prefs.getString(NotificationConfig.prefWorkoutTime);
-      final durationMin = prefs.getInt(NotificationConfig.prefWorkoutDurationMinutes) ?? 60;
-
-      if (workoutTimeStr != null) {
-        final parts = workoutTimeStr.split(':');
-        final now = DateTime.now();
-        final workoutStart = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          int.parse(parts[0]),
-          int.parse(parts[1]),
-        );
-        final workoutEnd = workoutStart.add(Duration(minutes: durationMin));
-
-        await sendWorkoutReminder(workoutEndTime: workoutEnd);
-      }
-    }
-  }
-
-  Future<void> _scheduleFastingReminders() async {
-    if (!await _limitsHelper.isInFastingWindow()) return;
-
-    final now = DateTime.now();
-
-    for (final hm in NotificationConfig.fastingElectrolyteTimes) {
-      final time = DateTime(now.year, now.month, now.day, hm[0], hm[1]);
-      if (time.isAfter(now)) {
-        await sendNotification(
-          type: NotificationType.fastingElectrolyte,
-          title: NotificationTexts.fastingElectrolyteTitle,
-          body: NotificationTexts.fastingElectrolyteBody,
-          scheduledTime: time,
-          payload: {'action': 'add_electrolytes'},
-        );
-      }
-    }
   }
 
   // ==================== УПРАВЛЕНИЕ УВЕДОМЛЕНИЯМИ ====================
@@ -849,10 +1057,23 @@ class NotificationService {
     print('📋 Pending notifications: ${pending.length}');
 
     if (pending.isNotEmpty) {
+      // Группируем по типам
+      final Map<String, int> typeCount = {};
+      
       for (final notification in pending) {
-        print('  - ID: ${notification.id}');
-        print('    Title: ${notification.title}');
-        print('    Body: ${notification.body}');
+        final typeIdx = notification.id ~/ 1000;
+        final typeName = NotificationType.values[typeIdx].name;
+        typeCount[typeName] = (typeCount[typeName] ?? 0) + 1;
+      }
+      
+      typeCount.forEach((type, count) {
+        print('  - $type: $count notifications');
+      });
+      
+      // Показываем ближайшие 3
+      print('\n📋 Next 3 notifications:');
+      for (int i = 0; i < pending.length && i < 3; i++) {
+        print('  ${i + 1}. ${pending[i].title}');
       }
     }
 
@@ -861,9 +1082,9 @@ class NotificationService {
     final todayCount = prefs.getInt(NotificationConfig.prefNotificationCountToday) ?? 0;
     final currentLocale = NotificationTexts.currentLocale;
 
-    print('📋 User status: ${isPro ? "PRO" : "FREE"}');
+    print('\n📋 User status: ${isPro ? "PRO" : "FREE"}');
     print('📋 Today sent (FREE): $todayCount${isPro ? "" : "/4"}');
-    print('📋 Last coffee reminder: ${_lastNotificationTime[NotificationType.postCoffee]}');
+    print('📋 Notifications enabled: ${prefs.getBool(NotificationConfig.prefNotificationsEnabled) ?? true}');
     print('📋 Current locale: $currentLocale');
     print('📋 Timezone: ${tz.local.name}');
     print('📋 =================================\n');
@@ -1007,48 +1228,188 @@ class NotificationService {
 
   // ==================== ОБРАБОТКА СМЕНЫ ЯЗЫКА ====================
   
+  /// Вызывается при смене языка приложения
+  /// Пересоздает Android каналы и перепланирует уведомления с новыми текстами
   Future<void> onLocaleChanged(String localeCode) async {
     print('🌍 [NotificationService] Language change initiated: $localeCode');
     
     try {
+      // 1. Убеждаемся что сервис инициализирован
       if (!_isInitialized) {
         print('⚠️ NotificationService not initialized, initializing first...');
         await _initializeService();
       }
       
+      // 2. Обновляем тексты уведомлений на новый язык
       print('📝 Updating notification texts to: $localeCode');
       await NotificationTexts.setLocale(localeCode);
       
+      // 3. Для Android пересоздаем каналы с новыми локализованными названиями
       if (Platform.isAndroid) {
         print('🔧 Recreating Android notification channels...');
         await _createAndroidChannels();
       }
       
+      // 4. Получаем список текущих запланированных уведомлений
       final pendingBefore = await getPendingNotifications();
       print('📋 Found ${pendingBefore.length} pending notifications before locale change');
       
-      await cancelAllNotifications();
+      // 5. ВАЖНО: Сохраняем событийные уведомления перед отменой
+      final Map<int, Map<String, dynamic>> eventNotifications = {};
+      final eventTypes = {
+        NotificationType.postCoffee.index,      // После кофе - событийное
+        NotificationType.alcoholCounter.index,   // После алкоголя - событийное
+        NotificationType.alcoholRecovery.index,  // План восстановления - событийное
+        NotificationType.workoutReminder.index,  // После тренировки - событийное
+        NotificationType.morningCheckIn.index,   // Утренний чек-ин после алкоголя - событийное
+      };
       
+      // Извлекаем данные событийных уведомлений
+      for (final notification in pendingBefore) {
+        final typeIdx = notification.id ~/ 1000;
+        if (eventTypes.contains(typeIdx)) {
+          // Пытаемся извлечь время из ID уведомления
+          final day = (notification.id % 1000) ~/ 1440 + 1;
+          final minutesInDay = (notification.id % 1000) % 1440;
+          final hour = minutesInDay ~/ 60;
+          final minute = minutesInDay % 60;
+          
+          eventNotifications[notification.id] = {
+            'id': notification.id,
+            'typeIdx': typeIdx,
+            'title': notification.title,
+            'body': notification.body,
+            'payload': notification.payload,
+            'hour': hour,
+            'minute': minute,
+            'day': day,
+          };
+          
+          print('💾 Preserving event notification: Type=${NotificationType.values[typeIdx]} (ID: ${notification.id})');
+        }
+      }
+      
+      // 6. Отменяем ТОЛЬКО базовые уведомления (не событийные)
+      print('🗑️ Cancelling only baseline (non-event) notifications...');
+      
+      // Типы базовых уведомлений, которые нужно перепланировать
+      final baselineTypes = {
+        NotificationType.waterReminder,     // Регулярные напоминания о воде
+        NotificationType.dailyReport,        // Вечерний отчет
+        NotificationType.smartReminder,      // Умные напоминания
+        NotificationType.heatWarning,        // Предупреждения о жаре (перепланируются)
+        NotificationType.fastingElectrolyte, // Электролиты в пост
+      };
+      
+      // НЕ включаем в отмену:
+      // - postCoffee (событийное после добавления кофе)
+      // - alcoholCounter (событийное после добавления алкоголя)  
+      // - alcoholRecovery (план восстановления)
+      // - workoutReminder (после тренировки)
+      // - morningCheckIn (утренний чек-ин после алкоголя)
+      
+      await cancelByTypes(baselineTypes);
+      
+      // 7. Проверяем настройки пользователя
       final prefs = await SharedPreferences.getInstance();
-      final notificationsEnabled = prefs.getBool(NotificationConfig.prefNotificationsEnabled) ?? true;
+      final notificationsEnabled = prefs.getBool('notificationsEnabled') ?? true;
       
       if (!notificationsEnabled) {
         print('⚠️ Notifications are disabled, skipping rescheduling');
         return;
       }
       
-      await NotificationTexts.ensureLoaded();
-      await scheduleSmartReminders();
+      // 8. Перепланируем ТОЛЬКО базовые уведомления с новыми текстами
+      print('📅 Rescheduling baseline notifications with new locale...');
       
+      // Загружаем актуальные тексты
+      await NotificationTexts.ensureLoaded();
+      
+      // Сбрасываем метку обновления окна, чтобы форсировать перепланирование
+      await prefs.remove('schedule_window_last_refresh');
+      
+      // Планируем базовые напоминания на сегодня
+      await _ensureTodayNotifications();
+      
+      // Планируем на будущие дни (теперь окно не будет считаться свежим)
+      await _scheduleFutureDays();
+      
+      // 9. Проверяем результат
+      final pendingAfter = await getPendingNotifications();
+      
+      // Проверяем что событийные уведомления остались
+      int preservedCount = 0;
+      final Map<NotificationType, int> preservedByType = {};
+      
+      for (final notification in pendingAfter) {
+        final typeIdx = notification.id ~/ 1000;
+        if (eventNotifications.containsKey(notification.id)) {
+          preservedCount++;
+          final type = NotificationType.values[typeIdx];
+          preservedByType[type] = (preservedByType[type] ?? 0) + 1;
+        }
+      }
+      
+      print('✅ Locale change complete:');
+      print('   - Event notifications found before: ${eventNotifications.length}');
+      print('   - Event notifications preserved: $preservedCount');
+      print('   - Total notifications after: ${pendingAfter.length}');
+      
+      // Детальный вывод по типам событийных уведомлений
+      if (preservedByType.isNotEmpty) {
+        print('   - Preserved by type:');
+        preservedByType.forEach((type, count) {
+          print('     • ${type.name}: $count');
+        });
+      }
+      
+      // Если не все событийные уведомления сохранились, выводим предупреждение
+      if (preservedCount < eventNotifications.length) {
+        print('⚠️ WARNING: Not all event notifications were preserved!');
+        print('   Expected: ${eventNotifications.length}, Got: $preservedCount');
+        
+        // Проверяем какие именно потерялись
+        for (final entry in eventNotifications.entries) {
+          bool found = false;
+          for (final notification in pendingAfter) {
+            if (notification.id == entry.key) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            final typeIdx = entry.value['typeIdx'] as int;
+            print('   ❌ Lost: ${NotificationType.values[typeIdx].name} (ID: ${entry.key})');
+          }
+        }
+      }
+      
+      // Выводим примеры для проверки
+      if (pendingAfter.isNotEmpty) {
+        print('📬 Sample notifications after locale change:');
+        for (var i = 0; i < (pendingAfter.length > 3 ? 3 : pendingAfter.length); i++) {
+          final notification = pendingAfter[i];
+          final typeIdx = notification.id ~/ 1000;
+          print('   ${i+1}. Type: ${NotificationType.values[typeIdx].name}');
+          print('      Title: ${notification.title}');
+        }
+      }
+      
+      // 10. Логируем в аналитику
       await _analytics.logSettingsChanged(
         setting: 'notification_locale',
         value: localeCode,
       );
       
-      print('✅ Locale change complete');
+      print('📊 Analytics: locale changed to $localeCode');
+      print('   - Baseline notifications rescheduled');
+      print('   - Event notifications preserved: ${eventNotifications.length}');
       
-    } catch (e) {
+    } catch (e, stackTrace) {
       print('❌ Error changing notification locale: $e');
+      print('Stack trace: $stackTrace');
+      
+      // Логируем ошибку но не прерываем работу приложения
       await _analytics.logNotificationError(
         type: 'locale_change',
         error: e.toString(),
