@@ -1,9 +1,9 @@
 // ============================================================================
 // FILE: lib/screens/sports_screen.dart
 // 
-// PURPOSE: Sports Activity Screen with HRI integration
+// PURPOSE: Sports Activity Screen with Imperial/Metric support
 // Tracks workouts and automatically calculates hydration needs.
-// Integrates with HRI Service for dynamic risk calculation.
+// Supports both metric (ml, kg) and imperial (fl oz, lb) units.
 // 
 // FEATURES:
 // - Grid of sport types (3 FREE, 9 PRO)
@@ -20,6 +20,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../services/subscription_service.dart';
+import '../services/units_service.dart';
 import '../services/hri_service.dart';
 import '../services/notification_service.dart';
 import '../screens/paywall_screen.dart';
@@ -37,11 +38,13 @@ class _SportsScreenState extends State<SportsScreen> {
   int _selectedIndex = 0;
   final TextEditingController _durationController = TextEditingController(text: '30');
   bool _isPro = false;
-  double _userWeight = 70; // kg
+  double _userWeight = 70; // kg by default
+  String _units = 'metric';
 
   @override
   void initState() {
     super.initState();
+    _units = UnitsService.instance.units;
     _loadUserWeight();
     _checkForPreselectedValues();
   }
@@ -281,7 +284,7 @@ class _SportsScreenState extends State<SportsScreen> {
     final duration = double.tryParse(_durationController.text) ?? 0;
     final hours = duration / 60;
     
-    // Calculate needs based on weight and duration
+    // Calculate needs based on weight and duration (always in ml internally)
     final waterMl = (sport['mlPerKgPerHour'] as int) * _userWeight * hours;
     final sodiumMg = (sport['sodiumMgPerHour'] as int) * hours;
     final potassiumMg = (sport['potassiumMgPerHour'] as int) * hours;
@@ -293,6 +296,24 @@ class _SportsScreenState extends State<SportsScreen> {
       'potassium': potassiumMg.round(),
       'magnesium': magnesiumMg.round(),
     };
+  }
+
+  // Форматирование воды для отображения
+  String _formatWaterVolume(int waterMl) {
+    if (_units == 'imperial') {
+      final oz = waterMl / 29.5735;
+      return '${oz.round()} ${AppLocalizations.of(context).oz ?? 'oz'}';
+    }
+    return '$waterMl ${AppLocalizations.of(context).ml}';
+  }
+
+  // Форматирование веса для отображения
+  String _formatWeight(double weightKg) {
+    if (_units == 'imperial') {
+      final lb = weightKg * 2.20462;
+      return '${lb.round()} ${AppLocalizations.of(context).lb ?? 'lb'}';
+    }
+    return '${weightKg.round()} ${AppLocalizations.of(context).kg ?? 'kg'}';
   }
 
   Future<void> _logActivity() async {
@@ -314,7 +335,7 @@ class _SportsScreenState extends State<SportsScreen> {
     final hriService = Provider.of<HRIService>(context, listen: false);
     final sport = _sportTypes[_selectedIndex];
     
-    // Add water and electrolytes to hydration tracking
+    // Add water and electrolytes to hydration tracking (always in ml internally)
     provider.addIntake(
       'water', 
       needs['water']!,
@@ -333,14 +354,12 @@ class _SportsScreenState extends State<SportsScreen> {
     // Calculate HRI impact
     final workoutImpact = sport['intensityValue'] * (duration / 30.0);
     
-    // НОВОЕ: Планируем уведомление после тренировки (для PRO пользователей)
+    // Schedule post-workout notification (for PRO users)
     try {
       final NotificationService notificationService = NotificationService();
       
-      // Рассчитываем время окончания тренировки (сейчас + длительность)
       final workoutEndTime = DateTime.now().add(Duration(minutes: duration));
       
-      // Планируем post-workout напоминание через 30 минут после окончания
       await notificationService.sendWorkoutReminder(
         workoutEndTime: workoutEndTime,
       );
@@ -348,11 +367,12 @@ class _SportsScreenState extends State<SportsScreen> {
       print('✅ Post-workout reminder scheduled for ${workoutEndTime.add(const Duration(minutes: 30))}');
     } catch (e) {
       print('⚠️ Failed to schedule workout reminder: $e');
-      // Не прерываем основной процесс, если уведомление не удалось запланировать
     }
     
     if (mounted) {
-      // Show detailed success message
+      // Show detailed success message with correct units
+      final waterDisplay = _formatWaterVolume(needs['water']!);
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Column(
@@ -364,7 +384,7 @@ class _SportsScreenState extends State<SportsScreen> {
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
-              Text('Hydration: +${needs['water']} ml'),
+              Text('Hydration: +$waterDisplay'),
               Text('Electrolytes: Na +${needs['sodium']}mg, K +${needs['potassium']}mg'),
               Text('HRI Impact: +${workoutImpact.toStringAsFixed(1)} points'),
             ],
@@ -685,14 +705,14 @@ class _SportsScreenState extends State<SportsScreen> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          // Water
+                          // Water - показываем в правильных единицах
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.water_drop, color: Colors.blue[600], size: 20),
                               const SizedBox(width: 8),
                               Text(
-                                '${hydrationNeeds['water']} ml',
+                                _formatWaterVolume(hydrationNeeds['water']!),
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -702,7 +722,7 @@ class _SportsScreenState extends State<SportsScreen> {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          // Electrolytes
+                          // Electrolytes (всегда в mg)
                           Wrap(
                             spacing: 16,
                             runSpacing: 8,
@@ -755,7 +775,7 @@ class _SportsScreenState extends State<SportsScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '${l10n.basedOnWeight ?? 'Based on'}: ${_userWeight.round()} ${l10n.kg ?? 'kg'}',
+                      '${l10n.basedOnWeight ?? 'Based on'}: ${_formatWeight(_userWeight)}',
                       style: TextStyle(
                         fontSize: 11,
                         color: Colors.teal[600],

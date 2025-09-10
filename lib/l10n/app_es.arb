@@ -1173,6 +1173,26 @@
   "notificationTestTitle": "🧪 Notificación de prueba",
   "notificationTestBody": "Si ves esto, ¡las notificaciones funcionan!",
   "notificationTestScheduledTitle": "⏰ Prueba programada",
-  "notificationTestScheduledBody": "Esta notificación fue programada hace un minuto"
+  "notificationTestScheduledBody": "Esta notificación fue programada hace un minuto",
+  "onboardingUnitsTitle": "Elige tus unidades",
+"@onboardingUnitsTitle": {
+  "description": "Units selection page title"
+},
+
+"onboardingUnitsSubtitle": "No podrás cambiarlo más tarde",
+"@onboardingUnitsSubtitle": {
+  "description": "Units selection warning"
+},
+
+"onboardingUnitsWarning": "Esta elección es permanente y no se puede cambiar después",
+"@onboardingUnitsWarning": {
+  "description": "Permanent choice warning for units"
+},
+"oz": "oz",
+"fl_oz": "fl oz",
+"gallons": "gal",
+"lb": "lb",
+"onboardingYouWillReceive": "Recibirás:",
+"onboardingPrivacyNote": "Puedes ajustar la frecuencia o desactivar en cualquier momento"
 
 }

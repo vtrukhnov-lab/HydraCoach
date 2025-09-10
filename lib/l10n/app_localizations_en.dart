@@ -2251,4 +2251,26 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notificationTestScheduledBody =>
       'This notification was scheduled 1 minute ago';
+
+  @override
+  String get onboardingUnitsTitle => 'Choose your units';
+
+  @override
+  String get onboardingUnitsSubtitle => 'You can\'t change this later';
+
+  @override
+  String get onboardingUnitsWarning =>
+      'This choice is permanent and cannot be changed later';
+
+  @override
+  String get oz => 'oz';
+
+  @override
+  String get fl_oz => 'fl oz';
+
+  @override
+  String get gallons => 'gal';
+
+  @override
+  String get lb => 'lb';
 }

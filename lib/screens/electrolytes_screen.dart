@@ -1,17 +1,9 @@
 // ============================================================================
 // FILE: lib/screens/electrolytes_screen.dart
 // 
-// PURPOSE: Electrolytes Screen with consistent UI/UX
+// PURPOSE: Electrolytes Screen with Imperial/Metric support
 // Allows users to select and log various electrolyte supplements.
-// Matches the style of alcohol and hot drinks screens.
-// 
-// FEATURES:
-// - 3x4 grid of electrolyte types (3 FREE, 9 PRO)
-// - Volume input with quick preset buttons
-// - Proportional calculation of Na/K/Mg based on volume
-// - Save to favorites functionality
-// - PRO gating for premium electrolyte types
-// - Orange color scheme
+// Supports both metric (ml) and imperial (fl oz) units.
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -20,6 +12,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/quick_favorites.dart';
 import '../services/subscription_service.dart';
+import '../services/units_service.dart';
 import '../screens/paywall_screen.dart';
 import 'package:hydracoach/providers/hydration_provider.dart';
 
@@ -33,13 +26,15 @@ class ElectrolytesScreen extends StatefulWidget {
 class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
   List<Map<String, dynamic>> _electrolyteTypes = [];
   int _selectedIndex = 0;
-  final TextEditingController _volumeController = TextEditingController(text: '250');
+  final TextEditingController _volumeController = TextEditingController();
   final QuickFavoritesManager _favoritesManager = QuickFavoritesManager();
   bool _isPro = false;
+  String _units = 'metric';
 
   @override
   void initState() {
     super.initState();
+    _units = UnitsService.instance.units;
     _initializeFavorites();
     _checkForPreselectedValues();
   }
@@ -52,6 +47,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
   
   void _initializeElectrolyteTypes() {
     final l10n = AppLocalizations.of(context);
+    final isImperial = _units == 'imperial';
     
     _electrolyteTypes = [
       // FREE типы
@@ -59,8 +55,8 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
         'type': 'salt_water',
         'label': l10n.saltQuarterTsp,
         'icon': Icons.grain,
-        'defaultVolume': 250,
-        'sodium': 600,      // на 250ml
+        'defaultVolume': isImperial ? 8 : 250,
+        'sodium': 600,      // на 250ml / 8oz
         'potassium': 0,
         'magnesium': 0,
         'isPro': false
@@ -69,7 +65,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
         'type': 'electrolyte_mix',
         'label': l10n.electrolyteMix,
         'icon': Icons.water_drop,
-        'defaultVolume': 250,
+        'defaultVolume': isImperial ? 8 : 250,
         'sodium': 500,
         'potassium': 200,
         'magnesium': 50,
@@ -79,7 +75,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
         'type': 'bone_broth',
         'label': l10n.boneBroth,
         'icon': Icons.soup_kitchen,
-        'defaultVolume': 250,
+        'defaultVolume': isImperial ? 8 : 250,
         'sodium': 800,
         'potassium': 100,
         'magnesium': 0,
@@ -88,9 +84,9 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
       // PRO типы
       {
         'type': 'lmnt_mix',
-        'label': l10n.lmntMix ?? 'LMNT Mix',
+        'label': l10n.lmntMix,
         'icon': Icons.science,
-        'defaultVolume': 250,
+        'defaultVolume': isImperial ? 8 : 250,
         'sodium': 1000,
         'potassium': 200,
         'magnesium': 60,
@@ -98,9 +94,9 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
       },
       {
         'type': 'pickle_juice',
-        'label': l10n.pickleJuice ?? 'Pickle Juice',
+        'label': l10n.pickleJuice,
         'icon': Icons.liquor,
-        'defaultVolume': 100,
+        'defaultVolume': isImperial ? 3 : 100,
         'sodium': 900,
         'potassium': 70,
         'magnesium': 0,
@@ -108,9 +104,9 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
       },
       {
         'type': 'tomato_salt',
-        'label': l10n.tomatoSalt ?? 'Tomato + Salt',
+        'label': l10n.tomatoSalt,
         'icon': Icons.local_drink,
-        'defaultVolume': 200,
+        'defaultVolume': isImperial ? 7 : 200,
         'sodium': 650,
         'potassium': 400,
         'magnesium': 0,
@@ -118,9 +114,9 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
       },
       {
         'type': 'ketorade',
-        'label': l10n.ketorade ?? 'Ketorade',
+        'label': l10n.ketorade,
         'icon': Icons.battery_charging_full,
-        'defaultVolume': 500,
+        'defaultVolume': isImperial ? 16 : 500,
         'sodium': 750,
         'potassium': 300,
         'magnesium': 100,
@@ -128,9 +124,9 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
       },
       {
         'type': 'alkaline_water',
-        'label': l10n.alkalineWater ?? 'Alkaline Water',
+        'label': l10n.alkalineWater,
         'icon': Icons.opacity,
-        'defaultVolume': 500,
+        'defaultVolume': isImperial ? 16 : 500,
         'sodium': 100,
         'potassium': 50,
         'magnesium': 30,
@@ -138,9 +134,9 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
       },
       {
         'type': 'celtic_salt',
-        'label': l10n.celticSalt ?? 'Celtic Salt',
+        'label': l10n.celticSalt,
         'icon': Icons.waves,
-        'defaultVolume': 250,
+        'defaultVolume': isImperial ? 8 : 250,
         'sodium': 480,
         'potassium': 40,
         'magnesium': 120,
@@ -148,9 +144,9 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
       },
       {
         'type': 'sole_water',
-        'label': l10n.soleWater ?? 'Sole Water',
+        'label': l10n.soleWater,
         'icon': Icons.water,
-        'defaultVolume': 280,
+        'defaultVolume': isImperial ? 10 : 280,
         'sodium': 2000,
         'potassium': 0,
         'magnesium': 0,
@@ -158,9 +154,9 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
       },
       {
         'type': 'mineral_drops',
-        'label': l10n.mineralDrops ?? 'Mineral Drops',
+        'label': l10n.mineralDrops,
         'icon': Icons.water_drop_outlined,
-        'defaultVolume': 500,
+        'defaultVolume': isImperial ? 16 : 500,
         'sodium': 50,
         'potassium': 100,
         'magnesium': 200,
@@ -168,9 +164,9 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
       },
       {
         'type': 'baking_soda',
-        'label': l10n.bakingSoda ?? 'Baking Soda',
+        'label': l10n.bakingSoda,
         'icon': Icons.bubble_chart,
-        'defaultVolume': 250,
+        'defaultVolume': isImperial ? 8 : 250,
         'sodium': 630,
         'potassium': 0,
         'magnesium': 0,
@@ -182,6 +178,13 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
     if (_electrolyteTypes.isNotEmpty) {
       _volumeController.text = _electrolyteTypes[0]['defaultVolume'].toString();
     }
+  }
+
+  // Быстрые объемы в текущих единицах
+  List<int> _getQuickVolumes() {
+    return _units == 'imperial' 
+      ? [8, 12, 16]  // oz
+      : [250, 500, 750];  // ml
   }
 
   void _checkForPreselectedValues() {
@@ -198,7 +201,12 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
             }
           }
           if (args['volume'] != null) {
-            _volumeController.text = args['volume'].toString();
+            // Конвертируем из мл в текущие единицы
+            final volumeMl = args['volume'] as int;
+            final displayVolume = _units == 'imperial' 
+              ? (volumeMl / 29.5735).round() 
+              : volumeMl;
+            _volumeController.text = displayVolume.toString();
           }
         });
       }
@@ -247,11 +255,16 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
     }
     
     final electrolyte = _electrolyteTypes[_selectedIndex];
-    final volume = double.tryParse(_volumeController.text) ?? 250;
-    final defaultVolume = (electrolyte['defaultVolume'] as int).toDouble();
+    var volume = double.tryParse(_volumeController.text) ?? 0;
+    
+    // Конвертируем в мл для расчетов
+    final volumeMl = _units == 'imperial' ? volume * 29.5735 : volume;
+    
+    // Базовый объем в мл (250ml = ~8oz)
+    const baseVolumeMl = 250.0;
     
     // Calculate electrolytes proportionally to volume
-    final ratio = volume / defaultVolume;
+    final ratio = volumeMl / baseVolumeMl;
     
     return {
       'sodium': (electrolyte['sodium'] * ratio).round(),
@@ -262,7 +275,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
 
   Future<void> _saveIntake() async {
     final l10n = AppLocalizations.of(context);
-    final volume = int.tryParse(_volumeController.text);
+    var volume = int.tryParse(_volumeController.text);
     
     if (volume == null || volume <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -271,12 +284,17 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
       return;
     }
 
+    // Конвертируем в мл для сохранения
+    final volumeMl = _units == 'imperial' 
+      ? (volume * 29.5735).round()
+      : volume;
+
     final amounts = _calculateElectrolytes();
     final provider = Provider.of<HydrationProvider>(context, listen: false);
     
     provider.addIntake(
       'electrolyte',
-      volume,
+      volumeMl,
       sodium: amounts['sodium']!,
       potassium: amounts['potassium']!,
       magnesium: amounts['magnesium']!,
@@ -289,7 +307,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
 
   Future<void> _saveToFavorites() async {
     final l10n = AppLocalizations.of(context);
-    final volume = int.tryParse(_volumeController.text);
+    var volume = int.tryParse(_volumeController.text);
     
     if (volume == null || volume <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -301,22 +319,30 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
     final slot = await _showFavoriteSlotSelector(l10n);
     if (slot == null) return;
 
+    // Конвертируем в мл для сохранения
+    final volumeMl = _units == 'imperial' 
+      ? (volume * 29.5735).round()
+      : volume;
+
     final electrolyte = _electrolyteTypes[_selectedIndex];
     final amounts = _calculateElectrolytes();
-    final label = '${electrolyte['label']} ${volume}ml';
+    
+    // Форматируем метку с правильными единицами
+    final volumeUnit = _units == 'imperial' ? (l10n.oz ?? 'oz') : l10n.ml;
+    final label = '${electrolyte['label']} $volume$volumeUnit';
     
     final favorite = QuickFavorite(
-      id: 'electrolyte_${electrolyte['type']}_$volume',
+      id: 'electrolyte_${electrolyte['type']}_$volumeMl',
       type: 'electrolyte',
       label: label,
       emoji: '',
-      volumeMl: volume,
+      volumeMl: volumeMl,
       sodiumMg: amounts['sodium']!,
       potassiumMg: amounts['potassium']!,
       magnesiumMg: amounts['magnesium']!,
       metadata: {
         'electrolyteType': electrolyte['type'],
-        'volume': volume,
+        'volume': volumeMl,
       },
     );
 
@@ -438,6 +464,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
     _isPro = subscription.isPro;
     
     final electrolyteAmounts = _calculateElectrolytes();
+    final volumeUnit = _units == 'imperial' ? (l10n.oz ?? 'oz') : l10n.ml;
     
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -610,20 +637,47 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(color: Colors.orange[500]!, width: 2),
                       ),
-                      suffixText: l10n.ml,
+                      suffixText: volumeUnit,
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                // Quick volume buttons
-                Wrap(
-                  spacing: 8,
-                  children: [
-                    _buildVolumeChip('250'),
-                    _buildVolumeChip('500'),
-                    _buildVolumeChip('750'),
-                  ],
-                ),
+                const SizedBox(width: 8),
+                // Quick volume buttons - адаптивные под тип напитка
+                ..._getQuickVolumes().map((volume) {
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _volumeController.text = volume.toString();
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _volumeController.text == volume.toString()
+                            ? Colors.orange[500]
+                            : Colors.white,
+                        foregroundColor: _volumeController.text == volume.toString()
+                            ? Colors.white
+                            : Colors.orange[700],
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: _volumeController.text == volume.toString()
+                                ? Colors.orange[500]!
+                                : Colors.orange[200]!,
+                            width: 1.5,
+                          ),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        volume.toString(),
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  );
+                }),
               ],
             ),
             
@@ -659,7 +713,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
                     ),
                   const SizedBox(height: 8),
                   Text(
-                    '${_volumeController.text} ${l10n.ml}',
+                    '${_volumeController.text} $volumeUnit',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w300,
@@ -784,23 +838,6 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
             const SizedBox(height: 32),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildVolumeChip(String volume) {
-    final isSelected = _volumeController.text == volume;
-    return ActionChip(
-      label: Text('$volume ml'),
-      onPressed: () {
-        setState(() {
-          _volumeController.text = volume;
-        });
-      },
-      backgroundColor: isSelected ? Colors.orange[100] : Colors.grey[100],
-      labelStyle: TextStyle(
-        color: isSelected ? Colors.orange[700] : Colors.grey[700],
-        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
       ),
     );
   }

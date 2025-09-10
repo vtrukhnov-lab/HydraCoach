@@ -1,16 +1,9 @@
 // ============================================================================
 // FILE: lib/screens/hot_drinks_screen.dart
 // 
-// PURPOSE: Hot Drinks Screen with full HRI caffeine integration
+// PURPOSE: Hot Drinks Screen with Imperial/Metric support
 // Tracks various hot beverages and their caffeine content for HRI calculation.
-// 
-// FEATURES:
-// - Grid of hot drink types (3 FREE, 6 PRO)
-// - Accurate caffeine tracking per drink type and volume
-// - Integration with HRI Service for caffeine impact
-// - Save to favorites functionality
-// - Smart volume suggestions per drink type
-// - PRO gating for premium drinks
+// Supports both metric (ml) and imperial (fl oz) units.
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -19,6 +12,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/quick_favorites.dart';
 import '../services/subscription_service.dart';
+import '../services/units_service.dart';
 import '../services/hri_service.dart';
 import '../screens/paywall_screen.dart';
 import 'package:hydracoach/providers/hydration_provider.dart';
@@ -33,13 +27,15 @@ class HotDrinksScreen extends StatefulWidget {
 class _HotDrinksScreenState extends State<HotDrinksScreen> {
   List<Map<String, dynamic>> _drinkTypes = [];
   int _selectedIndex = 0;
-  final TextEditingController _volumeController = TextEditingController(text: '200');
+  final TextEditingController _volumeController = TextEditingController();
   final QuickFavoritesManager _favoritesManager = QuickFavoritesManager();
   bool _isPro = false;
+  String _units = 'metric';
 
   @override
   void initState() {
     super.initState();
+    _units = UnitsService.instance.units;
     _initializeFavorites();
     _checkForPreselectedValues();
   }
@@ -52,6 +48,7 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
   
   void _initializeDrinkTypes() {
     final l10n = AppLocalizations.of(context);
+    final isImperial = _units == 'imperial';
     
     _drinkTypes = [
       // FREE drinks
@@ -59,26 +56,26 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
         'type': 'coffee',
         'label': l10n.coffee,
         'icon': Icons.coffee,
-        'defaultVolume': 200,
-        'caffeineMgPer100ml': 40, // Стандартный кофе: 40mg на 100ml
+        'defaultVolume': isImperial ? 8 : 200,  // 8 oz / 200 ml
+        'caffeineMgPer100ml': 40,
         'isPro': false,
         'color': Colors.brown,
       },
       {
         'type': 'black_tea',
-        'label': l10n.blackTea ?? 'Black Tea',
+        'label': l10n.blackTea,
         'icon': Icons.emoji_food_beverage,
-        'defaultVolume': 250,
-        'caffeineMgPer100ml': 20, // Черный чай: 20mg на 100ml
+        'defaultVolume': isImperial ? 8 : 250,  // 8 oz / 250 ml
+        'caffeineMgPer100ml': 20,
         'isPro': false,
         'color': Colors.brown[800],
       },
       {
         'type': 'herbal_tea',
-        'label': l10n.herbalTea ?? 'Herbal Tea',
+        'label': l10n.herbalTea,
         'icon': Icons.local_florist,
-        'defaultVolume': 250,
-        'caffeineMgPer100ml': 0, // Травяной чай: без кофеина
+        'defaultVolume': isImperial ? 8 : 250,  // 8 oz / 250 ml
+        'caffeineMgPer100ml': 0,
         'isPro': false,
         'color': Colors.green[700],
       },
@@ -86,55 +83,55 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
       // PRO drinks
       {
         'type': 'espresso',
-        'label': l10n.espresso ?? 'Espresso',
+        'label': l10n.espresso,
         'icon': Icons.coffee_maker,
-        'defaultVolume': 30,
-        'caffeineMgPer100ml': 212, // Эспрессо: 212mg на 100ml (64mg на 30ml)
+        'defaultVolume': isImperial ? 1 : 30,  // 1 oz / 30 ml
+        'caffeineMgPer100ml': 212,
         'isPro': true,
         'color': Colors.brown[900],
       },
       {
         'type': 'cappuccino',
-        'label': l10n.cappuccino ?? 'Cappuccino',
+        'label': l10n.cappuccino,
         'icon': Icons.free_breakfast,
-        'defaultVolume': 180,
-        'caffeineMgPer100ml': 42, // Капучино: ~75mg на 180ml
+        'defaultVolume': isImperial ? 6 : 180,  // 6 oz / 180 ml
+        'caffeineMgPer100ml': 42,
         'isPro': true,
         'color': Colors.brown[600],
       },
       {
         'type': 'latte',
-        'label': l10n.latte ?? 'Latte',
+        'label': l10n.latte,
         'icon': Icons.local_cafe,
-        'defaultVolume': 250,
-        'caffeineMgPer100ml': 30, // Латте: 75mg на 250ml
+        'defaultVolume': isImperial ? 8 : 250,  // 8 oz / 250 ml
+        'caffeineMgPer100ml': 30,
         'isPro': true,
         'color': Colors.brown[400],
       },
       {
         'type': 'green_tea',
-        'label': l10n.greenTea ?? 'Green Tea',
+        'label': l10n.greenTea,
         'icon': Icons.eco,
-        'defaultVolume': 250,
-        'caffeineMgPer100ml': 12, // Зеленый чай: 12mg на 100ml
+        'defaultVolume': isImperial ? 8 : 250,  // 8 oz / 250 ml
+        'caffeineMgPer100ml': 12,
         'isPro': true,
         'color': Colors.green[600],
       },
       {
         'type': 'matcha',
-        'label': l10n.matcha ?? 'Matcha',
+        'label': l10n.matcha,
         'icon': Icons.grass,
-        'defaultVolume': 200,
-        'caffeineMgPer100ml': 35, // Матча: 70mg на 200ml
+        'defaultVolume': isImperial ? 6 : 200,  // 6 oz / 200 ml
+        'caffeineMgPer100ml': 35,
         'isPro': true,
         'color': Colors.green[800],
       },
       {
         'type': 'hot_chocolate',
-        'label': l10n.hotChocolate ?? 'Hot Chocolate',
+        'label': l10n.hotChocolate,
         'icon': Icons.cake,
-        'defaultVolume': 250,
-        'caffeineMgPer100ml': 2, // Горячий шоколад: 5mg на 250ml
+        'defaultVolume': isImperial ? 8 : 250,  // 8 oz / 250 ml
+        'caffeineMgPer100ml': 2,
         'isPro': true,
         'color': Colors.brown[300],
       },
@@ -147,26 +144,28 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
 
   // Быстрые объемы в зависимости от типа напитка
   List<int> _getQuickVolumes() {
-    if (_drinkTypes.isEmpty) return [100, 200, 250];
+    if (_drinkTypes.isEmpty) return _units == 'imperial' ? [6, 8, 12] : [100, 200, 250];
     
     final drinkType = _drinkTypes[_selectedIndex]['type'] as String;
+    final isImperial = _units == 'imperial';
+    
     switch (drinkType) {
       case 'espresso':
-        return [30, 60, 90];
+        return isImperial ? [1, 2, 3] : [30, 60, 90];
       case 'coffee':
       case 'cappuccino':
-        return [150, 200, 250];
+        return isImperial ? [6, 8, 10] : [150, 200, 250];
       case 'latte':
-        return [200, 250, 350];
+        return isImperial ? [8, 10, 12] : [200, 250, 350];
       case 'black_tea':
       case 'green_tea':
       case 'herbal_tea':
       case 'matcha':
-        return [200, 250, 350];
+        return isImperial ? [8, 10, 12] : [200, 250, 350];
       case 'hot_chocolate':
-        return [200, 250, 300];
+        return isImperial ? [8, 10, 12] : [200, 250, 300];
       default:
-        return [150, 200, 250];
+        return isImperial ? [6, 8, 10] : [150, 200, 250];
     }
   }
 
@@ -184,7 +183,12 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
             }
           }
           if (args['volume'] != null) {
-            _volumeController.text = args['volume'].toString();
+            // Конвертируем из мл в текущие единицы
+            final volumeMl = args['volume'] as int;
+            final displayVolume = _units == 'imperial' 
+              ? (volumeMl / 29.5735).round() 
+              : volumeMl;
+            _volumeController.text = displayVolume.toString();
           }
         });
       }
@@ -232,11 +236,15 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
     if (_drinkTypes.isEmpty) return 0;
     
     final drink = _drinkTypes[_selectedIndex];
-    final volume = double.tryParse(_volumeController.text) ?? 0;
+    var volume = double.tryParse(_volumeController.text) ?? 0;
+    
+    // Конвертируем в мл для расчетов
+    final volumeMl = _units == 'imperial' ? volume * 29.5735 : volume;
+    
     final caffeinePer100ml = drink['caffeineMgPer100ml'] as int;
     
     // Кофеин = (мг на 100мл) * (объем / 100)
-    return (caffeinePer100ml * volume / 100);
+    return (caffeinePer100ml * volumeMl / 100);
   }
 
   // Определяем источник напитка для HRI
@@ -267,7 +275,7 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
 
   Future<void> _saveIntake() async {
     final l10n = AppLocalizations.of(context);
-    final volume = int.tryParse(_volumeController.text);
+    var volume = int.tryParse(_volumeController.text);
     
     if (volume == null || volume <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -279,6 +287,11 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
       return;
     }
 
+    // Конвертируем в мл для сохранения
+    final volumeMl = _units == 'imperial' 
+      ? (volume * 29.5735).round()
+      : volume;
+
     final provider = Provider.of<HydrationProvider>(context, listen: false);
     final hriService = Provider.of<HRIService>(context, listen: false);
     
@@ -289,7 +302,7 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
     // Добавляем воду в систему гидратации
     // Используем тип 'coffee' только для напитков с кофеином для активации напоминаний
     final intakeType = caffeine > 0 ? 'coffee' : 'hot';
-    provider.addIntake(intakeType, volume);
+    provider.addIntake(intakeType, volumeMl);
     
     // ВАЖНО: Добавляем кофеин в HRI Service если он есть
     if (caffeine > 0) {
@@ -297,9 +310,10 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
       
       // Показываем уведомление о кофеине
       if (mounted) {
+        final volumeUnit = _units == 'imperial' ? (l10n.oz ?? 'oz') : l10n.ml;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$drinkLabel added: ${volume}ml (${caffeine.toStringAsFixed(0)}mg caffeine)'),
+            content: Text('$drinkLabel added: $volume$volumeUnit (${caffeine.toStringAsFixed(0)}mg caffeine)'),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
           ),
@@ -308,9 +322,10 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
     } else {
       // Для напитков без кофеина
       if (mounted) {
+        final volumeUnit = _units == 'imperial' ? (l10n.oz ?? 'oz') : l10n.ml;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$drinkLabel added: ${volume}ml (caffeine-free)'),
+            content: Text('$drinkLabel added: $volume$volumeUnit (caffeine-free)'),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 2),
           ),
@@ -325,7 +340,7 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
 
   Future<void> _saveToFavorites() async {
     final l10n = AppLocalizations.of(context);
-    final volume = int.tryParse(_volumeController.text);
+    var volume = int.tryParse(_volumeController.text);
     
     if (volume == null || volume <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -337,20 +352,26 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
     final slot = await _showFavoriteSlotSelector(l10n);
     if (slot == null) return;
 
+    // Конвертируем в мл для сохранения
+    final volumeMl = _units == 'imperial' 
+      ? (volume * 29.5735).round()
+      : volume;
+
     final drink = _drinkTypes[_selectedIndex];
     final caffeine = _calculateCaffeine();
     
-    String label = '${drink['label']} ${volume}ml';
+    final volumeUnit = _units == 'imperial' ? (l10n.oz ?? 'oz') : l10n.ml;
+    String label = '${drink['label']} $volume$volumeUnit';
     if (caffeine > 0) {
       label += ' (${caffeine.toStringAsFixed(0)}mg)';
     }
     
     final favorite = QuickFavorite(
-      id: 'hot_${drink['type']}_$volume',
+      id: 'hot_${drink['type']}_$volumeMl',
       type: caffeine > 0 ? 'coffee' : 'hot',
       label: label,
       emoji: '',
-      volumeMl: volume,
+      volumeMl: volumeMl,
       sodiumMg: 0,
       potassiumMg: 0,
       magnesiumMg: 0,
@@ -470,11 +491,12 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
     _isPro = subscription.isPro;
     
     final caffeine = _calculateCaffeine();
+    final volumeUnit = _units == 'imperial' ? (l10n.oz ?? 'oz') : l10n.ml;
     
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text(l10n.hotDrinks ?? 'Hot Drinks'),
+        title: Text(l10n.hotDrinks),
         elevation: 0,
         backgroundColor: Colors.brown[500],
         foregroundColor: Colors.white,
@@ -485,7 +507,7 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n.selectDrinkType ?? 'Select drink type',
+              l10n.selectDrinkType,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -638,7 +660,7 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(color: Colors.brown[500]!, width: 2),
                       ),
-                      suffixText: l10n.ml,
+                      suffixText: volumeUnit,
                     ),
                   ),
                 ),
@@ -715,7 +737,7 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '${_volumeController.text.isEmpty ? '0' : _volumeController.text} ${l10n.ml}',
+                      '${_volumeController.text.isEmpty ? '0' : _volumeController.text} $volumeUnit',
                       style: TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
@@ -743,7 +765,7 @@ class _HotDrinksScreenState extends State<HotDrinksScreen> {
                         const SizedBox(width: 8),
                         Text(
                           caffeine > 0 
-                              ? '${l10n.caffeine ?? 'Caffeine'}: ${caffeine.toStringAsFixed(0)} mg'
+                              ? '${l10n.caffeine}: ${caffeine.toStringAsFixed(0)} mg'
                               : '${l10n.caffeine}: 0 mg',
                           style: TextStyle(
                             fontSize: caffeine > 0 ? 16 : 14,

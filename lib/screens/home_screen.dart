@@ -1,6 +1,6 @@
 // lib/screens/home_screen.dart
 // 
-// Main home screen - Complete rewrite with all fixes
+// Main home screen - Updated with UnitsService integration
 // Shows hydration status, HRI, active factors, and daily progress
 
 import 'package:flutter/material.dart';
@@ -16,6 +16,7 @@ import '../services/hri_service.dart';
 import '../services/weather_service.dart';
 import '../services/subscription_service.dart';
 import '../services/alcohol_service.dart';
+import '../services/units_service.dart';  // ДОБАВЛЕН ИМПОРТ
 
 // Providers
 import '../providers/hydration_provider.dart';
@@ -250,6 +251,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final alcohol = Provider.of<AlcoholService>(context);
     final hri = Provider.of<HRIService>(context);
     final weather = Provider.of<WeatherService>(context);
+    final units = Provider.of<UnitsService>(context);  // ПОЛУЧАЕМ СЕРВИС
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -266,19 +268,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
                 // Weather Card
                 SliverToBoxAdapter(
-                  child: _buildWeatherCard(weather, l10n),
+                  child: _buildWeatherCard(weather, units, l10n),
                 ),
 
                 // Main Progress Card
                 SliverToBoxAdapter(
-                  child: _buildMainProgressCard(provider, l10n),
+                  child: _buildMainProgressCard(provider, units, l10n),
                 ),
 
                 // Smart Advice Card with Ion
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: kCardPadding),
-                    child: _buildSmartAdviceCard(provider, alcohol, hri, weather, l10n),
+                    child: _buildSmartAdviceCard(provider, alcohol, hri, weather, units, l10n),
                   ).animate().fadeIn(delay: 450.ms),
                 ),
 
@@ -301,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 // Today's History
                 if (provider.todayIntakes.isNotEmpty || alcohol.todayIntakes.isNotEmpty)
                   SliverToBoxAdapter(
-                    child: _buildTodayHistory(provider, alcohol, l10n),
+                    child: _buildTodayHistory(provider, alcohol, units, l10n),
                   ),
 
                 // Bottom padding
@@ -415,9 +417,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   // UI BUILDERS - WEATHER
   // ============================================================================
   
-  Widget _buildWeatherCard(WeatherService weather, AppLocalizations l10n) {
+  Widget _buildWeatherCard(WeatherService weather, UnitsService units, AppLocalizations l10n) {
     final weatherData = weather.currentWeather;
     final heatIndex = weather.heatIndex;
+    
+    // Конвертируем температуру в выбранные единицы
+    final displayTemp = weatherData != null 
+        ? units.formatTemperature(weatherData.temperature)
+        : '--°';
+    final displayHeatIndex = heatIndex != null
+        ? units.toDisplayTemperature(heatIndex).round()
+        : null;
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: kCardPadding, vertical: 8),
@@ -440,9 +450,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                weatherData != null 
-                    ? '${weatherData.temperature.round()}°C'
-                    : '--°C',
+                displayTemp,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 28,
@@ -459,7 +467,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             ],
           ),
           const Spacer(),
-          if (heatIndex != null)
+          if (displayHeatIndex != null)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
@@ -476,7 +484,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     ),
                   ),
                   Text(
-                    '${heatIndex.round()}°',
+                    '$displayHeatIndex${units.temperatureUnit.substring(1)}',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -495,7 +503,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   // UI BUILDERS - MAIN PROGRESS
   // ============================================================================
   
-  Widget _buildMainProgressCard(HydrationProvider provider, AppLocalizations l10n) {
+  Widget _buildMainProgressCard(HydrationProvider provider, UnitsService units, AppLocalizations l10n) {
     final progress = provider.getProgress();
     
     return Container(
@@ -515,7 +523,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       child: Column(
         children: [
           // Water Ring
-          _buildWaterRing(progress, l10n),
+          _buildWaterRing(progress, units, l10n),
           const SizedBox(height: 20),
           
           // Electrolyte Bars
@@ -550,9 +558,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     ).animate().fadeIn(delay: 300.ms);
   }
 
-  Widget _buildWaterRing(Map<String, double> progress, AppLocalizations l10n) {
+  Widget _buildWaterRing(Map<String, double> progress, UnitsService units, AppLocalizations l10n) {
     final waterPercent = progress['waterPercent'] ?? 0;
     final waterAmount = progress['water'] ?? 0;
+    
+    // Форматируем объём в выбранных единицах
+    final displayVolume = units.formatVolume(waterAmount.toInt());
     
     return Center(
       child: SizedBox(
@@ -594,7 +605,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   ),
                 ),
                 Text(
-                  '${waterAmount.toInt()} ${l10n.ml}',
+                  displayVolume,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -678,9 +689,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     AlcoholService alcoholService,
     HRIService hriService,
     WeatherService weatherService,
+    UnitsService units,
     AppLocalizations l10n,
   ) {
-    final advice = _getSmartAdvice(provider, alcoholService, hriService, weatherService, l10n);
+    final advice = _getSmartAdvice(provider, alcoholService, hriService, weatherService, units, l10n);
     
     return Container(
       margin: const EdgeInsets.only(top: 8, bottom: 12),
@@ -741,6 +753,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     AlcoholService alcoholService,
     HRIService hriService,
     WeatherService weatherService,
+    UnitsService units,
     AppLocalizations l10n,
   ) {
     final waterRatio = provider.goals.waterOpt > 0 
@@ -750,11 +763,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ? provider.totalSodiumToday / provider.goals.sodium 
         : 0.0;
 
-    // Critical overhydration
+    // Critical overhydration - конвертируем объёмы
     if (waterRatio > 2.0) {
+      final volumeToShow = units.formatVolume(units.isImperial ? 500 : 500);
       return {
         'title': l10n.adviceOverhydrationSevere,
-        'body': l10n.adviceOverhydrationSevereBody,
+        'body': 'Pause 60-90 minutes. Add electrolytes: $volumeToShow with 500-1000 mg sodium.',
         'tone': const Color(0xFFFFEBEE),
         'border': Colors.red.shade300,
         'icon': Icons.error_outline,
@@ -776,11 +790,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       };
     }
 
-    // Alcohol recovery needed
+    // Alcohol recovery needed - конвертируем объёмы
     if (alcoholService.totalStandardDrinks > 0) {
+      final volumeToShow = units.formatVolume(units.isImperial ? 400 : 400);
       return {
         'title': l10n.adviceAlcoholRecovery,
-        'body': l10n.adviceAlcoholRecoveryBody,
+        'body': 'No more alcohol today. Drink $volumeToShow in small portions and add sodium.',
         'tone': Colors.orange.shade50,
         'border': Colors.orange.shade300,
         'icon': Icons.local_bar,
@@ -804,11 +819,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       };
     }
 
-    // Dehydration
+    // Dehydration - конвертируем объёмы
     if (waterRatio < 0.5) {
+      final volumeToShow = units.formatVolume(units.isImperial ? 400 : 400);
       return {
         'title': l10n.adviceDehydration,
-        'body': l10n.adviceDehydrationBody(l10n.water.toLowerCase()),
+        'body': 'Drink $volumeToShow ${l10n.water.toLowerCase()}.',
         'tone': Colors.blue.shade50,
         'border': Colors.blue.shade300,
         'icon': Icons.local_drink_outlined,
@@ -817,11 +833,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       };
     }
 
-    // High HRI
+    // High HRI - конвертируем объёмы
     if (hriService.currentHRI >= 60) {
+      final volumeToShow = units.formatVolume(units.isImperial ? 400 : 400);
       return {
         'title': l10n.adviceHighRisk,
-        'body': l10n.adviceHighRiskBody,
+        'body': 'Urgently drink water with electrolytes ($volumeToShow) and reduce activity.',
         'tone': const Color(0xFFFFF3E0),
         'border': Colors.deepOrange.shade300,
         'icon': Icons.priority_high_rounded,
@@ -830,12 +847,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       };
     }
 
-    // All good
+    // All good - конвертируем объёмы
     final waterNeed = (provider.goals.waterOpt - provider.totalWaterToday)
         .clamp(200, 800);
+    final displayNeed = units.formatVolume(waterNeed.toInt(), hideUnit: true);
     return {
       'title': l10n.adviceAllGood,
-      'body': l10n.adviceAllGoodBody(waterNeed.toInt()),
+      'body': 'Keep the pace. Target: ~$displayNeed ${units.volumeUnit} more to goal.',
       'tone': Colors.green.shade50,
       'border': Colors.green.shade300,
       'icon': Icons.check_circle_outline,
@@ -1288,6 +1306,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget _buildTodayHistory(
     HydrationProvider provider,
     AlcoholService alcohol,
+    UnitsService units,
     AppLocalizations l10n,
   ) {
     return Padding(
@@ -1325,7 +1344,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ],
             ),
             child: Column(
-              children: _getCombinedIntakes(provider, alcohol, l10n),
+              children: _getCombinedIntakes(provider, alcohol, units, l10n),
             ),
           ),
         ],
@@ -1336,6 +1355,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   List<Widget> _getCombinedIntakes(
     HydrationProvider provider,
     AlcoholService alcohol,
+    UnitsService units,
     AppLocalizations l10n,
   ) {
     final List<MapEntry<DateTime, Widget>> all = [];
@@ -1344,7 +1364,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     for (var intake in provider.todayIntakes) {
       all.add(MapEntry(
         intake.timestamp,
-        _buildIntakeItem(intake, l10n),
+        _buildIntakeItem(intake, units, l10n),
       ));
     }
 
@@ -1352,7 +1372,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     for (var intake in alcohol.todayIntakes) {
       all.add(MapEntry(
         intake.timestamp,
-        _buildAlcoholItem(intake, l10n),
+        _buildAlcoholItem(intake, units, l10n),
       ));
     }
 
@@ -1363,8 +1383,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     return all.take(kMaxHistoryItems).map((e) => e.value).toList();
   }
 
-  Widget _buildIntakeItem(Intake intake, AppLocalizations l10n) {
+  Widget _buildIntakeItem(Intake intake, UnitsService units, AppLocalizations l10n) {
     final typeData = _getIntakeTypeData(intake.type, l10n);
+    
+    // Форматируем объём в выбранных единицах
+    final displayVolume = units.formatVolume(intake.volume);
     
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -1386,7 +1409,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '${intake.volume} ${l10n.ml}',
+                displayVolume,
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               if (intake.totalElectrolytes > 0)
@@ -1404,7 +1427,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildAlcoholItem(dynamic intake, AppLocalizations l10n) {
+  Widget _buildAlcoholItem(dynamic intake, UnitsService units, AppLocalizations l10n) {
+    // Форматируем объём в выбранных единицах
+    final displayVolume = units.formatVolume(intake.volumeMl.toInt());
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -1432,7 +1458,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '${intake.volumeMl.toInt()} ${l10n.ml}, ${intake.abv}%',
+                '$displayVolume, ${intake.abv}%',
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               Text(

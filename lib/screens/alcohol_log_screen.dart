@@ -1,18 +1,9 @@
 // ============================================================================
 // FILE: lib/screens/alcohol_log_screen.dart
 // 
-// PURPOSE: Alcohol Logging Screen
+// PURPOSE: Alcohol Logging Screen with Imperial/Metric support
 // Allows users to log alcohol consumption with automatic hydration adjustments.
-// Calculates standard drinks (SD) and required water/sodium corrections.
-// 
-// FEATURES:
-// - 3x3 grid of alcohol types (3 FREE, 6 PRO)
-// - Auto-calculation of standard drinks based on volume and ABV
-// - Quick volume selection buttons
-// - Shows hydration corrections needed (water, sodium, HRI impact)
-// - Save to favorites functionality
-// - PRO gating for premium alcohol types
-// - Automatic scheduling of counter-hydration reminders
+// Supports both metric (ml) and imperial (fl oz) units.
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -24,6 +15,7 @@ import '../models/quick_favorites.dart';
 import '../services/alcohol_service.dart';
 import '../services/subscription_service.dart';
 import '../services/notification_service.dart';
+import '../services/units_service.dart';
 import '../screens/paywall_screen.dart';
 import 'package:hydracoach/providers/hydration_provider.dart';
 
@@ -36,43 +28,48 @@ class AlcoholLogScreen extends StatefulWidget {
 
 class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
   AlcoholType _selectedType = AlcoholType.beer;
-  final TextEditingController _volumeController = TextEditingController(text: '500');
+  final TextEditingController _volumeController = TextEditingController();
   final QuickFavoritesManager _favoritesManager = QuickFavoritesManager();
   bool _isPro = false;
+  String _units = 'metric';
   
   List<Map<String, dynamic>> _drinkTypes = [];
   int _selectedIndex = 0;
   
   // Быстрые объемы для разных типов напитков
   List<int> _getQuickVolumes() {
-    if (_drinkTypes.isEmpty) return [330, 500, 750];
+    if (_drinkTypes.isEmpty) return [12, 16, 24];
     
     final drinkType = _drinkTypes[_selectedIndex]['type'] as AlcoholType;
+    final isImperial = _units == 'imperial';
+    
     switch (drinkType) {
       case AlcoholType.beer:
-        return [330, 500, 750]; // Стандартные объемы пива
+        return isImperial ? [12, 16, 24] : [330, 500, 750]; // oz : ml
       case AlcoholType.wine:
-        return [150, 250, 375]; // Стандартные объемы вина
+        return isImperial ? [5, 8, 12] : [150, 250, 375]; // oz : ml
       case AlcoholType.spirits:
         final subtype = _drinkTypes[_selectedIndex]['subtype'];
         if (subtype != null) {
-          return [30, 50, 100]; // Для конкретных крепких напитков
+          return isImperial ? [1, 2, 3] : [30, 50, 100]; // oz : ml
         }
-        return [50, 100, 200]; // Общие крепкие напитки
+        return isImperial ? [2, 3, 4] : [50, 100, 200]; // oz : ml
       case AlcoholType.cocktail:
-        return [200, 300, 400]; // Стандартные объемы коктейлей
+        return isImperial ? [8, 10, 14] : [200, 300, 400]; // oz : ml
       default:
-        return [250, 500, 750];
+        return isImperial ? [8, 16, 24] : [250, 500, 750];
     }
   }
   
   double get _standardDrinks {
     final volume = double.tryParse(_volumeController.text) ?? 0;
+    // Конвертируем в мл если введено в унциях
+    final volumeMl = _units == 'imperial' ? volume * 29.5735 : volume;
     final abv = _drinkTypes.isEmpty ? 5.0 : _drinkTypes[_selectedIndex]['abv'] as double;
     return AlcoholIntake(
       timestamp: DateTime.now(),
       type: _selectedType,
-      volumeMl: volume,
+      volumeMl: volumeMl,
       abv: abv,
     ).standardDrinks;
   }
@@ -84,6 +81,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
   @override
   void initState() {
     super.initState();
+    _units = UnitsService.instance.units;
     _initializeFavorites();
     _checkForPreselectedValues();
   }
@@ -96,20 +94,35 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
   
   void _initializeDrinkTypes() {
     final l10n = AppLocalizations.of(context);
+    final isImperial = _units == 'imperial';
     
     _drinkTypes = [
       // FREE типы
-      {'type': AlcoholType.beer, 'label': l10n.beer, 'icon': Icons.sports_bar, 'abv': 5.0, 'isPro': false, 'defaultVolume': 500},
-      {'type': AlcoholType.wine, 'label': l10n.wine, 'icon': Icons.wine_bar, 'abv': 12.0, 'isPro': false, 'defaultVolume': 150},
-      {'type': AlcoholType.spirits, 'label': l10n.spirits, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': false, 'defaultVolume': 50},
+      {'type': AlcoholType.beer, 'label': l10n.beer, 'icon': Icons.sports_bar, 'abv': 5.0, 'isPro': false, 
+       'defaultVolume': isImperial ? 16 : 500},
+      {'type': AlcoholType.wine, 'label': l10n.wine, 'icon': Icons.wine_bar, 'abv': 12.0, 'isPro': false, 
+       'defaultVolume': isImperial ? 5 : 150},
+      {'type': AlcoholType.spirits, 'label': l10n.spirits, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': false, 
+       'defaultVolume': isImperial ? 2 : 50},
       // PRO типы
-      {'type': AlcoholType.cocktail, 'label': l10n.cocktail, 'icon': Icons.local_drink, 'abv': 15.0, 'isPro': true, 'defaultVolume': 200},
-      {'type': AlcoholType.spirits, 'label': l10n.drink_vodka, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': true, 'subtype': 'vodka', 'defaultVolume': 50},
-      {'type': AlcoholType.spirits, 'label': l10n.drink_whiskey, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': true, 'subtype': 'whiskey', 'defaultVolume': 50},
-      {'type': AlcoholType.spirits, 'label': l10n.drink_rum, 'icon': Icons.liquor, 'abv': 38.0, 'isPro': true, 'subtype': 'rum', 'defaultVolume': 50},
-      {'type': AlcoholType.spirits, 'label': l10n.drink_tequila, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': true, 'subtype': 'tequila', 'defaultVolume': 30},
-      {'type': AlcoholType.spirits, 'label': l10n.drink_gin, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': true, 'subtype': 'gin', 'defaultVolume': 50},
+      {'type': AlcoholType.cocktail, 'label': l10n.cocktail, 'icon': Icons.local_drink, 'abv': 15.0, 'isPro': true, 
+       'defaultVolume': isImperial ? 8 : 200},
+      {'type': AlcoholType.spirits, 'label': l10n.drink_vodka, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': true, 
+       'subtype': 'vodka', 'defaultVolume': isImperial ? 2 : 50},
+      {'type': AlcoholType.spirits, 'label': l10n.drink_whiskey, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': true, 
+       'subtype': 'whiskey', 'defaultVolume': isImperial ? 2 : 50},
+      {'type': AlcoholType.spirits, 'label': l10n.drink_rum, 'icon': Icons.liquor, 'abv': 38.0, 'isPro': true, 
+       'subtype': 'rum', 'defaultVolume': isImperial ? 2 : 50},
+      {'type': AlcoholType.spirits, 'label': l10n.drink_tequila, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': true, 
+       'subtype': 'tequila', 'defaultVolume': isImperial ? 1 : 30},
+      {'type': AlcoholType.spirits, 'label': l10n.drink_gin, 'icon': Icons.liquor, 'abv': 40.0, 'isPro': true, 
+       'subtype': 'gin', 'defaultVolume': isImperial ? 2 : 50},
     ];
+    
+    // Устанавливаем начальный объем
+    if (_drinkTypes.isNotEmpty) {
+      _volumeController.text = _drinkTypes[0]['defaultVolume'].toString();
+    }
   }
 
   void _checkForPreselectedValues() {
@@ -125,12 +138,16 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
             if (index != -1) {
               _selectedIndex = index;
               _selectedType = _drinkTypes[index]['type'] as AlcoholType;
-              // Устанавливаем рекомендуемый объем
               _volumeController.text = _drinkTypes[index]['defaultVolume'].toString();
             }
           }
           if (args['volume'] != null) {
-            _volumeController.text = args['volume'].toString();
+            // Конвертируем из мл в текущие единицы
+            final volumeMl = args['volume'] as int;
+            final displayVolume = _units == 'imperial' 
+              ? (volumeMl / 29.5735).round() 
+              : volumeMl;
+            _volumeController.text = displayVolume.toString();
           }
         });
       }
@@ -160,7 +177,6 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
     setState(() {
       _selectedIndex = index;
       _selectedType = drink['type'] as AlcoholType;
-      // Устанавливаем рекомендуемый объем при выборе напитка
       _volumeController.text = drink['defaultVolume'].toString();
     });
   }
@@ -177,7 +193,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
 
   Future<void> _saveIntake() async {
     final l10n = AppLocalizations.of(context);
-    final volume = double.tryParse(_volumeController.text);
+    var volume = double.tryParse(_volumeController.text);
     
     if (volume == null || volume <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -186,17 +202,20 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
       return;
     }
 
+    // Конвертируем в мл для сохранения
+    final volumeMl = _units == 'imperial' ? volume * 29.5735 : volume;
+
     final intake = AlcoholIntake(
       timestamp: DateTime.now(),
       type: _selectedType,
-      volumeMl: volume,
+      volumeMl: volumeMl,
       abv: _drinkTypes[_selectedIndex]['abv'] as double,
     );
 
     final alcoholService = Provider.of<AlcoholService>(context, listen: false);
     await alcoholService.addIntake(intake);
 
-    // ВАЖНО: Планируем уведомление после добавления алкоголя
+    // Планируем уведомление после добавления алкоголя
     try {
       print('🍺 Scheduling alcohol counter reminder...');
       final standardDrinks = intake.standardDrinks;
@@ -213,7 +232,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
 
   Future<void> _saveToFavorites() async {
     final l10n = AppLocalizations.of(context);
-    final volume = double.tryParse(_volumeController.text);
+    var volume = double.tryParse(_volumeController.text);
     
     if (volume == null || volume <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -225,22 +244,31 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
     final slot = await _showFavoriteSlotSelector(l10n);
     if (slot == null) return;
 
+    // Конвертируем в мл для сохранения
+    final volumeMl = _units == 'imperial' ? volume * 29.5735 : volume;
+    
     final drink = _drinkTypes[_selectedIndex];
     final abv = drink['abv'] as double;
-    final label = '${drink['label']}: ${abv.toStringAsFixed(0)}%';
+    
+    // Форматируем метку с правильными единицами
+    final volumeStr = _units == 'imperial' 
+      ? '${volume.toInt()} ${l10n.oz ?? "oz"}'
+      : '${volumeMl.toInt()} ${l10n.ml}';
+    final label = '${drink['label']}: ${abv.toStringAsFixed(0)}% - $volumeStr';
+    
     final iconName = (drink['icon'] as IconData).codePoint.toString();
     
     final favorite = QuickFavorite(
-      id: 'alcohol_${_selectedType.key}_${volume.toInt()}_${abv.toStringAsFixed(1)}',
+      id: 'alcohol_${_selectedType.key}_${volumeMl.toInt()}_${abv.toStringAsFixed(1)}',
       type: 'alcohol',
       label: label,
-      emoji: '', // Не используем эмодзи
-      volumeMl: volume.toInt(),
+      emoji: '',
+      volumeMl: volumeMl.toInt(),
       metadata: {
         'alcoholType': _selectedType.key,
         'abv': abv,
         'subtype': drink['subtype'],
-        'iconName': iconName, // Сохраняем информацию об иконке
+        'iconName': iconName,
       },
     );
 
@@ -249,7 +277,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${l10n.savedToFavorites} (Slot ${slot + 1})'),
+          content: Text('${l10n.savedToFavorites} (${l10n.slot} ${slot + 1})'),
           backgroundColor: Colors.green,
         ),
       );
@@ -367,6 +395,13 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
     final l10n = AppLocalizations.of(context);
     final subscription = Provider.of<SubscriptionProvider>(context);
     _isPro = subscription.isPro;
+    
+    final volumeUnit = _units == 'imperial' ? (l10n.oz ?? 'oz') : l10n.ml;
+    
+    // Показываем водную коррекцию в текущих единицах
+    final waterCorrectionDisplay = _units == 'imperial'
+      ? (_waterCorrection / 29.5735).toStringAsFixed(0)
+      : _waterCorrection.toStringAsFixed(0);
     
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -518,7 +553,6 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
             ),
             const SizedBox(height: 8),
             
-            // Поле ввода с быстрыми кнопками как в других экранах
             Row(
               children: [
                 Expanded(
@@ -547,7 +581,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(color: Colors.red[500]!, width: 2),
                       ),
-                      suffixText: l10n.ml,
+                      suffixText: volumeUnit,
                     ),
                   ),
                 ),
@@ -628,7 +662,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _buildCorrectionItem(
-                        '+${_waterCorrection.toStringAsFixed(0)} ${l10n.ml}',
+                        '+$waterCorrectionDisplay $volumeUnit',
                         l10n.additionalWater,
                         Icons.water_drop,
                         Colors.blue,

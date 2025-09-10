@@ -32,6 +32,7 @@ import 'services/alcohol_service.dart';
 import 'services/hri_service.dart';
 import 'services/locale_service.dart';
 import 'services/analytics_service.dart';
+import 'services/units_service.dart';  // ДОБАВЛЕН ИМПОРТ
 
 // Providers
 import 'providers/hydration_provider.dart';
@@ -60,6 +61,7 @@ void main() async {
   
   // Initialize core services
   await LocaleService.instance.initialize();
+  await UnitsService.instance.init();  // ДОБАВЛЕНА ИНИЦИАЛИЗАЦИЯ
   await RemoteConfigService.instance.initialize();
   await SubscriptionService.instance.initialize();
   
@@ -95,6 +97,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => AlcoholService()),
         ChangeNotifierProvider(create: (context) => HRIService()),
         ChangeNotifierProvider.value(value: LocaleService.instance),
+        ChangeNotifierProvider.value(value: UnitsService.instance),  // ДОБАВЛЕН В PROVIDER
       ],
       child: const MyApp(),
     ),

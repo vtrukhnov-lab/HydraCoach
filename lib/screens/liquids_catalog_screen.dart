@@ -1,9 +1,9 @@
 // ============================================================================
 // FILE: lib/screens/liquids_catalog_screen.dart
 // 
-// PURPOSE: Liquids Catalog Screen (Based on Alcohol Log Screen template)
+// PURPOSE: Liquids Catalog Screen with Imperial/Metric support
 // Allows users to select and log various liquid/drink types.
-// Uses the same UI/UX pattern as alcohol_log_screen for consistency.
+// Supports both metric (ml) and imperial (fl oz) units.
 // 
 // FEATURES:
 // - 3x3 grid of drink types (3 FREE, 6 PRO)
@@ -20,6 +20,7 @@ import 'package:hydracoach/providers/hydration_provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/quick_favorites.dart';
 import '../services/subscription_service.dart';
+import '../services/units_service.dart';
 import '../screens/paywall_screen.dart';
 
 class LiquidsCatalogScreen extends StatefulWidget {
@@ -30,41 +31,44 @@ class LiquidsCatalogScreen extends StatefulWidget {
 }
 
 class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
-  // Состояние экрана - точно как в AlcoholLogScreen
   List<Map<String, dynamic>> _drinkTypes = [];
   int _selectedIndex = 0;
-  final TextEditingController _volumeController = TextEditingController(text: '250');
+  final TextEditingController _volumeController = TextEditingController();
   final QuickFavoritesManager _favoritesManager = QuickFavoritesManager();
   bool _isPro = false;
+  String _units = 'metric';
 
   // Быстрые объемы для разных типов напитков
   List<int> _getQuickVolumes() {
-    if (_drinkTypes.isEmpty) return [250, 500, 750];
+    if (_drinkTypes.isEmpty) return [8, 16, 24];
     
     final drinkType = _drinkTypes[_selectedIndex]['type'] as String;
+    final isImperial = _units == 'imperial';
+    
     switch (drinkType) {
       case 'water':
       case 'sparkling':
       case 'lemon':
       case 'mineral':
-        return [250, 500, 750]; // Стандартные объемы воды
+        return isImperial ? [8, 16, 24] : [250, 500, 750]; // oz : ml
       case 'coconut':
-        return [330, 500, 750]; // Кокосовая вода обычно в банках 330мл
+        return isImperial ? [11, 16, 24] : [330, 500, 750]; // oz : ml
       case 'cola':
       case 'energy':
-        return [250, 330, 500]; // Газировка и энергетики
+        return isImperial ? [8, 12, 16] : [250, 330, 500]; // oz : ml
       case 'juice':
-        return [200, 300, 500]; // Соки
+        return isImperial ? [6, 10, 16] : [200, 300, 500]; // oz : ml
       case 'sports':
-        return [500, 750, 1000]; // Спортивные напитки
+        return isImperial ? [16, 24, 32] : [500, 750, 1000]; // oz : ml
       default:
-        return [250, 500, 750];
+        return isImperial ? [8, 16, 24] : [250, 500, 750];
     }
   }
 
   @override
   void initState() {
     super.initState();
+    _units = UnitsService.instance.units;
     _initializeFavorites();
     _checkForPreselectedValues();
   }
@@ -77,20 +81,35 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
   
   void _initializeDrinkTypes() {
     final l10n = AppLocalizations.of(context);
+    final isImperial = _units == 'imperial';
     
     _drinkTypes = [
       // FREE типы
-      {'type': 'water', 'label': l10n.water, 'icon': Icons.water_drop, 'isPro': false, 'defaultVolume': 250},
-      {'type': 'sparkling', 'label': l10n.sparklingWater, 'icon': Icons.bubble_chart, 'isPro': false, 'defaultVolume': 250},
-      {'type': 'lemon', 'label': l10n.lemonWater, 'icon': Icons.eco, 'isPro': false, 'defaultVolume': 250},
+      {'type': 'water', 'label': l10n.water, 'icon': Icons.water_drop, 'isPro': false, 
+       'defaultVolume': isImperial ? 8 : 250},
+      {'type': 'sparkling', 'label': l10n.sparklingWater, 'icon': Icons.bubble_chart, 'isPro': false, 
+       'defaultVolume': isImperial ? 8 : 250},
+      {'type': 'lemon', 'label': l10n.lemonWater, 'icon': Icons.eco, 'isPro': false, 
+       'defaultVolume': isImperial ? 8 : 250},
       // PRO типы
-      {'type': 'coconut', 'label': l10n.coconutWater, 'icon': Icons.beach_access, 'isPro': true, 'defaultVolume': 330},
-      {'type': 'mineral', 'label': l10n.mineralWater, 'icon': Icons.opacity, 'isPro': true, 'defaultVolume': 500},
-      {'type': 'cola', 'label': l10n.cola, 'icon': Icons.local_drink, 'isPro': true, 'defaultVolume': 330},
-      {'type': 'juice', 'label': l10n.juice, 'icon': Icons.local_bar, 'isPro': true, 'defaultVolume': 200},
-      {'type': 'energy', 'label': l10n.energyDrink, 'icon': Icons.battery_charging_full, 'isPro': true, 'defaultVolume': 250},
-      {'type': 'sports', 'label': l10n.sportsDrink, 'icon': Icons.fitness_center, 'isPro': true, 'defaultVolume': 500},
+      {'type': 'coconut', 'label': l10n.coconutWater, 'icon': Icons.beach_access, 'isPro': true, 
+       'defaultVolume': isImperial ? 11 : 330},
+      {'type': 'mineral', 'label': l10n.mineralWater, 'icon': Icons.opacity, 'isPro': true, 
+       'defaultVolume': isImperial ? 16 : 500},
+      {'type': 'cola', 'label': l10n.cola, 'icon': Icons.local_drink, 'isPro': true, 
+       'defaultVolume': isImperial ? 12 : 330},
+      {'type': 'juice', 'label': l10n.juice, 'icon': Icons.local_bar, 'isPro': true, 
+       'defaultVolume': isImperial ? 6 : 200},
+      {'type': 'energy', 'label': l10n.energyDrink, 'icon': Icons.battery_charging_full, 'isPro': true, 
+       'defaultVolume': isImperial ? 8 : 250},
+      {'type': 'sports', 'label': l10n.sportsDrink, 'icon': Icons.fitness_center, 'isPro': true, 
+       'defaultVolume': isImperial ? 16 : 500},
     ];
+    
+    // Устанавливаем начальный объем
+    if (_drinkTypes.isNotEmpty) {
+      _volumeController.text = _drinkTypes[0]['defaultVolume'].toString();
+    }
   }
 
   void _checkForPreselectedValues() {
@@ -103,12 +122,16 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
             final index = _drinkTypes.indexWhere((d) => d['type'] == typeKey);
             if (index != -1) {
               _selectedIndex = index;
-              // Устанавливаем рекомендуемый объем
               _volumeController.text = _drinkTypes[index]['defaultVolume'].toString();
             }
           }
           if (args['volume'] != null) {
-            _volumeController.text = args['volume'].toString();
+            // Конвертируем из мл в текущие единицы
+            final volumeMl = args['volume'] as int;
+            final displayVolume = _units == 'imperial' 
+              ? (volumeMl / 29.5735).round() 
+              : volumeMl;
+            _volumeController.text = displayVolume.toString();
           }
         });
       }
@@ -137,7 +160,6 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
     
     setState(() {
       _selectedIndex = index;
-      // Устанавливаем рекомендуемый объем при выборе напитка
       _volumeController.text = drink['defaultVolume'].toString();
     });
   }
@@ -154,7 +176,7 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
 
   Future<void> _saveIntake() async {
     final l10n = AppLocalizations.of(context);
-    final volume = double.tryParse(_volumeController.text);
+    var volume = double.tryParse(_volumeController.text);
     
     if (volume == null || volume <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -163,13 +185,16 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
       return;
     }
 
+    // Конвертируем в мл для сохранения
+    final volumeMl = _units == 'imperial' ? volume * 29.5735 : volume;
+
     final drink = _drinkTypes[_selectedIndex];
     final provider = Provider.of<HydrationProvider>(context, listen: false);
     
     // Сохраняем как обычный прием жидкости
     provider.addIntake(
       drink['type'] as String,
-      volume.toInt(),
+      volumeMl.toInt(),
       sodium: 0,
       potassium: 0,
       magnesium: 0,
@@ -182,7 +207,7 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
 
   Future<void> _saveToFavorites() async {
     final l10n = AppLocalizations.of(context);
-    final volume = double.tryParse(_volumeController.text);
+    var volume = double.tryParse(_volumeController.text);
     
     if (volume == null || volume <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -194,15 +219,23 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
     final slot = await _showFavoriteSlotSelector(l10n);
     if (slot == null) return;
 
+    // Конвертируем в мл для сохранения
+    final volumeMl = _units == 'imperial' ? volume * 29.5735 : volume;
+    
     final drink = _drinkTypes[_selectedIndex];
-    final label = '${drink['label']} ${volume.toInt()}${l10n.ml}';
+    
+    // Форматируем метку с правильными единицами
+    final volumeStr = _units == 'imperial' 
+      ? '${volume.toInt()} ${l10n.oz ?? "oz"}'
+      : '${volumeMl.toInt()} ${l10n.ml}';
+    final label = '${drink['label']} $volumeStr';
     
     final favorite = QuickFavorite(
-      id: 'liquid_${drink['type']}_${volume.toInt()}',
-      type: 'water', // Используем 'water' как тип для всех жидкостей
+      id: 'liquid_${drink['type']}_${volumeMl.toInt()}',
+      type: 'water',
       label: label,
-      emoji: '', // Не используем эмодзи
-      volumeMl: volume.toInt(),
+      emoji: '',
+      volumeMl: volumeMl.toInt(),
       metadata: {
         'liquidType': drink['type'],
       },
@@ -341,6 +374,8 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
     final l10n = AppLocalizations.of(context);
     final subscription = Provider.of<SubscriptionProvider>(context);
     _isPro = subscription.isPro;
+    
+    final volumeUnit = _units == 'imperial' ? (l10n.oz ?? 'oz') : l10n.ml;
     
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -492,7 +527,6 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
             ),
             const SizedBox(height: 8),
             
-            // Поле ввода с быстрыми кнопками как в других экранах
             Row(
               children: [
                 Expanded(
@@ -521,7 +555,7 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(color: Colors.blue[500]!, width: 2),
                       ),
-                      suffixText: l10n.ml,
+                      suffixText: volumeUnit,
                     ),
                   ),
                 ),
@@ -567,7 +601,6 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
             
             const SizedBox(height: 24),
             
-            // Улучшенная информационная карточка
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -596,9 +629,8 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    // Объем крупным шрифтом
                     Text(
-                      '${_volumeController.text.isEmpty ? '0' : _volumeController.text} ${l10n.ml}',
+                      '${_volumeController.text.isEmpty ? '0' : _volumeController.text} $volumeUnit',
                       style: TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
@@ -606,7 +638,6 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // Информация о гидратации
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(

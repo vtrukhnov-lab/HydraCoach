@@ -8,6 +8,7 @@ import '../l10n/app_localizations.dart';
 import '../services/notification_service.dart' as notif;
 import '../services/subscription_service.dart';
 import '../services/locale_service.dart';
+import '../services/units_service.dart';  // ДОБАВЛЕН ИМПОРТ
 import '../screens/paywall_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -22,7 +23,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _postCoffeeReminders = true;
   bool _heatWarnings = true;
   bool _postAlcoholReminders = false;
-  String _units = 'metric';
   String _morningTime = '07:00';
   String _eveningTime = '22:00';
   int _reminderFrequency = 4;
@@ -46,359 +46,357 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _postCoffeeReminders = prefs.getBool('postCoffeeReminders') ?? true;
       _heatWarnings = prefs.getBool('heatWarnings') ?? true;
       _postAlcoholReminders = prefs.getBool('postAlcoholReminder') ?? false;
-      _units = prefs.getString('units') ?? 'metric';
       _morningTime = prefs.getString('morningTime') ?? '07:00';
       _eveningTime = prefs.getString('eveningTime') ?? '22:00';
       _reminderFrequency = prefs.getInt('reminderFrequency') ?? 4;
     });
   }
   
-Future<void> _loadNotificationStats() async {
-  // Получаем статистику напрямую из SharedPreferences
-  final prefs = await SharedPreferences.getInstance();
-  final isPro = prefs.getBool('is_pro') ?? false;
-  final todayCount = prefs.getInt('notification_count_today') ?? 0;
-  
-  setState(() {
-    _notificationStats = {
-      'is_pro': isPro,
-      'today_count': todayCount,
-      'daily_limit': isPro ? -1 : 4,
-      'remaining_today': isPro ? -1 : (4 - todayCount),
-    };
-  });
-}
-
-Future<void> _saveSettings() async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setBool('notificationsEnabled', _notificationsEnabled);
-  await prefs.setBool('postCoffeeReminders', _postCoffeeReminders);
-  await prefs.setBool('heatWarnings', _heatWarnings);
-  await prefs.setBool('postAlcoholReminder', _postAlcoholReminders);
-  await prefs.setString('units', _units);
-  await prefs.setString('morningTime', _morningTime);
-  await prefs.setString('eveningTime', _eveningTime);
-  await prefs.setInt('reminderFrequency', _reminderFrequency);
-  
-  // Сохраняем настройки для использования новым сервисом
-  await prefs.setBool('remindersEnabled', _notificationsEnabled);
-  await prefs.setString('quiet_hours_start', _eveningTime);
-  await prefs.setString('quiet_hours_end', _morningTime);
-  await prefs.setBool('quiet_hours_enabled', _notificationsEnabled);
-  
-  // Перепланируем уведомления если включены
-  if (_notificationsEnabled) {
-    await notif.NotificationService().scheduleSmartReminders();
-  } else {
-    await notif.NotificationService().cancelAllNotifications();
-  }
-  
-  await _loadNotificationStats();
-}
-
-void _showPaywall() {
-  Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (context) => const PaywallScreen(showCloseButton: true),
-      fullscreenDialog: true,
-    ),
-  ).then((_) {
-    _loadNotificationStats();
-  });
-}
-
-// DEBUG: Методы для тестирования
-Future<void> _sendTestNotification() async {
-  try {
-    await notif.NotificationService().sendTestNotification();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('✅ Test notification sent!'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  } catch (e) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('❌ Error: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-}
-
-Future<void> _scheduleTestNotification() async {
-  try {
-    await notif.NotificationService().scheduleTestIn1Minute();
+  Future<void> _loadNotificationStats() async {
+    // Получаем статистику напрямую из SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    final isPro = prefs.getBool('is_pro') ?? false;
+    final todayCount = prefs.getInt('notification_count_today') ?? 0;
+    
     setState(() {
-      _testNotificationScheduled = true;
+      _notificationStats = {
+        'is_pro': isPro,
+        'today_count': todayCount,
+        'daily_limit': isPro ? -1 : 4,
+        'remaining_today': isPro ? -1 : (4 - todayCount),
+      };
     });
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('⏰ Notification scheduled for 1 minute from now'),
-          backgroundColor: Colors.blue,
-          duration: Duration(seconds: 3),
-        ),
-      );
+  }
+
+  Future<void> _saveSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notificationsEnabled', _notificationsEnabled);
+    await prefs.setBool('postCoffeeReminders', _postCoffeeReminders);
+    await prefs.setBool('heatWarnings', _heatWarnings);
+    await prefs.setBool('postAlcoholReminder', _postAlcoholReminders);
+    await prefs.setString('morningTime', _morningTime);
+    await prefs.setString('eveningTime', _eveningTime);
+    await prefs.setInt('reminderFrequency', _reminderFrequency);
+    
+    // Сохраняем настройки для использования новым сервисом
+    await prefs.setBool('remindersEnabled', _notificationsEnabled);
+    await prefs.setString('quiet_hours_start', _eveningTime);
+    await prefs.setString('quiet_hours_end', _morningTime);
+    await prefs.setBool('quiet_hours_enabled', _notificationsEnabled);
+    
+    // Перепланируем уведомления если включены
+    if (_notificationsEnabled) {
+      await notif.NotificationService().scheduleSmartReminders();
+    } else {
+      await notif.NotificationService().cancelAllNotifications();
     }
-    // Reset flag after 2 minutes
-    Future.delayed(const Duration(minutes: 2), () {
+    
+    await _loadNotificationStats();
+  }
+
+  void _showPaywall() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const PaywallScreen(showCloseButton: true),
+        fullscreenDialog: true,
+      ),
+    ).then((_) {
+      _loadNotificationStats();
+    });
+  }
+
+  // DEBUG: Методы для тестирования
+  Future<void> _sendTestNotification() async {
+    try {
+      await notif.NotificationService().sendTestNotification();
       if (mounted) {
-        setState(() {
-          _testNotificationScheduled = false;
-        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Test notification sent!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
-    });
-  } catch (e) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('❌ Error: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
-}
 
-Future<void> _showNotificationStatus() async {
-  await notif.NotificationService().printNotificationStatus();
-  
-  final pending = await notif.NotificationService().getPendingNotifications();
-  
-  if (mounted) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('📋 Notification Status'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Pending: ${pending.length} notifications'),
-              const SizedBox(height: 8),
-              Text('PRO Status: ${_notificationStats['is_pro'] ? 'Yes' : 'No'}'),
-              Text('Sent Today: ${_notificationStats['today_count']}'),
-              if (!_notificationStats['is_pro'])
-                Text('Daily Limit: 4'),
-              const Divider(),
-              const Text('Scheduled:', style: TextStyle(fontWeight: FontWeight.bold)),
-              if (pending.isEmpty)
-                const Text('No pending notifications')
-              else
-                ...pending.take(5).map((n) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('• ${n.title}', style: const TextStyle(fontWeight: FontWeight.w500)),
-                      Text('  ${n.body}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                    ],
-                  ),
-                )),
-              if (pending.length > 5)
-                Text('\n...and ${pending.length - 5} more'),
-            ],
+  Future<void> _scheduleTestNotification() async {
+    try {
+      await notif.NotificationService().scheduleTestIn1Minute();
+      setState(() {
+        _testNotificationScheduled = true;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('⏰ Notification scheduled for 1 minute from now'),
+            backgroundColor: Colors.blue,
+            duration: Duration(seconds: 3),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+        );
+      }
+      // Reset flag after 2 minutes
+      Future.delayed(const Duration(minutes: 2), () {
+        if (mounted) {
+          setState(() {
+            _testNotificationScheduled = false;
+          });
+        }
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error: $e'),
+            backgroundColor: Colors.red,
           ),
-        ],
-      ),
-    );
+        );
+      }
+    }
   }
-}
 
-Future<void> _cancelAllNotifications() async {
-  await notif.NotificationService().cancelAllNotifications();
-  if (mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('🗑️ All notifications cancelled'),
-        backgroundColor: Colors.orange,
-      ),
-    );
-  }
-}
-
-Future<void> _toggleProStatus() async {
-  final prefs = await SharedPreferences.getInstance();
-  final currentStatus = _notificationStats['is_pro'] == true;
-  final newStatus = !currentStatus;
-  
-  await prefs.setBool('is_pro', newStatus);
-  await _loadNotificationStats();
-  
-  if (mounted) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(newStatus ? '⭐ PRO status enabled' : '🆓 FREE status set'),
-        backgroundColor: newStatus ? Colors.green : Colors.orange,
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-}
-
-// DEBUG: Widget для тестового раздела
-Widget _buildDebugSection() {
-  if (!kDebugMode) return const SizedBox.shrink();
-  
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      _buildSectionTitle('🧪 DEBUG TESTING'),
-      Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.purple.shade50,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.purple.shade200, width: 2),
-        ),
-        child: Column(
-          children: [
-            const Row(
+  Future<void> _showNotificationStatus() async {
+    await notif.NotificationService().printNotificationStatus();
+    
+    final pending = await notif.NotificationService().getPendingNotifications();
+    
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('📋 Notification Status'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.bug_report, color: Colors.purple, size: 24),
-                SizedBox(width: 8),
-                Text(
-                  'Testing Features',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.purple,
-                  ),
-                ),
+                Text('Pending: ${pending.length} notifications'),
+                const SizedBox(height: 8),
+                Text('PRO Status: ${_notificationStats['is_pro'] ? 'Yes' : 'No'}'),
+                Text('Sent Today: ${_notificationStats['today_count']}'),
+                if (!_notificationStats['is_pro'])
+                  Text('Daily Limit: 4'),
+                const Divider(),
+                const Text('Scheduled:', style: TextStyle(fontWeight: FontWeight.bold)),
+                if (pending.isEmpty)
+                  const Text('No pending notifications')
+                else
+                  ...pending.take(5).map((n) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('• ${n.title}', style: const TextStyle(fontWeight: FontWeight.w500)),
+                        Text('  ${n.body}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                      ],
+                    ),
+                  )),
+                if (pending.length > 5)
+                  Text('\n...and ${pending.length - 5} more'),
               ],
             ),
-            const Divider(height: 16),
-            
-            // Test Notification Button
-            ListTile(
-              leading: const Icon(Icons.notifications_active, color: Colors.purple),
-              title: const Text('Send Test Notification'),
-              subtitle: const Text('Sends immediately'),
-              trailing: const Icon(Icons.send),
-              onTap: _sendTestNotification,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
             ),
-            
-            const Divider(height: 1),
-            
-            // Schedule Test Button
-            ListTile(
-              leading: const Icon(Icons.schedule, color: Colors.purple),
-              title: const Text('Schedule Test (1 min)'),
-              subtitle: Text(_testNotificationScheduled 
-                ? 'Scheduled ⏰' 
-                : 'Will arrive in 1 minute'),
-              trailing: Icon(
-                _testNotificationScheduled ? Icons.check_circle : Icons.timer,
-                color: _testNotificationScheduled ? Colors.green : null,
-              ),
-              onTap: _testNotificationScheduled ? null : _scheduleTestNotification,
-            ),
-            
-            const Divider(height: 1),
-            
-            // Show Status Button
-            ListTile(
-              leading: const Icon(Icons.info_outline, color: Colors.purple),
-              title: const Text('Show Notification Status'),
-              subtitle: const Text('View pending & stats'),
-              trailing: const Icon(Icons.visibility),
-              onTap: _showNotificationStatus,
-            ),
-            
-            const Divider(height: 1),
-            
-            // Cancel All Button
-            ListTile(
-              leading: const Icon(Icons.cancel, color: Colors.red),
-              title: const Text('Cancel All Notifications'),
-              subtitle: const Text('Clear all scheduled'),
-              trailing: const Icon(Icons.delete_forever),
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Cancel All?'),
-                    content: const Text('This will cancel all scheduled notifications.'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('No'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _cancelAllNotifications();
-                        },
-                        style: TextButton.styleFrom(foregroundColor: Colors.red),
-                        child: const Text('Yes, Cancel All'),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-            
-            const Divider(height: 1),
-            
-            // Toggle PRO Status Button
-            ListTile(
-              leading: Icon(
-                _notificationStats['is_pro'] == true ? Icons.star : Icons.star_outline,
-                color: Colors.purple,
-              ),
-              title: const Text('Toggle PRO Status'),
-              subtitle: Text(
-                'Current: ${_notificationStats['is_pro'] == true ? "PRO" : "FREE"}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: _notificationStats['is_pro'] == true ? Colors.green : Colors.grey,
-                ),
-              ),
-              trailing: const Icon(Icons.swap_horiz),
-              onTap: _toggleProStatus,
-            ),
-            
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.yellow.shade100,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Row(
+          ],
+        ),
+      );
+    }
+  }
+
+  Future<void> _cancelAllNotifications() async {
+    await notif.NotificationService().cancelAllNotifications();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('🗑️ All notifications cancelled'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    }
+  }
+
+  Future<void> _toggleProStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final currentStatus = _notificationStats['is_pro'] == true;
+    final newStatus = !currentStatus;
+    
+    await prefs.setBool('is_pro', newStatus);
+    await _loadNotificationStats();
+    
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(newStatus ? '⭐ PRO status enabled' : '🆓 FREE status set'),
+          backgroundColor: newStatus ? Colors.green : Colors.orange,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  // DEBUG: Widget для тестового раздела
+  Widget _buildDebugSection() {
+    if (!kDebugMode) return const SizedBox.shrink();
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle('🧪 DEBUG TESTING'),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.purple.shade50,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.purple.shade200, width: 2),
+          ),
+          child: Column(
+            children: [
+              const Row(
                 children: [
-                  Icon(Icons.warning, size: 16, color: Colors.orange),
+                  Icon(Icons.bug_report, color: Colors.purple, size: 24),
                   SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Debug features are only visible in development builds',
-                      style: TextStyle(fontSize: 11, color: Colors.brown),
+                  Text(
+                    'Testing Features',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.purple,
                     ),
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
-      ).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1),
-    ],
-  );
-}
+              const Divider(height: 16),
+              
+              // Test Notification Button
+              ListTile(
+                leading: const Icon(Icons.notifications_active, color: Colors.purple),
+                title: const Text('Send Test Notification'),
+                subtitle: const Text('Sends immediately'),
+                trailing: const Icon(Icons.send),
+                onTap: _sendTestNotification,
+              ),
+              
+              const Divider(height: 1),
+              
+              // Schedule Test Button
+              ListTile(
+                leading: const Icon(Icons.schedule, color: Colors.purple),
+                title: const Text('Schedule Test (1 min)'),
+                subtitle: Text(_testNotificationScheduled 
+                  ? 'Scheduled ⏰' 
+                  : 'Will arrive in 1 minute'),
+                trailing: Icon(
+                  _testNotificationScheduled ? Icons.check_circle : Icons.timer,
+                  color: _testNotificationScheduled ? Colors.green : null,
+                ),
+                onTap: _testNotificationScheduled ? null : _scheduleTestNotification,
+              ),
+              
+              const Divider(height: 1),
+              
+              // Show Status Button
+              ListTile(
+                leading: const Icon(Icons.info_outline, color: Colors.purple),
+                title: const Text('Show Notification Status'),
+                subtitle: const Text('View pending & stats'),
+                trailing: const Icon(Icons.visibility),
+                onTap: _showNotificationStatus,
+              ),
+              
+              const Divider(height: 1),
+              
+              // Cancel All Button
+              ListTile(
+                leading: const Icon(Icons.cancel, color: Colors.red),
+                title: const Text('Cancel All Notifications'),
+                subtitle: const Text('Clear all scheduled'),
+                trailing: const Icon(Icons.delete_forever),
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Cancel All?'),
+                      content: const Text('This will cancel all scheduled notifications.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('No'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _cancelAllNotifications();
+                          },
+                          style: TextButton.styleFrom(foregroundColor: Colors.red),
+                          child: const Text('Yes, Cancel All'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              
+              const Divider(height: 1),
+              
+              // Toggle PRO Status Button
+              ListTile(
+                leading: Icon(
+                  _notificationStats['is_pro'] == true ? Icons.star : Icons.star_outline,
+                  color: Colors.purple,
+                ),
+                title: const Text('Toggle PRO Status'),
+                subtitle: Text(
+                  'Current: ${_notificationStats['is_pro'] == true ? "PRO" : "FREE"}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: _notificationStats['is_pro'] == true ? Colors.green : Colors.grey,
+                  ),
+                ),
+                trailing: const Icon(Icons.swap_horiz),
+                onTap: _toggleProStatus,
+              ),
+              
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.yellow.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.warning, size: 16, color: Colors.orange),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Debug features are only visible in development builds',
+                        style: TextStyle(fontSize: 11, color: Colors.brown),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1),
+      ],
+    );
+  }
   
   void _showLanguageDialog() {
     final l10n = AppLocalizations.of(context);
@@ -461,9 +459,12 @@ Widget _buildDebugSection() {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Consumer3<HydrationProvider, SubscriptionProvider, LocaleService>(
-        builder: (context, hydrationProvider, subscriptionProvider, localeService, child) {
+      body: Consumer4<HydrationProvider, SubscriptionProvider, LocaleService, UnitsService>(
+        builder: (context, hydrationProvider, subscriptionProvider, localeService, unitsService, child) {
           final isPro = subscriptionProvider.isPro;
+          
+          // Используем UnitsService для форматирования веса
+          final displayWeight = unitsService.formatWeight(hydrationProvider.weight);
           
           return SingleChildScrollView(
             child: Column(
@@ -499,7 +500,7 @@ Widget _buildDebugSection() {
                   ),
                 ).animate().fadeIn(),
                 
-                // Profile
+                // Profile Section with Units Display
                 _buildSectionTitle(l10n.profileSection),
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -511,9 +512,9 @@ Widget _buildDebugSection() {
                     children: [
                       _buildProfileTile(
                         l10n.weight,
-                        '${hydrationProvider.weight.toInt()} ${l10n.kg}',
+                        displayWeight, // Используем форматированный вес от UnitsService
                         Icons.monitor_weight_outlined,
-                        () => _showWeightDialog(hydrationProvider, l10n),
+                        () => _showWeightDialog(hydrationProvider, unitsService, l10n),
                       ),
                       _buildDivider(),
                       _buildProfileTile(
@@ -528,6 +529,31 @@ Widget _buildDebugSection() {
                         _getActivityText(hydrationProvider.activityLevel, l10n),
                         Icons.fitness_center,
                         () => _showActivityDialog(hydrationProvider, l10n),
+                      ),
+                      _buildDivider(),
+                      // Отображаем текущую систему единиц (только для информации)
+                      ListTile(
+                        leading: const Icon(Icons.straighten, color: Colors.blue),
+                        title: Text(l10n.unitsSection),
+                        subtitle: Text(
+                          unitsService.isMetric ? l10n.metricSystem : l10n.imperialSystem,
+                          style: const TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            unitsService.isMetric ? l10n.metricUnits : l10n.imperialUnits,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[700],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -766,45 +792,6 @@ Widget _buildDebugSection() {
                   ).animate().fadeIn(delay: 150.ms),
                 ],
                 
-                // Units
-                _buildSectionTitle(l10n.unitsSection),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    children: [
-                      RadioListTile<String>(
-                        title: Text(l10n.metricSystem),
-                        subtitle: Text(l10n.metricUnits),
-                        value: 'metric',
-                        groupValue: _units,
-                        onChanged: (value) {
-                          setState(() {
-                            _units = value!;
-                          });
-                          _saveSettings();
-                        },
-                      ),
-                      _buildDivider(),
-                      RadioListTile<String>(
-                        title: Text(l10n.imperialSystem),
-                        subtitle: Text(l10n.imperialUnits),
-                        value: 'imperial',
-                        groupValue: _units,
-                        onChanged: (value) {
-                          setState(() {
-                            _units = value!;
-                          });
-                          _saveSettings();
-                        },
-                      ),
-                    ],
-                  ),
-                ).animate().fadeIn(delay: 200.ms),
-                
                 // About
                 _buildSectionTitle(l10n.aboutSection),
                 Container(
@@ -1007,50 +994,65 @@ Widget _buildDebugSection() {
     }
   }
   
-  void _showWeightDialog(HydrationProvider provider, AppLocalizations l10n) {
+  void _showWeightDialog(HydrationProvider provider, UnitsService units, AppLocalizations l10n) {
     double tempWeight = provider.weight;
+    double displayWeight = units.toDisplayWeight(tempWeight);
+    final weightUnit = units.weightUnit;
+    final minWeight = units.isImperial ? 88.0 : 40.0; // 40 kg = 88 lb
+    final maxWeight = units.isImperial ? 330.0 : 150.0; // 150 kg = 330 lb
     
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.changeWeight),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              '${tempWeight.toInt()} ${l10n.kg}',
-              style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(l10n.changeWeight),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '${displayWeight.round()} $weightUnit',
+                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              Slider(
+                value: displayWeight,
+                min: minWeight,
+                max: maxWeight,
+                divisions: (maxWeight - minWeight).round(),
+                onChanged: (value) {
+                  setDialogState(() {
+                    displayWeight = value;
+                    tempWeight = units.toKilograms(value);
+                  });
+                },
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('${minWeight.round()} $weightUnit', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                  Text('${maxWeight.round()} $weightUnit', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.cancel),
             ),
-            const SizedBox(height: 20),
-            Slider(
-              value: tempWeight,
-              min: 40,
-              max: 150,
-              divisions: 110,
-              onChanged: (value) {
-                (context as Element).markNeedsBuild();
-                tempWeight = value;
+            TextButton(
+              onPressed: () {
+                provider.updateProfile(
+                  weight: tempWeight, // Сохраняем всегда в кг
+                  dietMode: provider.dietMode,
+                  activityLevel: provider.activityLevel,
+                );
+                Navigator.pop(context);
               },
+              child: Text(l10n.save),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              provider.updateProfile(
-                weight: tempWeight,
-                dietMode: provider.dietMode,
-                activityLevel: provider.activityLevel,
-              );
-              Navigator.pop(context);
-            },
-            child: Text(l10n.save),
-          ),
-        ],
       ),
     );
   }

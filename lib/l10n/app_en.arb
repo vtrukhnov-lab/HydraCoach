@@ -1397,6 +1397,23 @@
   "notificationTestTitle": "🧪 Test notification",
   "notificationTestBody": "If you see this - notifications work!",
   "notificationTestScheduledTitle": "⏰ Scheduled test",
-  "notificationTestScheduledBody": "This notification was scheduled 1 minute ago"
+  "notificationTestScheduledBody": "This notification was scheduled 1 minute ago",
+  "onboardingUnitsTitle": "Choose your units",
+"@onboardingUnitsTitle": {
+  "description": "Units selection page title"
+},
 
+"onboardingUnitsSubtitle": "You can't change this later",
+"@onboardingUnitsSubtitle": {
+  "description": "Units selection warning"
+},
+
+"onboardingUnitsWarning": "This choice is permanent and cannot be changed later",
+"@onboardingUnitsWarning": {
+  "description": "Permanent choice warning for units"
+},
+"oz": "oz",
+"fl_oz": "fl oz", 
+"gallons": "gal",
+"lb": "lb"
 }

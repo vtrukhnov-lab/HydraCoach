@@ -2257,4 +2257,26 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get notificationTestScheduledBody =>
       'Это уведомление было запланировано минуту назад';
+
+  @override
+  String get onboardingUnitsTitle => 'Выберите единицы измерения';
+
+  @override
+  String get onboardingUnitsSubtitle => 'Это нельзя будет изменить позже';
+
+  @override
+  String get onboardingUnitsWarning =>
+      'Этот выбор окончательный и не может быть изменен позже';
+
+  @override
+  String get oz => 'унц';
+
+  @override
+  String get fl_oz => 'жид. унц';
+
+  @override
+  String get gallons => 'гал';
+
+  @override
+  String get lb => 'фунт';
 }

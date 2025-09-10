@@ -1,9 +1,9 @@
 // ============================================================================
 // FILE: lib/screens/supplements_screen.dart
 // 
-// PURPOSE: Supplements Screen for vitamins and minerals
+// PURPOSE: Supplements Screen with Imperial/Metric support
 // Allows users to select and log various supplements.
-// Uses the same UI/UX pattern as alcohol_log_screen for consistency.
+// Supports both metric and imperial units where applicable.
 // 
 // FEATURES:
 // - 3x3 grid of supplement types (3 FREE, 9+ PRO)
@@ -20,6 +20,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/quick_favorites.dart';
 import '../services/subscription_service.dart';
+import '../services/units_service.dart';
 import '../screens/paywall_screen.dart';
 import 'package:hydracoach/providers/hydration_provider.dart';
 
@@ -33,21 +34,31 @@ class SupplementsScreen extends StatefulWidget {
 class _SupplementsScreenState extends State<SupplementsScreen> {
   List<Map<String, dynamic>> _supplementTypes = [];
   int _selectedIndex = 0;
-  final TextEditingController _dosageController = TextEditingController(text: '1');
+  final TextEditingController _dosageController = TextEditingController();
   final QuickFavoritesManager _favoritesManager = QuickFavoritesManager();
   bool _isPro = false;
+  String _units = 'metric';
 
   // Быстрые значения дозировки для каждого типа добавки
-  final Map<String, List<int>> _quickDosages = {
-    'default': [1, 2, 3],
-    'magnesium_citrate': [10, 20, 30], // ml
-    'vitamin_d3': [1000, 2000, 5000], // IU
-    'vitamin_c': [500, 1000, 2000], // mg
+  final Map<String, Map<String, List<int>>> _quickDosages = {
+    'metric': {
+      'default': [1, 2, 3],
+      'magnesium_citrate': [10, 20, 30], // ml
+      'vitamin_d3': [1000, 2000, 5000], // IU
+      'vitamin_c': [500, 1000, 2000], // mg
+    },
+    'imperial': {
+      'default': [1, 2, 3],
+      'magnesium_citrate': [1, 2, 4], // tsp (чайные ложки)
+      'vitamin_d3': [1000, 2000, 5000], // IU (одинаково)
+      'vitamin_c': [500, 1000, 2000], // mg (одинаково)
+    }
   };
 
   @override
   void initState() {
     super.initState();
+    _units = UnitsService.instance.units;
     _initializeFavorites();
     _checkForPreselectedValues();
   }
@@ -60,6 +71,7 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
   
   void _initializeSupplementTypes() {
     final l10n = AppLocalizations.of(context);
+    final isImperial = _units == 'imperial';
     
     _supplementTypes = [
       // FREE типы
@@ -101,11 +113,11 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
         'type': 'magnesium_citrate',
         'label': l10n.magnesiumCitrate ?? 'Mg Citrate',
         'icon': Icons.water_drop,
-        'dosageUnit': 'ml',
+        'dosageUnit': isImperial ? 'tsp' : 'ml',
         'sodium': 0,
         'potassium': 0,
-        'magnesium': 3,  // per ml
-        'defaultDosage': 10,
+        'magnesium': isImperial ? 15 : 3,  // per tsp (5ml) : per ml
+        'defaultDosage': isImperial ? 2 : 10,
         'isPro': true
       },
       {
@@ -197,6 +209,11 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
         'isPro': true
       },
     ];
+    
+    // Устанавливаем начальную дозировку
+    if (_supplementTypes.isNotEmpty) {
+      _dosageController.text = _supplementTypes[0]['defaultDosage'].toString();
+    }
   }
 
   void _checkForPreselectedValues() {
@@ -242,7 +259,6 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
     
     setState(() {
       _selectedIndex = index;
-      // Устанавливаем рекомендуемую дозировку
       _dosageController.text = supplement['defaultDosage'].toString();
     });
   }
@@ -263,7 +279,8 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
     final supplement = _supplementTypes[_selectedIndex];
     final type = supplement['type'] as String;
     
-    return _quickDosages[type] ?? _quickDosages['default']!;
+    final unitSystem = _units == 'imperial' ? 'imperial' : 'metric';
+    return _quickDosages[unitSystem]?[type] ?? _quickDosages[unitSystem]!['default']!;
   }
 
   Map<String, int> _calculateElectrolytes() {
@@ -327,7 +344,11 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
     final amounts = _calculateElectrolytes();
     final dosageInt = dosage.toInt();
     final dosageText = dosage == dosageInt ? '$dosageInt' : dosage.toStringAsFixed(1);
-    final label = '${supplement['label']} $dosageText ${supplement['dosageUnit']}';
+    
+    // Используем единицу измерения как есть
+    final dosageUnit = supplement['dosageUnit'];
+    
+    final label = '${supplement['label']} $dosageText $dosageUnit';
     
     final favorite = QuickFavorite(
       id: 'supplement_${supplement['type']}_${dosage.toInt()}',
@@ -467,6 +488,13 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
                            electrolyteAmounts['potassium']! > 0 || 
                            electrolyteAmounts['magnesium']! > 0;
     
+    // Получаем правильную единицу измерения для отображения
+    String displayUnit = '';
+    if (_supplementTypes.isNotEmpty) {
+      displayUnit = _supplementTypes[_selectedIndex]['dosageUnit'];
+      // tsp остается как есть для имперской системы
+    }
+    
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -489,7 +517,6 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
             ),
             const SizedBox(height: 16),
             
-            // Grid для добавок
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -497,7 +524,7 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
                 crossAxisCount: 3,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
-                childAspectRatio: 1.0, // Квадратные ячейки как в alcohol_log_screen
+                childAspectRatio: 1.0,
               ),
               itemCount: _supplementTypes.isEmpty ? 12 : _supplementTypes.length,
               itemBuilder: (context, index) {
@@ -560,7 +587,7 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
                               children: [
                                 Icon(
                                   supplement['icon'] as IconData,
-                                  size: 60, // Размер как в alcohol_log_screen
+                                  size: 60,
                                   color: isLocked 
                                       ? Colors.grey[400]
                                       : (isSelected ? Colors.purple[500] : Colors.grey[700]),
@@ -569,14 +596,14 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
                                 Text(
                                   supplement['label'],
                                   style: TextStyle(
-                                    fontSize: 13, // Размер как в alcohol_log_screen
+                                    fontSize: 13,
                                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                                     color: isLocked 
                                         ? Colors.grey[400]
                                         : (isSelected ? Colors.purple[700] : Colors.grey[800]),
                                   ),
                                   textAlign: TextAlign.center,
-                                  maxLines: 1, // Одна строка как в alcohol_log_screen
+                                  maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ],
@@ -618,7 +645,6 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
             ),
             const SizedBox(height: 8),
             
-            // Поле ввода с быстрыми кнопками как в hot_drinks_screen
             Row(
               children: [
                 Expanded(
@@ -647,9 +673,7 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(color: Colors.purple[500]!, width: 2),
                       ),
-                      suffixText: _supplementTypes.isNotEmpty 
-                          ? _supplementTypes[_selectedIndex]['dosageUnit']
-                          : '',
+                      suffixText: displayUnit,
                     ),
                   ),
                 ),
@@ -697,7 +721,6 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
             
             const SizedBox(height: 24),
             
-            // Улучшенная информационная карточка
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -710,7 +733,6 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
               ),
               child: Column(
                 children: [
-                  // Выбранная добавка
                   if (_supplementTypes.isNotEmpty) ...[
                     Icon(
                       _supplementTypes[_selectedIndex]['icon'] as IconData,
@@ -728,9 +750,8 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
-                    // Дозировка крупным шрифтом
                     Text(
-                      '${_dosageController.text.isEmpty ? '0' : _dosageController.text} ${_supplementTypes[_selectedIndex]['dosageUnit']}',
+                      '${_dosageController.text.isEmpty ? '0' : _dosageController.text} $displayUnit',
                       style: TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
@@ -739,7 +760,6 @@ class _SupplementsScreenState extends State<SupplementsScreen> {
                     ),
                   ],
                   
-                  // Электролиты в отдельном белом блоке
                   if (hasElectrolytes) ...[
                     const SizedBox(height: 16),
                     Container(

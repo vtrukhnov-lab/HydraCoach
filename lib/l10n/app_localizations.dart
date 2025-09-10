@@ -4209,6 +4209,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This notification was scheduled 1 minute ago'**
   String get notificationTestScheduledBody;
+
+  /// Units selection page title
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your units'**
+  String get onboardingUnitsTitle;
+
+  /// Units selection warning
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t change this later'**
+  String get onboardingUnitsSubtitle;
+
+  /// Permanent choice warning for units
+  ///
+  /// In en, this message translates to:
+  /// **'This choice is permanent and cannot be changed later'**
+  String get onboardingUnitsWarning;
+
+  /// No description provided for @oz.
+  ///
+  /// In en, this message translates to:
+  /// **'oz'**
+  String get oz;
+
+  /// No description provided for @fl_oz.
+  ///
+  /// In en, this message translates to:
+  /// **'fl oz'**
+  String get fl_oz;
+
+  /// No description provided for @gallons.
+  ///
+  /// In en, this message translates to:
+  /// **'gal'**
+  String get gallons;
+
+  /// No description provided for @lb.
+  ///
+  /// In en, this message translates to:
+  /// **'lb'**
+  String get lb;
 }
 
 class _AppLocalizationsDelegate
