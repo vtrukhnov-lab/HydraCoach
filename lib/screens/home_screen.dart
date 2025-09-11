@@ -16,14 +16,12 @@ import '../services/units_service.dart';
 // Providers
 import '../providers/hydration_provider.dart';
 
-// Widgets
-import '../widgets/quick_add_widget.dart';
+// Widgets - убрали импорты QuickAddWidget и TodayHistorySection
 import '../widgets/home/home_header.dart';
 import '../widgets/home/weather_card.dart';
 import '../widgets/home/main_progress_card.dart';
 import '../widgets/home/smart_advice_card.dart';
 import '../widgets/home/hri_status_card.dart';
-import '../widgets/home/today_history_section.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -37,7 +35,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   bool _showDailyReport = false;
   String _fastingSchedule = '16:8';
-  Key _quickAddKey = UniqueKey();
   bool _isInitialized = false;
 
   @override
@@ -64,7 +61,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _refreshQuickAdd();
       _updateHRI();
     }
   }
@@ -109,14 +105,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
     if (alcohol.totalStandardDrinks > 0 && DateTime.now().hour < 12) {
       print('Morning check-in needed after alcohol');
-    }
-  }
-
-  void _refreshQuickAdd() {
-    if (mounted) {
-      setState(() {
-        _quickAddKey = UniqueKey();
-      });
     }
   }
 
@@ -202,10 +190,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             CustomScrollView(
               physics: const BouncingScrollPhysics(),
               slivers: [
+                // Заголовок
                 const SliverToBoxAdapter(child: HomeHeader()),
+                
+                // Карточка погоды
                 const SliverToBoxAdapter(child: WeatherCard()),
+                
+                // Основная карточка прогресса (кольца)
                 SliverToBoxAdapter(
-                  // ИСПРАВЛЕНО: Добавлен обязательный параметр onUpdate
                   child: MainProgressCard(
                     onUpdate: () {
                       setState(() {});
@@ -213,30 +205,27 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     },
                   ),
                 ),
+                
+                // Умные советы
                 const SliverToBoxAdapter(child: SmartAdviceCard()),
+                
+                // Статус HRI
                 SliverToBoxAdapter(
                   child: HRIStatusCard(
                     isFasting: _isCurrentlyFasting(provider),
                     fastingSchedule: _fastingSchedule,
                   ),
                 ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: QuickAddWidget(
-                      key: _quickAddKey,
-                      // ИСПРАВЛЕНО: Убран ненужный параметр 'provider'
-                      onUpdate: () {
-                        setState(() {});
-                        _updateHRI();
-                      },
-                    ),
-                  ),
-                ),
-                const SliverToBoxAdapter(child: TodayHistorySection()),
+                
+                // УБРАЛИ: QuickAddWidget - сетка быстрого добавления
+                // УБРАЛИ: TodayHistorySection - напитки сегодня
+                
+                // Отступ внизу для навигации
                 const SliverToBoxAdapter(child: SizedBox(height: 100)),
               ],
             ),
+            
+            // Карточка дневного отчета (вечером)
             if (_showDailyReport)
               Positioned(
                 bottom: 20,

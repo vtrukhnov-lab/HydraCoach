@@ -8,7 +8,7 @@ import '../l10n/app_localizations.dart';
 import '../services/notification_service.dart' as notif;
 import '../services/subscription_service.dart';
 import '../services/locale_service.dart';
-import '../services/units_service.dart';  // ДОБАВЛЕН ИМПОРТ
+import '../services/units_service.dart';
 import '../screens/paywall_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -444,423 +444,423 @@ class _SettingsScreenState extends State<SettingsScreen> {
     
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          l10n.settingsTitle,
-          style: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: Consumer4<HydrationProvider, SubscriptionProvider, LocaleService, UnitsService>(
-        builder: (context, hydrationProvider, subscriptionProvider, localeService, unitsService, child) {
-          final isPro = subscriptionProvider.isPro;
-          
-          // Используем UnitsService для форматирования веса
-          final displayWeight = unitsService.formatWeight(hydrationProvider.weight);
-          
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // DEBUG SECTION - показывается только в debug режиме
-                _buildDebugSection(),
-                
-                // Language Selector
-                _buildSectionTitle(l10n.languageSection),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
+      // УБРАЛИ AppBar полностью
+      body: SafeArea(
+        child: Consumer4<HydrationProvider, SubscriptionProvider, LocaleService, UnitsService>(
+          builder: (context, hydrationProvider, subscriptionProvider, localeService, unitsService, child) {
+            final isPro = subscriptionProvider.isPro;
+            
+            // Используем UnitsService для форматирования веса
+            final displayWeight = unitsService.formatWeight(hydrationProvider.weight);
+            
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Заголовок без AppBar
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                    child: Text(
+                      l10n.settingsTitle,
+                      style: const TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ).animate().fadeIn(duration: 350.ms),
                   ),
-                  child: ListTile(
-                    leading: const Icon(Icons.language, color: Colors.blue),
-                    title: Text(l10n.languageSettings),
-                    subtitle: Text(localeService.getCurrentLocaleInfo().name),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          localeService.getCurrentLocaleInfo().flag,
-                          style: const TextStyle(fontSize: 24),
-                        ),
-                        const SizedBox(width: 8),
-                        const Icon(Icons.chevron_right),
-                      ],
-                    ),
-                    onTap: _showLanguageDialog,
-                  ),
-                ).animate().fadeIn(),
-                
-                // Profile Section with Units Display
-                _buildSectionTitle(l10n.profileSection),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    children: [
-                      _buildProfileTile(
-                        l10n.weight,
-                        displayWeight, // Используем форматированный вес от UnitsService
-                        Icons.monitor_weight_outlined,
-                        () => _showWeightDialog(hydrationProvider, unitsService, l10n),
-                      ),
-                      _buildDivider(),
-                      _buildProfileTile(
-                        l10n.dietMode,
-                        _getDietModeText(hydrationProvider.dietMode, l10n),
-                        Icons.restaurant_menu,
-                        () => _showDietDialog(hydrationProvider, l10n),
-                      ),
-                      _buildDivider(),
-                      _buildProfileTile(
-                        l10n.activityLevel,
-                        _getActivityText(hydrationProvider.activityLevel, l10n),
-                        Icons.fitness_center,
-                        () => _showActivityDialog(hydrationProvider, l10n),
-                      ),
-                      _buildDivider(),
-                      // Отображаем текущую систему единиц (только для информации)
-                      ListTile(
-                        leading: const Icon(Icons.straighten, color: Colors.blue),
-                        title: Text(l10n.unitsSection),
-                        subtitle: Text(
-                          unitsService.isMetric ? l10n.metricSystem : l10n.imperialSystem,
-                          style: const TextStyle(fontWeight: FontWeight.w500),
-                        ),
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            unitsService.isMetric ? l10n.metricUnits : l10n.imperialUnits,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[700],
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ).animate().fadeIn(),
-                
-                // Notifications
-                _buildSectionTitle(l10n.notificationsSection),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    children: [
-                      if (!isPro && _notificationStats.isNotEmpty) ...[
-                        Container(
-                          margin: const EdgeInsets.all(16),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.blue.shade200),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      l10n.notificationLimit,
-                                      style: TextStyle(
-                                        color: Colors.blue.shade900,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      l10n.notificationUsage(
-                                        _notificationStats['today_count'] ?? 0,
-                                        4,
-                                      ),
-                                      style: TextStyle(
-                                        color: Colors.blue.shade700,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              TextButton(
-                                onPressed: _showPaywall,
-                                child: const Text('PRO', style: TextStyle(fontWeight: FontWeight.bold)),
-                              ),
-                            ],
-                          ),
-                        ),
-                        _buildDivider(),
-                      ],
-                      
-                      _buildSwitchTile(
-                        l10n.waterReminders,
-                        l10n.waterRemindersDesc,
-                        _notificationsEnabled,
-                        (value) {
-                          setState(() {
-                            _notificationsEnabled = value;
-                          });
-                          _saveSettings();
-                        },
-                        isPro: false,
-                      ),
-                      
-                      if (_notificationsEnabled) ...[
-                        _buildDivider(),
-                        _buildListTile(
-                          l10n.reminderFrequency,
-                          isPro ? l10n.unlimitedReminders : l10n.maxTimesPerDay(_reminderFrequency),
-                          Icons.access_time,
-                          () => isPro ? _showFrequencyDialog(l10n) : _showPaywall(),
-                          isPro: !isPro,
-                        ),
-                        _buildDivider(),
-                        _buildListTile(
-                          l10n.startOfDay,
-                          _morningTime,
-                          Icons.wb_sunny_outlined,
-                          () => _showTimePicker(true),
-                          isPro: false,
-                        ),
-                        _buildDivider(),
-                        _buildListTile(
-                          l10n.endOfDay,
-                          _eveningTime,
-                          Icons.nightlight_outlined,
-                          () => _showTimePicker(false),
-                          isPro: false,
-                        ),
-                      ],
-                      
-                      _buildDivider(),
-                      _buildSwitchTile(
-                        l10n.postCoffeeReminders,
-                        l10n.postCoffeeRemindersDesc,
-                        _postCoffeeReminders && isPro,
-                        isPro ? (value) {
-                          setState(() {
-                            _postCoffeeReminders = value;
-                          });
-                          _saveSettings();
-                        } : (value) => _showPaywall(),
-                        isPro: true,
-                      ),
-                      
-                      _buildDivider(),
-                      _buildSwitchTile(
-                        l10n.heatWarnings,
-                        l10n.heatWarningsDesc,
-                        _heatWarnings && isPro,
-                        isPro ? (value) {
-                          setState(() {
-                            _heatWarnings = value;
-                          });
-                          _saveSettings();
-                        } : (value) => _showPaywall(),
-                        isPro: true,
-                      ),
-                      
-                      _buildDivider(),
-                      _buildSwitchTile(
-                        l10n.postAlcoholReminders,
-                        l10n.postAlcoholRemindersDesc,
-                        _postAlcoholReminders && isPro,
-                        isPro ? (value) {
-                          setState(() {
-                            _postAlcoholReminders = value;
-                          });
-                          _saveSettings();
-                        } : (value) => _showPaywall(),
-                        isPro: true,
-                      ),
-                    ],
-                  ),
-                ).animate().fadeIn(delay: 100.ms),
-                
-                // PRO features (if user is FREE)
-                if (!isPro) ...[
-                  _buildSectionTitle(l10n.proFeaturesSection),
+                  
+                  // DEBUG SECTION - показывается только в debug режиме
+                  _buildDebugSection(),
+                  
+                  // Language Selector
+                  _buildSectionTitle(l10n.languageSection),
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          const Color(0xFFFFD700).withOpacity(0.1),
-                          const Color(0xFFFFA500).withOpacity(0.05),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: const Color(0xFFFFD700).withOpacity(0.3),
-                      ),
                     ),
-                    child: InkWell(
-                      onTap: _showPaywall,
+                    child: ListTile(
+                      leading: const Icon(Icons.language, color: Colors.blue),
+                      title: Text(l10n.languageSettings),
+                      subtitle: Text(localeService.getCurrentLocaleInfo().name),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            localeService.getCurrentLocaleInfo().flag,
+                            style: const TextStyle(fontSize: 24),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.chevron_right),
+                        ],
+                      ),
+                      onTap: _showLanguageDialog,
+                    ),
+                  ).animate().fadeIn(),
+                  
+                  // Profile Section with Units Display
+                  _buildSectionTitle(l10n.profileSection),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          children: [
-                            Row(
+                    ),
+                    child: Column(
+                      children: [
+                        _buildProfileTile(
+                          l10n.weight,
+                          displayWeight, // Используем форматированный вес от UnitsService
+                          Icons.monitor_weight_outlined,
+                          () => _showWeightDialog(hydrationProvider, unitsService, l10n),
+                        ),
+                        _buildDivider(),
+                        _buildProfileTile(
+                          l10n.dietMode,
+                          _getDietModeText(hydrationProvider.dietMode, l10n),
+                          Icons.restaurant_menu,
+                          () => _showDietDialog(hydrationProvider, l10n),
+                        ),
+                        _buildDivider(),
+                        _buildProfileTile(
+                          l10n.activityLevel,
+                          _getActivityText(hydrationProvider.activityLevel, l10n),
+                          Icons.fitness_center,
+                          () => _showActivityDialog(hydrationProvider, l10n),
+                        ),
+                        _buildDivider(),
+                        // Отображаем текущую систему единиц (только для информации)
+                        ListTile(
+                          leading: const Icon(Icons.straighten, color: Colors.blue),
+                          title: Text(l10n.unitsSection),
+                          subtitle: Text(
+                            unitsService.isMetric ? l10n.metricSystem : l10n.imperialSystem,
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                          trailing: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              unitsService.isMetric ? l10n.metricUnits : l10n.imperialUnits,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[700],
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ).animate().fadeIn(),
+                  
+                  // Notifications
+                  _buildSectionTitle(l10n.notificationsSection),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: [
+                        if (!isPro && _notificationStats.isNotEmpty) ...[
+                          Container(
+                            margin: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.blue.shade200),
+                            ),
+                            child: Row(
                               children: [
-                                Container(
-                                  width: 48,
-                                  height: 48,
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: const Icon(
-                                    Icons.star,
-                                    color: Colors.white,
-                                    size: 24,
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
+                                Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+                                const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        l10n.unlockPro,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
+                                        l10n.notificationLimit,
+                                        style: TextStyle(
+                                          color: Colors.blue.shade900,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
                                         ),
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        l10n.unlockProDesc,
-                                        style: const TextStyle(
+                                        l10n.notificationUsage(
+                                          _notificationStats['today_count'] ?? 0,
+                                          4,
+                                        ),
+                                        style: TextStyle(
+                                          color: Colors.blue.shade700,
                                           fontSize: 13,
-                                          color: Colors.grey,
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
-                                const Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 16,
-                                  color: Colors.grey,
+                                TextButton(
+                                  onPressed: _showPaywall,
+                                  child: const Text('PRO', style: TextStyle(fontWeight: FontWeight.bold)),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 16),
-                            Column(
-                              children: [
-                                _ProFeatureItem(icon: Icons.all_inclusive, text: l10n.noNotificationLimit),
-                                _ProFeatureItem(icon: Icons.coffee, text: l10n.postCoffeeReminders),
-                                _ProFeatureItem(icon: Icons.wb_sunny, text: l10n.heatWarnings),
-                                _ProFeatureItem(icon: Icons.local_bar, text: l10n.postAlcoholReminders),
-                              ],
-                            ),
+                          ),
+                          _buildDivider(),
+                        ],
+                        
+                        _buildSwitchTile(
+                          l10n.waterReminders,
+                          l10n.waterRemindersDesc,
+                          _notificationsEnabled,
+                          (value) {
+                            setState(() {
+                              _notificationsEnabled = value;
+                            });
+                            _saveSettings();
+                          },
+                          isPro: false,
+                        ),
+                        
+                        if (_notificationsEnabled) ...[
+                          _buildDivider(),
+                          _buildListTile(
+                            l10n.reminderFrequency,
+                            isPro ? l10n.unlimitedReminders : l10n.maxTimesPerDay(_reminderFrequency),
+                            Icons.access_time,
+                            () => isPro ? _showFrequencyDialog(l10n) : _showPaywall(),
+                            isPro: !isPro,
+                          ),
+                          _buildDivider(),
+                          _buildListTile(
+                            l10n.startOfDay,
+                            _morningTime,
+                            Icons.wb_sunny_outlined,
+                            () => _showTimePicker(true),
+                            isPro: false,
+                          ),
+                          _buildDivider(),
+                          _buildListTile(
+                            l10n.endOfDay,
+                            _eveningTime,
+                            Icons.nightlight_outlined,
+                            () => _showTimePicker(false),
+                            isPro: false,
+                          ),
+                        ],
+                        
+                        _buildDivider(),
+                        _buildSwitchTile(
+                          l10n.postCoffeeReminders,
+                          l10n.postCoffeeRemindersDesc,
+                          _postCoffeeReminders && isPro,
+                          isPro ? (value) {
+                            setState(() {
+                              _postCoffeeReminders = value;
+                            });
+                            _saveSettings();
+                          } : (value) => _showPaywall(),
+                          isPro: true,
+                        ),
+                        
+                        _buildDivider(),
+                        _buildSwitchTile(
+                          l10n.heatWarnings,
+                          l10n.heatWarningsDesc,
+                          _heatWarnings && isPro,
+                          isPro ? (value) {
+                            setState(() {
+                              _heatWarnings = value;
+                            });
+                            _saveSettings();
+                          } : (value) => _showPaywall(),
+                          isPro: true,
+                        ),
+                        
+                        _buildDivider(),
+                        _buildSwitchTile(
+                          l10n.postAlcoholReminders,
+                          l10n.postAlcoholRemindersDesc,
+                          _postAlcoholReminders && isPro,
+                          isPro ? (value) {
+                            setState(() {
+                              _postAlcoholReminders = value;
+                            });
+                            _saveSettings();
+                          } : (value) => _showPaywall(),
+                          isPro: true,
+                        ),
+                      ],
+                    ),
+                  ).animate().fadeIn(delay: 100.ms),
+                  
+                  // PRO features (if user is FREE)
+                  if (!isPro) ...[
+                    _buildSectionTitle(l10n.proFeaturesSection),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xFFFFD700).withOpacity(0.1),
+                            const Color(0xFFFFA500).withOpacity(0.05),
                           ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: const Color(0xFFFFD700).withOpacity(0.3),
                         ),
                       ),
+                      child: InkWell(
+                        onTap: _showPaywall,
+                        borderRadius: BorderRadius.circular(16),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Icon(
+                                      Icons.star,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          l10n.unlockPro,
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          l10n.unlockProDesc,
+                                          style: const TextStyle(
+                                            fontSize: 13,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 16,
+                                    color: Colors.grey,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Column(
+                                children: [
+                                  _ProFeatureItem(icon: Icons.all_inclusive, text: l10n.noNotificationLimit),
+                                  _ProFeatureItem(icon: Icons.coffee, text: l10n.postCoffeeReminders),
+                                  _ProFeatureItem(icon: Icons.wb_sunny, text: l10n.heatWarnings),
+                                  _ProFeatureItem(icon: Icons.local_bar, text: l10n.postAlcoholReminders),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ).animate().fadeIn(delay: 150.ms),
+                  ],
+                  
+                  // About
+                  _buildSectionTitle(l10n.aboutSection),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                  ).animate().fadeIn(delay: 150.ms),
+                    child: Column(
+                      children: [
+                        _buildListTile(
+                          l10n.version,
+                          '0.4.0',
+                          Icons.info_outline,
+                          null,
+                        ),
+                        _buildDivider(),
+                        _buildListTile(
+                          l10n.rateApp,
+                          '',
+                          Icons.star_outline,
+                          () {
+                            // TODO: Open App Store / Google Play
+                          },
+                        ),
+                        _buildDivider(),
+                        _buildListTile(
+                          l10n.share,
+                          '',
+                          Icons.share_outlined,
+                          () {
+                            // TODO: Share app
+                          },
+                        ),
+                        _buildDivider(),
+                        _buildListTile(
+                          l10n.privacyPolicy,
+                          '',
+                          Icons.privacy_tip_outlined,
+                          () {
+                            // TODO: Open privacy policy
+                          },
+                        ),
+                      ],
+                    ),
+                  ).animate().fadeIn(delay: 300.ms),
+                  
+                  // Reset button
+                  Container(
+                    margin: const EdgeInsets.all(20),
+                    child: OutlinedButton(
+                      onPressed: () => _showResetDialog(l10n),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
+                        side: const BorderSide(color: Colors.red),
+                        minimumSize: const Size(double.infinity, 48),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(l10n.resetAllData),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 50),
                 ],
-                
-                // About
-                _buildSectionTitle(l10n.aboutSection),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
-                    children: [
-                      _buildListTile(
-                        l10n.version,
-                        '0.4.0',
-                        Icons.info_outline,
-                        null,
-                      ),
-                      _buildDivider(),
-                      _buildListTile(
-                        l10n.rateApp,
-                        '',
-                        Icons.star_outline,
-                        () {
-                          // TODO: Open App Store / Google Play
-                        },
-                      ),
-                      _buildDivider(),
-                      _buildListTile(
-                        l10n.share,
-                        '',
-                        Icons.share_outlined,
-                        () {
-                          // TODO: Share app
-                        },
-                      ),
-                      _buildDivider(),
-                      _buildListTile(
-                        l10n.privacyPolicy,
-                        '',
-                        Icons.privacy_tip_outlined,
-                        () {
-                          // TODO: Open privacy policy
-                        },
-                      ),
-                    ],
-                  ),
-                ).animate().fadeIn(delay: 300.ms),
-                
-                // Reset button
-                Container(
-                  margin: const EdgeInsets.all(20),
-                  child: OutlinedButton(
-                    onPressed: () => _showResetDialog(l10n),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red),
-                      minimumSize: const Size(double.infinity, 48),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(l10n.resetAllData),
-                  ),
-                ),
-                
-                const SizedBox(height: 50),
-              ],
-            ),
-          );
-        },
+              ),
+            );
+          },
+        ),
       ),
     );
   }
