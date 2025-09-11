@@ -55,6 +55,7 @@ dependencies:
   # 📁 ФАЙЛЫ - экспорт данных
   path_provider: ^2.1.5
   csv: ^6.0.0
+  simple_animations: ^5.2.0
 
 dev_dependencies:
   flutter_test:

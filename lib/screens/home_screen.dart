@@ -1,7 +1,4 @@
 // lib/screens/home_screen.dart
-// 
-// Main home screen - Refactored with separate UI widgets AND Sticky Quick Add feature
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +10,6 @@ import '../l10n/app_localizations.dart';
 // Services
 import '../services/hri_service.dart';
 import '../services/weather_service.dart';
-import '../services/subscription_service.dart';
 import '../services/alcohol_service.dart';
 import '../services/units_service.dart';
 
@@ -37,46 +33,23 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
-  // ============================================================================
-  // CONSTANTS
-  // ============================================================================
-  
   static const int kEveningReportHour = 21;
-  static const double kStickyQuickAddScrollOffset = 280.0;
-
-  // ============================================================================
-  // STATE
-  // ============================================================================
-  
-  // 1. Контроллер скролла и флаг для управления "липким" виджетом
-  final ScrollController _scrollController = ScrollController();
-  bool _showStickyQuickAdd = false;
 
   bool _showDailyReport = false;
   String _fastingSchedule = '16:8';
   Key _quickAddKey = UniqueKey();
   bool _isInitialized = false;
 
-  // ============================================================================
-  // LIFECYCLE
-  // ============================================================================
-  
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // Добавляем слушатель к контроллеру
-    _scrollController.addListener(_scrollListener);
     _initialize();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    // Очищаем ресурсы контроллера и слушателя
-    _scrollController.removeListener(_scrollListener);
-    _scrollController.dispose();
-    
     try {
       final alcohol = Provider.of<AlcoholService>(context, listen: false);
       alcohol.removeListener(_onAlcoholChanged);
@@ -87,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
     super.dispose();
   }
-  
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -96,42 +69,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
-  // ============================================================================
-  // SCROLL LISTENER LOGIC
-  // ============================================================================
-
-  // 2. Логика слушателя: меняем флаг в зависимости от смещения
-  void _scrollListener() {
-    if (_scrollController.offset > kStickyQuickAddScrollOffset && !_showStickyQuickAdd) {
-      if (mounted) {
-        setState(() {
-          _showStickyQuickAdd = true;
-        });
-      }
-    } else if (_scrollController.offset <= kStickyQuickAddScrollOffset && _showStickyQuickAdd) {
-      if (mounted) {
-        setState(() {
-          _showStickyQuickAdd = false;
-        });
-      }
-    }
-  }
-
-  // ============================================================================
-  // INITIALIZATION & CORE LOGIC
-  // ============================================================================
-  
   Future<void> _initialize() async {
     await _loadPreferences();
     _checkDailyReport();
-    
+
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
     alcohol.addListener(_onAlcoholChanged);
 
     final weather = Provider.of<WeatherService>(context, listen: false);
     weather.addListener(_onWeatherChanged);
     await weather.loadWeather();
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _applyAlcoholAdjustments();
@@ -163,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       print('Morning check-in needed after alcohol');
     }
   }
-  
+
   void _refreshQuickAdd() {
     if (mounted) {
       setState(() {
@@ -186,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void _applyAlcoholAdjustments() {
     final provider = Provider.of<HydrationProvider>(context, listen: false);
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
-    
+
     provider.updateAlcoholAdjustments(
       alcohol.totalWaterCorrection,
       alcohol.totalSodiumCorrection.round(),
@@ -234,10 +182,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
-  // ============================================================================
-  // BUILD METHOD
-  // ============================================================================
-  
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<HydrationProvider>(context, listen: false);
@@ -249,20 +193,26 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         body: Center(child: CircularProgressIndicator()),
       );
     }
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
         child: Stack(
           children: [
             CustomScrollView(
-              // 3. Привязка контроллера к списку
-              controller: _scrollController,
               physics: const BouncingScrollPhysics(),
               slivers: [
                 const SliverToBoxAdapter(child: HomeHeader()),
                 const SliverToBoxAdapter(child: WeatherCard()),
-                const SliverToBoxAdapter(child: MainProgressCard()),
+                SliverToBoxAdapter(
+                  // ИСПРАВЛЕНО: Добавлен обязательный параметр onUpdate
+                  child: MainProgressCard(
+                    onUpdate: () {
+                      setState(() {});
+                      _updateHRI();
+                    },
+                  ),
+                ),
                 const SliverToBoxAdapter(child: SmartAdviceCard()),
                 SliverToBoxAdapter(
                   child: HRIStatusCard(
@@ -270,30 +220,23 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     fastingSchedule: _fastingSchedule,
                   ),
                 ),
-                
-                // 4. Встроенный Quick Add теперь отображается по условию
-                if (!_showStickyQuickAdd)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: QuickAddWidget(
-                        key: _quickAddKey,
-                        provider: provider,
-                        onUpdate: () {
-                          setState(() {});
-                          _updateHRI();
-                        },
-                      ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: QuickAddWidget(
+                      key: _quickAddKey,
+                      // ИСПРАВЛЕНО: Убран ненужный параметр 'provider'
+                      onUpdate: () {
+                        setState(() {});
+                        _updateHRI();
+                      },
                     ),
                   ),
-
+                ),
                 const SliverToBoxAdapter(child: TodayHistorySection()),
-
-                // 5. Увеличиваем нижний отступ, чтобы "док" не перекрывал контент
-                const SliverToBoxAdapter(child: SizedBox(height: 120)),
+                const SliverToBoxAdapter(child: SizedBox(height: 100)),
               ],
             ),
-
             if (_showDailyReport)
               Positioned(
                 bottom: 20,
@@ -301,68 +244,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 right: 20,
                 child: _buildDailyReportCard(l10n),
               ),
-            
-            // 6. Добавляем "липкий" виджет в Stack
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: _buildStickyQuickAdd(),
-            ),
           ],
-        ),
-      ),
-    );
-  }
-
-  // ============================================================================
-  // UI BUILDERS
-  // ============================================================================
-
-  // 7. Метод для построения анимированного "липкого" виджета
-  Widget _buildStickyQuickAdd() {
-    final provider = Provider.of<HydrationProvider>(context, listen: false);
-
-    return AnimatedSlide(
-      offset: _showStickyQuickAdd ? Offset.zero : const Offset(0, 1),
-      duration: const Duration(milliseconds: 220),
-      curve: Curves.easeOutCubic,
-      child: AnimatedOpacity(
-        opacity: _showStickyQuickAdd ? 1.0 : 0.0,
-        duration: const Duration(milliseconds: 220),
-        // IgnorePointer предотвращает случайные нажатия на невидимый виджет
-        child: IgnorePointer(
-          ignoring: !_showStickyQuickAdd,
-          child: Container(
-            padding: const EdgeInsets.only(top: 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
-                  blurRadius: 12,
-                  spreadRadius: -4,
-                  offset: const Offset(0, -3),
-                ),
-              ],
-            ),
-            // SafeArea защищает от системных элементов (например, "полоска" навигации)
-            child: SafeArea(
-              top: false,
-              child: QuickAddWidget(
-                key: _quickAddKey,
-                provider: provider,
-                onUpdate: () {
-                  setState(() {});
-                  _updateHRI();
-                },
-              ),
-            ),
-          ),
         ),
       ),
     );
