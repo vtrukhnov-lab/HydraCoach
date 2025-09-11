@@ -22,7 +22,8 @@ import 'screens/electrolytes_screen.dart';
 import 'screens/supplements_screen.dart';
 import 'screens/hot_drinks_screen.dart';
 import 'screens/sports_screen.dart';
-import 'screens/main_shell.dart'; // ⬅️ оболочка с нижним баром
+import 'screens/main_shell.dart';
+import 'screens/paywall_screen.dart';
 
 // Services
 import 'services/notification_service.dart';
@@ -213,7 +214,8 @@ class MyApp extends StatelessWidget {
             '/supplements': (context) => const SupplementsScreen(),
             '/hot_drinks': (context) => const HotDrinksScreen(),
             '/sports': (context) => const SportsScreen(),
-            '/main': (context) => const MainShell(), // ⬅️ добавили
+            '/main': (context) => const MainShell(), 
+            '/paywall': (context) => const PaywallScreen(),
           },
         );
       },

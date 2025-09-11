@@ -104,7 +104,7 @@ class _MainShellState extends State<MainShell> {
               _buildNavItem(
                 icon: Icons.notifications_outlined,
                 activeIcon: Icons.notifications,
-                label: l10n.notifications,
+                label: l10n.notificationsSection,
                 index: 2,
               ),
               _buildNavItem(

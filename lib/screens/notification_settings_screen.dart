@@ -13,429 +13,878 @@ class NotificationSettingsScreen extends StatefulWidget {
 }
 
 class _NotificationSettingsScreenState extends State<NotificationSettingsScreen> {
-  Map<String, dynamic> _notificationStats = {};
-  bool _testNotificationScheduled = false;
+  // Статус пользователя
+  bool _isPro = false;
+  
+  // Настройки уведомлений
+  bool _postCoffeeReminders = true;
+  bool _eveningReports = true;
+  bool _heatWarnings = true;
+  bool _postAlcoholReminders = true;
+  
+  // Время уведомлений
+  TimeOfDay _morningTime = const TimeOfDay(hour: 8, minute: 0);
+  TimeOfDay _eveningTime = const TimeOfDay(hour: 21, minute: 0);
+  
+  // Частота напоминаний о воде
+  int _reminderFrequency = 4;
+  
+  // Тихие часы (PRO)
+  bool _quietHoursEnabled = false;
+  TimeOfDay _quietStart = const TimeOfDay(hour: 22, minute: 0);
+  TimeOfDay _quietEnd = const TimeOfDay(hour: 7, minute: 0);
+  
+  // Статистика
+  int _todayCount = 0;
+  
+  // Debug режим
+  bool _showDebugPanel = false;
 
   @override
   void initState() {
     super.initState();
-    _loadNotificationStats();
+    _loadSettings();
   }
 
-  Future<void> _loadNotificationStats() async {
+  Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    final isPro = prefs.getBool('is_pro') ?? false;
-    final todayCount = prefs.getInt('notification_count_today') ?? 0;
     
     setState(() {
-      _notificationStats = {
-        'is_pro': isPro,
-        'today_count': todayCount,
-        'daily_limit': isPro ? -1 : 4,
-        'remaining_today': isPro ? -1 : (4 - todayCount),
-      };
+      _isPro = prefs.getBool('is_pro') ?? false;
+      _postCoffeeReminders = prefs.getBool('post_coffee_reminders') ?? true;
+      _eveningReports = prefs.getBool('evening_reports') ?? true;
+      _heatWarnings = prefs.getBool('heat_warnings') ?? true;
+      _postAlcoholReminders = prefs.getBool('post_alcohol_reminders') ?? true;
+      _reminderFrequency = prefs.getInt('reminder_frequency') ?? 4;
+      _quietHoursEnabled = prefs.getBool('quiet_hours_enabled') ?? false;
+      _todayCount = prefs.getInt('notification_count_today') ?? 0;
+      
+      // Загрузка времени
+      final morningMinutes = prefs.getInt('morning_time') ?? 480; // 8:00
+      _morningTime = TimeOfDay(hour: morningMinutes ~/ 60, minute: morningMinutes % 60);
+      
+      final eveningMinutes = prefs.getInt('evening_report_time') ?? 1260; // 21:00
+      _eveningTime = TimeOfDay(hour: eveningMinutes ~/ 60, minute: eveningMinutes % 60);
+      
+      final quietStartMinutes = prefs.getInt('quiet_hours_start') ?? 1320; // 22:00
+      _quietStart = TimeOfDay(hour: quietStartMinutes ~/ 60, minute: quietStartMinutes % 60);
+      
+      final quietEndMinutes = prefs.getInt('quiet_hours_end') ?? 420; // 7:00
+      _quietEnd = TimeOfDay(hour: quietEndMinutes ~/ 60, minute: quietEndMinutes % 60);
     });
   }
 
-  Future<void> _sendTestNotification() async {
-    try {
-      await notif.NotificationService().sendTestNotification();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Test notification sent!'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Error: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _scheduleTestNotification() async {
-    try {
-      await notif.NotificationService().scheduleTestIn1Minute();
-      setState(() {
-        _testNotificationScheduled = true;
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('⏰ Notification scheduled for 1 minute from now'),
-            backgroundColor: Colors.blue,
-            duration: Duration(seconds: 3),
-          ),
-        );
-      }
-      Future.delayed(const Duration(minutes: 2), () {
-        if (mounted) {
-          setState(() {
-            _testNotificationScheduled = false;
-          });
-        }
-      });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Error: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _showNotificationStatus() async {
-    await notif.NotificationService().printNotificationStatus();
+  Future<void> _saveSettings() async {
+    final prefs = await SharedPreferences.getInstance();
     
-    final pending = await notif.NotificationService().getPendingNotifications();
+    // Сохраняем основные настройки
+    await prefs.setBool('notificationsEnabled', true); // Всегда включены
+    await prefs.setBool('water_reminders', true); // Всегда включены
+    await prefs.setBool('post_coffee_reminders', _postCoffeeReminders);
+    await prefs.setBool('evening_reports', _eveningReports);
+    await prefs.setBool('heat_warnings', _heatWarnings);
+    await prefs.setBool('post_alcohol_reminders', _postAlcoholReminders);
+    await prefs.setInt('reminder_frequency', _reminderFrequency);
+    await prefs.setBool('quiet_hours_enabled', _quietHoursEnabled);
     
-    if (mounted) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('📋 Notification Status'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Pending: ${pending.length} notifications'),
-                const SizedBox(height: 8),
-                Text('PRO Status: ${_notificationStats['is_pro'] ? 'Yes' : 'No'}'),
-                Text('Sent Today: ${_notificationStats['today_count']}'),
-                if (!_notificationStats['is_pro'])
-                  Text('Daily Limit: 4'),
-                const Divider(),
-                const Text('Scheduled:', style: TextStyle(fontWeight: FontWeight.bold)),
-                if (pending.isEmpty)
-                  const Text('No pending notifications')
-                else
-                  ...pending.take(5).map((n) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('• ${n.title}', style: const TextStyle(fontWeight: FontWeight.w500)),
-                        Text('  ${n.body}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                      ],
-                    ),
-                  )),
-                if (pending.length > 5)
-                  Text('\n...and ${pending.length - 5} more'),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close'),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
-  Future<void> _cancelAllNotifications() async {
-    await notif.NotificationService().cancelAllNotifications();
+    // Сохраняем время в минутах
+    await prefs.setInt('morning_time', _morningTime.hour * 60 + _morningTime.minute);
+    await prefs.setInt('evening_report_time', _eveningTime.hour * 60 + _eveningTime.minute);
+    await prefs.setInt('quiet_hours_start', _quietStart.hour * 60 + _quietStart.minute);
+    await prefs.setInt('quiet_hours_end', _quietEnd.hour * 60 + _quietEnd.minute);
+    
+    // Дублируем в строковом формате для NotificationService
+    await prefs.setString('evening_report_time', 
+      '${_eveningTime.hour.toString().padLeft(2, '0')}:${_eveningTime.minute.toString().padLeft(2, '0')}');
+    await prefs.setString('quiet_hours_start', 
+      '${_quietStart.hour.toString().padLeft(2, '0')}:${_quietStart.minute.toString().padLeft(2, '0')}');
+    await prefs.setString('quiet_hours_end', 
+      '${_quietEnd.hour.toString().padLeft(2, '0')}:${_quietEnd.minute.toString().padLeft(2, '0')}');
+    
+    // Перепланируем уведомления
+    await _rescheduleNotifications();
+    
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('🗑️ All notifications cancelled'),
-          backgroundColor: Colors.orange,
+          content: Text('Settings saved'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
         ),
       );
     }
   }
 
-  Future<void> _toggleProStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final currentStatus = _notificationStats['is_pro'] == true;
-    final newStatus = !currentStatus;
+  Future<void> _rescheduleNotifications() async {
+    // Планируем умные напоминания (включая базовые о воде)
+    await notif.NotificationService().scheduleSmartReminders();
     
-    await prefs.setBool('is_pro', newStatus);
-    await _loadNotificationStats();
-    
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(newStatus ? '⭐ PRO status enabled' : '🆓 FREE status set'),
-          backgroundColor: newStatus ? Colors.green : Colors.orange,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+    // Если включен вечерний отчёт, планируем его отдельно
+    if (_eveningReports) {
+      await notif.NotificationService().scheduleEveningReport();
     }
+  }
+
+  Future<void> _selectTime(BuildContext context, TimeOfDay initialTime, Function(TimeOfDay) onTimeSelected) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: initialTime,
+    );
+    if (picked != null) {
+      onTimeSelected(picked);
+    }
+  }
+
+  String _formatTime(TimeOfDay time) {
+    final hour = time.hour.toString().padLeft(2, '0');
+    final minute = time.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
+      appBar: AppBar(
+        title: Text(l10n.notificationsSection),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          if (kDebugMode)
+            IconButton(
+              icon: Icon(_showDebugPanel ? Icons.bug_report : Icons.bug_report_outlined),
+              onPressed: () => setState(() => _showDebugPanel = !_showDebugPanel),
+            ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 80),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Заголовок
-              Container(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Настройки уведомлений',
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ).animate().fadeIn(duration: 350.ms),
-                    const SizedBox(height: 4),
-                    Text(
-                      kDebugMode ? 'Debug режим' : 'Настройте под себя',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
+              // Секция: Базовые напоминания
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                child: Text(
+                  l10n.waterReminders,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[700],
+                  ),
+                ),
+              ),
+              _buildBasicReminders(theme, l10n),
+              
+              // Секция: Частота напоминаний
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                child: Text(
+                  l10n.reminderFrequency,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[700],
+                  ),
+                ),
+              ),
+              _buildFrequencySettings(theme, l10n),
+              
+              // Секция: Дополнительные напоминания
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                child: Text(
+                  'Additional Reminders',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[700],
+                  ),
+                ),
+              ),
+              _buildAdditionalReminders(theme, l10n),
+              
+              // PRO функции или их разблокировка
+              if (_isPro) ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                  child: Text(
+                    l10n.smartReminders,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[700],
                     ),
-                  ],
+                  ),
+                ),
+                _buildProReminders(theme, l10n),
+                _buildQuietHours(theme, l10n),
+              ] else ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                  child: Text(
+                    l10n.proFeaturesSection,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                ),
+                _buildProPreview(theme, l10n),
+              ],
+              
+              // Кнопка сохранения
+              Container(
+                margin: const EdgeInsets.all(16),
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _saveSettings,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.all(16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(l10n.save),
                 ),
               ),
               
-              // Основной контент
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    // Заголовок секции
-                    Row(
-                      children: [
-                        Icon(
-                          kDebugMode ? Icons.bug_report : Icons.notifications,
-                          color: theme.colorScheme.primary,
-                          size: 24,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          kDebugMode ? 'Тестирование уведомлений' : 'Управление уведомлениями',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    
-                    const SizedBox(height: 20),
-                    
-                    // Статистика
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: theme.colorScheme.primary,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Статус: ${_notificationStats['is_pro'] == true ? "PRO" : "FREE"}',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: theme.colorScheme.primary,
-                                  ),
-                                ),
-                                Text(
-                                  'Отправлено сегодня: ${_notificationStats['today_count'] ?? 0}',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: theme.colorScheme.primary.withOpacity(0.8),
-                                  ),
-                                ),
-                                if (_notificationStats['is_pro'] != true)
-                                  Text(
-                                    'Лимит: 4 в день',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: theme.colorScheme.primary.withOpacity(0.8),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 20),
-                    const Divider(),
-                    
-                    // Кнопки управления
-                    _buildActionTile(
-                      icon: Icons.send,
-                      iconColor: Colors.green,
-                      title: 'Отправить тестовое',
-                      subtitle: 'Мгновенное уведомление',
-                      onTap: _sendTestNotification,
-                    ),
-                    
-                    const Divider(height: 1),
-                    
-                    _buildActionTile(
-                      icon: Icons.schedule,
-                      iconColor: Colors.blue,
-                      title: 'Запланировать тест',
-                      subtitle: _testNotificationScheduled 
-                        ? 'Запланировано ⏰' 
-                        : 'Придёт через 1 минуту',
-                      onTap: _testNotificationScheduled ? null : _scheduleTestNotification,
-                    ),
-                    
-                    const Divider(height: 1),
-                    
-                    _buildActionTile(
-                      icon: Icons.list_alt,
-                      iconColor: Colors.purple,
-                      title: 'Показать статус',
-                      subtitle: 'Запланированные уведомления',
-                      onTap: _showNotificationStatus,
-                    ),
-                    
-                    const Divider(height: 1),
-                    
-                    _buildActionTile(
-                      icon: Icons.cancel_outlined,
-                      iconColor: Colors.orange,
-                      title: 'Отменить все',
-                      subtitle: 'Очистить запланированные',
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Отменить все?'),
-                            content: const Text('Это отменит все запланированные уведомления.'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('Нет'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  _cancelAllNotifications();
-                                },
-                                style: TextButton.styleFrom(foregroundColor: Colors.red),
-                                child: const Text('Да, отменить'),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                    
-                    if (kDebugMode) ...[
-                      const Divider(height: 1),
-                      _buildActionTile(
-                        icon: _notificationStats['is_pro'] == true ? Icons.star : Icons.star_outline,
-                        iconColor: Colors.amber,
-                        title: 'Переключить PRO статус',
-                        subtitle: 'Текущий: ${_notificationStats['is_pro'] == true ? "PRO" : "FREE"}',
-                        onTap: _toggleProStatus,
-                      ),
-                    ],
-                  ],
-                ),
-              ).animate().fadeIn(delay: 100.ms).slideY(begin: 0.1),
-              
-              // Информационная панель
-              if (kDebugMode)
-                Container(
-                  margin: const EdgeInsets.all(20),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.yellow.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.yellow.shade300),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.warning_amber_rounded, color: Colors.orange.shade700, size: 20),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Text(
-                          'Debug функции видны только в режиме разработки',
-                          style: TextStyle(fontSize: 13),
-                        ),
-                      ),
-                    ],
-                  ),
-                ).animate().fadeIn(delay: 200.ms),
-              
-              const SizedBox(height: 50),
+              // Debug панель
+              if (_showDebugPanel && kDebugMode) _buildDebugPanel(theme),
             ],
           ),
         ),
       ),
     );
   }
-  
-  Widget _buildActionTile({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-    required VoidCallback? onTap,
-  }) {
-    return ListTile(
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: iconColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
+
+  Widget _buildBasicReminders(ThemeData theme, AppLocalizations l10n) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Утреннее напоминание
+          ListTile(
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.amber.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.wb_sunny, color: Colors.amber, size: 20),
+            ),
+            title: Text(l10n.startOfDay),
+            subtitle: const Text('First reminder of the day'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _formatTime(_morningTime),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[700],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(Icons.chevron_right, size: 20, color: Colors.grey),
+              ],
+            ),
+            onTap: () => _selectTime(context, _morningTime, (time) {
+              setState(() => _morningTime = time);
+            }),
+          ),
+          const Divider(height: 1),
+          // Вечерний отчёт
+          ListTile(
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.indigo.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.nightlight_round, color: Colors.indigo, size: 20),
+            ),
+            title: Text(l10n.dailyReportTitle),
+            subtitle: Text(l10n.dailyReportBody),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_eveningReports)
+                  Text(
+                    _formatTime(_eveningTime),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                Switch(
+                  value: _eveningReports,
+                  onChanged: (value) => setState(() => _eveningReports = value),
+                ),
+              ],
+            ),
+            onTap: _eveningReports 
+              ? () => _selectTime(context, _eveningTime, (time) {
+                  setState(() => _eveningTime = time);
+                })
+              : null,
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 350.ms);
+  }
+
+  Widget _buildFrequencySettings(ThemeData theme, AppLocalizations l10n) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(Icons.timer, color: theme.colorScheme.primary, size: 20),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Water reminders per day',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    Text(
+                      _isPro 
+                        ? l10n.timesPerDay(_reminderFrequency)
+                        : l10n.maxTimesPerDay(_reminderFrequency),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: DropdownButton<int>(
+                  value: _reminderFrequency,
+                  underline: const SizedBox(),
+                  isDense: true,
+                  items: (_isPro ? [2, 4, 6, 8, 10] : [2, 3, 4]).map((times) {
+                    return DropdownMenuItem(
+                      value: times,
+                      child: Text('$times'),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _reminderFrequency = value);
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          if (!_isPro)
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.amber.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, color: Colors.amber, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.notificationLimit,
+                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                        ),
+                        Text(
+                          l10n.notificationUsage(_todayCount, 4),
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 100.ms);
+  }
+
+  Widget _buildAdditionalReminders(ThemeData theme, AppLocalizations l10n) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          SwitchListTile(
+            secondary: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.brown.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.coffee, color: Colors.brown, size: 20),
+            ),
+            title: Text(l10n.postCoffeeReminders),
+            subtitle: Text(l10n.postCoffeeRemindersDesc),
+            value: _postCoffeeReminders,
+            onChanged: (value) => setState(() => _postCoffeeReminders = value),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 200.ms);
+  }
+
+  Widget _buildProReminders(ThemeData theme, AppLocalizations l10n) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          SwitchListTile(
+            secondary: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.thermostat, color: Colors.orange, size: 20),
+            ),
+            title: Text(l10n.heatWarnings),
+            subtitle: Text(l10n.heatWarningsDesc),
+            value: _heatWarnings,
+            onChanged: (value) => setState(() => _heatWarnings = value),
+          ),
+          const Divider(height: 1),
+          SwitchListTile(
+            secondary: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.purple.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.local_bar, color: Colors.purple, size: 20),
+            ),
+            title: Text(l10n.postAlcoholReminders),
+            subtitle: Text(l10n.postAlcoholRemindersDesc),
+            value: _postAlcoholReminders,
+            onChanged: (value) => setState(() => _postAlcoholReminders = value),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 300.ms);
+  }
+
+  Widget _buildQuietHours(ThemeData theme, AppLocalizations l10n) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: (_quietHoursEnabled ? Colors.purple : Colors.grey).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.do_not_disturb,
+                  color: _quietHoursEnabled ? Colors.purple : Colors.grey,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Quiet Hours',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    Text(
+                      _quietHoursEnabled 
+                        ? '${_formatTime(_quietStart)} - ${_formatTime(_quietEnd)}'
+                        : 'No notifications during sleep',
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
+              ),
+              Switch(
+                value: _quietHoursEnabled,
+                onChanged: (value) => setState(() => _quietHoursEnabled = value),
+              ),
+            ],
+          ),
+          if (_quietHoursEnabled) ...[
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () => _selectTime(context, _quietStart, (time) {
+                      setState(() => _quietStart = time);
+                    }),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey[300]!),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('From', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                          Text(_formatTime(_quietStart), style: const TextStyle(fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: InkWell(
+                    onTap: () => _selectTime(context, _quietEnd, (time) {
+                      setState(() => _quietEnd = time);
+                    }),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey[300]!),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('To', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                          Text(_formatTime(_quietEnd), style: const TextStyle(fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    ).animate().fadeIn(delay: 400.ms);
+  }
+
+  Widget _buildProPreview(ThemeData theme, AppLocalizations l10n) {
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: theme.colorScheme.primary.withOpacity(0.3),
+              width: 2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.thermostat, color: Colors.orange, size: 20),
+                ),
+                title: Text(l10n.heatWarnings),
+                subtitle: Text(l10n.heatWarningsDesc),
+                trailing: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text(
+                    'PRO',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.amber,
+                    ),
+                  ),
+                ),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.purple.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.local_bar, color: Colors.purple, size: 20),
+                ),
+                title: Text(l10n.postAlcoholReminders),
+                subtitle: Text(l10n.postAlcoholRemindersDesc),
+                trailing: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text(
+                    'PRO',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.amber,
+                    ),
+                  ),
+                ),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.all_inclusive, color: Colors.green, size: 20),
+                ),
+                title: Text(l10n.unlimitedReminders),
+                subtitle: Text(l10n.noNotificationLimit),
+                trailing: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text(
+                    'PRO',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.amber,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-        child: Icon(icon, color: iconColor, size: 20),
+        Container(
+          margin: const EdgeInsets.all(16),
+          child: ElevatedButton(
+            onPressed: () => Navigator.pushNamed(context, '/paywall'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: theme.colorScheme.primary,
+              padding: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.star, color: Colors.white),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.unlockPro,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ).animate().fadeIn(delay: 300.ms);
+  }
+
+  Widget _buildDebugPanel(ThemeData theme) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.yellow.shade50,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.yellow.shade300),
       ),
-      title: Text(title),
-      subtitle: Text(
-        subtitle,
-        style: const TextStyle(fontSize: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.bug_report, color: Colors.orange, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Debug Panel (${_isPro ? "PRO" : "FREE"})',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ],
+          ),
+          const Divider(),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await notif.NotificationService().sendTestNotification();
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Test sent')),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.send, size: 16),
+                label: const Text('Test', style: TextStyle(fontSize: 12)),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await notif.NotificationService().scheduleTestIn1Minute();
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Scheduled in 1 min')),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.schedule, size: 16),
+                label: const Text('1 min', style: TextStyle(fontSize: 12)),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await notif.NotificationService().printNotificationStatus();
+                },
+                icon: const Icon(Icons.info, size: 16),
+                label: const Text('Status', style: TextStyle(fontSize: 12)),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool('is_pro', !_isPro);
+                  _loadSettings();
+                },
+                icon: const Icon(Icons.star, size: 16),
+                label: Text(_isPro ? 'FREE' : 'PRO', style: const TextStyle(fontSize: 12)),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: onTap,
-    );
+    ).animate().fadeIn(delay: 500.ms);
   }
 }

@@ -183,9 +183,29 @@ class NotificationService {
     
     int scheduledCount = 0;
     
-    for (final hm in NotificationConfig.baseReminderTimes) {
-      final scheduledTime = DateTime(today.year, today.month, today.day, hm[0], hm[1]);
-      
+    // Получаем пользовательские времена напоминаний из SharedPreferences
+final prefs = await SharedPreferences.getInstance();
+final timesString = prefs.getString('water_reminder_times');
+List<List<int>> reminderTimes;
+
+if (timesString != null && timesString.isNotEmpty) {
+  // Парсим сохранённые времена формата "8:00,11:15,14:30,17:45"
+  reminderTimes = timesString.split(',').map((t) {
+    final parts = t.split(':');
+    return [int.parse(parts[0]), int.parse(parts[1])];
+  }).toList();
+  
+  print('  📱 Using custom reminder times from user settings: $reminderTimes');
+} else {
+  // Если пользовательских настроек нет, используем базовые
+  reminderTimes = NotificationConfig.baseReminderTimes;
+  
+  print('  📱 Using default reminder times: $reminderTimes');
+}
+
+for (final hm in reminderTimes) {
+  final scheduledTime = DateTime(today.year, today.month, today.day, hm[0], hm[1]);
+
       // Пропускаем прошедшее время
       if (scheduledTime.isBefore(now)) {
         print('  ⏭️ Skipping ${hm[0]}:${hm[1].toString().padLeft(2, '0')} - already passed');
@@ -338,8 +358,25 @@ class NotificationService {
   Future<void> _scheduleWaterRemindersForDate(DateTime date) async {
     final random = Random();
     
-    for (final hm in NotificationConfig.baseReminderTimes) {
-      DateTime time = DateTime(date.year, date.month, date.day, hm[0], hm[1]);
+    // Получаем пользовательские времена напоминаний из SharedPreferences
+final prefs = await SharedPreferences.getInstance();
+final timesString = prefs.getString('water_reminder_times');
+List<List<int>> reminderTimes;
+
+if (timesString != null && timesString.isNotEmpty) {
+  // Парсим сохранённые времена формата "8:00,11:15,14:30,17:45"
+  reminderTimes = timesString.split(',').map((t) {
+    final parts = t.split(':');
+    return [int.parse(parts[0]), int.parse(parts[1])];
+  }).toList();
+} else {
+  // Если пользовательских настроек нет, используем базовые
+  reminderTimes = NotificationConfig.baseReminderTimes;
+}
+
+// Планируем напоминания на основе полученных времён
+for (final hm in reminderTimes) {
+  DateTime time = DateTime(date.year, date.month, date.day, hm[0], hm[1]);
       
       // Добавляем jitter
       final jitterMinutes = random.nextInt(7) - 3;
