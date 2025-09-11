@@ -4251,6 +4251,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'lb'**
   String get lb;
+
+  /// No description provided for @target.
+  ///
+  /// In en, this message translates to:
+  /// **'Target'**
+  String get target;
 }
 
 class _AppLocalizationsDelegate

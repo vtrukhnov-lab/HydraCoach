@@ -17,20 +17,25 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
-
-  // Список экранов
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const HistoryScreen(),
-    const NotificationSettingsScreen(), // Изменено: теперь показывает экран настроек уведомлений
-    const Center(child: Text('Progress - Coming Soon')),
-    const SettingsScreen(),
-  ];
+  
+  // Инициализируем экраны один раз
+  late final List<Widget> _screens;
+  
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      const HomeScreen(),
+      const HistoryScreen(),
+      const NotificationSettingsScreen(),
+      Container(), // Пустой контейнер вместо текста
+      const SettingsScreen(),
+    ];
+  }
 
   void _onTabTapped(int index) {
     // Если это неработающая вкладка (только 3), показываем сообщение
     if (index == 3) {
-      // Показать сообщение для неготового экрана
       final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -61,6 +66,7 @@ class _MainShellState extends State<MainShell> {
     final l10n = AppLocalizations.of(context)!;
     
     return Scaffold(
+      extendBody: true, // ВАЖНО: позволяет контенту идти под навигацию
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
@@ -79,7 +85,7 @@ class _MainShellState extends State<MainShell> {
         shape: const CircularNotchedRectangle(),
         notchMargin: 8.0,
         child: SizedBox(
-          height: 60,
+          height: 65,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -100,7 +106,7 @@ class _MainShellState extends State<MainShell> {
               // Пространство для FAB
               const SizedBox(width: 40),
               
-              // Правая часть - изменены иконки и лейблы
+              // Правая часть
               _buildNavItem(
                 icon: Icons.notifications_outlined,
                 activeIcon: Icons.notifications,
@@ -130,33 +136,37 @@ class _MainShellState extends State<MainShell> {
     final theme = Theme.of(context);
     
     return Expanded(
-      child: InkWell(
+      child: GestureDetector(
         onTap: () => _onTabTapped(index),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              isSelected ? activeIcon : icon,
-              color: isSelected 
-                  ? theme.colorScheme.primary 
-                  : theme.colorScheme.onSurfaceVariant,
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 6), // Уменьшено с 8
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                isSelected ? activeIcon : icon,
                 color: isSelected 
                     ? theme.colorScheme.primary 
                     : theme.colorScheme.onSurfaceVariant,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                size: 26, // Уменьшено с 28
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+              const SizedBox(height: 2), // Уменьшено с 4
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10, // Уменьшено с 11
+                  color: isSelected 
+                      ? theme.colorScheme.primary 
+                      : theme.colorScheme.onSurfaceVariant,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ),
     );

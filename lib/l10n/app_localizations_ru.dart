@@ -2279,4 +2279,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get lb => 'фунт';
+
+  @override
+  String get target => 'Цель';
 }

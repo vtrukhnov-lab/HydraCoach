@@ -224,21 +224,30 @@ class SubscriptionProvider extends ChangeNotifier {
   
   /// Инициализация подписки
   Future<void> initialize() async {
+    // КРИТИЧНО: НЕ вызываем notifyListeners() в начале
+    // чтобы избежать setState during build
     _isLoading = true;
-    notifyListeners();
     
     await _subscriptionService.initialize();
     await loadProducts();
     
     _isLoading = false;
-    notifyListeners();
+    
+    // КРИТИЧНО: Откладываем уведомление об изменениях
+    // используя Future.microtask чтобы избежать setState during build
+    await Future.microtask(() {
+      notifyListeners();
+    });
   }
   
   /// Загрузка доступных продуктов
   Future<void> loadProducts() async {
     try {
       _availableProducts = await _subscriptionService.getAvailableProducts();
-      notifyListeners();
+      // Уведомляем только если это не происходит во время build
+      if (!_isLoading) {
+        notifyListeners();
+      }
     } catch (e) {
       if (kDebugMode) {
         print('❌ Ошибка загрузки продуктов: $e');
@@ -308,7 +317,7 @@ class SubscriptionProvider extends ChangeNotifier {
     return _subscriptionService.hasFeatureAccess(featureName);
   }
   
-  /// Получение информации о ограничениях
+  /// Получение информации об ограничениях
   Map<String, dynamic> getFreeLimitations() {
     return _subscriptionService.getFreeLimitations();
   }

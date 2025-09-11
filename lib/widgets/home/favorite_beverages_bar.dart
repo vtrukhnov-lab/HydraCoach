@@ -131,7 +131,7 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: List.generate(3, (index) {
@@ -177,7 +177,7 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
         onTapUp: (_) => _applyFavorite(fav, index),
         onTapCancel: () => setState(() => _pressedIndex = null),
         child: Container(
-          height: 100,
+          height: 85, // Уменьшено с 100
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -205,13 +205,13 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
             children: [
               Text(
                 icon,
-                style: const TextStyle(fontSize: 28),
+                style: const TextStyle(fontSize: 26), // Уменьшено с 28
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6), // Уменьшено с 8
               Text(
                 fav.label,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 10, // Уменьшено с 11
                   fontWeight: FontWeight.w600,
                   color: isDarkMode ? Colors.grey[300] : Colors.grey[800],
                 ),
@@ -220,7 +220,7 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
               ),
               const SizedBox(height: 2),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), // Уменьшено с 8, 2
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
@@ -228,7 +228,7 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
                 child: Text(
                   '$displayVolume ${units.volumeUnit}',
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 9, // Уменьшено с 10
                     fontWeight: FontWeight.w700,
                     color: color,
                   ),
@@ -243,7 +243,7 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
 
   Widget _buildEmptySlot(AppLocalizations l10n, bool isDarkMode) {
     return Container(
-      height: 100,
+      height: 85, // Уменьшено с 100
       decoration: BoxDecoration(
         color: isDarkMode 
           ? Colors.grey[900]?.withOpacity(0.3)
@@ -277,16 +277,16 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
           children: [
             Icon(
               Icons.add_circle_outline_rounded,
-              size: 28,
+              size: 26, // Уменьшено с 28
               color: isDarkMode 
                 ? Colors.grey[600]
                 : Colors.grey[400],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6), // Уменьшено с 8
             Text(
               l10n.addFavorite,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 10, // Уменьшено с 11
                 fontWeight: FontWeight.w600,
                 color: isDarkMode 
                   ? Colors.grey[600]
@@ -301,7 +301,7 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
 
   Widget _buildProLockedSlot(bool isDarkMode) {
     return Container(
-      height: 100,
+      height: 85, // Уменьшено с 100
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -338,7 +338,7 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(6), // Уменьшено с 8
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.2),
                   shape: BoxShape.circle,
@@ -346,12 +346,12 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
                 child: const Icon(
                   Icons.star_rounded,
                   color: Colors.white,
-                  size: 24,
+                  size: 22, // Уменьшено с 24
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6), // Уменьшено с 8
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3), // Уменьшено с 12, 4
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
@@ -359,7 +359,7 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
                 child: const Text(
                   'PRO',
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 10, // Уменьшено с 11
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
                     letterSpacing: 1,

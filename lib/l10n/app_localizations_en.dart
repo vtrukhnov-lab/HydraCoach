@@ -2273,4 +2273,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lb => 'lb';
+
+  @override
+  String get target => 'Target';
 }

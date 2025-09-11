@@ -9,7 +9,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/ion_character.dart';
 import '../services/units_service.dart';
-import 'home_screen.dart';
+import 'main_shell.dart'; // ИСПРАВЛЕНО: импортируем MainShell вместо HomeScreen
 import 'paywall_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -1316,6 +1316,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     await prefs.setBool('onboardingCompleted', true);
     
     if (mounted) {
+      // Показываем экран paywall
       final bool? purchased = await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => const PaywallScreen(showCloseButton: true),
@@ -1324,8 +1325,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       );
       
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        // ИСПРАВЛЕНО: Переходим в MainShell вместо HomeScreen
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const MainShell()),
+          (route) => false,
         );
       }
     }

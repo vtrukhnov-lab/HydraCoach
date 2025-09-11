@@ -232,39 +232,68 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  bool _isInitializing = false;
+  
   @override
   void initState() {
     super.initState();
-    _initializeApp();
+    // КРИТИЧНО: Откладываем инициализацию до первого кадра
+    // чтобы избежать setState during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _initializeApp();
+      }
+    });
   }
 
   Future<void> _initializeApp() async {
-    // Initialize subscription
-    final subscriptionProvider =
-        Provider.of<SubscriptionProvider>(context, listen: false);
-    await subscriptionProvider.initialize();
+    if (_isInitializing) return;
+    _isInitializing = true;
 
-    // Initialize alcohol service
-    final alcoholService = Provider.of<AlcoholService>(context, listen: false);
-    await alcoholService.init();
+    try {
+      // Initialize subscription БЕЗ await в том же контексте
+      final subscriptionProvider =
+          Provider.of<SubscriptionProvider>(context, listen: false);
+      
+      // Выполняем инициализацию асинхронно
+      await Future.microtask(() async {
+        await subscriptionProvider.initialize();
+      });
 
-    // Check onboarding
-    final prefs = await SharedPreferences.getInstance();
-    final completed = prefs.getBool('onboardingCompleted') ?? false;
+      // Initialize alcohol service
+      final alcoholService = Provider.of<AlcoholService>(context, listen: false);
+      await alcoholService.init();
 
-    // Analytics user properties
-    await AnalyticsService().setProStatus(subscriptionProvider.isPro);
+      // Check onboarding
+      final prefs = await SharedPreferences.getInstance();
+      final completed = prefs.getBool('onboardingCompleted') ?? false;
 
-    final dietMode = prefs.getString('diet_mode') ?? 'normal';
-    await AnalyticsService().setDietMode(dietMode);
+      // Analytics user properties
+      await AnalyticsService().setProStatus(subscriptionProvider.isPro);
 
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
+      final dietMode = prefs.getString('diet_mode') ?? 'normal';
+      await AnalyticsService().setDietMode(dietMode);
+
+      if (!mounted) return;
+
+      // Используем pushAndRemoveUntil для полной очистки стека навигации
+      await Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          // ⬇️ ВМЕСТО HomeScreen ведём в оболочку с нижним баром
           builder: (_) => completed ? const MainShell() : const OnboardingScreen(),
         ),
+        (route) => false,
       );
+    } catch (e) {
+      print('Error during initialization: $e');
+      // В случае ошибки всё равно переходим на главный экран
+      if (mounted) {
+        await Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (_) => const MainShell(),
+          ),
+          (route) => false,
+        );
+      }
     }
   }
 
@@ -293,12 +322,10 @@ class _SplashScreenState extends State<SplashScreen> {
             const SizedBox(height: 20),
             Consumer<SubscriptionProvider>(
               builder: (context, subscription, child) {
-                if (subscription.isLoading) {
-                  return const CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  );
-                }
-                return const SizedBox.shrink();
+                // Показываем индикатор загрузки
+                return const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                );
               },
             ),
           ],

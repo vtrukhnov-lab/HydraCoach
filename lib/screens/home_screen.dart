@@ -16,7 +16,7 @@ import '../services/units_service.dart';
 // Providers
 import '../providers/hydration_provider.dart';
 
-// Widgets - убрали импорты QuickAddWidget и TodayHistorySection
+// Widgets
 import '../widgets/home/home_header.dart';
 import '../widgets/home/weather_card.dart';
 import '../widgets/home/main_progress_card.dart';
@@ -185,6 +185,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
+        bottom: false, // ВАЖНО: не добавляем SafeArea снизу
         child: Stack(
           children: [
             CustomScrollView(
@@ -217,18 +218,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   ),
                 ),
                 
-                // УБРАЛИ: QuickAddWidget - сетка быстрого добавления
-                // УБРАЛИ: TodayHistorySection - напитки сегодня
-                
-                // Отступ внизу для навигации
-                const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                // Отступ внизу для навигации с прозрачностью
+                SliverPadding(
+                  padding: const EdgeInsets.only(bottom: 80),
+                  sliver: const SliverToBoxAdapter(child: SizedBox.shrink()),
+                ),
               ],
             ),
             
             // Карточка дневного отчета (вечером)
             if (_showDailyReport)
               Positioned(
-                bottom: 20,
+                bottom: 110, // Поднимаем выше навигации с FAB
                 left: 20,
                 right: 20,
                 child: _buildDailyReportCard(l10n),

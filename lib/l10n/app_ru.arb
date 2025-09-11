@@ -1180,6 +1180,7 @@
 "gallons": "гал",
 "lb": "фунт",
 "onboardingYouWillReceive": "Вы будете получать:",
-"onboardingPrivacyNote": "Частоту можно изменить или отключить в любой момент"
+"onboardingPrivacyNote": "Частоту можно изменить или отключить в любой момент",
+"target": "Цель"
 
 }

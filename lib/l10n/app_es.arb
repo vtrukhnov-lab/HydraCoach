@@ -1193,6 +1193,7 @@
 "gallons": "gal",
 "lb": "lb",
 "onboardingYouWillReceive": "Recibirás:",
-"onboardingPrivacyNote": "Puedes ajustar la frecuencia o desactivar en cualquier momento"
+"onboardingPrivacyNote": "Puedes ajustar la frecuencia o desactivar en cualquier momento",
+"target": "Objetivo"
 
 }
