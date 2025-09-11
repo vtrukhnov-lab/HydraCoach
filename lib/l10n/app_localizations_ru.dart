@@ -2307,4 +2307,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get sodiumNormal => 'Стандарт';
+
+  @override
+  String get addedSuccessfully => 'Успешно добавлено';
 }

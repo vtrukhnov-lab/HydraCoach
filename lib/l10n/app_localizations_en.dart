@@ -2301,4 +2301,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sodiumNormal => 'Standard';
+
+  @override
+  String get addedSuccessfully => 'Added successfully';
 }

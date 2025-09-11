@@ -1427,6 +1427,7 @@
 "feelsLike": "Feels Like",
 "humidityLabel": "Humidity",
 "waterNormal": "Normal",
-"sodiumNormal": "Standard"
+"sodiumNormal": "Standard",
+"addedSuccessfully": "Added successfully"
 
 }

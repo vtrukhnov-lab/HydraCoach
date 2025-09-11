@@ -4305,6 +4305,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Standard'**
   String get sodiumNormal;
+
+  /// No description provided for @addedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Added successfully'**
+  String get addedSuccessfully;
 }
 
 class _AppLocalizationsDelegate

@@ -31,11 +31,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
-  static const int kEveningReportHour = 21;
-
-  bool _showDailyReport = false;
+  // УБРАЛИ: static const int kEveningReportHour = 21;
+  // УБРАЛИ: bool _showDailyReport = false;
+  
   String _fastingSchedule = '16:8';
   bool _isInitialized = false;
+  int _favoritesUpdateCounter = 0; // Счетчик для обновления избранного
   
   // PageView controller для свайпа между экранами
   final PageController _pageController = PageController();
@@ -67,12 +68,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _updateHRI();
+      // Обновляем избранное при возврате в приложение
+      setState(() {
+        _favoritesUpdateCounter++;
+      });
     }
   }
 
   Future<void> _initialize() async {
     await _loadPreferences();
-    _checkDailyReport();
+    // УБРАЛИ: _checkDailyReport();
 
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
     alcohol.addListener(_onAlcoholChanged);
@@ -99,12 +104,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
-  void _checkDailyReport() {
-    final now = DateTime.now();
-    if (now.hour >= kEveningReportHour) {
-      setState(() => _showDailyReport = true);
-    }
-  }
+  // УБРАЛИ метод _checkDailyReport()
 
   void _checkMorningCheckin() {
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
@@ -191,77 +191,64 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
         bottom: false,
-        child: Stack(
-          children: [
-            CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                // Заголовок
-                const SliverToBoxAdapter(child: HomeHeader()),
-                
-                // PageView с карточками
-                SliverToBoxAdapter(
-                  child: Column(
-                    children: [
-                      // PageView с фиксированной высотой
-                      SizedBox(
-                        height: 520, // Высота достаточная для обеих карточек
-                        child: PageView(
-                          controller: _pageController,
-                          onPageChanged: (index) {
-                            setState(() {
-                              _currentPage = index;
-                            });
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // Заголовок
+            const SliverToBoxAdapter(child: HomeHeader()),
+            
+            // PageView с карточками
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  // PageView с фиксированной высотой
+                  SizedBox(
+                    height: 520, // Высота достаточная для обеих карточек
+                    child: PageView(
+                      controller: _pageController,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentPage = index;
+                        });
+                      },
+                      children: [
+                        // Первый экран - кольца прогресса
+                        MainProgressCard(
+                          onUpdate: () {
+                            setState(() {});
+                            _updateHRI();
                           },
-                          children: [
-                            // Первый экран - кольца прогрессаr
-                            MainProgressCard(
-                              onUpdate: () {
-                                setState(() {});
-                                _updateHRI();
-                              },
-                            ),
-                            // Второй экран - погода (весь функционал внутри виджета)
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              child: WeatherCard(),
-                            ),
-                          ],
                         ),
-                      ),
-                      // Индикатор точек
-                      _buildPageIndicator(),
-                    ],
+                        // Второй экран - погода (весь функционал внутри виджета)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          child: WeatherCard(),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                
-                // Умные советы
-                const SliverToBoxAdapter(child: SmartAdviceCard()),
-                
-                // Статус HRI
-                SliverToBoxAdapter(
-                  child: HRIStatusCard(
-                    isFasting: _isCurrentlyFasting(provider),
-                    fastingSchedule: _fastingSchedule,
-                  ),
-                ),
-                
-                // Отступ внизу для навигации
-                SliverPadding(
-                  padding: const EdgeInsets.only(bottom: 80),
-                  sliver: const SliverToBoxAdapter(child: SizedBox.shrink()),
-                ),
-              ],
+                  // Индикатор точек
+                  _buildPageIndicator(),
+                ],
+              ),
             ),
             
-            // Карточка дневного отчета (вечером)
-            if (_showDailyReport)
-              Positioned(
-                bottom: 110,
-                left: 20,
-                right: 20,
-                child: _buildDailyReportCard(l10n),
+            // Умные советы
+            const SliverToBoxAdapter(child: SmartAdviceCard()),
+            
+            // Статус HRI
+            SliverToBoxAdapter(
+              child: HRIStatusCard(
+                isFasting: _isCurrentlyFasting(provider),
+                fastingSchedule: _fastingSchedule,
               ),
+            ),
+            
+            // Отступ внизу для навигации
+            SliverPadding(
+              padding: const EdgeInsets.only(bottom: 80),
+              sliver: const SliverToBoxAdapter(child: SizedBox.shrink()),
+            ),
           ],
         ),
       ),
@@ -293,37 +280,5 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildDailyReportCard(AppLocalizations l10n) {
-    return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.dailyReportComingSoon)),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [Colors.blue.shade600, Colors.blue.shade800]),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.blue.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))],
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.analytics, color: Colors.white, size: 28),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l10n.dailyReportReady, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                  Text(l10n.viewDayResults, style: const TextStyle(color: Colors.white70, fontSize: 13)),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: Colors.white),
-          ],
-        ),
-      ),
-    ).animate().fadeIn(duration: 400.ms).slideY(begin: 1, end: 0);
-  }
+  // УБРАЛИ метод _buildDailyReportCard()
 }
