@@ -4311,6 +4311,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Added successfully'**
   String get addedSuccessfully;
+
+  /// No description provided for @sugarIntake.
+  ///
+  /// In en, this message translates to:
+  /// **'Sugar Intake'**
+  String get sugarIntake;
+
+  /// No description provided for @sugarToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s sugar consumption'**
+  String get sugarToday;
+
+  /// No description provided for @totalSugar.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Sugar'**
+  String get totalSugar;
+
+  /// No description provided for @dailyLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Limit'**
+  String get dailyLimit;
+
+  /// No description provided for @addedSugar.
+  ///
+  /// In en, this message translates to:
+  /// **'Added Sugar'**
+  String get addedSugar;
+
+  /// No description provided for @naturalSugar.
+  ///
+  /// In en, this message translates to:
+  /// **'Natural Sugar'**
+  String get naturalSugar;
+
+  /// No description provided for @hiddenSugar.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden Sugar'**
+  String get hiddenSugar;
+
+  /// No description provided for @sugarFromDrinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Drinks'**
+  String get sugarFromDrinks;
+
+  /// No description provided for @sugarFromFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get sugarFromFood;
+
+  /// No description provided for @sugarFromSnacks.
+  ///
+  /// In en, this message translates to:
+  /// **'Snacks'**
+  String get sugarFromSnacks;
+
+  /// No description provided for @sugarNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get sugarNormal;
+
+  /// No description provided for @sugarModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate'**
+  String get sugarModerate;
+
+  /// No description provided for @sugarHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get sugarHigh;
+
+  /// No description provided for @sugarCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical'**
+  String get sugarCritical;
+
+  /// No description provided for @sugarRecommendationNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Great job! Your sugar intake is within healthy limits'**
+  String get sugarRecommendationNormal;
+
+  /// No description provided for @sugarRecommendationModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Consider reducing sweet drinks and snacks'**
+  String get sugarRecommendationModerate;
+
+  /// No description provided for @sugarRecommendationHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High sugar intake! Limit sweet drinks and desserts'**
+  String get sugarRecommendationHigh;
+
+  /// No description provided for @sugarRecommendationCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Very high sugar! Avoid sugary drinks and sweets today'**
+  String get sugarRecommendationCritical;
+
+  /// No description provided for @noSugarIntake.
+  ///
+  /// In en, this message translates to:
+  /// **'No sugar tracked today'**
+  String get noSugarIntake;
+
+  /// No description provided for @hriImpact.
+  ///
+  /// In en, this message translates to:
+  /// **'HRI Impact'**
+  String get hriImpact;
+
+  /// No description provided for @hri_component_sugar.
+  ///
+  /// In en, this message translates to:
+  /// **'Sugar'**
+  String get hri_component_sugar;
+
+  /// No description provided for @hri_sugar_description.
+  ///
+  /// In en, this message translates to:
+  /// **'High sugar intake affects hydration and overall health'**
+  String get hri_sugar_description;
+
+  /// No description provided for @tip_reduce_sweet_drinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace sweet drinks with water or unsweetened tea'**
+  String get tip_reduce_sweet_drinks;
+
+  /// No description provided for @tip_avoid_added_sugar.
+  ///
+  /// In en, this message translates to:
+  /// **'Check labels and avoid products with added sugars'**
+  String get tip_avoid_added_sugar;
+
+  /// No description provided for @tip_check_labels.
+  ///
+  /// In en, this message translates to:
+  /// **'Be aware of hidden sugars in sauces and processed foods'**
+  String get tip_check_labels;
+
+  /// No description provided for @tip_replace_soda.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace soda with sparkling water and lemon'**
+  String get tip_replace_soda;
 }
 
 class _AppLocalizationsDelegate

@@ -2310,4 +2310,90 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get addedSuccessfully => 'Успешно добавлено';
+
+  @override
+  String get sugarIntake => 'Sugar Intake';
+
+  @override
+  String get sugarToday => 'Today\'s sugar consumption';
+
+  @override
+  String get totalSugar => 'Total Sugar';
+
+  @override
+  String get dailyLimit => 'Daily Limit';
+
+  @override
+  String get addedSugar => 'Added Sugar';
+
+  @override
+  String get naturalSugar => 'Natural Sugar';
+
+  @override
+  String get hiddenSugar => 'Hidden Sugar';
+
+  @override
+  String get sugarFromDrinks => 'Drinks';
+
+  @override
+  String get sugarFromFood => 'Food';
+
+  @override
+  String get sugarFromSnacks => 'Snacks';
+
+  @override
+  String get sugarNormal => 'Normal';
+
+  @override
+  String get sugarModerate => 'Moderate';
+
+  @override
+  String get sugarHigh => 'High';
+
+  @override
+  String get sugarCritical => 'Critical';
+
+  @override
+  String get sugarRecommendationNormal =>
+      'Great job! Your sugar intake is within healthy limits';
+
+  @override
+  String get sugarRecommendationModerate =>
+      'Consider reducing sweet drinks and snacks';
+
+  @override
+  String get sugarRecommendationHigh =>
+      'High sugar intake! Limit sweet drinks and desserts';
+
+  @override
+  String get sugarRecommendationCritical =>
+      'Very high sugar! Avoid sugary drinks and sweets today';
+
+  @override
+  String get noSugarIntake => 'No sugar tracked today';
+
+  @override
+  String get hriImpact => 'HRI Impact';
+
+  @override
+  String get hri_component_sugar => 'Sugar';
+
+  @override
+  String get hri_sugar_description =>
+      'High sugar intake affects hydration and overall health';
+
+  @override
+  String get tip_reduce_sweet_drinks =>
+      'Replace sweet drinks with water or unsweetened tea';
+
+  @override
+  String get tip_avoid_added_sugar =>
+      'Check labels and avoid products with added sugars';
+
+  @override
+  String get tip_check_labels =>
+      'Be aware of hidden sugars in sauces and processed foods';
+
+  @override
+  String get tip_replace_soda => 'Replace soda with sparkling water and lemon';
 }

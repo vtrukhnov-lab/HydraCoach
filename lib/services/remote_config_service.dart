@@ -176,7 +176,7 @@ class RemoteConfigService {
       'ab_paywall_variant': 'default',
       'ab_onboarding_variant': 'standard',
       
-      // 🍺 АЛКОГОЛЬ параметры
+      // � АЛКОГОЛЬ параметры
       'std_drink_grams': 10.0,
       'alcohol_drink_bonus_ml': 250.0,
       'na_per_sd_mg': 500.0,
@@ -185,6 +185,54 @@ class RemoteConfigService {
       'alc_reminders_max_per_day': 2,
       'sobriety_goals_enabled': true,
       'sober_mode_enabled_default': false,
+      
+      // 🍬 САХАР параметры (НОВОЕ)
+      'max_daily_sugar_grams': 25.0,           // Рекомендация ВОЗ для добавленного сахара
+      'sugar_warning_threshold_grams': 50.0,   // Порог для предупреждений в уведомлениях
+      
+      // Влияние на HRI
+      'sugar_hri_threshold_grams': 50.0,       // Порог, после которого начинается влияние на HRI
+      'sugar_hri_multiplier': 0.2,             // Множитель для расчета влияния
+      'sugar_hri_max_impact': 10.0,            // Максимальное влияние сахара на HRI
+      
+      // Содержание сахара в напитках (г/100мл)
+      'sugar_juice_per_100ml': 12.0,           // Фруктовый сок
+      'sugar_soda_per_100ml': 10.0,            // Газировка
+      'sugar_energy_per_100ml': 11.0,          // Энергетические напитки
+      'sugar_sports_per_100ml': 6.0,           // Спортивные напитки
+      'sugar_beer_per_100ml': 1.0,             // Пиво
+      'sugar_wine_per_100ml': 2.0,             // Вино
+      'sugar_cocktail_per_100ml': 15.0,        // Коктейли
+      'sugar_kombucha_per_100ml': 3.0,         // Комбуча
+      
+      // Содержание сахара в кофе и чае
+      'sugar_coffee_milk_base': 5.0,           // Базовый сахар от молока в латте/капучино
+      'sugar_coffee_syrup': 10.0,              // Дополнительный сахар от сиропа
+      'sugar_sweet_tea': 8.0,                  // Сладкий чай (на порцию)
+      
+      // Содержание сахара в других продуктах
+      'sugar_smoothie_per_250ml': 20.0,        // Смузи (на 250мл)
+      'sugar_protein_shake': 5.0,              // Протеиновый коктейль (на порцию)
+      'sugar_fruit_serving': 10.0,             // Фрукты (средняя порция)
+      'sugar_yogurt_lactose': 5.0,             // Натуральный йогурт (лактоза)
+      'sugar_yogurt_flavored': 10.0,           // Ароматизированный йогурт (добавленный)
+      
+      // Скрытые сахара
+      'sugar_sauce_average': 5.0,              // Соусы (средняя порция)
+      'sugar_bread_serving': 3.0,              // Хлеб (порция)
+      'sugar_dessert_average': 20.0,           // Десерты (средняя порция)
+      'sugar_snack_average': 10.0,             // Снеки (средняя порция)
+      'sugar_meal_hidden': 5.0,                // Скрытый сахар в обычной еде
+      
+      // Визуальные пороги для UI
+      'sugar_green_threshold': 25.0,           // До этого значения - зеленый цвет
+      'sugar_yellow_threshold': 50.0,          // До этого значения - желтый цвет
+      'sugar_orange_threshold': 75.0,          // До этого значения - оранжевый цвет
+      
+      // Корректировки воды при высоком сахаре
+      'sugar_water_bonus_25_50': 250,          // Дополнительная вода при 25-50г сахара (мл)
+      'sugar_water_bonus_50_75': 500,          // Дополнительная вода при 50-75г сахара (мл)
+      'sugar_water_bonus_above_75': 750,       // Дополнительная вода при >75г сахара (мл)
     };
   }
   
@@ -217,7 +265,30 @@ class RemoteConfigService {
   
   // Универсальный метод для получения double значений
   double getDouble(String key) {
-    return _getValue<double>(key, 0.0);
+    final defaults = _getDefaults();
+    final defaultValue = defaults[key] ?? 0.0;
+    return _getValue<double>(key, defaultValue is double ? defaultValue : defaultValue.toDouble());
+  }
+  
+  // Универсальный метод для получения int значений
+  int getInt(String key) {
+    final defaults = _getDefaults();
+    final defaultValue = defaults[key] ?? 0;
+    return _getValue<int>(key, defaultValue is int ? defaultValue : defaultValue.toInt());
+  }
+  
+  // Универсальный метод для получения bool значений
+  bool getBool(String key) {
+    final defaults = _getDefaults();
+    final defaultValue = defaults[key] ?? false;
+    return _getValue<bool>(key, defaultValue is bool ? defaultValue : false);
+  }
+  
+  // Универсальный метод для получения String значений
+  String getString(String key) {
+    final defaults = _getDefaults();
+    final defaultValue = defaults[key] ?? '';
+    return _getValue<String>(key, defaultValue.toString());
   }
   
   // Веса компонентов HRI (сумма = 100)

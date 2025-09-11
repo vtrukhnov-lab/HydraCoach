@@ -22,6 +22,7 @@ import '../widgets/home/weather_card.dart';
 import '../widgets/home/main_progress_card.dart';
 import '../widgets/home/smart_advice_card.dart';
 import '../widgets/home/hri_status_card.dart';
+import '../widgets/home/sugar_intake_card.dart'; // НОВЫЙ ИМПОРТ
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -47,6 +48,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initialize();
+    
+    // Добавляем слушатель для отслеживания изменений страницы
+    _pageController.addListener(() {
+      if (_pageController.page != null) {
+        final newPage = _pageController.page!.round();
+        if (newPage != _currentPage) {
+          setState(() {
+            _currentPage = newPage;
+          });
+        }
+      }
+    });
   }
 
   @override
@@ -144,6 +157,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     DateTime? lastIntakeTime = provider.todayIntakes.isNotEmpty ? provider.todayIntakes.last.timestamp : null;
     bool isFasting = _isCurrentlyFasting(provider);
     hri.setFastingStatus(isFasting);
+    
+    // NEW: Получаем данные о сахаре
+    final sugarData = provider.getSugarIntakeData();
 
     hri.calculateHRI(
       waterIntake: provider.totalWaterToday,
@@ -157,6 +173,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       heatIndex: weather.heatIndex,
       coffeeCups: provider.coffeeCupsToday,
       alcoholSD: alcohol.totalStandardDrinks,
+      sugarIntake: sugarData.totalGrams,  // NEW: Передаем данные о сахаре
       lastIntakeTime: lastIntakeTime,
       userWeightKg: provider.weight,
     );
@@ -203,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 children: [
                   // PageView с фиксированной высотой
                   SizedBox(
-                    height: 520, // Высота достаточная для обеих карточек
+                    height: 520, // Высота достаточная для всех карточек
                     child: PageView(
                       controller: _pageController,
                       onPageChanged: (index) {
@@ -219,10 +236,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             _updateHRI();
                           },
                         ),
-                        // Второй экран - погода (весь функционал внутри виджета)
+                        // Второй экран - погода
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 10),
                           child: WeatherCard(),
+                        ),
+                        // ТРЕТИЙ ЭКРАН - SUGAR INTAKE (НОВОЕ)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          child: SugarIntakeCard(),
                         ),
                       ],
                     ),
@@ -255,14 +277,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
-  // Виджет индикатора точек для PageView
+  // Виджет индикатора точек для PageView - ОБНОВЛЕНО ДЛЯ 3 СТРАНИЦ
   Widget _buildPageIndicator() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: List.generate(
-          2, // Количество страниц
+          3, // ИЗМЕНЕНО: Теперь 3 страницы вместо 2
           (index) => AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -273,6 +295,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               color: _currentPage == index 
                 ? Colors.blue 
                 : Colors.grey.withOpacity(0.3),
+              boxShadow: _currentPage == index
+                  ? [
+                      BoxShadow(
+                        color: Colors.blue.withOpacity(0.3),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : [],
             ),
           ),
         ),

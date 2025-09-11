@@ -2,7 +2,7 @@
 // FILE: lib/providers/hydration_provider.dart
 // 
 // PURPOSE: Provider for hydration tracking and goals management
-// UPDATED: Added WaterProgressCache integration for notification system
+// UPDATED: Added Sugar Intake tracking methods
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -21,6 +21,7 @@ import '../services/alcohol_service.dart';
 import '../services/weather_service.dart';
 import '../models/daily_goals.dart';
 import '../models/intake.dart';
+import '../widgets/home/sugar_intake_card.dart'; // Added for SugarIntakeData
 
 // Internal status enum for logic (not exposed to UI)
 enum _HydrationStatusInternal {
@@ -55,6 +56,219 @@ class HydrationProvider extends ChangeNotifier {
     _loadData();
     _checkAndResetDaily();
     _subscribeFCMTopics();
+  }
+  
+  // ============ SUGAR INTAKE METHODS (NEW) ============
+  
+  /// Calculate sugar intake data for today
+  SugarIntakeData getSugarIntakeData() {
+    double totalSugar = 0;
+    double naturalSugar = 0;
+    double addedSugar = 0;
+    double hiddenSugar = 0;
+    double drinksGrams = 0;
+    double foodGrams = 0;
+    double snacksGrams = 0;
+    Map<String, double> bySource = {};
+    
+    for (final intake in todayIntakes) {
+      double sugarGrams = 0;
+      String category = 'other';
+      bool isNatural = false;
+      bool isHidden = false;
+      
+      // Calculate sugar based on intake type
+      switch (intake.type) {
+        case 'juice':
+          // Natural sugar from juice ~12g/100ml
+          sugarGrams = (intake.volume / 100) * (_remoteConfig.getDouble('sugar_juice_per_100ml') ?? 12.0);
+          category = 'drinks';
+          isNatural = true;
+          bySource['juice'] = (bySource['juice'] ?? 0) + sugarGrams;
+          break;
+          
+        case 'soda':
+          // Added sugar from soda ~10g/100ml
+          sugarGrams = (intake.volume / 100) * (_remoteConfig.getDouble('sugar_soda_per_100ml') ?? 10.0);
+          category = 'drinks';
+          bySource['soda'] = (bySource['soda'] ?? 0) + sugarGrams;
+          break;
+          
+        case 'energy':
+          // Added sugar from energy drinks ~11g/100ml
+          sugarGrams = (intake.volume / 100) * (_remoteConfig.getDouble('sugar_energy_per_100ml') ?? 11.0);
+          category = 'drinks';
+          bySource['energy'] = (bySource['energy'] ?? 0) + sugarGrams;
+          break;
+          
+        case 'sports_drink':
+          // Added sugar from sports drinks ~6g/100ml
+          sugarGrams = (intake.volume / 100) * (_remoteConfig.getDouble('sugar_sports_per_100ml') ?? 6.0);
+          category = 'drinks';
+          bySource['sports'] = (bySource['sports'] ?? 0) + sugarGrams;
+          break;
+          
+        case 'coffee_latte':
+        case 'coffee_cappuccino':
+        case 'coffee_flat_white':
+          // Milk sugar (natural) ~5g + possible syrup
+          double milkSugar = _remoteConfig.getDouble('sugar_coffee_milk_base') ?? 5.0;
+          // For now, assume no syrup unless we track it separately
+          sugarGrams = milkSugar;
+          category = 'drinks';
+          isNatural = true;
+          bySource['coffee'] = (bySource['coffee'] ?? 0) + sugarGrams;
+          break;
+          
+        case 'tea_sweet':
+          // Sweet tea - added sugar
+          sugarGrams = _remoteConfig.getDouble('sugar_sweet_tea') ?? 8.0;
+          category = 'drinks';
+          bySource['tea'] = (bySource['tea'] ?? 0) + sugarGrams;
+          break;
+          
+        case 'smoothie':
+          // Natural sugar from fruits in smoothie
+          sugarGrams = (intake.volume / 250) * (_remoteConfig.getDouble('sugar_smoothie_per_250ml') ?? 20.0);
+          category = 'drinks';
+          isNatural = true;
+          bySource['smoothie'] = (bySource['smoothie'] ?? 0) + sugarGrams;
+          break;
+          
+        case 'protein_shake':
+          // May contain added sugar
+          sugarGrams = _remoteConfig.getDouble('sugar_protein_shake') ?? 5.0;
+          category = 'drinks';
+          bySource['protein'] = (bySource['protein'] ?? 0) + sugarGrams;
+          break;
+          
+        case 'kombucha':
+          // Mix of natural and added sugar
+          sugarGrams = (intake.volume / 100) * (_remoteConfig.getDouble('sugar_kombucha_per_100ml') ?? 3.0);
+          category = 'drinks';
+          isNatural = true;
+          bySource['kombucha'] = (bySource['kombucha'] ?? 0) + sugarGrams;
+          break;
+          
+        case 'alcohol_beer':
+          // Hidden sugar from malt
+          sugarGrams = (intake.volume / 100) * (_remoteConfig.getDouble('sugar_beer_per_100ml') ?? 1.0);
+          category = 'drinks';
+          isHidden = true;
+          bySource['alcohol'] = (bySource['alcohol'] ?? 0) + sugarGrams;
+          break;
+          
+        case 'alcohol_wine':
+          // Residual sugar in wine
+          sugarGrams = (intake.volume / 100) * (_remoteConfig.getDouble('sugar_wine_per_100ml') ?? 2.0);
+          category = 'drinks';
+          bySource['alcohol'] = (bySource['alcohol'] ?? 0) + sugarGrams;
+          break;
+          
+        case 'alcohol_cocktail':
+          // High added sugar in cocktails
+          sugarGrams = (intake.volume / 100) * (_remoteConfig.getDouble('sugar_cocktail_per_100ml') ?? 15.0);
+          category = 'drinks';
+          bySource['alcohol'] = (bySource['alcohol'] ?? 0) + sugarGrams;
+          break;
+          
+        // For food items, we would need metadata or additional tracking
+        // For now, we'll estimate based on common values
+        case 'snack':
+          // Estimate for typical snack
+          sugarGrams = _remoteConfig.getDouble('sugar_snack_average') ?? 10.0;
+          category = 'snacks';
+          bySource['snack'] = (bySource['snack'] ?? 0) + sugarGrams;
+          break;
+          
+        case 'meal':
+          // Hidden sugars in meals (sauces, etc.)
+          sugarGrams = _remoteConfig.getDouble('sugar_meal_hidden') ?? 5.0;
+          category = 'food';
+          isHidden = true;
+          bySource['meal'] = (bySource['meal'] ?? 0) + sugarGrams;
+          break;
+      }
+      
+      // Sum up by categories
+      totalSugar += sugarGrams;
+      
+      if (isNatural) {
+        naturalSugar += sugarGrams;
+      } else if (isHidden) {
+        hiddenSugar += sugarGrams;
+      } else if (sugarGrams > 0) {
+        addedSugar += sugarGrams;
+      }
+      
+      switch (category) {
+        case 'drinks':
+          drinksGrams += sugarGrams;
+          break;
+        case 'food':
+          foodGrams += sugarGrams;
+          break;
+        case 'snacks':
+          snacksGrams += sugarGrams;
+          break;
+      }
+    }
+    
+    return SugarIntakeData(
+      totalGrams: totalSugar,
+      naturalSugarGrams: naturalSugar,
+      addedSugarGrams: addedSugar,
+      hiddenSugarGrams: hiddenSugar,
+      drinksGrams: drinksGrams,
+      foodGrams: foodGrams,
+      snacksGrams: snacksGrams,
+      bySource: bySource,
+    );
+  }
+  
+  /// Get sugar impact on HRI
+  double getSugarHRIImpact() {
+    final sugarData = getSugarIntakeData();
+    final threshold = _remoteConfig.getDouble('sugar_hri_threshold_grams') ?? 50.0;
+    final multiplier = _remoteConfig.getDouble('sugar_hri_multiplier') ?? 0.2;
+    
+    if (sugarData.totalGrams <= threshold) return 0;
+    
+    final excess = sugarData.totalGrams - threshold;
+    return (excess * multiplier).clamp(0, 10);
+  }
+  
+  /// Check if sugar intake is high for notifications
+  bool isSugarIntakeHigh() {
+    final sugarData = getSugarIntakeData();
+    final warningThreshold = _remoteConfig.getDouble('sugar_warning_threshold_grams') ?? 50.0;
+    
+    return sugarData.totalGrams > warningThreshold;
+  }
+  
+  /// Get sugar reduction tips
+  List<String> getSugarReductionTips(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final sugarData = getSugarIntakeData();
+    List<String> tips = [];
+    
+    if (sugarData.drinksGrams > 20) {
+      tips.add(l10n.tip_reduce_sweet_drinks);
+    }
+    
+    if (sugarData.addedSugarGrams > 25) {
+      tips.add(l10n.tip_avoid_added_sugar);
+    }
+    
+    if (sugarData.hiddenSugarGrams > 10) {
+      tips.add(l10n.tip_check_labels);
+    }
+    
+    if (sugarData.bySource['soda'] != null && sugarData.bySource['soda']! > 0) {
+      tips.add(l10n.tip_replace_soda);
+    }
+    
+    return tips;
   }
   
   // ============ HRI SERVICE INTEGRATION ============

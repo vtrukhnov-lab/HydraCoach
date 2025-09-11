@@ -2,6 +2,7 @@
 // 
 // HRI (Hydration Risk Index) Service - Complete Rewrite
 // Manages hydration risk calculation with all factors
+// UPDATED: Added sugar component
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -126,6 +127,7 @@ class HRIService extends ChangeNotifier {
     'workouts': 0.0,
     'caffeine': 0.0,
     'alcohol': 0.0,
+    'sugar': 0.0,  // NEW: Sugar component
     'timeSinceIntake': 0.0,
     'morning': 0.0,
   };
@@ -392,6 +394,7 @@ class HRIService extends ChangeNotifier {
     int activityLevel = 0,
     int coffeeCups = 0,
     double alcoholSD = 0.0,
+    double? sugarIntake,  // NEW: Sugar intake parameter
     DateTime? lastIntakeTime,
     double? morningWeightChange,
     int? urineColorValue,
@@ -480,6 +483,30 @@ class HRIService extends ChangeNotifier {
     // Use the current total SD (FIXED: now properly updated)
     _components['alcohol'] = min(alcCap, _todayAlcoholSD * alcPerSD);
     
+    // ========== SUGAR COMPONENT (NEW) ==========
+    _components['sugar'] = 0.0;
+    if (sugarIntake != null) {
+      final sugarThreshold = rc.getDouble('sugar_hri_threshold_grams') ?? 50.0;
+      final sugarMultiplier = rc.getDouble('sugar_hri_multiplier') ?? 0.2;
+      final sugarMaxImpact = rc.getDouble('sugar_hri_max_impact') ?? 10.0;
+      
+      if (sugarIntake > sugarThreshold) {
+        final excess = sugarIntake - sugarThreshold;
+        _components['sugar'] = (excess * sugarMultiplier).clamp(0, sugarMaxImpact);
+        
+        // Debug logging
+        if (kDebugMode) {
+          print('=== SUGAR COMPONENT DEBUG ===');
+          print('Sugar intake: ${sugarIntake}g');
+          print('Threshold: ${sugarThreshold}g');
+          print('Excess: ${excess}g');
+          print('Multiplier: $sugarMultiplier');
+          print('Sugar HRI impact: ${_components['sugar']}');
+          print('=============================');
+        }
+      }
+    }
+    
     // ========== TIME SINCE INTAKE COMPONENT ==========
     _components['timeSinceIntake'] = 0.0;
     if (_lastIntakeTime != null) {
@@ -527,6 +554,7 @@ class HRIService extends ChangeNotifier {
       print('Workouts: ${_components['workouts']?.toStringAsFixed(1)} (${_todayWorkouts.length} workouts)');
       print('Caffeine: ${_components['caffeine']?.toStringAsFixed(1)} (${totalActiveCaffeine.toStringAsFixed(0)}mg active)');
       print('Alcohol: ${_components['alcohol']?.toStringAsFixed(1)} (${_todayAlcoholSD.toStringAsFixed(1)} SD)');
+      print('Sugar: ${_components['sugar']?.toStringAsFixed(1)} (${sugarIntake?.toStringAsFixed(1)}g intake)');  // NEW
       print('Time: ${_components['timeSinceIntake']?.toStringAsFixed(1)}');
       print('Morning: ${_components['morning']?.toStringAsFixed(1)}');
       print('TOTAL HRI: ${_currentHRI.toStringAsFixed(1)}');
@@ -600,6 +628,9 @@ class HRIService extends ChangeNotifier {
     final alcPerSD = rc.getDouble('alc_hri_risk_per_sd');
     final alcCap = rc.getDouble('alc_hri_risk_cap');
     _components['alcohol'] = min(alcCap, _todayAlcoholSD * alcPerSD);
+    
+    // Note: Sugar component requires full data from HydrationProvider,
+    // so it's only updated in the main calculateHRI method
     
     // Recalculate total
     double total = 0.0;

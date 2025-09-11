@@ -2324,4 +2324,91 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get addedSuccessfully => 'Añadido con éxito';
+
+  @override
+  String get sugarIntake => 'Consumo de azúcar';
+
+  @override
+  String get sugarToday => 'Azúcar de hoy';
+
+  @override
+  String get totalSugar => 'Azúcar total';
+
+  @override
+  String get dailyLimit => 'Límite diario';
+
+  @override
+  String get addedSugar => 'Azúcar añadido';
+
+  @override
+  String get naturalSugar => 'Azúcar natural';
+
+  @override
+  String get hiddenSugar => 'Azúcar oculto';
+
+  @override
+  String get sugarFromDrinks => 'Bebidas';
+
+  @override
+  String get sugarFromFood => 'Comida';
+
+  @override
+  String get sugarFromSnacks => 'Snacks';
+
+  @override
+  String get sugarNormal => 'Normal';
+
+  @override
+  String get sugarModerate => 'Moderado';
+
+  @override
+  String get sugarHigh => 'Alto';
+
+  @override
+  String get sugarCritical => 'Crítico';
+
+  @override
+  String get sugarRecommendationNormal =>
+      '¡Excelente! Tu consumo de azúcar está dentro de los límites saludables';
+
+  @override
+  String get sugarRecommendationModerate =>
+      'Considera reducir las bebidas y snacks dulces';
+
+  @override
+  String get sugarRecommendationHigh =>
+      '¡Alto consumo de azúcar! Limita las bebidas dulces y postres';
+
+  @override
+  String get sugarRecommendationCritical =>
+      '¡Demasiado azúcar! Evita bebidas y dulces hoy';
+
+  @override
+  String get noSugarIntake => 'No se ha registrado azúcar hoy';
+
+  @override
+  String get hriImpact => 'Impacto en HRI';
+
+  @override
+  String get hri_component_sugar => 'Azúcar';
+
+  @override
+  String get hri_sugar_description =>
+      'El alto consumo de azúcar afecta la hidratación y la salud';
+
+  @override
+  String get tip_reduce_sweet_drinks =>
+      'Reemplaza las bebidas dulces con agua o té sin azúcar';
+
+  @override
+  String get tip_avoid_added_sugar =>
+      'Revisa las etiquetas y evita productos con azúcares añadidos';
+
+  @override
+  String get tip_check_labels =>
+      'Cuidado con los azúcares ocultos en salsas y alimentos procesados';
+
+  @override
+  String get tip_replace_soda =>
+      'Reemplaza los refrescos con agua con gas y limón';
 }
