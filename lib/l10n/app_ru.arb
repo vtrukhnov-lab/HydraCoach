@@ -1181,6 +1181,17 @@
 "lb": "фунт",
 "onboardingYouWillReceive": "Вы будете получать:",
 "onboardingPrivacyNote": "Частоту можно изменить или отключить в любой момент",
-"target": "Цель"
+"target": "Цель",
+"humidity": "Влажность",
+  "wind": "Ветер",
+  "pressure": "Давление",
+  "highHeatIndexWarning": "Высокий тепловой индекс! Увеличьте потребление воды",
+  "heatIndex": "Индекс жары",
+  "loading": "Загрузка...",
+  "weatherCondition": "Погода",
+"feelsLike": "Ощущается",
+"humidityLabel": "Влажность",
+"waterNormal": "Норма",
+"sodiumNormal": "Стандарт"
 
 }

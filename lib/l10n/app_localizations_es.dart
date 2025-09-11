@@ -87,7 +87,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String humidity(int value) {
-    return 'Humedad: $value%';
+    return 'Humedad';
   }
 
   @override
@@ -2296,4 +2296,29 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get target => 'Objetivo';
+
+  @override
+  String get wind => 'Viento';
+
+  @override
+  String get pressure => 'Presión';
+
+  @override
+  String get highHeatIndexWarning =>
+      '¡Índice de calor alto! Aumente su consumo de agua';
+
+  @override
+  String get weatherCondition => 'Condición';
+
+  @override
+  String get feelsLike => 'Sensación';
+
+  @override
+  String get humidityLabel => 'Humedad';
+
+  @override
+  String get waterNormal => 'Normal';
+
+  @override
+  String get sodiumNormal => 'Estándar';
 }

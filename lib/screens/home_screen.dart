@@ -36,6 +36,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool _showDailyReport = false;
   String _fastingSchedule = '16:8';
   bool _isInitialized = false;
+  
+  // PageView controller для свайпа между экранами
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
 
   @override
   void initState() {
@@ -46,6 +50,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _pageController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     try {
       final alcohol = Provider.of<AlcoholService>(context, listen: false);
@@ -185,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
-        bottom: false, // ВАЖНО: не добавляем SafeArea снизу
+        bottom: false,
         child: Stack(
           children: [
             CustomScrollView(
@@ -194,16 +199,39 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 // Заголовок
                 const SliverToBoxAdapter(child: HomeHeader()),
                 
-                // Карточка погоды
-                const SliverToBoxAdapter(child: WeatherCard()),
-                
-                // Основная карточка прогресса (кольца)
+                // PageView с карточками
                 SliverToBoxAdapter(
-                  child: MainProgressCard(
-                    onUpdate: () {
-                      setState(() {});
-                      _updateHRI();
-                    },
+                  child: Column(
+                    children: [
+                      // PageView с фиксированной высотой
+                      SizedBox(
+                        height: 520, // Высота достаточная для обеих карточек
+                        child: PageView(
+                          controller: _pageController,
+                          onPageChanged: (index) {
+                            setState(() {
+                              _currentPage = index;
+                            });
+                          },
+                          children: [
+                            // Первый экран - кольца прогрессаr
+                            MainProgressCard(
+                              onUpdate: () {
+                                setState(() {});
+                                _updateHRI();
+                              },
+                            ),
+                            // Второй экран - погода (весь функционал внутри виджета)
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              child: WeatherCard(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Индикатор точек
+                      _buildPageIndicator(),
+                    ],
                   ),
                 ),
                 
@@ -218,7 +246,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   ),
                 ),
                 
-                // Отступ внизу для навигации с прозрачностью
+                // Отступ внизу для навигации
                 SliverPadding(
                   padding: const EdgeInsets.only(bottom: 80),
                   sliver: const SliverToBoxAdapter(child: SizedBox.shrink()),
@@ -229,12 +257,37 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             // Карточка дневного отчета (вечером)
             if (_showDailyReport)
               Positioned(
-                bottom: 110, // Поднимаем выше навигации с FAB
+                bottom: 110,
                 left: 20,
                 right: 20,
                 child: _buildDailyReportCard(l10n),
               ),
           ],
+        ),
+      ),
+    );
+  }
+
+  // Виджет индикатора точек для PageView
+  Widget _buildPageIndicator() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(
+          2, // Количество страниц
+          (index) => AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            width: _currentPage == index ? 24 : 8,
+            height: 8,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4),
+              color: _currentPage == index 
+                ? Colors.blue 
+                : Colors.grey.withOpacity(0.3),
+            ),
+          ),
         ),
       ),
     );

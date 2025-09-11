@@ -1194,6 +1194,17 @@
 "lb": "lb",
 "onboardingYouWillReceive": "Recibirás:",
 "onboardingPrivacyNote": "Puedes ajustar la frecuencia o desactivar en cualquier momento",
-"target": "Objetivo"
+"target": "Objetivo",
+"humidity": "Humedad",
+  "wind": "Viento", 
+  "pressure": "Presión",
+  "highHeatIndexWarning": "¡Índice de calor alto! Aumente su consumo de agua",
+  "heatIndex": "Índice de calor",
+  "loading": "Cargando...",
+  "weatherCondition": "Condición",
+"feelsLike": "Sensación",
+"humidityLabel": "Humedad",
+"waterNormal": "Normal",
+"sodiumNormal": "Estándar"
 
 }

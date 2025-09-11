@@ -253,7 +253,7 @@ abstract class AppLocalizations {
   /// No description provided for @humidity.
   ///
   /// In en, this message translates to:
-  /// **'Humidity: {value}%'**
+  /// **'Humidity'**
   String humidity(int value);
 
   /// No description provided for @water.
@@ -4257,6 +4257,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Target'**
   String get target;
+
+  /// No description provided for @wind.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind'**
+  String get wind;
+
+  /// No description provided for @pressure.
+  ///
+  /// In en, this message translates to:
+  /// **'Pressure'**
+  String get pressure;
+
+  /// No description provided for @highHeatIndexWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'High heat index! Increase your water intake'**
+  String get highHeatIndexWarning;
+
+  /// No description provided for @weatherCondition.
+  ///
+  /// In en, this message translates to:
+  /// **'Condition'**
+  String get weatherCondition;
+
+  /// No description provided for @feelsLike.
+  ///
+  /// In en, this message translates to:
+  /// **'Feels Like'**
+  String get feelsLike;
+
+  /// No description provided for @humidityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Humidity'**
+  String get humidityLabel;
+
+  /// No description provided for @waterNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get waterNormal;
+
+  /// No description provided for @sodiumNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get sodiumNormal;
 }
 
 class _AppLocalizationsDelegate

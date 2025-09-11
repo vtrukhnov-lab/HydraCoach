@@ -87,7 +87,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String humidity(int value) {
-    return 'Влажность: $value%';
+    return 'Влажность';
   }
 
   @override
@@ -2282,4 +2282,29 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get target => 'Цель';
+
+  @override
+  String get wind => 'Ветер';
+
+  @override
+  String get pressure => 'Давление';
+
+  @override
+  String get highHeatIndexWarning =>
+      'Высокий тепловой индекс! Увеличьте потребление воды';
+
+  @override
+  String get weatherCondition => 'Погода';
+
+  @override
+  String get feelsLike => 'Ощущается';
+
+  @override
+  String get humidityLabel => 'Влажность';
+
+  @override
+  String get waterNormal => 'Норма';
+
+  @override
+  String get sodiumNormal => 'Стандарт';
 }

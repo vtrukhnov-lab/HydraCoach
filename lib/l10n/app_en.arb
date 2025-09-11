@@ -1416,5 +1416,17 @@
 "fl_oz": "fl oz", 
 "gallons": "gal",
 "lb": "lb",
-"target": "Target"
+"target": "Target",
+"humidity": "Humidity",
+  "wind": "Wind",
+  "pressure": "Pressure",
+  "highHeatIndexWarning": "High heat index! Increase your water intake",
+  "heatIndex": "Heat Index",
+  "loading": "Loading...",
+  "weatherCondition": "Condition",
+"feelsLike": "Feels Like",
+"humidityLabel": "Humidity",
+"waterNormal": "Normal",
+"sodiumNormal": "Standard"
+
 }
