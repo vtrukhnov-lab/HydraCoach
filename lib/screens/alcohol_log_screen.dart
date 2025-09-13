@@ -43,10 +43,8 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
   // Units
   String _units = 'metric';
   
-  // Selected type and controllers
+  // Selected type
   AlcoholType _selectedType = AlcoholType.beer;
-  final TextEditingController _abvController = TextEditingController();
-  final TextEditingController _volumeController = TextEditingController();
   
   // Show harm reduction card
   bool _showHarmReduction = false;
@@ -66,7 +64,6 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
     _units = UnitsService.instance.units;
     _initializePopularDrinks();
     _initializePro();
-    _setDefaultValues();
   }
   
   void _initializePopularDrinks() {
@@ -80,6 +77,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
         {'name': 'Craft Beer', 'abv': 6.0, 'ml': 355, 'emoji': '🍺', 'sugar': 3.5, 'isPro': true},
         {'name': 'Non-Alcoholic', 'abv': 0.5, 'ml': 330, 'emoji': '🍺', 'sugar': 8.0, 'isPro': true},
         {'name': 'Radler', 'abv': 2.5, 'ml': 500, 'emoji': '🍺', 'sugar': 15.0, 'isPro': true},
+        {'name': 'Pilsner', 'abv': 4.8, 'ml': 500, 'emoji': '🍺', 'sugar': 3.0, 'isPro': false},
       ],
       AlcoholType.wine: [
         {'name': 'Red Wine', 'abv': 13.5, 'ml': 150, 'emoji': '🍷', 'sugar': 1.0, 'isPro': false},
@@ -90,6 +88,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
         {'name': 'Champagne', 'abv': 12.0, 'ml': 125, 'emoji': '🍾', 'sugar': 1.5, 'isPro': true},
         {'name': 'Dessert Wine', 'abv': 15.0, 'ml': 100, 'emoji': '🍷', 'sugar': 15.0, 'isPro': true},
         {'name': 'Sangria', 'abv': 9.0, 'ml': 200, 'emoji': '🍷', 'sugar': 18.0, 'isPro': true},
+        {'name': 'Sherry', 'abv': 17.0, 'ml': 75, 'emoji': '🍷', 'sugar': 5.0, 'isPro': false},
       ],
       AlcoholType.spirits: [
         {'name': 'Vodka Shot', 'abv': 40.0, 'ml': 30, 'emoji': '🥃', 'sugar': 0.0, 'isPro': false},
@@ -100,6 +99,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
         {'name': 'Cognac', 'abv': 40.0, 'ml': 50, 'emoji': '🥃', 'sugar': 0.0, 'isPro': true},
         {'name': 'Liqueur', 'abv': 20.0, 'ml': 50, 'emoji': '🥃', 'sugar': 15.0, 'isPro': true},
         {'name': 'Absinthe', 'abv': 70.0, 'ml': 30, 'emoji': '🥃', 'sugar': 0.0, 'isPro': true},
+        {'name': 'Brandy', 'abv': 40.0, 'ml': 50, 'emoji': '🥃', 'sugar': 0.0, 'isPro': false},
       ],
       AlcoholType.cocktail: [
         {'name': 'Mojito', 'abv': 10.0, 'ml': 250, 'emoji': '🍹', 'sugar': 25.0, 'isPro': false},
@@ -110,6 +110,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
         {'name': 'Cosmopolitan', 'abv': 20.0, 'ml': 150, 'emoji': '🍸', 'sugar': 12.0, 'isPro': true},
         {'name': 'Mai Tai', 'abv': 17.0, 'ml': 200, 'emoji': '🍹', 'sugar': 28.0, 'isPro': true},
         {'name': 'Bloody Mary', 'abv': 12.0, 'ml': 250, 'emoji': '🍹', 'sugar': 10.0, 'isPro': true},
+        {'name': 'Daiquiri', 'abv': 13.0, 'ml': 180, 'emoji': '🍹', 'sugar': 22.0, 'isPro': false},
       ],
     };
   }
@@ -124,16 +125,9 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
     if (mounted) setState(() {});
   }
   
-  void _setDefaultValues() {
-    _abvController.text = '5.0';
-    _volumeController.text = _units == 'imperial' ? '12' : '330';
-  }
-  
   @override
   void dispose() {
     _animController.dispose();
-    _abvController.dispose();
-    _volumeController.dispose();
     super.dispose();
   }
   
@@ -154,12 +148,6 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
     }
   }
   
-  // Convert volume based on units
-  double _getVolumeMl() {
-    final volume = double.tryParse(_volumeController.text) ?? 0;
-    return _units == 'imperial' ? volume * 29.5735 : volume;
-  }
-  
   // Log alcohol intake with sugar tracking
   Future<void> _logIntake({
     required AlcoholType type,
@@ -173,7 +161,6 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
       type: type,
       volumeMl: volumeMl,
       abv: abv,
-      sugar: sugar, // Передаем сахар в модель
     );
     
     try {
@@ -209,35 +196,35 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
     _animController.forward();
   }
   
-  // Save to favorites
-  Future<void> _saveToFavorites() async {
+  // Save to favorites from dialog
+  Future<void> _saveToFavoritesFromDialog({
+    required AlcoholType type,
+    required double volumeMl,
+    required double abv,
+    required String name,
+    required String emoji,
+    double? sugar,
+  }) async {
     final l10n = AppLocalizations.of(context);
-    final volumeMl = _getVolumeMl();
-    final abv = double.tryParse(_abvController.text) ?? 0;
-    
-    if (volumeMl <= 0 || abv <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.enterValidVolume)),
-      );
-      return;
-    }
     
     final slot = await _showFavoriteSlotSelector();
     if (slot == null) return;
     
     final volumeStr = _units == 'imperial' 
       ? '${(volumeMl / 29.5735).toStringAsFixed(1)} oz'
-      : '$volumeMl ml';
+      : '${volumeMl.toStringAsFixed(0)} ml';
     
     final favorite = QuickFavorite(
-      id: 'alcohol_${_selectedType.key}_${volumeMl.toInt()}_$abv',
+      id: 'alcohol_${type.key}_${volumeMl.toInt()}_$abv',
       type: 'alcohol',
-      label: '${_getTypeName(_selectedType)}: $abv% - $volumeStr',
-      emoji: _getTypeEmoji(_selectedType),
+      label: '$name: $abv% - $volumeStr',
+      emoji: emoji,
       volumeMl: volumeMl.toInt(),
       metadata: {
-        'alcoholType': _selectedType.key,
+        'alcoholType': type.key,
         'abv': abv,
+        'name': name,
+        'sugar': sugar ?? 0.0,
       },
     );
     
@@ -338,7 +325,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
     );
   }
   
-  // Show drink confirmation dialog
+  // Show drink confirmation dialog with slider - UPDATED VERSION
   Future<void> _showDrinkConfirmationDialog({
     required Map<String, dynamic> drink,
     required AlcoholType type,
@@ -359,13 +346,14 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     
-    // Controllers for dialog
-    final volumeController = TextEditingController(
-      text: _units == 'imperial' 
-        ? (drink['ml'] / 29.5735).toStringAsFixed(1)
-        : drink['ml'].toString(),
-    );
-    final quantityController = TextEditingController(text: '1');
+    // Initial value for slider
+    double sliderVolume = _units == 'imperial' 
+      ? (drink['ml'] / 29.5735)
+      : drink['ml'].toDouble();
+    
+    // Volume limits based on units
+    final minVolume = _units == 'imperial' ? 1.0 : 30.0;
+    final maxVolume = _units == 'imperial' ? 40.0 : 1000.0;
     
     final result = await showDialog<bool>(
       context: context,
@@ -373,10 +361,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
         return StatefulBuilder(
           builder: (dialogContext, setState) {
             double getVolumeMl() {
-              final volume = double.tryParse(volumeController.text) ?? 0;
-              final quantity = int.tryParse(quantityController.text) ?? 1;
-              final singleVolume = _units == 'imperial' ? volume * 29.5735 : volume;
-              return singleVolume * quantity;
+              return _units == 'imperial' ? sliderVolume * 29.5735 : sliderVolume;
             }
             
             double getSD() {
@@ -384,9 +369,11 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
             }
             
             double getTotalSugar() {
-              final quantity = int.tryParse(quantityController.text) ?? 1;
-              final sugarPerServing = drink['sugar'] ?? 0.0;
-              return sugarPerServing * quantity;
+              // Calculate sugar proportionally to volume
+              final baseMl = drink['ml'].toDouble();
+              final baseSugar = drink['sugar'] ?? 0.0;
+              final currentMl = getVolumeMl();
+              return (baseSugar * currentMl / baseMl);
             }
             
             return AlertDialog(
@@ -416,107 +403,102 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
                       ],
                     ),
                   ),
+                  // Close button
+                  IconButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(false),
+                    icon: const Icon(Icons.close),
+                    iconSize: 24,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
                 ],
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Volume input
-                  TextField(
-                    controller: volumeController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: InputDecoration(
-                      labelText: l10n.volume,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      suffixText: _units == 'imperial' ? 'oz' : 'ml',
-                    ),
-                    onChanged: (_) => setState(() {}),
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Quantity selector
-                  Row(
+                  // Volume slider only
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        l10n.amount ?? 'Amount:',
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        onPressed: () {
-                          final qty = int.tryParse(quantityController.text) ?? 1;
-                          if (qty > 1) {
-                            quantityController.text = (qty - 1).toString();
-                            setState(() {});
-                          }
-                        },
-                        icon: const Icon(Icons.remove_circle_outline),
-                        color: theme.colorScheme.primary,
-                      ),
-                      SizedBox(
-                        width: 50,
-                        child: TextField(
-                          controller: quantityController,
-                          keyboardType: TextInputType.number,
-                          textAlign: TextAlign.center,
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            l10n.volume,
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                           ),
-                          onChanged: (_) => setState(() {}),
-                        ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primaryContainer.withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              '${sliderVolume.toStringAsFixed(0)} ${_units == 'imperial' ? 'oz' : 'ml'}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: theme.colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        onPressed: () {
-                          final qty = int.tryParse(quantityController.text) ?? 1;
-                          if (qty < 10) {
-                            quantityController.text = (qty + 1).toString();
-                            setState(() {});
-                          }
-                        },
-                        icon: const Icon(Icons.add_circle_outline),
-                        color: theme.colorScheme.primary,
+                      SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          activeTrackColor: theme.colorScheme.primary,
+                          inactiveTrackColor: theme.colorScheme.primary.withOpacity(0.2),
+                          thumbColor: theme.colorScheme.primary,
+                          overlayColor: theme.colorScheme.primary.withOpacity(0.1),
+                          trackHeight: 6,
+                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+                        ),
+                        child: Slider(
+                          value: sliderVolume,
+                          min: minVolume,
+                          max: maxVolume,
+                          divisions: _units == 'imperial' ? 39 : 97,
+                          onChanged: (value) => setState(() => sliderVolume = value),
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 20),
                   
-                  // Metrics display
+                  // Metrics display with gradients for BOTH cards
                   Row(
                     children: [
-                      // SD card
+                      // SD card with gradient colors
                       Expanded(
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.primaryContainer.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: theme.colorScheme.primary.withOpacity(0.3),
+                            gradient: LinearGradient(
+                              colors: _getSDGradientColors(getSD()),
                             ),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: Column(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.local_bar,
-                                color: theme.colorScheme.primary,
+                                color: Colors.white,
                                 size: 24,
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 '${getSD().toStringAsFixed(2)}',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
-                                  color: theme.colorScheme.primary,
+                                  color: Colors.white,
                                 ),
                               ),
                               Text(
                                 'SD',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: theme.colorScheme.primary.withOpacity(0.7),
+                                  color: Colors.white.withOpacity(0.9),
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -525,7 +507,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
                         ),
                       ),
                       const SizedBox(width: 12),
-                      // Sugar card
+                      // Sugar card with gradient
                       Expanded(
                         child: Container(
                           padding: const EdgeInsets.all(12),
@@ -567,7 +549,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Total: ${getVolumeMl().toStringAsFixed(0)} ml',
+                    '${getVolumeMl().toStringAsFixed(0)} ml',
                     style: TextStyle(
                       fontSize: 14,
                       color: theme.colorScheme.onSurfaceVariant,
@@ -577,19 +559,53 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
                 ],
               ),
               actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: Text(l10n.cancel),
-                ),
-                ElevatedButton.icon(
-                  onPressed: () => Navigator.of(dialogContext).pop(true),
-                  icon: const Icon(Icons.add),
-                  label: Text(l10n.add),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Add button - full width
+                    SizedBox(
+                      width: double.infinity,
+                      height: 53,
+                      child: ElevatedButton.icon(
+                        onPressed: () => Navigator.of(dialogContext).pop(true),
+                        icon: const Icon(Icons.add),
+                        label: Text(l10n.add),
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 12),
+                    // Save to Favorites button - full width
+                    SizedBox(
+                      width: double.infinity,
+                      height: 53,
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          Navigator.of(dialogContext).pop(false);
+                          await _saveToFavoritesFromDialog(
+                            type: type,
+                            volumeMl: getVolumeMl(),
+                            abv: drink['abv'].toDouble(),
+                            name: drink['name'],
+                            emoji: drink['emoji'],
+                            sugar: getTotalSugar(),
+                          );
+                        },
+                        icon: const Icon(Icons.star_border),
+                        label: Text(l10n.saveToFavorites),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.amber[700],
+                          side: BorderSide(color: Colors.amber[600]!, width: 1.5),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             );
@@ -600,23 +616,16 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
     
     // If confirmed, log the intake
     if (result == true) {
-      final volume = double.tryParse(volumeController.text) ?? 0;
-      final quantity = int.tryParse(quantityController.text) ?? 1;
-      final volumeMl = _units == 'imperial' ? volume * 29.5735 : volume;
-      final totalSugar = (drink['sugar'] ?? 0.0) * quantity;
+      final volumeMl = _units == 'imperial' ? sliderVolume * 29.5735 : sliderVolume;
       
       await _logIntake(
         type: type,
-        volumeMl: volumeMl * quantity,
+        volumeMl: volumeMl,
         abv: drink['abv'].toDouble(),
         name: drink['name'],
-        sugar: totalSugar,
+        sugar: drink['sugar'] ?? 0.0,
       );
     }
-    
-    // Clean up
-    volumeController.dispose();
-    quantityController.dispose();
   }
   
   String _getTypeName(AlcoholType type) {
@@ -665,6 +674,19 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
     }
   }
   
+  // NEW FUNCTION for SD gradient colors
+  List<Color> _getSDGradientColors(double sd) {
+    if (sd <= 0.5) {
+      return [Colors.green.shade400, Colors.green.shade600];
+    } else if (sd <= 1.0) {
+      return [Colors.amber.shade400, Colors.amber.shade600];
+    } else if (sd <= 2.0) {
+      return [Colors.orange.shade400, Colors.orange.shade600];
+    } else {
+      return [Colors.red.shade400, Colors.red.shade600];
+    }
+  }
+  
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -674,7 +696,9 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
     final subscription = Provider.of<SubscriptionProvider>(context);
     _isPro = subscription.isPro;
     
-    final todaySD = _getTodayTotalSD();
+    // Get alcohol service for real data
+    final alcoholService = Provider.of<AlcoholService>(context);
+    final todaySD = alcoholService.totalStandardDrinks;
     final statusColor = _getStatusColor(todaySD);
     
     return Scaffold(
@@ -688,7 +712,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Status card
+          // Status card - fixed to use real data
           _StatusCard(
             todaySD: todaySD,
             statusColor: statusColor,
@@ -698,7 +722,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
             .fadeIn(duration: 300.ms)
             .slideY(begin: -0.1, end: 0),
           
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           
           // Type selector
           _TypeSelector(
@@ -706,8 +730,6 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
             onTypeChanged: (type) {
               setState(() {
                 _selectedType = type;
-                final defaults = _popularDrinks[type]!.first;
-                _abvController.text = defaults['abv'].toString();
               });
             },
             l10n: l10n,
@@ -736,32 +758,6 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
           
           const SizedBox(height: 24),
           
-          // Custom input section
-          _CustomInputSection(
-            abvController: _abvController,
-            volumeController: _volumeController,
-            units: _units,
-            onLog: () async {
-              final volumeMl = _getVolumeMl();
-              final abv = double.tryParse(_abvController.text) ?? 0;
-              
-              if (volumeMl > 0 && abv > 0) {
-                await _logIntake(
-                  type: _selectedType,
-                  volumeMl: volumeMl,
-                  abv: abv,
-                );
-              }
-            },
-            onSaveToFavorites: _saveToFavorites,
-            calculateSD: _calculateSD,
-            l10n: l10n,
-          ).animate()
-            .fadeIn(duration: 300.ms, delay: 300.ms)
-            .slideY(begin: 0.1, end: 0),
-          
-          const SizedBox(height: 20),
-          
           // Harm reduction card
           if (_showHarmReduction)
             _HarmReductionCard(
@@ -770,26 +766,13 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
             ).animate()
               .fadeIn(duration: 300.ms)
               .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1)),
-          
-          const SizedBox(height: 20),
-          
-          // Today's history
-          Consumer<AlcoholService>(
-            builder: (context, alcoholService, _) {
-              return _TodayHistory(
-                intakes: alcoholService.todayIntakes,
-                l10n: l10n,
-              ).animate()
-                .fadeIn(duration: 300.ms, delay: 400.ms);
-            },
-          ),
         ],
       ),
     );
   }
 }
 
-// Status card widget
+// Status card widget - fixed to work properly
 class _StatusCard extends StatelessWidget {
   final double todaySD;
   final Color statusColor;
@@ -829,18 +812,22 @@ class _StatusCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              // Circular progress
+              // Circular progress - fixed
               SizedBox(
                 width: 80,
                 height: 80,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    CircularProgressIndicator(
-                      value: progress,
-                      strokeWidth: 8,
-                      backgroundColor: Colors.grey.shade200,
-                      valueColor: AlwaysStoppedAnimation(statusColor),
+                    SizedBox(
+                      width: 80,
+                      height: 80,
+                      child: CircularProgressIndicator(
+                        value: progress,
+                        strokeWidth: 8,
+                        backgroundColor: Colors.grey.shade200,
+                        valueColor: AlwaysStoppedAnimation(statusColor),
+                      ),
                     ),
                     Column(
                       mainAxisSize: MainAxisSize.min,
@@ -974,9 +961,6 @@ class _CorrectionItem extends StatelessWidget {
   }
 }
 
-// Type selector widget (rest of the widgets follow similar pattern...)
-// [Продолжение кода с остальными виджетами...]
-
 // Type selector widget
 class _TypeSelector extends StatelessWidget {
   final AlcoholType selectedType;
@@ -1021,19 +1005,57 @@ class _TypeSelector extends StatelessWidget {
                       _getEmoji(type),
                       style: const TextStyle(fontSize: 20),
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      _getName(type, l10n),
-                      style: TextStyle(
-                        color: isSelected 
-                          ? theme.colorScheme.onPrimary 
-                          : theme.colorScheme.onSurfaceVariant,
-                        fontWeight: isSelected 
-                          ? FontWeight.bold 
-                          : FontWeight.normal,
-                        fontSize: 13,
+                    if (type != AlcoholType.spirits) const SizedBox(width: 4),
+                    if (type != AlcoholType.spirits)
+                      Text(
+                        _getName(type, l10n),
+                        style: TextStyle(
+                          color: isSelected 
+                            ? theme.colorScheme.onPrimary 
+                            : theme.colorScheme.onSurfaceVariant,
+                          fontWeight: isSelected 
+                            ? FontWeight.bold 
+                            : FontWeight.normal,
+                          fontSize: 13,
+                        ),
                       ),
-                    ),
+                    // Special layout for spirits - two lines
+                    if (type == AlcoholType.spirits)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 2),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              l10n.spirits.split(' ').first,
+                              style: TextStyle(
+                                color: isSelected 
+                                  ? theme.colorScheme.onPrimary 
+                                  : theme.colorScheme.onSurfaceVariant,
+                                fontWeight: isSelected 
+                                  ? FontWeight.bold 
+                                  : FontWeight.normal,
+                                fontSize: 11,
+                                height: 1.0,
+                              ),
+                            ),
+                            if (l10n.spirits.contains(' '))
+                              Text(
+                                l10n.spirits.split(' ').skip(1).join(' '),
+                                style: TextStyle(
+                                  color: isSelected 
+                                    ? theme.colorScheme.onPrimary 
+                                    : theme.colorScheme.onSurfaceVariant,
+                                  fontWeight: isSelected 
+                                    ? FontWeight.bold 
+                                    : FontWeight.normal,
+                                  fontSize: 11,
+                                  height: 1.0,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -1063,7 +1085,7 @@ class _TypeSelector extends StatelessWidget {
   }
 }
 
-// Popular drinks grid
+// Popular drinks grid - with PRO badges
 class _PopularDrinksGrid extends StatelessWidget {
   final AlcoholType type;
   final List<Map<String, dynamic>> drinks;
@@ -1101,35 +1123,26 @@ class _PopularDrinksGrid extends StatelessWidget {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 1.2,
+            crossAxisCount: 3,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+            childAspectRatio: 1.0,
           ),
           itemCount: drinks.length,
           itemBuilder: (context, index) {
             final drink = drinks[index];
-            final volumeMl = drink['ml'].toDouble();
-            final abv = drink['abv'].toDouble();
-            final sd = calculateSD(volumeMl, abv);
-            final sugar = drink['sugar'] ?? 0.0;
             final isDrinkPro = drink['isPro'] ?? false;
             final isLocked = isDrinkPro && !isPro;
             
-            final displayVolume = units == 'imperial'
-              ? '${(volumeMl / 29.5735).toStringAsFixed(1)} oz'
-              : '$volumeMl ml';
-            
             return InkWell(
               onTap: () => onDrinkSelected(drink),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               child: Container(
-                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: isLocked 
                     ? theme.colorScheme.surface.withOpacity(0.5)
                     : theme.colorScheme.surface,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isLocked
                       ? theme.colorScheme.outline.withOpacity(0.1)
@@ -1138,135 +1151,70 @@ class _PopularDrinksGrid extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(isLocked ? 0.02 : 0.05),
-                      blurRadius: 8,
+                      blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: Stack(
                   children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Opacity(
-                          opacity: isLocked ? 0.5 : 1.0,
-                          child: Text(
-                            drink['emoji'],
-                            style: const TextStyle(fontSize: 28),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          drink['name'],
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: isLocked 
-                              ? theme.colorScheme.onSurface.withOpacity(0.5)
-                              : null,
-                          ),
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '$displayVolume • ${abv}%',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: isLocked
-                              ? theme.colorScheme.onSurfaceVariant.withOpacity(0.5)
-                              : theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        // SD and Sugar badges
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // SD badge
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isLocked
-                                  ? theme.colorScheme.primaryContainer.withOpacity(0.3)
-                                  : theme.colorScheme.primaryContainer,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                '${sd.toStringAsFixed(1)} SD',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: isLocked
-                                    ? theme.colorScheme.onPrimaryContainer.withOpacity(0.5)
-                                    : theme.colorScheme.onPrimaryContainer,
-                                ),
-                              ),
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Opacity(
+                            opacity: isLocked ? 0.5 : 1.0,
+                            child: Text(
+                              drink['emoji'],
+                              style: const TextStyle(fontSize: 28),
                             ),
-                            if (sugar > 0) ...[
-                              const SizedBox(width: 4),
-                              // Sugar badge
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: isLocked
-                                      ? [Colors.grey.shade300, Colors.grey.shade400]
-                                      : _getSugarColors(sugar),
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  '${sugar.toStringAsFixed(0)}g',
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                          ),
+                          const SizedBox(height: 6),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Text(
+                              drink['name'],
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: isLocked 
+                                  ? theme.colorScheme.onSurface.withOpacity(0.5)
+                                  : theme.colorScheme.onSurface,
                               ),
-                            ],
-                          ],
-                        ),
-                      ],
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     // PRO badge
                     if (isDrinkPro)
                       Positioned(
-                        top: 0,
-                        right: 0,
+                        top: 4,
+                        right: 4,
                         child: Container(
-                          padding: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(2),
                           decoration: BoxDecoration(
                             color: Colors.purple.shade600,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
                             Icons.star,
-                            size: 14,
+                            size: 12,
                             color: Colors.white,
                           ),
                         ),
                       ),
-                    // Lock overlay
+                    // Gray overlay for locked items
                     if (isLocked)
                       Positioned.fill(
                         child: Container(
                           decoration: BoxDecoration(
                             color: Colors.black.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Center(
-                            child: Icon(
-                              Icons.lock_outline,
-                              color: theme.colorScheme.onSurface.withOpacity(0.3),
-                              size: 20,
-                            ),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                       ),
@@ -1280,13 +1228,6 @@ class _PopularDrinksGrid extends StatelessWidget {
     );
   }
   
-  List<Color> _getSugarColors(double grams) {
-    if (grams <= 5) return [Colors.green.shade400, Colors.green.shade500];
-    if (grams <= 15) return [Colors.amber.shade400, Colors.amber.shade500];
-    if (grams <= 25) return [Colors.orange.shade400, Colors.orange.shade500];
-    return [Colors.red.shade400, Colors.red.shade500];
-  }
-  
   String _getTypeName(AlcoholType type, AppLocalizations l10n) {
     switch (type) {
       case AlcoholType.beer: return l10n.beer;
@@ -1294,153 +1235,6 @@ class _PopularDrinksGrid extends StatelessWidget {
       case AlcoholType.spirits: return l10n.spirits;
       case AlcoholType.cocktail: return 'Cocktails';
     }
-  }
-}
-
-// Custom input section
-class _CustomInputSection extends StatelessWidget {
-  final TextEditingController abvController;
-  final TextEditingController volumeController;
-  final String units;
-  final VoidCallback onLog;
-  final VoidCallback onSaveToFavorites;
-  final Function(double, double) calculateSD;
-  final AppLocalizations l10n;
-  
-  const _CustomInputSection({
-    required this.abvController,
-    required this.volumeController,
-    required this.units,
-    required this.onLog,
-    required this.onSaveToFavorites,
-    required this.calculateSD,
-    required this.l10n,
-  });
-  
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: theme.colorScheme.outline.withOpacity(0.2),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Custom amount',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: abvController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(
-                    labelText: 'ABV %',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    suffixText: '%',
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: volumeController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: l10n.volume,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    suffixText: units == 'imperial' ? 'oz' : 'ml',
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // SD preview
-          AnimatedBuilder(
-            animation: Listenable.merge([
-              abvController,
-              volumeController,
-            ]),
-            builder: (context, _) {
-              final volume = double.tryParse(volumeController.text) ?? 0;
-              final volumeMl = units == 'imperial' ? volume * 29.5735 : volume;
-              final abv = double.tryParse(abvController.text) ?? 0;
-              final sd = calculateSD(volumeMl, abv);
-              
-              return Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.local_bar,
-                      color: theme.colorScheme.primary,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '= ${sd.toStringAsFixed(2)} SD',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: onLog,
-                  icon: const Icon(Icons.add),
-                  label: Text(l10n.add),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              IconButton(
-                onPressed: onSaveToFavorites,
-                icon: const Icon(Icons.star_border),
-                tooltip: l10n.saveToFavorites,
-                style: IconButton.styleFrom(
-                  backgroundColor: theme.colorScheme.secondaryContainer,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 }
 
@@ -1523,84 +1317,5 @@ class _HarmReductionCard extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-// Today's history
-class _TodayHistory extends StatelessWidget {
-  final List<AlcoholIntake> intakes;
-  final AppLocalizations l10n;
-  
-  const _TodayHistory({
-    required this.intakes,
-    required this.l10n,
-  });
-  
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    
-    if (intakes.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: theme.colorScheme.outline.withOpacity(0.2),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.todaysDrinks,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          ...intakes.map((intake) {
-            final time = TimeOfDay.fromDateTime(intake.timestamp);
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                children: [
-                  Text(
-                    _getEmoji(intake.type),
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      '${intake.volumeMl.toStringAsFixed(0)} ml • ${intake.abv}% • ${intake.standardDrinks.toStringAsFixed(1)} SD',
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                  ),
-                  Text(
-                    '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-        ],
-      ),
-    );
-  }
-  
-  String _getEmoji(AlcoholType type) {
-    switch (type) {
-      case AlcoholType.beer: return '🍺';
-      case AlcoholType.wine: return '🍷';
-      case AlcoholType.spirits: return '🥃';
-      case AlcoholType.cocktail: return '🍹';
-    }
   }
 }
