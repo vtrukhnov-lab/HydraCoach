@@ -2390,4 +2390,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tip_replace_soda => 'Replace soda with sparkling water and lemon';
+
+  @override
+  String get sugarSources => 'Sugar Sources';
+
+  @override
+  String get drinks => 'Drinks';
+
+  @override
+  String get food => 'Food';
+
+  @override
+  String get snacks => 'Snacks';
+
+  @override
+  String get recommendedLimit => 'Recommended';
+
+  @override
+  String get points => 'points';
 }

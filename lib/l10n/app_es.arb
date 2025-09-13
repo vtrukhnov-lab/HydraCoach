@@ -1232,6 +1232,12 @@
   "tip_reduce_sweet_drinks": "Reemplaza las bebidas dulces con agua o té sin azúcar",
   "tip_avoid_added_sugar": "Revisa las etiquetas y evita productos con azúcares añadidos",
   "tip_check_labels": "Cuidado con los azúcares ocultos en salsas y alimentos procesados",
-  "tip_replace_soda": "Reemplaza los refrescos con agua con gas y limón"
+  "tip_replace_soda": "Reemplaza los refrescos con agua con gas y limón",
+  "sugarSources": "Fuentes de azúcar",
+"drinks": "Bebidas",
+"food": "Comida",
+"snacks": "Snacks",
+"recommendedLimit": "Recomendado",
+"points": "puntos"
 
 }

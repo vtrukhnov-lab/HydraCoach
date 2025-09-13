@@ -1454,6 +1454,12 @@
   "tip_reduce_sweet_drinks": "Replace sweet drinks with water or unsweetened tea",
   "tip_avoid_added_sugar": "Check labels and avoid products with added sugars",
   "tip_check_labels": "Be aware of hidden sugars in sauces and processed foods",
-  "tip_replace_soda": "Replace soda with sparkling water and lemon"
+  "tip_replace_soda": "Replace soda with sparkling water and lemon",
+  "sugarSources": "Sugar Sources",
+"drinks": "Drinks",
+"food": "Food",
+"snacks": "Snacks",
+"recommendedLimit": "Recommended",
+"points": "points"
 
 }

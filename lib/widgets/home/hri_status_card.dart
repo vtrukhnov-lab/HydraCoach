@@ -30,6 +30,11 @@ class HRIStatusCard extends StatelessWidget {
     final status = provider.getHydrationStatus(l10n);
     final localizedHRIStatus = _getLocalizedHRIStatus(hri, l10n);
     final components = hri.getComponentsBreakdown();
+    
+    // Получаем данные о сахаре
+    final sugarData = provider.getSugarIntakeData(context);
+    final sugarGrams = sugarData.totalGrams;
+    final sugarImpact = _calculateSugarHRIImpact(sugarGrams);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
@@ -95,7 +100,7 @@ class HRIStatusCard extends StatelessWidget {
               Text(localizedHRIStatus, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: _getHRIColor(hriValue))),
             ],
           ),
-          if (_hasActiveFactors(components, alcohol, weather)) ...[
+          if (_hasActiveFactors(components, alcohol, weather, sugarGrams)) ...[
             const SizedBox(height: 12),
             const Divider(),
             const SizedBox(height: 8),
@@ -104,7 +109,7 @@ class HRIStatusCard extends StatelessWidget {
             Wrap(
               spacing: 6,
               runSpacing: 4,
-              children: _buildActiveFactorChips(components, alcohol, weather, l10n),
+              children: _buildActiveFactorChips(components, alcohol, weather, sugarGrams, sugarImpact, l10n),
             ),
           ],
           if (isFasting) ...[
@@ -132,28 +137,66 @@ class HRIStatusCard extends StatelessWidget {
     ).animate().fadeIn(delay: 500.ms);
   }
 
-  bool _hasActiveFactors(Map<String, double> components, AlcoholService alcohol, WeatherService weather) {
+  bool _hasActiveFactors(Map<String, double> components, AlcoholService alcohol, WeatherService weather, double sugarGrams) {
     return components['workouts']! > 0 ||
            components['caffeine']! > 0 ||
            alcohol.totalStandardDrinks > 0 ||
-           weather.heatIndex != null;
+           weather.heatIndex != null ||
+           sugarGrams > 50;
   }
 
-  List<Widget> _buildActiveFactorChips(Map<String, double> components, AlcoholService alcohol, WeatherService weather, AppLocalizations l10n) {
+  List<Widget> _buildActiveFactorChips(
+    Map<String, double> components, 
+    AlcoholService alcohol, 
+    WeatherService weather, 
+    double sugarGrams,
+    int sugarImpact,
+    AppLocalizations l10n
+  ) {
     final chips = <Widget>[];
-    if (components['workouts']! > 0) chips.add(_buildFactorChip('${l10n.hriComponentWorkout} +${components['workouts']!.toInt()}', Icons.fitness_center, Colors.teal));
+    
+    if (components['workouts']! > 0) {
+      chips.add(_buildFactorChip('${l10n.hriComponentWorkout} +${components['workouts']!.toInt()}', Icons.fitness_center, Colors.teal));
+    }
+    
     if (weather.heatIndex != null) {
       final heatImpact = components['heat'] ?? 0;
-      if (weather.heatIndex! < 27) chips.add(_buildFactorChip('${l10n.hriComponentHeat} OK', Icons.thermostat, Colors.green));
-      else if (weather.heatIndex! < 32) chips.add(_buildFactorChip('${l10n.hriComponentHeat} +${heatImpact.toInt()}', Icons.wb_sunny, Colors.orange));
-      else chips.add(_buildFactorChip('${l10n.hriComponentHeat} +${heatImpact.toInt()}', Icons.local_fire_department, Colors.red));
+      if (weather.heatIndex! < 27) {
+        chips.add(_buildFactorChip('${l10n.hriComponentHeat} OK', Icons.thermostat, Colors.green));
+      } else if (weather.heatIndex! < 32) {
+        chips.add(_buildFactorChip('${l10n.hriComponentHeat} +${heatImpact.toInt()}', Icons.wb_sunny, Colors.orange));
+      } else {
+        chips.add(_buildFactorChip('${l10n.hriComponentHeat} +${heatImpact.toInt()}', Icons.local_fire_department, Colors.red));
+      }
     }
-    if (components['caffeine']! > 0) chips.add(_buildFactorChip('${l10n.hriComponentCaffeine} +${components['caffeine']!.toInt()}', Icons.coffee, Colors.brown));
+    
+    if (components['caffeine']! > 0) {
+      chips.add(_buildFactorChip('${l10n.hriComponentCaffeine} +${components['caffeine']!.toInt()}', Icons.coffee, Colors.brown));
+    }
+    
     if (alcohol.totalStandardDrinks > 0) {
       final sd = alcohol.totalStandardDrinks;
       final alcoholImpact = components['alcohol'] ?? 0;
       chips.add(_buildFactorChip('${l10n.alcohol} ${sd.toStringAsFixed(1)} SD +${alcoholImpact.toInt()}', Icons.local_bar, Colors.red));
     }
+    
+    // Добавляем чип для сахара
+    if (sugarGrams > 50) {
+      Color sugarColor = Colors.amber;
+      if (sugarGrams > 75) {
+        sugarColor = Colors.orange;
+      }
+      if (sugarGrams > 100) {
+        sugarColor = Colors.red;
+      }
+      
+      chips.add(_buildFactorChip(
+        '${l10n.sugarIntake} ${sugarGrams.toStringAsFixed(0)}g +$sugarImpact', 
+        Icons.cake, 
+        sugarColor
+      ));
+    }
+    
     return chips;
   }
 
@@ -176,6 +219,12 @@ class HRIStatusCard extends StatelessWidget {
     );
   }
 
+  int _calculateSugarHRIImpact(double grams) {
+    if (grams <= 50) return 0;
+    if (grams <= 75) return ((grams - 50) * 0.2).round();
+    return (5 + (grams - 75) * 0.2).clamp(0, 10).round();
+  }
+
   Color _getStatusColor(String status) {
     if (status.contains('Normal') || status.contains('Норма')) return Colors.green;
     if (status.contains('Low salt') || status.contains('Мало соли') || status.contains('Diluting') || status.contains('Разбавляешь')) return Colors.orange;
@@ -196,5 +245,41 @@ class HRIStatusCard extends StatelessWidget {
     if (hriValue <= 60) return l10n.hriStatusModerate;
     if (hriValue <= 80) return l10n.hriStatusHighRisk;
     return l10n.hriStatusCritical;
+  }
+}
+
+// Определяем класс SugarIntakeData прямо здесь
+class SugarIntakeData {
+  final double totalGrams;
+  final double naturalSugarGrams;
+  final double addedSugarGrams;
+  final double hiddenSugarGrams;
+  final double drinksGrams;
+  final double foodGrams;
+  final double snacksGrams;
+  final Map<String, double> bySource;
+
+  SugarIntakeData({
+    required this.totalGrams,
+    required this.naturalSugarGrams,
+    required this.addedSugarGrams,
+    required this.hiddenSugarGrams,
+    required this.drinksGrams,
+    required this.foodGrams,
+    required this.snacksGrams,
+    required this.bySource,
+  });
+
+  factory SugarIntakeData.empty() {
+    return SugarIntakeData(
+      totalGrams: 0,
+      naturalSugarGrams: 0,
+      addedSugarGrams: 0,
+      hiddenSugarGrams: 0,
+      drinksGrams: 0,
+      foodGrams: 0,
+      snacksGrams: 0,
+      bySource: {},
+    );
   }
 }

@@ -2,9 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:fl_chart/fl_chart.dart';
 import '../../providers/hydration_provider.dart';
-import '../../services/remote_config_service.dart';
 import '../../l10n/app_localizations.dart';
 
 class SugarIntakeCard extends StatelessWidget {
@@ -14,7 +12,7 @@ class SugarIntakeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = Provider.of<HydrationProvider>(context);
     final l10n = AppLocalizations.of(context);
-    final sugarData = provider.getSugarIntakeData();
+    final sugarData = provider.getSugarIntakeData(context);
     
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
@@ -37,7 +35,7 @@ class SugarIntakeCard extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // Верхняя секция с основной информацией
+            // Header section with total amount
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -47,9 +45,9 @@ class SugarIntakeCard extends StatelessWidget {
                     Row(
                       children: [
                         Icon(
-                          Icons.cake,
-                          color: Colors.white,
-                          size: 36,
+                          _getSugarIcon(sugarData.totalGrams), 
+                          color: Colors.white, 
+                          size: 36
                         ),
                         const SizedBox(width: 12),
                         Text(
@@ -80,7 +78,7 @@ class SugarIntakeCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                // HRI Impact блок
+                // HRI Impact block
                 if (sugarData.totalGrams > 50)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -112,7 +110,7 @@ class SugarIntakeCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'pts',
+                          l10n.points,
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.8),
                             fontSize: 11,
@@ -126,7 +124,7 @@ class SugarIntakeCard extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Разделитель
+            // Divider
             Container(
               height: 1,
               decoration: BoxDecoration(
@@ -142,88 +140,29 @@ class SugarIntakeCard extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Детальная информация - 3 колонки
+            // Detail section - sugar types
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildDetailItem(
-                  icon: Icons.local_drink,
-                  label: l10n.sugarFromDrinks,
-                  value: '${sugarData.drinksGrams.toStringAsFixed(1)}g',
+                  icon: Icons.eco,
+                  label: l10n.naturalSugar,
+                  value: '${sugarData.naturalSugarGrams.toStringAsFixed(1)}g',
                 ),
                 _buildDetailItem(
-                  icon: Icons.restaurant,
-                  label: l10n.sugarFromFood,
-                  value: '${sugarData.foodGrams.toStringAsFixed(1)}g',
+                  icon: Icons.add_circle,
+                  label: l10n.addedSugar,
+                  value: '${sugarData.addedSugarGrams.toStringAsFixed(1)}g',
                 ),
                 _buildDetailItem(
-                  icon: Icons.cookie,
-                  label: l10n.sugarFromSnacks,
-                  value: '${sugarData.snacksGrams.toStringAsFixed(1)}g',
+                  icon: Icons.visibility_off,
+                  label: l10n.hiddenSugar,
+                  value: '${sugarData.hiddenSugarGrams.toStringAsFixed(1)}g',
                 ),
               ],
             ),
 
-            // Визуализация - круговая диаграмма
-            if (sugarData.totalGrams > 0) ...[
-              const SizedBox(height: 24),
-              Container(
-                height: 150,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.2),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    // Круговая диаграмма
-                    Expanded(
-                      flex: 2,
-                      child: PieChart(
-                        PieChartData(
-                          sectionsSpace: 2,
-                          centerSpaceRadius: 30,
-                          sections: _getPieChartSections(sugarData),
-                        ),
-                      ),
-                    ),
-                    // Легенда
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildLegendItem(
-                            color: Colors.green.withOpacity(0.8),
-                            label: l10n.naturalSugar,
-                            value: sugarData.naturalSugarGrams,
-                          ),
-                          const SizedBox(height: 8),
-                          _buildLegendItem(
-                            color: Colors.orange.withOpacity(0.8),
-                            label: l10n.addedSugar,
-                            value: sugarData.addedSugarGrams,
-                          ),
-                          const SizedBox(height: 8),
-                          _buildLegendItem(
-                            color: Colors.red.withOpacity(0.8),
-                            label: l10n.hiddenSugar,
-                            value: sugarData.hiddenSugarGrams,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-
-            // Рекомендации
+            // Recommendations section
             if (sugarData.totalGrams > 0) ...[
               const SizedBox(height: 24),
               Container(
@@ -259,20 +198,19 @@ class SugarIntakeCard extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    // Процент от дневной нормы
-                    _buildAdjustmentRow(
+                    // Daily limit percentage
+                    _buildInfoRow(
                       icon: Icons.pie_chart_outline,
                       label: l10n.dailyLimit,
                       value: _getDailyLimitText(sugarData.totalGrams),
                     ),
                     const SizedBox(height: 6),
-                    // Рекомендация по воде
-                    if (sugarData.totalGrams > 25)
-                      _buildAdjustmentRow(
-                        icon: Icons.local_drink,
-                        label: l10n.water,
-                        value: _getWaterRecommendation(sugarData.totalGrams),
-                      ),
+                    // Main sugar source
+                    _buildInfoRow(
+                      icon: Icons.local_drink,
+                      label: l10n.sugarSources,
+                      value: _getMainSource(sugarData, l10n),
+                    ),
                   ],
                 ),
               ),
@@ -319,7 +257,7 @@ class SugarIntakeCard extends StatelessWidget {
     );
   }
 
-  Widget _buildAdjustmentRow({
+  Widget _buildInfoRow({
     required IconData icon,
     required String label,
     required String value,
@@ -347,82 +285,6 @@ class SugarIntakeCard extends StatelessWidget {
     );
   }
 
-  Widget _buildLegendItem({
-    required Color color,
-    required String label,
-    required double value,
-  }) {
-    return Row(
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
-              fontSize: 11,
-            ),
-          ),
-        ),
-        Text(
-          '${value.toStringAsFixed(0)}g',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
-
-  List<PieChartSectionData> _getPieChartSections(SugarIntakeData data) {
-    final sections = <PieChartSectionData>[];
-    
-    if (data.naturalSugarGrams > 0) {
-      sections.add(
-        PieChartSectionData(
-          value: data.naturalSugarGrams,
-          title: '',
-          color: Colors.green.withOpacity(0.8),
-          radius: 40,
-        ),
-      );
-    }
-    
-    if (data.addedSugarGrams > 0) {
-      sections.add(
-        PieChartSectionData(
-          value: data.addedSugarGrams,
-          title: '',
-          color: Colors.orange.withOpacity(0.8),
-          radius: 40,
-        ),
-      );
-    }
-    
-    if (data.hiddenSugarGrams > 0) {
-      sections.add(
-        PieChartSectionData(
-          value: data.hiddenSugarGrams,
-          title: '',
-          color: Colors.red.withOpacity(0.8),
-          radius: 40,
-        ),
-      );
-    }
-    
-    return sections;
-  }
-
   int _getHRIImpact(double grams) {
     if (grams <= 50) return 0;
     if (grams <= 75) return ((grams - 50) * 0.2).round();
@@ -431,14 +293,19 @@ class SugarIntakeCard extends StatelessWidget {
 
   String _getDailyLimitText(double grams) {
     final percentage = (grams / 25 * 100).clamp(0, 999);
-    return '${percentage.toStringAsFixed(0)}%';
+    if (percentage <= 100) return '${percentage.toStringAsFixed(0)}% (25g)';
+    return '${percentage.toStringAsFixed(0)}% ⚠️';
   }
 
-  String _getWaterRecommendation(double grams) {
-    if (grams <= 25) return '✓';
-    if (grams <= 50) return '+250ml';
-    if (grams <= 75) return '+500ml';
-    return '+750ml';
+  String _getMainSource(SugarIntakeData data, AppLocalizations l10n) {
+    if (data.drinksGrams > data.foodGrams && data.drinksGrams > data.snacksGrams) {
+      return '${data.drinksGrams.toStringAsFixed(1)}g ${l10n.drinks}';
+    } else if (data.foodGrams > data.snacksGrams) {
+      return '${data.foodGrams.toStringAsFixed(1)}g ${l10n.food}';
+    } else if (data.snacksGrams > 0) {
+      return '${data.snacksGrams.toStringAsFixed(1)}g ${l10n.snacks}';
+    }
+    return '✓';
   }
 
   String _getSugarLevelText(double grams, AppLocalizations l10n) {
@@ -457,16 +324,12 @@ class SugarIntakeCard extends StatelessWidget {
 
   List<Color> _getSugarGradient(double grams) {
     if (grams <= 25) {
-      // Зеленый - норма
       return [const Color(0xFF66BB6A), const Color(0xFF43A047)];
     } else if (grams <= 50) {
-      // Желтый - умеренно
       return [const Color(0xFFFFCA28), const Color(0xFFFFB300)];
     } else if (grams <= 75) {
-      // Оранжевый - высокое
       return [const Color(0xFFFF9800), const Color(0xFFF57C00)];
     } else {
-      // Красный - критическое
       return [const Color(0xFFEF5350), const Color(0xFFE53935)];
     }
   }
@@ -476,6 +339,13 @@ class SugarIntakeCard extends StatelessWidget {
     if (grams <= 50) return Colors.amber;
     if (grams <= 75) return Colors.orange;
     return Colors.red;
+  }
+
+  IconData _getSugarIcon(double grams) {
+    if (grams <= 25) return Icons.cake;
+    if (grams <= 50) return Icons.cookie;
+    if (grams <= 75) return Icons.warning_amber;
+    return Icons.error_outline;
   }
 
   IconData _getWarningIcon(double grams) {

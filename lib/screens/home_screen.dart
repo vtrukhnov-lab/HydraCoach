@@ -158,8 +158,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     bool isFasting = _isCurrentlyFasting(provider);
     hri.setFastingStatus(isFasting);
     
-    // NEW: Получаем данные о сахаре
-    final sugarData = provider.getSugarIntakeData();
+    // ИСПРАВЛЕНО: Передаем context в getSugarIntakeData
+    final sugarData = provider.getSugarIntakeData(context);
 
     hri.calculateHRI(
       waterIntake: provider.totalWaterToday,

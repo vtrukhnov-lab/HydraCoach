@@ -2312,25 +2312,25 @@ class AppLocalizationsRu extends AppLocalizations {
   String get addedSuccessfully => 'Успешно добавлено';
 
   @override
-  String get sugarIntake => 'Sugar Intake';
+  String get sugarIntake => 'Потребление сахара';
 
   @override
-  String get sugarToday => 'Today\'s sugar consumption';
+  String get sugarToday => 'Сахар сегодня';
 
   @override
-  String get totalSugar => 'Total Sugar';
+  String get totalSugar => 'Всего сахара';
 
   @override
-  String get dailyLimit => 'Daily Limit';
+  String get dailyLimit => 'Дневной лимит';
 
   @override
-  String get addedSugar => 'Added Sugar';
+  String get addedSugar => 'Добавленный сахар';
 
   @override
-  String get naturalSugar => 'Natural Sugar';
+  String get naturalSugar => 'Натуральный сахар';
 
   @override
-  String get hiddenSugar => 'Hidden Sugar';
+  String get hiddenSugar => 'Скрытый сахар';
 
   @override
   String get sugarFromDrinks => 'Drinks';
@@ -2342,38 +2342,38 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sugarFromSnacks => 'Snacks';
 
   @override
-  String get sugarNormal => 'Normal';
+  String get sugarNormal => 'Норма';
 
   @override
-  String get sugarModerate => 'Moderate';
+  String get sugarModerate => 'Умеренно';
 
   @override
-  String get sugarHigh => 'High';
+  String get sugarHigh => 'Высокое';
 
   @override
-  String get sugarCritical => 'Critical';
+  String get sugarCritical => 'Критическое';
 
   @override
   String get sugarRecommendationNormal =>
-      'Great job! Your sugar intake is within healthy limits';
+      'Отлично! Потребление сахара в здоровых пределах';
 
   @override
   String get sugarRecommendationModerate =>
-      'Consider reducing sweet drinks and snacks';
+      'Стоит уменьшить сладкие напитки и перекусы';
 
   @override
   String get sugarRecommendationHigh =>
-      'High sugar intake! Limit sweet drinks and desserts';
+      'Высокое потребление сахара! Ограничьте сладкие напитки и десерты';
 
   @override
   String get sugarRecommendationCritical =>
-      'Very high sugar! Avoid sugary drinks and sweets today';
+      'Очень много сахара! Избегайте сладких напитков и сладостей сегодня';
 
   @override
-  String get noSugarIntake => 'No sugar tracked today';
+  String get noSugarIntake => 'Сахар сегодня не отслеживался';
 
   @override
-  String get hriImpact => 'HRI Impact';
+  String get hriImpact => 'Влияние на HRI';
 
   @override
   String get hri_component_sugar => 'Sugar';
@@ -2396,4 +2396,22 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tip_replace_soda => 'Replace soda with sparkling water and lemon';
+
+  @override
+  String get sugarSources => 'Источники сахара';
+
+  @override
+  String get drinks => 'Напитки';
+
+  @override
+  String get food => 'Еда';
+
+  @override
+  String get snacks => 'Перекусы';
+
+  @override
+  String get recommendedLimit => 'Рекомендуемый';
+
+  @override
+  String get points => 'баллов';
 }

@@ -2,11 +2,12 @@
 // FILE: lib/providers/hydration_provider.dart
 // 
 // PURPOSE: Provider for hydration tracking and goals management
-// UPDATED: Added Sugar Intake tracking methods
+// UPDATED: Added Sugar Intake tracking methods with alcohol integration
 // ============================================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:math' as math;
@@ -21,6 +22,7 @@ import '../services/alcohol_service.dart';
 import '../services/weather_service.dart';
 import '../models/daily_goals.dart';
 import '../models/intake.dart';
+import '../models/alcohol_intake.dart';
 import '../widgets/home/sugar_intake_card.dart'; // Added for SugarIntakeData
 
 // Internal status enum for logic (not exposed to UI)
@@ -58,10 +60,10 @@ class HydrationProvider extends ChangeNotifier {
     _subscribeFCMTopics();
   }
   
-  // ============ SUGAR INTAKE METHODS (NEW) ============
+  // ============ SUGAR INTAKE METHODS (UPDATED) ============
   
-  /// Calculate sugar intake data for today
-  SugarIntakeData getSugarIntakeData() {
+  /// Calculate sugar intake data for today including alcohol
+  SugarIntakeData getSugarIntakeData(BuildContext context) {
     double totalSugar = 0;
     double naturalSugar = 0;
     double addedSugar = 0;
@@ -71,6 +73,7 @@ class HydrationProvider extends ChangeNotifier {
     double snacksGrams = 0;
     Map<String, double> bySource = {};
     
+    // Process regular intakes
     for (final intake in todayIntakes) {
       double sugarGrams = 0;
       String category = 'other';
@@ -150,27 +153,11 @@ class HydrationProvider extends ChangeNotifier {
           bySource['kombucha'] = (bySource['kombucha'] ?? 0) + sugarGrams;
           break;
           
+        // Skip old alcohol cases as alcohol is now tracked separately
         case 'alcohol_beer':
-          // Hidden sugar from malt
-          sugarGrams = (intake.volume / 100) * (_remoteConfig.getDouble('sugar_beer_per_100ml') ?? 1.0);
-          category = 'drinks';
-          isHidden = true;
-          bySource['alcohol'] = (bySource['alcohol'] ?? 0) + sugarGrams;
-          break;
-          
         case 'alcohol_wine':
-          // Residual sugar in wine
-          sugarGrams = (intake.volume / 100) * (_remoteConfig.getDouble('sugar_wine_per_100ml') ?? 2.0);
-          category = 'drinks';
-          bySource['alcohol'] = (bySource['alcohol'] ?? 0) + sugarGrams;
-          break;
-          
         case 'alcohol_cocktail':
-          // High added sugar in cocktails
-          sugarGrams = (intake.volume / 100) * (_remoteConfig.getDouble('sugar_cocktail_per_100ml') ?? 15.0);
-          category = 'drinks';
-          bySource['alcohol'] = (bySource['alcohol'] ?? 0) + sugarGrams;
-          break;
+          continue;
           
         // For food items, we would need metadata or additional tracking
         // For now, we'll estimate based on common values
@@ -214,6 +201,53 @@ class HydrationProvider extends ChangeNotifier {
       }
     }
     
+    // NEW: Add sugar from alcoholic drinks
+    try {
+      final alcoholService = Provider.of<AlcoholService>(context, listen: false);
+      final alcoholIntakes = alcoholService.todayIntakes;
+      
+      for (final intake in alcoholIntakes) {
+        double sugarGrams = 0;
+        
+        // Use the sugar value if explicitly set, otherwise use default
+        if (intake.sugar != null) {
+          sugarGrams = intake.sugar!;
+        } else {
+          // Use getSugarContent() method from updated AlcoholIntake model
+          sugarGrams = intake.getSugarContent();
+        }
+        
+        if (sugarGrams > 0) {
+          // Alcohol sugar is considered "hidden"
+          totalSugar += sugarGrams;
+          hiddenSugar += sugarGrams;
+          drinksGrams += sugarGrams;
+          
+          // Add to sources
+          bySource['alcohol'] = (bySource['alcohol'] ?? 0) + sugarGrams;
+          
+          // Detailed breakdown by alcohol type
+          switch (intake.type) {
+            case AlcoholType.beer:
+              bySource['beer'] = (bySource['beer'] ?? 0) + sugarGrams;
+              break;
+            case AlcoholType.wine:
+              bySource['wine'] = (bySource['wine'] ?? 0) + sugarGrams;
+              break;
+            case AlcoholType.cocktail:
+              bySource['cocktails'] = (bySource['cocktails'] ?? 0) + sugarGrams;
+              break;
+            case AlcoholType.spirits:
+              // Spirits usually have no sugar
+              break;
+          }
+        }
+      }
+    } catch (e) {
+      // If AlcoholService is not available or error occurred
+      print('Could not get alcohol sugar data: $e');
+    }
+    
     return SugarIntakeData(
       totalGrams: totalSugar,
       naturalSugarGrams: naturalSugar,
@@ -226,9 +260,9 @@ class HydrationProvider extends ChangeNotifier {
     );
   }
   
-  /// Get sugar impact on HRI
-  double getSugarHRIImpact() {
-    final sugarData = getSugarIntakeData();
+  /// Get sugar impact on HRI (updated to use context)
+  double getSugarHRIImpact(BuildContext context) {
+    final sugarData = getSugarIntakeData(context);
     final threshold = _remoteConfig.getDouble('sugar_hri_threshold_grams') ?? 50.0;
     final multiplier = _remoteConfig.getDouble('sugar_hri_multiplier') ?? 0.2;
     
@@ -238,9 +272,9 @@ class HydrationProvider extends ChangeNotifier {
     return (excess * multiplier).clamp(0, 10);
   }
   
-  /// Check if sugar intake is high for notifications
-  bool isSugarIntakeHigh() {
-    final sugarData = getSugarIntakeData();
+  /// Check if sugar intake is high for notifications (updated to use context)
+  bool isSugarIntakeHigh(BuildContext context) {
+    final sugarData = getSugarIntakeData(context);
     final warningThreshold = _remoteConfig.getDouble('sugar_warning_threshold_grams') ?? 50.0;
     
     return sugarData.totalGrams > warningThreshold;
@@ -249,7 +283,7 @@ class HydrationProvider extends ChangeNotifier {
   /// Get sugar reduction tips
   List<String> getSugarReductionTips(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final sugarData = getSugarIntakeData();
+    final sugarData = getSugarIntakeData(context);
     List<String> tips = [];
     
     if (sugarData.drinksGrams > 20) {
@@ -266,6 +300,11 @@ class HydrationProvider extends ChangeNotifier {
     
     if (sugarData.bySource['soda'] != null && sugarData.bySource['soda']! > 0) {
       tips.add(l10n.tip_replace_soda);
+    }
+    
+    // New tip for alcohol sugar
+    if (sugarData.bySource['alcohol'] != null && sugarData.bySource['alcohol']! > 15) {
+      tips.add('Consider lower-sugar alcohol options like spirits or dry wine');
     }
     
     return tips;
@@ -302,8 +341,9 @@ class HydrationProvider extends ChangeNotifier {
     notifyListeners();
   }
   
-  // Update HRI with full data
+  // Update HRI with full data (updated to include sugar)
   Future<void> updateHRI({
+    required BuildContext context,
     required HRIService hriService,
     AlcoholService? alcoholService,
     WeatherService? weatherService,
@@ -319,6 +359,9 @@ class HydrationProvider extends ChangeNotifier {
       totalMagnesium += intake.magnesium;
     }
     
+    // Get sugar intake for HRI
+    final sugarData = getSugarIntakeData(context);
+    
     // Call full HRI calculation
     await hriService.calculateHRI(
       waterIntake: totalWaterToday,
@@ -330,6 +373,7 @@ class HydrationProvider extends ChangeNotifier {
       magnesiumIntake: totalMagnesium.toDouble(),
       magnesiumGoal: goals.magnesium.toDouble(),
       heatIndex: weatherService?.heatIndex,
+      sugarIntake: sugarData.totalGrams,
       lastIntakeTime: lastIntakeTime,
       userWeightKg: weight,
     );

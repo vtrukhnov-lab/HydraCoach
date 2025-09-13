@@ -38,6 +38,7 @@ class AlcoholIntake {
   final double volumeMl;
   final double abv; // Alcohol by Volume (%)
   final double standardDrinks;
+  final double? sugar; // Добавлено: содержание сахара в граммах
 
   AlcoholIntake({
     String? id,
@@ -45,6 +46,7 @@ class AlcoholIntake {
     required this.type,
     required this.volumeMl,
     required this.abv,
+    this.sugar, // Добавлено: опциональный параметр сахара
   })  : id = id ?? DateTime.now().millisecondsSinceEpoch.toString(),
         standardDrinks = _calculateStandardDrinks(volumeMl, abv);
 
@@ -55,6 +57,23 @@ class AlcoholIntake {
     double pureAlcoholMl = volumeMl * (abv / 100);
     double pureAlcoholGrams = pureAlcoholMl * alcoholDensity;
     return pureAlcoholGrams / standardDrinkGrams;
+  }
+
+  // Метод для получения содержания сахара (с дефолтными значениями если не указано)
+  double getSugarContent() {
+    if (sugar != null) return sugar!;
+    
+    // Дефолтные значения сахара по типам напитков (г на 100 мл)
+    switch (type) {
+      case AlcoholType.beer:
+        return (volumeMl / 100) * 3.0; // ~3г на 100мл
+      case AlcoholType.wine:
+        return (volumeMl / 100) * 2.0; // ~2г на 100мл
+      case AlcoholType.spirits:
+        return 0; // Крепкий алкоголь обычно без сахара
+      case AlcoholType.cocktail:
+        return (volumeMl / 100) * 12.0; // ~12г на 100мл (много сахара в коктейлях)
+    }
   }
 
   double getWaterCorrection() {
@@ -80,6 +99,7 @@ class AlcoholIntake {
         'volumeMl': volumeMl,
         'abv': abv,
         'standardDrinks': standardDrinks,
+        'sugar': sugar, // Добавлено: сохранение сахара
       };
 
   factory AlcoholIntake.fromJson(Map<String, dynamic> json) {
@@ -89,6 +109,7 @@ class AlcoholIntake {
       type: AlcoholType.values[json['type']],
       volumeMl: json['volumeMl'].toDouble(),
       abv: json['abv'].toDouble(),
+      sugar: json['sugar']?.toDouble(), // Добавлено: чтение сахара
     );
   }
 

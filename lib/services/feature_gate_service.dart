@@ -58,10 +58,6 @@ enum AppFeature {
   sweatTest,                // Тест потоотделения
   urineColorScale,          // Шкала цвета мочи
   
-  // Интеграции
-  appleHealthSync,          // Apple Health
-  googleFitSync,            // Google Fit
-  
   // Отчёты PRO
   weeklyProReport,          // Недельный PRO-отчёт с инсайтами
   csvExport,                // Экспорт в CSV
@@ -231,12 +227,6 @@ class FeatureGateService {
       case AppFeature.urineColorScale:
         return 'Анализ цвета мочи';
       
-      // Интеграции
-      case AppFeature.appleHealthSync:
-        return 'Синхронизация с Apple Health';
-      case AppFeature.googleFitSync:
-        return 'Синхронизация с Google Fit';
-      
       // Отчёты PRO
       case AppFeature.weeklyProReport:
         return 'Детальный недельный отчёт';
@@ -305,10 +295,6 @@ class FeatureGateService {
       case AppFeature.sweatTest:
       case AppFeature.urineColorScale:
         return Icons.science;
-        
-      case AppFeature.appleHealthSync:
-      case AppFeature.googleFitSync:
-        return Icons.sync;
         
       case AppFeature.weeklyProReport:
         return Icons.assessment;
@@ -384,9 +370,7 @@ class FeatureGateService {
         AppFeature.unlimitedHistory,
         AppFeature.multiDevice,
       ],
-      '🔗 Интеграции': [
-        AppFeature.appleHealthSync,
-        AppFeature.googleFitSync,
+      '🔗 Расширения': [
         AppFeature.homeScreenWidgets,
         AppFeature.watchApp,
       ],

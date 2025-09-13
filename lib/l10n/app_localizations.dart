@@ -4467,6 +4467,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Replace soda with sparkling water and lemon'**
   String get tip_replace_soda;
+
+  /// No description provided for @sugarSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Sugar Sources'**
+  String get sugarSources;
+
+  /// No description provided for @drinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Drinks'**
+  String get drinks;
+
+  /// No description provided for @food.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get food;
+
+  /// No description provided for @snacks.
+  ///
+  /// In en, this message translates to:
+  /// **'Snacks'**
+  String get snacks;
+
+  /// No description provided for @recommendedLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get recommendedLimit;
+
+  /// No description provided for @points.
+  ///
+  /// In en, this message translates to:
+  /// **'points'**
+  String get points;
 }
 
 class _AppLocalizationsDelegate
