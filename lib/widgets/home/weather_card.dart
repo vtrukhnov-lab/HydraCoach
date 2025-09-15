@@ -27,7 +27,6 @@ class WeatherCard extends StatelessWidget {
 
     // Вся карточка с градиентом
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,

@@ -1,6 +1,7 @@
 // lib/widgets/home/main_progress_card.dart
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
@@ -10,184 +11,486 @@ import '../../services/units_service.dart';
 import 'electrolyte_bar_display.dart';
 import 'favorite_beverages_bar.dart';
 
+/// Главная карточка прогресса на домашнем экране
+/// Отображает круговой прогресс воды, электролиты и быстрые действия
 class MainProgressCard extends StatefulWidget {
   final VoidCallback onUpdate;
-  const MainProgressCard({super.key, required this.onUpdate});
+  
+  const MainProgressCard({
+    super.key,
+    required this.onUpdate,
+  });
 
   @override
   State<MainProgressCard> createState() => _MainProgressCardState();
 }
 
-class _MainProgressCardState extends State<MainProgressCard> {
-  static const double kCardRadius = 20.0;
-  static const double kCardPadding = 20.0;
+class _MainProgressCardState extends State<MainProgressCard> 
+    with TickerProviderStateMixin {
+  // Настройки быстрого добавления
+  int _quickAddVolume = 250; // ml
+  int _lastAddedVolume = 250; // Для отображения правильного объема в анимации
+  
+  // Анимация при добавлении
+  late AnimationController _addAnimationController;
+  late Animation<double> _addAnimation;
+  
+  // Флаг для визуального отклика при нажатии
+  bool _isPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _addAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _addAnimation = CurvedAnimation(
+      parent: _addAnimationController,
+      curve: Curves.elasticOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _addAnimationController.dispose();
+    super.dispose();
+  }
+
+  /// Получает мотивационное сообщение в зависимости от процента
+  String _getMotivationalMessage(double percent, AppLocalizations l10n) {
+    if (percent >= 100) return l10n.goalReached;
+    if (percent >= 75) return l10n.almostThere;
+    if (percent >= 50) return l10n.halfwayThere;
+    if (percent >= 25) return l10n.keepGoing;
+    return '';
+  }
+  
+  /// Получает цвет для мотивационного сообщения
+  Color _getMotivationalColor(double percent) {
+    if (percent >= 100) return Colors.green.shade500;
+    if (percent >= 75) return Colors.blue.shade500;
+    if (percent >= 50) return Colors.orange.shade500;
+    return Colors.purple.shade500;
+  }
+
+  /// Добавляет воду и запускает анимацию
+  void _handleQuickAdd() {
+    final provider = context.read<HydrationProvider>();
+    
+    // Тактильная обратная связь
+    HapticFeedback.lightImpact();
+    
+    // Добавляем воду
+    provider.addIntake('water', _quickAddVolume);
+    
+    // Устанавливаем объем для анимации
+    setState(() {
+      _lastAddedVolume = _quickAddVolume;
+    });
+    
+    // Запускаем анимацию
+    _addAnimationController.forward(from: 0);
+    
+    // Автоматически скрываем через 3 секунды
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        _addAnimationController.reverse();
+      }
+    });
+    
+    // Обновляем родительский виджет
+    widget.onUpdate();
+  }
+
+  /// Двойное нажатие - добавляет двойной объем
+  void _handleDoubleTap() {
+    final provider = context.read<HydrationProvider>();
+    
+    HapticFeedback.mediumImpact();
+    provider.addIntake('water', _quickAddVolume * 2);
+    
+    // Устанавливаем объем для анимации (двойной)
+    setState(() {
+      _lastAddedVolume = _quickAddVolume * 2;
+    });
+    
+    _addAnimationController.forward(from: 0);
+    
+    // Автоматически скрываем через 3 секунды
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        _addAnimationController.reverse();
+      }
+    });
+    
+    widget.onUpdate();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<HydrationProvider>(context);
-    final units = Provider.of<UnitsService>(context);
+    final provider = context.watch<HydrationProvider>();
+    final units = context.watch<UnitsService>();
     final l10n = AppLocalizations.of(context);
-    final progress = provider.getProgress();
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: kCardPadding, vertical: 10),
-      padding: const EdgeInsets.fromLTRB(kCardPadding, kCardPadding, kCardPadding, 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(kCardRadius),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+    
+    // Получаем текущий прогресс
+    final waterConsumed = provider.totalWaterToday.toInt();
+    final waterGoal = provider.goals.waterOpt;
+    
+    return Card(
+      margin: EdgeInsets.zero,
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
       ),
-      child: Column(
-        children: [
-          // Водяной круг с волновой анимацией
-          _WaterRingWithText(
-            consumed: provider.totalWaterToday.round(),
-            goal: provider.goals.waterOpt,
-            units: units,
-            l10n: l10n,
-          ),
-          // Электролиты
-          ElectrolyteBarDisplay(
-            sodiumCurrent: (progress['sodium'] ?? 0).toInt(),
-            sodiumGoal: provider.goals.sodium,
-            potassiumCurrent: (progress['potassium'] ?? 0).toInt(),
-            potassiumGoal: provider.goals.potassium,
-            magnesiumCurrent: (progress['magnesium'] ?? 0).toInt(),
-            magnesiumGoal: provider.goals.magnesium,
-          ),
-          const Divider(height: 20, thickness: 1, indent: 20, endIndent: 20),
-          // Избранные напитки
-          FavoriteBeveragesBar(onUpdate: widget.onUpdate),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            // Основной круг прогресса с жестами
+            GestureDetector(
+              onTap: _handleQuickAdd,
+              onDoubleTap: _handleDoubleTap,
+              onTapDown: (_) => setState(() => _isPressed = true),
+              onTapUp: (_) => setState(() => _isPressed = false),
+              onTapCancel: () => setState(() => _isPressed = false),
+              child: AnimatedScale(
+                scale: _isPressed ? 0.95 : 1.0,
+                duration: const Duration(milliseconds: 100),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Круговой прогресс
+                    _WaterProgressRing(
+                      consumed: waterConsumed,
+                      goal: waterGoal,
+                      units: units,
+                      l10n: l10n,
+                    ),
+                    
+                    // Анимация добавления с мотивационным сообщением
+                    AnimatedBuilder(
+                      animation: _addAnimationController,
+                      builder: (context, child) {
+                        if (_addAnimationController.value > 0) {
+                          // Вычисляем текущий процент (вода уже добавлена в provider)
+                          final currentPercent = waterGoal > 0 
+                              ? (waterConsumed / waterGoal * 100).clamp(0.0, 200.0)
+                              : 0.0;
+                          
+                          final motivationalMessage = _getMotivationalMessage(currentPercent, l10n);
+                          
+                          return Positioned(
+                            bottom: 50,
+                            child: Column(
+                              children: [
+                                // Мотивационное сообщение (если есть)
+                                if (motivationalMessage.isNotEmpty)
+                                  ScaleTransition(
+                                    scale: _addAnimation,
+                                    child: Container(
+                                      margin: const EdgeInsets.only(bottom: 8),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, 
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: _getMotivationalColor(currentPercent),
+                                        borderRadius: BorderRadius.circular(20),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: _getMotivationalColor(currentPercent).withOpacity(0.3),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Text(
+                                        motivationalMessage,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                // Индикатор добавленного объема
+                                ScaleTransition(
+                                  scale: _addAnimation,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, 
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.teal,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      '+${units.formatVolume(_lastAddedVolume)}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            
+            // Заголовок и подсказка о жестах
+            const SizedBox(height: 16),
+            Text(
+              l10n.quickAdd,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Column(
+                  children: [
+                    Icon(
+                      Icons.touch_app,
+                      size: 28,
+                      color: Colors.grey.shade500,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '+${units.formatVolume(_quickAddVolume)}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 40),
+                Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.touch_app,
+                          size: 28,
+                          color: Colors.grey.shade500,
+                        ),
+                        const SizedBox(width: 2),
+                        Icon(
+                          Icons.touch_app,
+                          size: 28,
+                          color: Colors.grey.shade500,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '+${units.formatVolume(_quickAddVolume * 2)}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 20),
+            const Divider(height: 1),
+            const SizedBox(height: 5),
+            
+            // Панель быстрых напитков
+            FavoriteBeveragesBar(onUpdate: widget.onUpdate),
+          ],
+        ),
       ),
-    ).animate().fadeIn(delay: 300.ms);
+    ).animate()
+      .fadeIn(duration: 300.ms)
+      .slideY(begin: 0.1, end: 0, duration: 300.ms);
   }
 }
 
-// Виджет с кругом и текстом внутри
-class _WaterRingWithText extends StatelessWidget {
+/// Круговой индикатор прогресса воды с волновой анимацией
+class _WaterProgressRing extends StatefulWidget {
   final int consumed;
   final int goal;
   final UnitsService units;
   final AppLocalizations l10n;
-
-  const _WaterRingWithText({
+  
+  const _WaterProgressRing({
     required this.consumed,
     required this.goal,
     required this.units,
     required this.l10n,
   });
 
-  Color _getWaterColor(double percent) {
-    if (percent < 30) return Colors.red;
-    if (percent < 60) return Colors.orange;
-    if (percent < 100) return Colors.blue;
-    if (percent < 120) return Colors.green;
-    return Colors.deepOrange;
-  }
+  @override
+  State<_WaterProgressRing> createState() => _WaterProgressRingState();
+}
 
+class _WaterProgressRingState extends State<_WaterProgressRing>
+    with TickerProviderStateMixin {
+  late AnimationController _waveController;
+  late AnimationController _progressController;
+  double _animatedProgress = 0;
+  
+  @override
+  void initState() {
+    super.initState();
+    _animatedProgress = _getTargetProgress();
+    
+    _waveController = AnimationController(
+      duration: const Duration(milliseconds: 2800),
+      vsync: this,
+    )..repeat();
+    
+    _progressController = AnimationController(
+      duration: const Duration(milliseconds: 550),
+      vsync: this,
+    )..addListener(() {
+      setState(() {
+        final t = Curves.easeInOut.transform(_progressController.value);
+        _animatedProgress = (_animatedProgress * (1 - t)) + (_getTargetProgress() * t);
+      });
+    });
+  }
+  
+  @override
+  void didUpdateWidget(covariant _WaterProgressRing oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.consumed != widget.consumed || oldWidget.goal != widget.goal) {
+      _progressController.reset();
+      _progressController.forward();
+    }
+  }
+  
+  @override
+  void dispose() {
+    _waveController.dispose();
+    _progressController.dispose();
+    super.dispose();
+  }
+  
+  double _getTargetProgress() {
+    if (widget.goal <= 0) return 0;
+    final progress = widget.consumed / widget.goal;
+    return progress.clamp(0.0, 1.0);
+  }
+  
+  Color _getProgressColor(double percent) {
+    if (percent < 30) return Colors.red.shade400;
+    if (percent < 60) return Colors.orange.shade400;
+    if (percent < 90) return Colors.blue.shade400;
+    if (percent <= 110) return Colors.green.shade400;
+    return Colors.deepOrange.shade400; // Переизбыток
+  }
+  
   @override
   Widget build(BuildContext context) {
-    final percent = goal > 0 ? (consumed / goal * 100).clamp(0.0, 200.0).toDouble() : 0.0;
-    final color = _getWaterColor(percent);
+    final double percent = widget.goal > 0 
+        ? (widget.consumed / widget.goal * 100).clamp(0.0, 200.0) 
+        : 0.0;
+    final color = _getProgressColor(percent);
     
-    // Форматируем объем с учетом выбранной системы измерения
-    final displayVolume = units.formatVolume(consumed);
-    final goalDisplay = units.formatVolume(goal);
+    // Форматируем отображение объема
+    final displayVolume = widget.units.formatVolume(widget.consumed);
+    final goalDisplay = widget.units.formatVolume(widget.goal);
     
-    // Определяем цвет текста на основе процента заполнения
-    // Используем более мягкие оттенки вместо резкого черного
+    // Определяем цвет текста в зависимости от уровня воды
     final bool useWhiteText = percent > 65;
     final primaryTextColor = useWhiteText 
-      ? Colors.white 
-      : const Color(0xFF37474F); // Мягкий сине-серый вместо черного
-    final secondaryTextColor = useWhiteText 
-      ? Colors.white.withOpacity(0.9) 
-      : const Color(0xFF607D8B); // Более светлый сине-серый для второстепенного текста
-
+        ? Colors.white 
+        : const Color(0xFF37474F);
+    
     return SizedBox(
       width: 220,
       height: 240,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Цель сверху круга с правильными единицами
+          // Метка цели сверху
           Positioned(
             top: 0,
             child: Text(
-              'Target: $goalDisplay',
+              '${widget.l10n.target}: $goalDisplay',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[600],
+                color: Colors.grey.shade600,
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
-          // Анимированный круг с волной
+          
+          // Кастомный круг с волной
           Positioned(
-            top: 20,
-            child: _WaterRingBare(
-              consumedMl: consumed,
-              goalMl: goal,
-              size: 220,
-              ringColor: color,
-              ringBgColor: Colors.grey[300]!,
-              waterColor: color,
+            top: 25,
+            child: AnimatedBuilder(
+              animation: _waveController,
+              builder: (context, _) {
+                return CustomPaint(
+                  size: const Size(200, 200),
+                  painter: _WaterRingPainter(
+                    progress: _animatedProgress,
+                    wavePhase: _waveController.value,
+                    color: color,
+                    ringBgColor: Colors.grey.shade300,
+                    waterColor: color,
+                  ),
+                );
+              },
             ),
           ),
-          // Текст поверх круга
-          Positioned(
-            top: 20,
-            child: SizedBox(
-              width: 220,
-              height: 220,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Отображаем объем в правильных единицах
-                  Text(
-                    displayVolume,
-                    style: TextStyle(
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold,
-                      color: primaryTextColor,
-                      height: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  // Процент
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: useWhiteText
-                        ? Colors.white.withOpacity(0.2)
-                        : Colors.grey.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: useWhiteText
-                          ? Colors.transparent
-                          : Colors.grey.withOpacity(0.3),
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      '${percent.toInt()}%',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                        color: primaryTextColor,
-                      ),
-                    ),
-                  ),
-                ],
+          
+          // Текст в центре
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 30),
+              Text(
+                displayVolume,
+                style: TextStyle(
+                  fontSize: 42,
+                  fontWeight: FontWeight.bold,
+                  color: primaryTextColor,
+                ),
               ),
-            ),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: useWhiteText 
+                      ? Colors.white.withOpacity(0.2)
+                      : Colors.grey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${percent.toInt()}%',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: primaryTextColor,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -195,219 +498,155 @@ class _WaterRingWithText extends StatelessWidget {
   }
 }
 
-// ===== МИНИМАЛЬНЫЙ КРУГ С ВОЛНОЙ И ПРОГРЕСС-ДУГОЙ =====
-
-class _WaterRingBare extends StatefulWidget {
-  final int consumedMl;
-  final int goalMl;
-  final double size;
-  final Color ringColor;
-  final Color ringBgColor;
-  final Color waterColor;
-
-  const _WaterRingBare({
-    required this.consumedMl,
-    required this.goalMl,
-    required this.size,
-    required this.ringColor,
-    required this.ringBgColor,
-    required this.waterColor,
-  });
-
-  @override
-  State<_WaterRingBare> createState() => _WaterRingBareState();
-}
-
-class _WaterRingBareState extends State<_WaterRingBare>
-    with TickerProviderStateMixin {
-  late final AnimationController _waveCtrl;
-  late final AnimationController _progressCtrl;
-  double _animatedProgress = 0;
-
-  double get _targetProgress {
-    if (widget.goalMl <= 0) return 0;
-    final p = widget.consumedMl / widget.goalMl;
-    return p.clamp(0.0, 1.0);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _animatedProgress = _targetProgress;
-
-    _waveCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2800),
-    )..repeat();
-
-    _progressCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 550),
-    )..addListener(() {
-        setState(() {
-          final t = Curves.easeInOut.transform(_progressCtrl.value);
-          _animatedProgress =
-              (_animatedProgress * (1 - t)) + (_targetProgress * t);
-        });
-      });
-  }
-
-  @override
-  void didUpdateWidget(covariant _WaterRingBare oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.consumedMl != widget.consumedMl ||
-        oldWidget.goalMl != widget.goalMl) {
-      _progressCtrl
-        ..reset()
-        ..forward();
-    }
-  }
-
-  @override
-  void dispose() {
-    _waveCtrl.dispose();
-    _progressCtrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: widget.size,
-      height: widget.size,
-      child: AnimatedBuilder(
-        animation: _waveCtrl,
-        builder: (context, _) {
-          return CustomPaint(
-            painter: _WaterPainter(
-              progress: _animatedProgress,
-              t: _waveCtrl.value,
-              ringColor: widget.ringColor,
-              ringBgColor: widget.ringBgColor,
-              waterColor: widget.waterColor,
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _WaterPainter extends CustomPainter {
+/// Рисует круг с волной внутри
+class _WaterRingPainter extends CustomPainter {
   final double progress;
-  final double t;
-  final Color ringColor;
+  final double wavePhase;
+  final Color color;
   final Color ringBgColor;
   final Color waterColor;
-
-  _WaterPainter({
+  
+  _WaterRingPainter({
     required this.progress,
-    required this.t,
-    required this.ringColor,
+    required this.wavePhase,
+    required this.color,
     required this.ringBgColor,
     required this.waterColor,
   });
-
+  
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
-    final c = Offset(w / 2, h / 2);
-    final r = math.min(w, h) / 2;
-
-    // Фон ободка
-    final ringBgPaint = Paint()
+    final center = Offset(w / 2, h / 2);
+    final radius = math.min(w, h) / 2;
+    
+    // Фоновый круг
+    final bgPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 16
+      ..strokeWidth = 12
       ..color = ringBgColor;
-    canvas.drawCircle(c, r - 8, ringBgPaint);
-
-    // Вода (через клип по кругу)
-    final clip = Path()..addOval(Rect.fromCircle(center: c, radius: r - 16));
+    canvas.drawCircle(center, radius - 6, bgPaint);
+    
+    // Обрезаем по кругу для волны
     canvas.save();
-    canvas.clipPath(clip);
-
-    final level = (1.0 - progress) * (h - 32) + 16;
-    _drawWave(canvas, size, level, t, waterColor.withOpacity(0.85), 10, 1.6);
-    _drawWave(canvas, size, level + 4, (t + 0.35) % 1.0, waterColor.withOpacity(0.6), 7, 2.3);
-
+    final clipPath = Path()
+      ..addOval(Rect.fromCircle(center: center, radius: radius - 12));
+    canvas.clipPath(clipPath);
+    
+    // Рисуем волны
+    final waterLevel = (1.0 - progress) * (h - 16) + 8;
+    
+    // Первая волна
+    _drawWave(
+      canvas, 
+      size, 
+      waterLevel, 
+      wavePhase, 
+      waterColor.withOpacity(0.85), 
+      5, 
+      1.6
+    );
+    
+    // Вторая волна для глубины
+    _drawWave(
+      canvas, 
+      size, 
+      waterLevel + 2, 
+      (wavePhase + 0.35) % 1.0, 
+      waterColor.withOpacity(0.6), 
+      3, 
+      2.3
+    );
+    
     // Блик сверху
-    final gloss = Paint()
+    final glossPaint = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [Colors.white.withOpacity(0.25), Colors.transparent],
         stops: const [0.0, 0.4],
       ).createShader(Rect.fromLTWH(0, 0, w, h));
-    canvas.drawRect(Rect.fromLTWH(0, 0, w, h * 0.4), gloss);
-
+    canvas.drawRect(Rect.fromLTWH(0, 0, w, h * 0.4), glossPaint);
+    
     canvas.restore();
-
-    // Тонкая внутренняя кромка
-    final glass = Paint()
+    
+    // Тонкая внутренняя граница
+    final glassPaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
+      ..strokeWidth = 1.0
       ..color = Colors.white.withOpacity(0.3);
-    canvas.drawCircle(c, r - 16, glass);
-
-    // Прогресс-дуга (сплошной цвет без градиента для избежания резких переходов)
-    final sweep = (math.pi * 2) * progress;
-    if (sweep > 0.001) {
-      final rect = Rect.fromCircle(center: c, radius: r - 8);
-
-      final ring = Paint()
+    canvas.drawCircle(center, radius - 12, glassPaint);
+    
+    // Прогресс-дуга поверх
+    if (progress > 0.001) {
+      final progressPaint = Paint()
         ..style = PaintingStyle.stroke
+        ..strokeWidth = 12
         ..strokeCap = StrokeCap.round
-        ..strokeWidth = 16
-        ..color = ringColor;
-
-      canvas.drawArc(rect, -math.pi / 2, sweep, false, ring);
-
-      // Точка на конце дуги
-      final endAngle = -math.pi / 2 + sweep;
-      final end = Offset(
-        c.dx + (r - 8) * math.cos(endAngle),
-        c.dy + (r - 8) * math.sin(endAngle),
+        ..color = color;
+      
+      final sweepAngle = 2 * math.pi * progress;
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius - 6),
+        -math.pi / 2,
+        sweepAngle,
+        false,
+        progressPaint,
+      );
+      
+      // Точка в конце дуги
+      final endAngle = -math.pi / 2 + sweepAngle;
+      final endPoint = Offset(
+        center.dx + (radius - 6) * math.cos(endAngle),
+        center.dy + (radius - 6) * math.sin(endAngle),
       );
       
       // Светящаяся точка
       final glowPaint = Paint()
-        ..color = ringColor.withOpacity(0.3)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
-      canvas.drawCircle(end, 8, glowPaint);
+        ..color = color.withOpacity(0.3)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
+      canvas.drawCircle(endPoint, 4, glowPaint);
       
-      final dotPaint = Paint()..color = ringColor;
-      canvas.drawCircle(end, 5, dotPaint);
+      final dotPaint = Paint()..color = color;
+      canvas.drawCircle(endPoint, 3, dotPaint);
     }
   }
-
-  void _drawWave(Canvas canvas, Size size, double levelY, double t,
-      Color color, double amp, double freq) {
+  
+  void _drawWave(
+    Canvas canvas, 
+    Size size, 
+    double levelY, 
+    double t,
+    Color color, 
+    double amplitude, 
+    double frequency
+  ) {
     final path = Path();
     path.moveTo(0, size.height);
     path.lineTo(0, levelY);
-
+    
     final width = size.width;
     for (double x = 0; x <= width; x += 2) {
       final y = levelY +
-          math.sin((x / width * math.pi * 2 * freq) + t * math.pi * 2) * amp;
+          math.sin((x / width * math.pi * 2 * frequency) + t * math.pi * 2) * amplitude;
       path.lineTo(x, y);
     }
-
+    
     path.lineTo(width, size.height);
     path.close();
-
+    
     final paint = Paint()..color = color;
     canvas.drawPath(path, paint);
   }
-
+  
   @override
-  bool shouldRepaint(covariant _WaterPainter old) {
-    return old.progress != progress ||
-        old.t != t ||
-        old.ringColor != ringColor ||
-        old.ringBgColor != ringBgColor ||
-        old.waterColor != waterColor;
+  bool shouldRepaint(covariant _WaterRingPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+           oldDelegate.wavePhase != wavePhase ||
+           oldDelegate.color != color ||
+           oldDelegate.ringBgColor != ringBgColor ||
+           oldDelegate.waterColor != waterColor;
   }
 }

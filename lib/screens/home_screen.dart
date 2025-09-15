@@ -1,17 +1,12 @@
 // lib/screens/home_screen.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-// Localization
-import '../l10n/app_localizations.dart';
 
 // Services
 import '../services/hri_service.dart';
 import '../services/weather_service.dart';
 import '../services/alcohol_service.dart';
-import '../services/units_service.dart';
 
 // Providers
 import '../providers/hydration_provider.dart';
@@ -20,9 +15,10 @@ import '../providers/hydration_provider.dart';
 import '../widgets/home/home_header.dart';
 import '../widgets/home/weather_card.dart';
 import '../widgets/home/main_progress_card.dart';
+import '../widgets/home/electrolytes_card.dart';
 import '../widgets/home/smart_advice_card.dart';
 import '../widgets/home/hri_status_card.dart';
-import '../widgets/home/sugar_intake_card.dart'; // НОВЫЙ ИМПОРТ
+import '../widgets/home/sugar_intake_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,57 +28,24 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
-  // УБРАЛИ: static const int kEveningReportHour = 21;
-  // УБРАЛИ: bool _showDailyReport = false;
-  
   String _fastingSchedule = '16:8';
   bool _isInitialized = false;
-  int _favoritesUpdateCounter = 0; // Счетчик для обновления избранного
-  
-  // PageView controller для свайпа между экранами
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
+  int _currentIndex = 0;
+  late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(viewportFraction: 0.75);
     WidgetsBinding.instance.addObserver(this);
     _initialize();
-    
-    // Добавляем слушатель для отслеживания изменений страницы
-    _pageController.addListener(() {
-      if (_pageController.page != null) {
-        final newPage = _pageController.page!.round();
-        if (newPage != _currentPage) {
-          setState(() {
-            _currentPage = newPage;
-          });
-        }
-      }
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Обновляем HRI когда меняются зависимости (например, при возврате с другого экрана)
-    if (_isInitialized) {
-      _updateHRI();
-    }
   }
 
   @override
   void dispose() {
     _pageController.dispose();
     WidgetsBinding.instance.removeObserver(this);
-    try {
-      final alcohol = Provider.of<AlcoholService>(context, listen: false);
-      alcohol.removeListener(_onAlcoholChanged);
-      final weather = Provider.of<WeatherService>(context, listen: false);
-      weather.removeListener(_onWeatherChanged);
-    } catch (e) {
-      print("Error removing listeners: $e");
-    }
+    _removeListeners();
     super.dispose();
   }
 
@@ -90,30 +53,31 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _updateHRI();
-      // Обновляем избранное при возврате в приложение
-      setState(() {
-        _favoritesUpdateCounter++;
-      });
+      setState(() {});
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isInitialized) {
+      _updateHRI();
     }
   }
 
   Future<void> _initialize() async {
     await _loadPreferences();
-    // УБРАЛИ: _checkDailyReport();
-
+    
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
     alcohol.addListener(_onAlcoholChanged);
-
+    
     final weather = Provider.of<WeatherService>(context, listen: false);
     weather.addListener(_onWeatherChanged);
     await weather.loadWeather();
-
-    // Слушаем изменения в HydrationProvider
+    
     final hydrationProvider = Provider.of<HydrationProvider>(context, listen: false);
     hydrationProvider.addListener(() {
-      if (mounted) {
-        _updateHRI();
-      }
+      if (mounted) _updateHRI();
     });
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -134,13 +98,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
-  // УБРАЛИ метод _checkDailyReport()
-
-  void _checkMorningCheckin() {
-    final alcohol = Provider.of<AlcoholService>(context, listen: false);
-    if (alcohol.totalStandardDrinks > 0 && DateTime.now().hour < 12) {
-      print('Morning check-in needed after alcohol');
+  void _removeListeners() {
+    try {
+      final alcohol = Provider.of<AlcoholService>(context, listen: false);
+      alcohol.removeListener(_onAlcoholChanged);
+      final weather = Provider.of<WeatherService>(context, listen: false);
+      weather.removeListener(_onWeatherChanged);
+    } catch (e) {
+      debugPrint("Error removing listeners: $e");
     }
+  }
+
+  void _onIntakeUpdated() {
+    setState(() {});
+    _updateHRI();
   }
 
   void _onAlcoholChanged() {
@@ -154,10 +125,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _updateHRI();
   }
 
+  void _checkMorningCheckin() {
+    final alcohol = Provider.of<AlcoholService>(context, listen: false);
+    if (alcohol.totalStandardDrinks > 0 && DateTime.now().hour < 12) {
+      debugPrint('Morning check-in needed after alcohol');
+    }
+  }
+
   void _applyAlcoholAdjustments() {
     final provider = Provider.of<HydrationProvider>(context, listen: false);
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
-
+    
     provider.updateAlcoholAdjustments(
       alcohol.totalWaterCorrection,
       alcohol.totalSodiumCorrection.round(),
@@ -166,18 +144,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   void _updateHRI() {
     if (!mounted) return;
+    
     final provider = Provider.of<HydrationProvider>(context, listen: false);
     final hri = Provider.of<HRIService>(context, listen: false);
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
     final weather = Provider.of<WeatherService>(context, listen: false);
-
-    DateTime? lastIntakeTime = provider.todayIntakes.isNotEmpty ? provider.todayIntakes.last.timestamp : null;
+    
+    DateTime? lastIntakeTime = provider.todayIntakes.isNotEmpty 
+        ? provider.todayIntakes.last.timestamp 
+        : null;
+        
     bool isFasting = _isCurrentlyFasting(provider);
     hri.setFastingStatus(isFasting);
     
-    // ИСПРАВЛЕНО: Передаем context в getSugarIntakeData
     final sugarData = provider.getSugarIntakeData(context);
-
+    
     hri.calculateHRI(
       waterIntake: provider.totalWaterToday,
       waterGoal: provider.goals.waterOpt.toDouble(),
@@ -190,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       heatIndex: weather.heatIndex,
       coffeeCups: provider.coffeeCupsToday,
       alcoholSD: alcohol.totalStandardDrinks,
-      sugarIntake: sugarData.totalGrams,  // NEW: Передаем данные о сахаре
+      sugarIntake: sugarData.totalGrams,
       lastIntakeTime: lastIntakeTime,
       userWeightKg: provider.weight,
     );
@@ -200,26 +181,38 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     if (provider.dietMode != 'fasting') return false;
     final hour = DateTime.now().hour;
     switch (_fastingSchedule) {
-      case '16:8': return hour < 12 || hour >= 20;
-      case 'OMAD': return hour < 18 || hour >= 19;
+      case '16:8':
+        return hour < 12 || hour >= 20;
+      case 'OMAD':
+        return hour < 18 || hour >= 19;
       case 'ADF':
-        final dayOfYear = DateTime.now().difference(DateTime(DateTime.now().year, 1, 1)).inDays;
+        final dayOfYear = DateTime.now().difference(
+          DateTime(DateTime.now().year, 1, 1)
+        ).inDays;
         return dayOfYear % 2 == 0;
-      default: return hour < 12 || hour >= 20;
+      default:
+        return hour < 12 || hour >= 20;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<HydrationProvider>(context, listen: false);
-    final l10n = AppLocalizations.of(context);
-
     if (!_isInitialized) {
       return const Scaffold(
         backgroundColor: Color(0xFFF8F9FA),
         body: Center(child: CircularProgressIndicator()),
       );
     }
+
+    final provider = Provider.of<HydrationProvider>(context, listen: false);
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    final List<Widget> cards = [
+      MainProgressCard(onUpdate: _onIntakeUpdated),
+      const ElectrolytesCard(),
+      const WeatherCard(),
+      const SugarIntakeCard(),
+    ];
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -228,54 +221,80 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
-            // Заголовок
-            const SliverToBoxAdapter(child: HomeHeader()),
+            const SliverToBoxAdapter(
+              child: HomeHeader(),
+            ),
             
-            // PageView с карточками
             SliverToBoxAdapter(
               child: Column(
                 children: [
-                  // PageView с фиксированной высотой
+                  const SizedBox(height: 16),
+                  
+                  // КАРУСЕЛЬ С PAGEVIEW ДЛЯ ЦЕНТРИРОВАНИЯ
                   SizedBox(
-                    height: 520, // Высота достаточная для всех карточек
-                    child: PageView(
+                    height: 520,
+                    child: PageView.builder(
                       controller: _pageController,
+                      itemCount: cards.length,
                       onPageChanged: (index) {
                         setState(() {
-                          _currentPage = index;
+                          _currentIndex = index;
                         });
                       },
-                      children: [
-                        // Первый экран - кольца прогресса
-                        MainProgressCard(
-                          onUpdate: () {
-                            setState(() {});
-                            _updateHRI();
-                          },
-                        ),
-                        // Второй экран - погода
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                          child: WeatherCard(),
-                        ),
-                        // ТРЕТИЙ ЭКРАН - SUGAR INTAKE (НОВОЕ)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                          child: SugarIntakeCard(),
-                        ),
-                      ],
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.02, // 2% от ширины экрана с каждой стороны = 4% между карточками
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: cards[index],
+                          ),
+                        );
+                      },
                     ),
                   ),
-                  // Индикатор точек
-                  _buildPageIndicator(),
+                  
+                  const SizedBox(height: 20),
+                  
+                  // ТОЧКИ-ИНДИКАТОРЫ
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(cards.length, (index) {
+                      final isActive = _currentIndex == index;
+                      return GestureDetector(
+                        onTap: () {
+                          _pageController.animateToPage(
+                            index,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: isActive ? 24 : 8,
+                          height: 8,
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color: isActive
+                                ? Theme.of(context).primaryColor
+                                : Theme.of(context).primaryColor.withOpacity(0.3),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                  
+                  const SizedBox(height: 16),
                 ],
               ),
             ),
             
-            // Умные советы
-            const SliverToBoxAdapter(child: SmartAdviceCard()),
+            const SliverToBoxAdapter(
+              child: SmartAdviceCard(),
+            ),
             
-            // Статус HRI
             SliverToBoxAdapter(
               child: HRIStatusCard(
                 isFasting: _isCurrentlyFasting(provider),
@@ -283,50 +302,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
             ),
             
-            // Отступ внизу для навигации
-            SliverPadding(
-              padding: const EdgeInsets.only(bottom: 80),
-              sliver: const SliverToBoxAdapter(child: SizedBox.shrink()),
+            const SliverPadding(
+              padding: EdgeInsets.only(bottom: 80),
+              sliver: SliverToBoxAdapter(child: SizedBox.shrink()),
             ),
           ],
         ),
       ),
     );
   }
-
-  // Виджет индикатора точек для PageView - ОБНОВЛЕНО ДЛЯ 3 СТРАНИЦ
-  Widget _buildPageIndicator() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(
-          3, // ИЗМЕНЕНО: Теперь 3 страницы вместо 2
-          (index) => AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            width: _currentPage == index ? 24 : 8,
-            height: 8,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4),
-              color: _currentPage == index 
-                ? Colors.blue 
-                : Colors.grey.withOpacity(0.3),
-              boxShadow: _currentPage == index
-                  ? [
-                      BoxShadow(
-                        color: Colors.blue.withOpacity(0.3),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ]
-                  : [],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // УБРАЛИ метод _buildDailyReportCard()
 }

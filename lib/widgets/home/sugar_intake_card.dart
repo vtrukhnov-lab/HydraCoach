@@ -14,13 +14,14 @@ class SugarIntakeCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final sugarData = provider.getSugarIntakeData(context);
     
+    final hriImpact = _calculateHRIImpact(sugarData.totalGrams);
+    
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: _getSugarGradient(sugarData.totalGrams),
+          colors: _getGradientColors(sugarData.totalGrams),
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -35,96 +36,101 @@ class SugarIntakeCard extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // Header section with total amount
+            // Верхняя секция с основной информацией и HRI Impact
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          _getSugarIcon(sugarData.totalGrams), 
-                          color: Colors.white, 
-                          size: 36
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          '${sugarData.totalGrams.toStringAsFixed(1)}g',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 42,
-                            fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            _getSugarIcon(sugarData.totalGrams), 
+                            color: Colors.white, 
+                            size: 36
                           ),
+                          const SizedBox(width: 12),
+                          Text(
+                            '${sugarData.totalGrams.round()}g',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 42,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.totalSugar,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      l10n.sugarIntake,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
                       ),
-                    ),
-                    Text(
-                      _getSugarLevelText(sugarData.totalGrams, l10n),
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
-                        fontSize: 14,
+                      Text(
+                        _getStatusText(sugarData.totalGrams),
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: 14,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                // HRI Impact block
-                if (sugarData.totalGrams > 50)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.3),
-                        width: 1,
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          l10n.hriRisk,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          '+${_getHRIImpact(sugarData.totalGrams)}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          l10n.points,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
+                // HRI Impact блок - с уменьшенными отступами
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.3),
+                      width: 1,
                     ),
                   ),
+                  child: Column(
+                    children: [
+                      Text(
+                        l10n.hriRisk,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        hriImpact > 0 ? '+$hriImpact' : '$hriImpact',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'pts',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
 
             const SizedBox(height: 24),
 
-            // Divider
+            // Разделитель
             Container(
               height: 1,
               decoration: BoxDecoration(
@@ -140,124 +146,142 @@ class SugarIntakeCard extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Detail section - sugar types
+            // Детальная информация - типы сахара
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildDetailItem(
                   icon: Icons.eco,
                   label: l10n.naturalSugar,
-                  value: '${sugarData.naturalSugarGrams.toStringAsFixed(1)}g',
+                  value: '${sugarData.naturalSugarGrams.round()}',
                 ),
                 _buildDetailItem(
                   icon: Icons.add_circle,
                   label: l10n.addedSugar,
-                  value: '${sugarData.addedSugarGrams.toStringAsFixed(1)}g',
+                  value: '${sugarData.addedSugarGrams.round()}',
                 ),
                 _buildDetailItem(
                   icon: Icons.visibility_off,
                   label: l10n.hiddenSugar,
-                  value: '${sugarData.hiddenSugarGrams.toStringAsFixed(1)}g',
+                  value: '${sugarData.hiddenSugarGrams.round()}',
                 ),
               ],
             ),
 
-            // Recommendations section
-            if (sugarData.totalGrams > 0) ...[
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.2),
-                    width: 1,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          _getWarningIcon(sugarData.totalGrams),
-                          color: Colors.white,
-                          size: 22,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            _getSugarAdvice(sugarData.totalGrams, l10n),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    // Daily limit percentage
-                    _buildInfoRow(
-                      icon: Icons.pie_chart_outline,
-                      label: l10n.dailyLimit,
-                      value: _getDailyLimitText(sugarData.totalGrams),
-                    ),
-                    const SizedBox(height: 6),
-                    // Main sugar source
-                    _buildInfoRow(
-                      icon: Icons.local_drink,
-                      label: l10n.sugarSources,
-                      value: _getMainSource(sugarData, l10n),
-                    ),
-                  ],
+            // Блок рекомендаций
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.2),
+                  width: 1,
                 ),
               ),
-            ],
+              child: Column(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        _getWarningIcon(sugarData.totalGrams),
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          _getAdviceText(sugarData.totalGrams, l10n),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            height: 1.4,
+                          ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // Корректировки воды
+                  _buildAdjustmentRow(
+                    icon: Icons.local_drink,
+                    label: l10n.water,
+                    value: _getWaterAdjustment(sugarData.totalGrams),
+                  ),
+                  const SizedBox(height: 6),
+                  // Статус дневного лимита
+                  _buildAdjustmentRow(
+                    icon: Icons.speed,
+                    label: l10n.dailyLimit,
+                    value: _getDailyLimitStatus(sugarData.totalGrams),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
     ).animate().fadeIn(delay: 200.ms);
   }
 
+  // Детальный элемент с адаптивной версткой
   Widget _buildDetailItem({
     required IconData icon,
     required String label,
     required String value,
   }) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.15),
-            shape: BoxShape.circle,
+    return Flexible(
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: Colors.white, size: 24),
           ),
-          child: Icon(icon, color: Colors.white, size: 26),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.8),
-            fontSize: 12,
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 10,
+              ),
+              maxLines: 2,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
           ),
-        ),
-      ],
+          Text(
+            'g',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildInfoRow({
+  Widget _buildAdjustmentRow({
     required IconData icon,
     required String label,
     required String value,
@@ -266,11 +290,15 @@ class SugarIntakeCard extends StatelessWidget {
       children: [
         Icon(icon, color: Colors.white.withOpacity(0.7), size: 16),
         const SizedBox(width: 8),
-        Text(
-          '$label: ',
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.8),
-            fontSize: 13,
+        Expanded(
+          child: Text(
+            '$label: ',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.8),
+              fontSize: 13,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
           ),
         ),
         Text(
@@ -285,51 +313,58 @@ class SugarIntakeCard extends StatelessWidget {
     );
   }
 
-  int _getHRIImpact(double grams) {
-    if (grams <= 50) return 0;
-    if (grams <= 75) return ((grams - 50) * 0.2).round();
-    return (5 + (grams - 75) * 0.2).clamp(0, 10).round();
+  int _calculateHRIImpact(double grams) {
+    if (grams <= 25) return 0;  // Норма
+    if (grams <= 50) return 5;  // Умеренно
+    if (grams <= 75) return 10; // Высоко
+    return 15; // Очень высоко
   }
 
-  String _getDailyLimitText(double grams) {
-    final percentage = (grams / 25 * 100).clamp(0, 999);
-    if (percentage <= 100) return '${percentage.toStringAsFixed(0)}% (25g)';
-    return '${percentage.toStringAsFixed(0)}% ⚠️';
+  String _getStatusText(double grams) {
+    if (grams <= 25) return 'Normal';
+    if (grams <= 50) return 'Moderate';
+    if (grams <= 75) return 'High';
+    return 'Very high';
   }
 
-  String _getMainSource(SugarIntakeData data, AppLocalizations l10n) {
-    if (data.drinksGrams > data.foodGrams && data.drinksGrams > data.snacksGrams) {
-      return '${data.drinksGrams.toStringAsFixed(1)}g ${l10n.drinks}';
-    } else if (data.foodGrams > data.snacksGrams) {
-      return '${data.foodGrams.toStringAsFixed(1)}g ${l10n.food}';
-    } else if (data.snacksGrams > 0) {
-      return '${data.snacksGrams.toStringAsFixed(1)}g ${l10n.snacks}';
-    }
-    return '✓';
-  }
-
-  String _getSugarLevelText(double grams, AppLocalizations l10n) {
-    if (grams <= 25) return l10n.sugarNormal;
-    if (grams <= 50) return l10n.sugarModerate;
-    if (grams <= 75) return l10n.sugarHigh;
-    return l10n.sugarCritical;
-  }
-
-  String _getSugarAdvice(double grams, AppLocalizations l10n) {
-    if (grams <= 25) return l10n.sugarRecommendationNormal;
-    if (grams <= 50) return l10n.sugarRecommendationModerate;
-    if (grams <= 75) return l10n.sugarRecommendationHigh;
-    return l10n.sugarRecommendationCritical;
-  }
-
-  List<Color> _getSugarGradient(double grams) {
+  String _getAdviceText(double grams, AppLocalizations l10n) {
     if (grams <= 25) {
+      return l10n.sugarRecommendationNormal;
+    } else if (grams <= 50) {
+      return l10n.sugarRecommendationModerate;
+    } else if (grams <= 75) {
+      return l10n.sugarRecommendationHigh;
+    } else {
+      return l10n.sugarRecommendationCritical;
+    }
+  }
+
+  String _getWaterAdjustment(double grams) {
+    if (grams <= 25) return 'Normal';
+    if (grams <= 50) return '+250 ml';
+    if (grams <= 75) return '+500 ml';
+    return '+750 ml';
+  }
+
+  String _getDailyLimitStatus(double grams) {
+    final percentage = (grams / 25 * 100).round();
+    if (percentage <= 100) return '$percentage% ✓';
+    if (percentage <= 200) return '$percentage% ⚠️';
+    return '$percentage% ❌';
+  }
+
+  List<Color> _getGradientColors(double grams) {
+    if (grams <= 25) {
+      // Норма - зеленый
       return [const Color(0xFF66BB6A), const Color(0xFF43A047)];
     } else if (grams <= 50) {
+      // Умеренно - желтый
       return [const Color(0xFFFFCA28), const Color(0xFFFFB300)];
     } else if (grams <= 75) {
+      // Высоко - оранжевый
       return [const Color(0xFFFF9800), const Color(0xFFF57C00)];
     } else {
+      // Очень высоко - красный
       return [const Color(0xFFEF5350), const Color(0xFFE53935)];
     }
   }
@@ -342,8 +377,8 @@ class SugarIntakeCard extends StatelessWidget {
   }
 
   IconData _getSugarIcon(double grams) {
-    if (grams <= 25) return Icons.cake;
-    if (grams <= 50) return Icons.cookie;
+    if (grams <= 25) return Icons.check_circle;
+    if (grams <= 50) return Icons.cake;
     if (grams <= 75) return Icons.warning_amber;
     return Icons.error_outline;
   }
