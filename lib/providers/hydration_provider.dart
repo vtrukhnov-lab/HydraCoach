@@ -2,7 +2,7 @@
 // FILE: lib/providers/hydration_provider.dart
 // 
 // PURPOSE: Provider for hydration tracking and goals management
-// UPDATED: Added Sugar Intake tracking methods with alcohol integration
+// UPDATED: Added AchievementService integration for global achievement notifications
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -20,6 +20,8 @@ import '../services/remote_config_service.dart';
 import '../services/hri_service.dart';
 import '../services/alcohol_service.dart';
 import '../services/weather_service.dart';
+import '../services/achievement_service.dart';
+import '../services/units_service.dart';
 import '../models/daily_goals.dart';
 import '../models/intake.dart';
 import '../models/alcohol_intake.dart';
@@ -49,6 +51,9 @@ class HydrationProvider extends ChangeNotifier {
   // Track last reschedule time to prevent too frequent updates
   DateTime? _lastRescheduleTime;
   
+  // Store BuildContext for AchievementService
+  BuildContext? _context;
+  
   late DailyGoals goals;
   
   final RemoteConfigService _remoteConfig = RemoteConfigService.instance;
@@ -58,6 +63,11 @@ class HydrationProvider extends ChangeNotifier {
     _loadData();
     _checkAndResetDaily();
     _subscribeFCMTopics();
+  }
+  
+  // Set context for AchievementService
+  void setContext(BuildContext context) {
+    _context = context;
   }
   
   // ============ SUGAR INTAKE METHODS (UPDATED) ============
@@ -637,8 +647,13 @@ class HydrationProvider extends ChangeNotifier {
     await prefs.setString('activityLevel', activityLevel);
   }
   
-  // FIXED: Added async handling and locale loading for coffee notifications
+  // UPDATED: Added achievement service integration
   void addIntake(String type, int volume, {int sodium = 0, int potassium = 0, int magnesium = 0}) {
+    // Calculate old percentage BEFORE adding intake
+    final oldPercent = goals.waterOpt > 0 
+        ? (totalWaterToday / goals.waterOpt * 100).clamp(0.0, 200.0)
+        : 0.0;
+    
     // Add to list
     todayIntakes.add(Intake(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -652,6 +667,28 @@ class HydrationProvider extends ChangeNotifier {
     
     // Haptic feedback
     HapticFeedback.lightImpact();
+    
+    // Calculate new percentage AFTER adding intake (only for water types)
+    if (type == 'water' || type == 'electrolyte' || type == 'broth') {
+      final newPercent = goals.waterOpt > 0 
+          ? (totalWaterToday / goals.waterOpt * 100).clamp(0.0, 200.0)
+          : 0.0;
+      
+      // Check and show achievement if context is available
+      if (_context != null && _context!.mounted) {
+        // Get units service for formatting
+        final unitsService = Provider.of<UnitsService>(_context!, listen: false);
+        final formattedVolume = unitsService.formatVolume(volume);
+        
+        AchievementService.checkAndShow(
+          context: _context!,
+          oldPercent: oldPercent,
+          newPercent: newPercent,
+          addedVolume: volume,
+          formattedVolume: formattedVolume,
+        );
+      }
+    }
     
     // First notify UI about changes
     notifyListeners();
@@ -795,5 +832,12 @@ class HydrationProvider extends ChangeNotifier {
     }
     
     return math.min(baseHRI, 100);
+  }
+  
+  @override
+  void dispose() {
+    // Clean up achievement service when provider is disposed
+    AchievementService.forceHide();
+    super.dispose();
   }
 }

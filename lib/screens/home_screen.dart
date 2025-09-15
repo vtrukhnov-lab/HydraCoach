@@ -76,6 +76,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     await weather.loadWeather();
     
     final hydrationProvider = Provider.of<HydrationProvider>(context, listen: false);
+    
+    // НОВОЕ: Передаем контекст в HydrationProvider для AchievementService
+    hydrationProvider.setContext(context);
+    
     hydrationProvider.addListener(() {
       if (mounted) _updateHRI();
     });

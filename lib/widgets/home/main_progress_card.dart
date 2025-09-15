@@ -25,79 +25,22 @@ class MainProgressCard extends StatefulWidget {
   State<MainProgressCard> createState() => _MainProgressCardState();
 }
 
-class _MainProgressCardState extends State<MainProgressCard> 
-    with TickerProviderStateMixin {
+class _MainProgressCardState extends State<MainProgressCard> {
   // Настройки быстрого добавления
   int _quickAddVolume = 250; // ml
-  int _lastAddedVolume = 250; // Для отображения правильного объема в анимации
-  
-  // Анимация при добавлении
-  late AnimationController _addAnimationController;
-  late Animation<double> _addAnimation;
   
   // Флаг для визуального отклика при нажатии
   bool _isPressed = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _addAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-    _addAnimation = CurvedAnimation(
-      parent: _addAnimationController,
-      curve: Curves.elasticOut,
-    );
-  }
-
-  @override
-  void dispose() {
-    _addAnimationController.dispose();
-    super.dispose();
-  }
-
-  /// Получает мотивационное сообщение в зависимости от процента
-  String _getMotivationalMessage(double percent, AppLocalizations l10n) {
-    if (percent >= 100) return l10n.goalReached;
-    if (percent >= 75) return l10n.almostThere;
-    if (percent >= 50) return l10n.halfwayThere;
-    if (percent >= 25) return l10n.keepGoing;
-    return '';
-  }
-  
-  /// Получает цвет для мотивационного сообщения
-  Color _getMotivationalColor(double percent) {
-    if (percent >= 100) return Colors.green.shade500;
-    if (percent >= 75) return Colors.blue.shade500;
-    if (percent >= 50) return Colors.orange.shade500;
-    return Colors.purple.shade500;
-  }
-
-  /// Добавляет воду и запускает анимацию
+  /// Добавляет воду через одиночное нажатие
   void _handleQuickAdd() {
     final provider = context.read<HydrationProvider>();
     
     // Тактильная обратная связь
     HapticFeedback.lightImpact();
     
-    // Добавляем воду
+    // Добавляем воду (AchievementService покажет уведомление автоматически)
     provider.addIntake('water', _quickAddVolume);
-    
-    // Устанавливаем объем для анимации
-    setState(() {
-      _lastAddedVolume = _quickAddVolume;
-    });
-    
-    // Запускаем анимацию
-    _addAnimationController.forward(from: 0);
-    
-    // Автоматически скрываем через 3 секунды
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        _addAnimationController.reverse();
-      }
-    });
     
     // Обновляем родительский виджет
     widget.onUpdate();
@@ -108,21 +51,9 @@ class _MainProgressCardState extends State<MainProgressCard>
     final provider = context.read<HydrationProvider>();
     
     HapticFeedback.mediumImpact();
+    
+    // Добавляем двойной объем
     provider.addIntake('water', _quickAddVolume * 2);
-    
-    // Устанавливаем объем для анимации (двойной)
-    setState(() {
-      _lastAddedVolume = _quickAddVolume * 2;
-    });
-    
-    _addAnimationController.forward(from: 0);
-    
-    // Автоматически скрываем через 3 секунды
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) {
-        _addAnimationController.reverse();
-      }
-    });
     
     widget.onUpdate();
   }
@@ -157,93 +88,11 @@ class _MainProgressCardState extends State<MainProgressCard>
               child: AnimatedScale(
                 scale: _isPressed ? 0.95 : 1.0,
                 duration: const Duration(milliseconds: 100),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Круговой прогресс
-                    _WaterProgressRing(
-                      consumed: waterConsumed,
-                      goal: waterGoal,
-                      units: units,
-                      l10n: l10n,
-                    ),
-                    
-                    // Анимация добавления с мотивационным сообщением
-                    AnimatedBuilder(
-                      animation: _addAnimationController,
-                      builder: (context, child) {
-                        if (_addAnimationController.value > 0) {
-                          // Вычисляем текущий процент (вода уже добавлена в provider)
-                          final currentPercent = waterGoal > 0 
-                              ? (waterConsumed / waterGoal * 100).clamp(0.0, 200.0)
-                              : 0.0;
-                          
-                          final motivationalMessage = _getMotivationalMessage(currentPercent, l10n);
-                          
-                          return Positioned(
-                            bottom: 50,
-                            child: Column(
-                              children: [
-                                // Мотивационное сообщение (если есть)
-                                if (motivationalMessage.isNotEmpty)
-                                  ScaleTransition(
-                                    scale: _addAnimation,
-                                    child: Container(
-                                      margin: const EdgeInsets.only(bottom: 8),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16, 
-                                        vertical: 8,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: _getMotivationalColor(currentPercent),
-                                        borderRadius: BorderRadius.circular(20),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: _getMotivationalColor(currentPercent).withOpacity(0.3),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Text(
-                                        motivationalMessage,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                // Индикатор добавленного объема
-                                ScaleTransition(
-                                  scale: _addAnimation,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, 
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.teal,
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
-                                      '+${units.formatVolume(_lastAddedVolume)}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                  ],
+                child: _WaterProgressRing(
+                  consumed: waterConsumed,
+                  goal: waterGoal,
+                  units: units,
+                  l10n: l10n,
                 ),
               ),
             ),
