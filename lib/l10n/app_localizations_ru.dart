@@ -2814,4 +2814,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get remaining => 'Осталось';
+
+  @override
+  String get todaysCaffeine => 'Кофеин сегодня';
 }

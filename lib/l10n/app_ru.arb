@@ -1360,6 +1360,7 @@
   "caffeineWarningPregnant": "Беременным следует ограничить кофеин до 200 мг/день",
   "gotIt": "Понятно",
   "consumed": "Выпито",
-  "remaining": "Осталось"
+  "remaining": "Осталось",
+"todaysCaffeine": "Кофеин сегодня"
 
 }

@@ -2831,4 +2831,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get remaining => 'Restante';
+
+  @override
+  String get todaysCaffeine => 'Cafeína de hoy';
 }

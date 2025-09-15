@@ -2808,4 +2808,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get remaining => 'Remaining';
+
+  @override
+  String get todaysCaffeine => 'Today\'s Caffeine';
 }

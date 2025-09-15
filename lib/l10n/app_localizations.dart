@@ -5277,6 +5277,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remaining'**
   String get remaining;
+
+  /// No description provided for @todaysCaffeine.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Caffeine'**
+  String get todaysCaffeine;
 }
 
 class _AppLocalizationsDelegate

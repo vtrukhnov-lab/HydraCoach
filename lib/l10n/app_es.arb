@@ -1373,6 +1373,7 @@
   "caffeineWarningPregnant": "Las mujeres embarazadas deben limitar la cafeína a 200mg/día",
   "gotIt": "Entendido",
   "consumed": "Consumido",
-  "remaining": "Restante"
+  "remaining": "Restante",
+"todaysCaffeine": "Cafeína de hoy"
 
 }

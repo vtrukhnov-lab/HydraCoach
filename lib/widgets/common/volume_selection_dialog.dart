@@ -15,14 +15,14 @@ class VolumeSelectionDialog extends StatefulWidget {
   final Color? sliderColor;
 
   const VolumeSelectionDialog({
-    Key? key,
+    super.key,
     required this.item,
     required this.onConfirm,
     required this.onSaveToFavorites,
     required this.units,
     this.showElectrolytes = false,
     this.sliderColor,
-  }) : super(key: key);
+  });
 
   /// Static method for easy showing
   static Future<void> show({
@@ -338,7 +338,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '${getTotalSugar().toStringAsFixed(1)}',
+                        getTotalSugar().toStringAsFixed(1),
                         style: const TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -453,10 +453,10 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
               width: double.infinity,
               height: 53,
               child: OutlinedButton.icon(
-                onPressed: () {
-                  widget.onSaveToFavorites(getVolumeMl());
+                onPressed: () async {
                   HapticFeedback.lightImpact();
-                  Navigator.of(context).pop();
+                  // Не закрываем диалог - пусть callback сам управляет
+                  await widget.onSaveToFavorites(getVolumeMl());
                 },
                 icon: const Icon(Icons.star_border),
                 label: Text(l10n.saveToFavorites),
