@@ -16,6 +16,7 @@ import '../services/notification_service.dart';
 import '../services/units_service.dart';
 import '../screens/paywall_screen.dart';
 
+
 // ---------- Экран ----------
 
 class AlcoholLogScreen extends StatefulWidget {

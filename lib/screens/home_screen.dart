@@ -63,6 +63,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Обновляем HRI когда меняются зависимости (например, при возврате с другого экрана)
+    if (_isInitialized) {
+      _updateHRI();
+    }
+  }
+
+  @override
   void dispose() {
     _pageController.dispose();
     WidgetsBinding.instance.removeObserver(this);
@@ -99,6 +108,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     weather.addListener(_onWeatherChanged);
     await weather.loadWeather();
 
+    // Слушаем изменения в HydrationProvider
+    final hydrationProvider = Provider.of<HydrationProvider>(context, listen: false);
+    hydrationProvider.addListener(() {
+      if (mounted) {
+        _updateHRI();
+      }
+    });
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _applyAlcoholAdjustments();

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/alcohol_intake.dart';
+import '../services/remote_config_service.dart';
 
 class AlcoholService extends ChangeNotifier {
   static const String _intakesKey = 'alcohol_intakes';
@@ -34,8 +35,10 @@ class AlcoholService extends ChangeNotifier {
   
   // Получить влияние на HRI
   double get totalHRIModifier {
-    const double hriPerSD = 3.0;
-    const double hriCap = 15.0;
+    // Используем параметры из Remote Config как в hri_service.dart
+    final rc = RemoteConfigService.instance;
+    final hriPerSD = rc.getDouble('alc_hri_risk_per_sd'); // По умолчанию 3.0
+    final hriCap = rc.getDouble('alc_hri_risk_cap'); // По умолчанию 15.0
     return (totalStandardDrinks * hriPerSD).clamp(0, hriCap);
   }
   
