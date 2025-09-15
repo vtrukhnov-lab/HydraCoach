@@ -818,7 +818,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get selectDrinkType => 'Выберите тип напитка:';
 
   @override
-  String get volume => 'Объём (мл):';
+  String get volume => 'Объём';
 
   @override
   String get enterVolume => 'Введите объём в мл';
@@ -2414,4 +2414,329 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get points => 'баллов';
+
+  @override
+  String get drinkLightBeer => 'Светлое пиво';
+
+  @override
+  String get drinkLager => 'Лагер';
+
+  @override
+  String get drinkIPA => 'IPA';
+
+  @override
+  String get drinkStout => 'Стаут';
+
+  @override
+  String get drinkWheatBeer => 'Пшеничное пиво';
+
+  @override
+  String get drinkCraftBeer => 'Крафтовое пиво';
+
+  @override
+  String get drinkNonAlcoholic => 'Безалкогольное';
+
+  @override
+  String get drinkRadler => 'Радлер';
+
+  @override
+  String get drinkPilsner => 'Пилснер';
+
+  @override
+  String get drinkRedWine => 'Красное вино';
+
+  @override
+  String get drinkWhiteWine => 'Белое вино';
+
+  @override
+  String get drinkProsecco => 'Просекко';
+
+  @override
+  String get drinkPort => 'Портвейн';
+
+  @override
+  String get drinkRose => 'Розе';
+
+  @override
+  String get drinkDessertWine => 'Десертное вино';
+
+  @override
+  String get drinkSangria => 'Сангрия';
+
+  @override
+  String get drinkSherry => 'Херес';
+
+  @override
+  String get drinkVodkaShot => 'Рюмка водки';
+
+  @override
+  String get drinkCognac => 'Коньяк';
+
+  @override
+  String get drinkLiqueur => 'Ликёр';
+
+  @override
+  String get drinkAbsinthe => 'Абсент';
+
+  @override
+  String get drinkBrandy => 'Бренди';
+
+  @override
+  String get drinkLongIsland => 'Лонг Айленд';
+
+  @override
+  String get drinkGinTonic => 'Джин-тоник';
+
+  @override
+  String get drinkPinaColada => 'Пина Колада';
+
+  @override
+  String get drinkCosmopolitan => 'Космополитен';
+
+  @override
+  String get drinkMaiTai => 'Май Тай';
+
+  @override
+  String get drinkBloodyMary => 'Кровавая Мэри';
+
+  @override
+  String get drinkDaiquiri => 'Дайкири';
+
+  @override
+  String popularDrinks(Object type) {
+    return 'Популярные $type';
+  }
+
+  @override
+  String get standardDrinksUnit => 'СД';
+
+  @override
+  String get gramsSugar => 'г сахара';
+
+  @override
+  String get moderateConsumption => 'Умеренное потребление';
+
+  @override
+  String get aboveRecommendations => 'Выше рекомендаций';
+
+  @override
+  String get highConsumption => 'Высокое потребление';
+
+  @override
+  String get veryHighConsider => 'Очень высокое - стоит остановиться';
+
+  @override
+  String get noAlcoholToday => 'Сегодня без алкоголя';
+
+  @override
+  String get drinkWaterNow => 'Выпейте 300-500 мл воды сейчас';
+
+  @override
+  String get addPinchSalt => 'Добавьте щепотку соли';
+
+  @override
+  String get avoidLateCoffee => 'Избегайте позднего кофе';
+
+  @override
+  String abvPercent(Object percent) {
+    return '$percent% алк.';
+  }
+
+  @override
+  String get todaysElectrolytes => 'Электролиты сегодня';
+
+  @override
+  String get greatBalance => 'Отличный баланс!';
+
+  @override
+  String get gettingThere => 'Уже близко';
+
+  @override
+  String get needMoreElectrolytes => 'Нужно больше электролитов';
+
+  @override
+  String get lowElectrolyteLevels => 'Низкий уровень электролитов';
+
+  @override
+  String get electrolyteTips => 'Советы по электролитам';
+
+  @override
+  String get takeWithWater => 'Принимайте с большим количеством воды';
+
+  @override
+  String get bestBetweenMeals => 'Лучше усваивается между приемами пищи';
+
+  @override
+  String get startSmallAmounts => 'Начинайте с малых доз';
+
+  @override
+  String get extraDuringExercise => 'Больше нужно при нагрузках';
+
+  @override
+  String get electrolytesBasic => 'Базовые';
+
+  @override
+  String get electrolytesMixes => 'Смеси';
+
+  @override
+  String get electrolytesPills => 'Таблетки';
+
+  @override
+  String get popularSalts => 'Популярные соли и бульоны';
+
+  @override
+  String get popularMixes => 'Популярные электролитные смеси';
+
+  @override
+  String get popularSupplements => 'Популярные добавки';
+
+  @override
+  String get electrolyteSaltWater => 'Соленая вода';
+
+  @override
+  String get electrolytePinkSalt => 'Розовая соль';
+
+  @override
+  String get electrolyteSeaSalt => 'Морская соль';
+
+  @override
+  String get electrolyteNuun => 'Nuun';
+
+  @override
+  String get electrolyteLiquidIV => 'Liquid IV';
+
+  @override
+  String get electrolyteUltima => 'Ultima';
+
+  @override
+  String get electrolytePropel => 'Propel';
+
+  @override
+  String get electrolytePedialyte => 'Pedialyte';
+
+  @override
+  String get electrolyteGatoradeZero => 'Gatorade Zero';
+
+  @override
+  String get electrolytePotassiumChloride => 'Хлорид калия';
+
+  @override
+  String get electrolyteMagThreonate => 'Треонат магния';
+
+  @override
+  String get electrolyteTraceMinerals => 'Микроэлементы';
+
+  @override
+  String get electrolyteZMAComplex => 'ZMA комплекс';
+
+  @override
+  String get electrolyteMultiMineral => 'Мультиминералы';
+
+  @override
+  String get electrolyteLMNT => 'LMNT';
+
+  @override
+  String get hydration => 'Гидратация';
+
+  @override
+  String get todayHydration => 'Гидратация сегодня';
+
+  @override
+  String get currentIntake => 'Выпито';
+
+  @override
+  String get dailyGoal => 'Цель';
+
+  @override
+  String get toGo => 'Осталось';
+
+  @override
+  String get goalReached => 'Цель достигнута!';
+
+  @override
+  String get almostThere => 'Почти у цели!';
+
+  @override
+  String get halfwayThere => 'Половина пути';
+
+  @override
+  String get keepGoing => 'Продолжайте';
+
+  @override
+  String get startDrinking => 'Начните пить';
+
+  @override
+  String get plainWater => 'Обычная';
+
+  @override
+  String get enhancedWater => 'Улучшенная';
+
+  @override
+  String get beverages => 'Напитки';
+
+  @override
+  String get sodas => 'Газировки';
+
+  @override
+  String get popularPlainWater => 'Популярные виды воды';
+
+  @override
+  String get popularEnhancedWater => 'Вода с добавками';
+
+  @override
+  String get popularBeverages => 'Популярные напитки';
+
+  @override
+  String get popularSodas => 'Газировки и энергетики';
+
+  @override
+  String get hydrationTips => 'Советы по гидратации';
+
+  @override
+  String get drinkRegularly => 'Пейте понемногу регулярно';
+
+  @override
+  String get roomTemperature => 'Вода комнатной температуры усваивается лучше';
+
+  @override
+  String get addLemon => 'Добавьте лимон для вкуса';
+
+  @override
+  String get limitSugary => 'Ограничьте сладкие напитки - они обезвоживают';
+
+  @override
+  String get warmWater => 'Теплая вода';
+
+  @override
+  String get iceWater => 'Ледяная вода';
+
+  @override
+  String get filteredWater => 'Фильтрованная вода';
+
+  @override
+  String get distilledWater => 'Дистиллированная вода';
+
+  @override
+  String get springWater => 'Родниковая вода';
+
+  @override
+  String get hydrogenWater => 'Водородная вода';
+
+  @override
+  String get oxygenatedWater => 'Кислородная вода';
+
+  @override
+  String get cucumberWater => 'Огуречная вода';
+
+  @override
+  String get limeWater => 'Лаймовая вода';
+
+  @override
+  String get berryWater => 'Ягодная вода';
+
+  @override
+  String get mintWater => 'Мятная вода';
+
+  @override
+  String get gingerWater => 'Имбирная вода';
 }

@@ -72,45 +72,45 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
         {'name': 'Light Beer', 'abv': 4.0, 'ml': 330, 'emoji': '🍺', 'sugar': 3.3, 'isPro': false},
         {'name': 'Lager', 'abv': 5.0, 'ml': 500, 'emoji': '🍺', 'sugar': 5.0, 'isPro': false},
         {'name': 'IPA', 'abv': 6.5, 'ml': 330, 'emoji': '🍺', 'sugar': 2.0, 'isPro': false},
-        {'name': 'Stout', 'abv': 7.0, 'ml': 440, 'emoji': '🍺', 'sugar': 4.4, 'isPro': false},
+        {'name': 'Stout', 'abv': 7.0, 'ml': 440, 'emoji': '🍺', 'sugar': 4.4, 'isPro': true},
         {'name': 'Wheat Beer', 'abv': 5.2, 'ml': 500, 'emoji': '🍺', 'sugar': 7.5, 'isPro': true},
         {'name': 'Craft Beer', 'abv': 6.0, 'ml': 355, 'emoji': '🍺', 'sugar': 3.5, 'isPro': true},
         {'name': 'Non-Alcoholic', 'abv': 0.5, 'ml': 330, 'emoji': '🍺', 'sugar': 8.0, 'isPro': true},
         {'name': 'Radler', 'abv': 2.5, 'ml': 500, 'emoji': '🍺', 'sugar': 15.0, 'isPro': true},
-        {'name': 'Pilsner', 'abv': 4.8, 'ml': 500, 'emoji': '🍺', 'sugar': 3.0, 'isPro': false},
+        {'name': 'Pilsner', 'abv': 4.8, 'ml': 500, 'emoji': '🍺', 'sugar': 3.0, 'isPro': true},
       ],
       AlcoholType.wine: [
         {'name': 'Red Wine', 'abv': 13.5, 'ml': 150, 'emoji': '🍷', 'sugar': 1.0, 'isPro': false},
         {'name': 'White Wine', 'abv': 12.0, 'ml': 150, 'emoji': '🥂', 'sugar': 1.5, 'isPro': false},
         {'name': 'Prosecco', 'abv': 11.0, 'ml': 125, 'emoji': '🍾', 'sugar': 2.0, 'isPro': false},
-        {'name': 'Port', 'abv': 20.0, 'ml': 75, 'emoji': '🍷', 'sugar': 7.5, 'isPro': false},
+        {'name': 'Port', 'abv': 20.0, 'ml': 75, 'emoji': '🍷', 'sugar': 7.5, 'isPro': true},
         {'name': 'Rosé', 'abv': 12.5, 'ml': 150, 'emoji': '🍷', 'sugar': 3.0, 'isPro': true},
         {'name': 'Champagne', 'abv': 12.0, 'ml': 125, 'emoji': '🍾', 'sugar': 1.5, 'isPro': true},
         {'name': 'Dessert Wine', 'abv': 15.0, 'ml': 100, 'emoji': '🍷', 'sugar': 15.0, 'isPro': true},
         {'name': 'Sangria', 'abv': 9.0, 'ml': 200, 'emoji': '🍷', 'sugar': 18.0, 'isPro': true},
-        {'name': 'Sherry', 'abv': 17.0, 'ml': 75, 'emoji': '🍷', 'sugar': 5.0, 'isPro': false},
+        {'name': 'Sherry', 'abv': 17.0, 'ml': 75, 'emoji': '🍷', 'sugar': 5.0, 'isPro': true},
       ],
       AlcoholType.spirits: [
         {'name': 'Vodka Shot', 'abv': 40.0, 'ml': 30, 'emoji': '🥃', 'sugar': 0.0, 'isPro': false},
         {'name': 'Whiskey', 'abv': 40.0, 'ml': 50, 'emoji': '🥃', 'sugar': 0.0, 'isPro': false},
         {'name': 'Tequila', 'abv': 38.0, 'ml': 30, 'emoji': '🥃', 'sugar': 0.0, 'isPro': false},
-        {'name': 'Rum', 'abv': 37.5, 'ml': 50, 'emoji': '🥃', 'sugar': 0.0, 'isPro': false},
+        {'name': 'Rum', 'abv': 37.5, 'ml': 50, 'emoji': '🥃', 'sugar': 0.0, 'isPro': true},
         {'name': 'Gin', 'abv': 40.0, 'ml': 50, 'emoji': '🥃', 'sugar': 0.0, 'isPro': true},
         {'name': 'Cognac', 'abv': 40.0, 'ml': 50, 'emoji': '🥃', 'sugar': 0.0, 'isPro': true},
         {'name': 'Liqueur', 'abv': 20.0, 'ml': 50, 'emoji': '🥃', 'sugar': 15.0, 'isPro': true},
         {'name': 'Absinthe', 'abv': 70.0, 'ml': 30, 'emoji': '🥃', 'sugar': 0.0, 'isPro': true},
-        {'name': 'Brandy', 'abv': 40.0, 'ml': 50, 'emoji': '🥃', 'sugar': 0.0, 'isPro': false},
+        {'name': 'Brandy', 'abv': 40.0, 'ml': 50, 'emoji': '🥃', 'sugar': 0.0, 'isPro': true},
       ],
       AlcoholType.cocktail: [
         {'name': 'Mojito', 'abv': 10.0, 'ml': 250, 'emoji': '🍹', 'sugar': 25.0, 'isPro': false},
         {'name': 'Margarita', 'abv': 15.0, 'ml': 200, 'emoji': '🍹', 'sugar': 20.0, 'isPro': false},
         {'name': 'Long Island', 'abv': 22.0, 'ml': 240, 'emoji': '🍹', 'sugar': 33.0, 'isPro': false},
-        {'name': 'Gin & Tonic', 'abv': 10.0, 'ml': 250, 'emoji': '🍸', 'sugar': 18.0, 'isPro': false},
+        {'name': 'Gin & Tonic', 'abv': 10.0, 'ml': 250, 'emoji': '🍸', 'sugar': 18.0, 'isPro': true},
         {'name': 'Piña Colada', 'abv': 10.0, 'ml': 240, 'emoji': '🍹', 'sugar': 35.0, 'isPro': true},
         {'name': 'Cosmopolitan', 'abv': 20.0, 'ml': 150, 'emoji': '🍸', 'sugar': 12.0, 'isPro': true},
         {'name': 'Mai Tai', 'abv': 17.0, 'ml': 200, 'emoji': '🍹', 'sugar': 28.0, 'isPro': true},
         {'name': 'Bloody Mary', 'abv': 12.0, 'ml': 250, 'emoji': '🍹', 'sugar': 10.0, 'isPro': true},
-        {'name': 'Daiquiri', 'abv': 13.0, 'ml': 180, 'emoji': '🍹', 'sugar': 22.0, 'isPro': false},
+        {'name': 'Daiquiri', 'abv': 13.0, 'ml': 180, 'emoji': '🍹', 'sugar': 22.0, 'isPro': true},
       ],
     };
   }
@@ -549,7 +549,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    '${getVolumeMl().toStringAsFixed(0)} ml',
+                    UnitsService.instance.formatVolume(getVolumeMl().toInt()),
                     style: TextStyle(
                       fontSize: 14,
                       color: theme.colorScheme.onSurfaceVariant,
@@ -616,11 +616,11 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen>
     
     // If confirmed, log the intake
     if (result == true) {
-      final volumeMl = _units == 'imperial' ? sliderVolume * 29.5735 : sliderVolume;
+      final volumeMl = UnitsService.instance.toMilliliters(sliderVolume);
       
       await _logIntake(
         type: type,
-        volumeMl: volumeMl,
+        volumeMl: volumeMl.toDouble(),
         abv: drink['abv'].toDouble(),
         name: drink['name'],
         sugar: drink['sugar'] ?? 0.0,
@@ -888,9 +888,7 @@ class _StatusCard extends StatelessWidget {
             children: [
               _CorrectionItem(
                 icon: Icons.water_drop,
-                value: units == 'imperial' 
-                  ? '+${(todaySD * 150 / 29.5735).toStringAsFixed(0)} oz'
-                  : '+${(todaySD * 150).toStringAsFixed(0)} ml',
+                value: '+${UnitsService.instance.formatVolume((todaySD * 150).toInt(), hideUnit: true)} ${UnitsService.instance.volumeUnit}',
                 label: l10n.additionalWater,
                 color: Colors.blue,
               ),

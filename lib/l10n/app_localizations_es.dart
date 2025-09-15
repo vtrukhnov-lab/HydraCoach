@@ -821,7 +821,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get selectDrinkType => 'Selecciona tipo de bebida:';
 
   @override
-  String get volume => 'Volumen (ml):';
+  String get volume => 'Volumen';
 
   @override
   String get enterVolume => 'Ingresa volumen en ml';
@@ -1585,7 +1585,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get electrolyteMix => 'Mezcla de electrolitos';
 
   @override
-  String get boneBroth => 'Caldo de hueso';
+  String get boneBroth => 'Caldo de huesos';
 
   @override
   String get favoriteAssignmentComingSoon =>
@@ -2429,4 +2429,330 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get points => 'puntos';
+
+  @override
+  String get drinkLightBeer => 'Cerveza Light';
+
+  @override
+  String get drinkLager => 'Lager';
+
+  @override
+  String get drinkIPA => 'IPA';
+
+  @override
+  String get drinkStout => 'Stout';
+
+  @override
+  String get drinkWheatBeer => 'Cerveza de Trigo';
+
+  @override
+  String get drinkCraftBeer => 'Cerveza Artesanal';
+
+  @override
+  String get drinkNonAlcoholic => 'Sin Alcohol';
+
+  @override
+  String get drinkRadler => 'Radler';
+
+  @override
+  String get drinkPilsner => 'Pilsner';
+
+  @override
+  String get drinkRedWine => 'Vino Tinto';
+
+  @override
+  String get drinkWhiteWine => 'Vino Blanco';
+
+  @override
+  String get drinkProsecco => 'Prosecco';
+
+  @override
+  String get drinkPort => 'Oporto';
+
+  @override
+  String get drinkRose => 'Rosado';
+
+  @override
+  String get drinkDessertWine => 'Vino de Postre';
+
+  @override
+  String get drinkSangria => 'Sangría';
+
+  @override
+  String get drinkSherry => 'Jerez';
+
+  @override
+  String get drinkVodkaShot => 'Chupito de Vodka';
+
+  @override
+  String get drinkCognac => 'Coñac';
+
+  @override
+  String get drinkLiqueur => 'Licor';
+
+  @override
+  String get drinkAbsinthe => 'Absenta';
+
+  @override
+  String get drinkBrandy => 'Brandy';
+
+  @override
+  String get drinkLongIsland => 'Long Island';
+
+  @override
+  String get drinkGinTonic => 'Gin Tonic';
+
+  @override
+  String get drinkPinaColada => 'Piña Colada';
+
+  @override
+  String get drinkCosmopolitan => 'Cosmopolitan';
+
+  @override
+  String get drinkMaiTai => 'Mai Tai';
+
+  @override
+  String get drinkBloodyMary => 'Bloody Mary';
+
+  @override
+  String get drinkDaiquiri => 'Daiquiri';
+
+  @override
+  String popularDrinks(Object type) {
+    return '$type populares';
+  }
+
+  @override
+  String get standardDrinksUnit => 'TE';
+
+  @override
+  String get gramsSugar => 'g azúcar';
+
+  @override
+  String get moderateConsumption => 'Consumo moderado';
+
+  @override
+  String get aboveRecommendations => 'Por encima de las recomendaciones';
+
+  @override
+  String get highConsumption => 'Consumo alto';
+
+  @override
+  String get veryHighConsider => 'Muy alto - considera parar';
+
+  @override
+  String get noAlcoholToday => 'Sin alcohol hoy';
+
+  @override
+  String get drinkWaterNow => 'Bebe 300-500 ml de agua ahora';
+
+  @override
+  String get addPinchSalt => 'Añade una pizca de sal';
+
+  @override
+  String get avoidLateCoffee => 'Evita el café tarde';
+
+  @override
+  String abvPercent(Object percent) {
+    return '$percent% alc.';
+  }
+
+  @override
+  String get todaysElectrolytes => 'Electrolitos de hoy';
+
+  @override
+  String get greatBalance => '¡Gran balance!';
+
+  @override
+  String get gettingThere => 'Casi ahí';
+
+  @override
+  String get needMoreElectrolytes => 'Necesitas más electrolitos';
+
+  @override
+  String get lowElectrolyteLevels => 'Niveles bajos de electrolitos';
+
+  @override
+  String get electrolyteTips => 'Consejos de Electrolitos';
+
+  @override
+  String get takeWithWater => 'Tomar con mucha agua';
+
+  @override
+  String get bestBetweenMeals => 'Mejor absorción entre comidas';
+
+  @override
+  String get startSmallAmounts => 'Empieza con cantidades pequeñas';
+
+  @override
+  String get extraDuringExercise => 'Extra necesario durante el ejercicio';
+
+  @override
+  String get electrolytesBasic => 'Básico';
+
+  @override
+  String get electrolytesMixes => 'Mezclas';
+
+  @override
+  String get electrolytesPills => 'Pastillas';
+
+  @override
+  String get popularSalts => 'Sales y Caldos Populares';
+
+  @override
+  String get popularMixes => 'Mezclas de Electrolitos Populares';
+
+  @override
+  String get popularSupplements => 'Suplementos Populares';
+
+  @override
+  String get electrolyteSaltWater => 'Agua con Sal';
+
+  @override
+  String get electrolytePinkSalt => 'Sal Rosa';
+
+  @override
+  String get electrolyteSeaSalt => 'Sal Marina';
+
+  @override
+  String get electrolyteNuun => 'Nuun';
+
+  @override
+  String get electrolyteLiquidIV => 'Liquid IV';
+
+  @override
+  String get electrolyteUltima => 'Ultima';
+
+  @override
+  String get electrolytePropel => 'Propel';
+
+  @override
+  String get electrolytePedialyte => 'Pedialyte';
+
+  @override
+  String get electrolyteGatoradeZero => 'Gatorade Zero';
+
+  @override
+  String get electrolytePotassiumChloride => 'Cloruro de Potasio';
+
+  @override
+  String get electrolyteMagThreonate => 'Treonato de Magnesio';
+
+  @override
+  String get electrolyteTraceMinerals => 'Minerales Traza';
+
+  @override
+  String get electrolyteZMAComplex => 'Complejo ZMA';
+
+  @override
+  String get electrolyteMultiMineral => 'Multimineral';
+
+  @override
+  String get electrolyteLMNT => 'LMNT';
+
+  @override
+  String get hydration => 'Hidratación';
+
+  @override
+  String get todayHydration => 'Hidratación de hoy';
+
+  @override
+  String get currentIntake => 'Consumido';
+
+  @override
+  String get dailyGoal => 'Meta';
+
+  @override
+  String get toGo => 'Restante';
+
+  @override
+  String get goalReached => '¡Meta alcanzada!';
+
+  @override
+  String get almostThere => '¡Casi llegas!';
+
+  @override
+  String get halfwayThere => 'A mitad de camino';
+
+  @override
+  String get keepGoing => 'Sigue adelante';
+
+  @override
+  String get startDrinking => 'Empieza a beber';
+
+  @override
+  String get plainWater => 'Simple';
+
+  @override
+  String get enhancedWater => 'Mejorada';
+
+  @override
+  String get beverages => 'Bebidas';
+
+  @override
+  String get sodas => 'Refrescos';
+
+  @override
+  String get popularPlainWater => 'Tipos de agua populares';
+
+  @override
+  String get popularEnhancedWater => 'Agua mejorada e infusionada';
+
+  @override
+  String get popularBeverages => 'Bebidas populares';
+
+  @override
+  String get popularSodas => 'Refrescos y energéticas';
+
+  @override
+  String get hydrationTips => 'Consejos de hidratación';
+
+  @override
+  String get drinkRegularly => 'Bebe pequeñas cantidades regularmente';
+
+  @override
+  String get roomTemperature =>
+      'El agua a temperatura ambiente se absorbe mejor';
+
+  @override
+  String get addLemon => 'Añade limón para mejor sabor';
+
+  @override
+  String get limitSugary => 'Limita las bebidas azucaradas - deshidratan';
+
+  @override
+  String get warmWater => 'Agua tibia';
+
+  @override
+  String get iceWater => 'Agua helada';
+
+  @override
+  String get filteredWater => 'Agua filtrada';
+
+  @override
+  String get distilledWater => 'Agua destilada';
+
+  @override
+  String get springWater => 'Agua de manantial';
+
+  @override
+  String get hydrogenWater => 'Agua hidrogenada';
+
+  @override
+  String get oxygenatedWater => 'Agua oxigenada';
+
+  @override
+  String get cucumberWater => 'Agua de pepino';
+
+  @override
+  String get limeWater => 'Agua de lima';
+
+  @override
+  String get berryWater => 'Agua de bayas';
+
+  @override
+  String get mintWater => 'Agua de menta';
+
+  @override
+  String get gingerWater => 'Agua de jengibre';
 }

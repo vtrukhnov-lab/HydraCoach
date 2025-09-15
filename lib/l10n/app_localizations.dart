@@ -1579,7 +1579,7 @@ abstract class AppLocalizations {
   /// No description provided for @volume.
   ///
   /// In en, this message translates to:
-  /// **'Volume (ml):'**
+  /// **'Volume'**
   String get volume;
 
   /// No description provided for @enterVolume.
@@ -4503,6 +4503,648 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'points'**
   String get points;
+
+  /// No description provided for @drinkLightBeer.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Beer'**
+  String get drinkLightBeer;
+
+  /// No description provided for @drinkLager.
+  ///
+  /// In en, this message translates to:
+  /// **'Lager'**
+  String get drinkLager;
+
+  /// No description provided for @drinkIPA.
+  ///
+  /// In en, this message translates to:
+  /// **'IPA'**
+  String get drinkIPA;
+
+  /// No description provided for @drinkStout.
+  ///
+  /// In en, this message translates to:
+  /// **'Stout'**
+  String get drinkStout;
+
+  /// No description provided for @drinkWheatBeer.
+  ///
+  /// In en, this message translates to:
+  /// **'Wheat Beer'**
+  String get drinkWheatBeer;
+
+  /// No description provided for @drinkCraftBeer.
+  ///
+  /// In en, this message translates to:
+  /// **'Craft Beer'**
+  String get drinkCraftBeer;
+
+  /// No description provided for @drinkNonAlcoholic.
+  ///
+  /// In en, this message translates to:
+  /// **'Non-Alcoholic'**
+  String get drinkNonAlcoholic;
+
+  /// No description provided for @drinkRadler.
+  ///
+  /// In en, this message translates to:
+  /// **'Radler'**
+  String get drinkRadler;
+
+  /// No description provided for @drinkPilsner.
+  ///
+  /// In en, this message translates to:
+  /// **'Pilsner'**
+  String get drinkPilsner;
+
+  /// No description provided for @drinkRedWine.
+  ///
+  /// In en, this message translates to:
+  /// **'Red Wine'**
+  String get drinkRedWine;
+
+  /// No description provided for @drinkWhiteWine.
+  ///
+  /// In en, this message translates to:
+  /// **'White Wine'**
+  String get drinkWhiteWine;
+
+  /// No description provided for @drinkProsecco.
+  ///
+  /// In en, this message translates to:
+  /// **'Prosecco'**
+  String get drinkProsecco;
+
+  /// No description provided for @drinkPort.
+  ///
+  /// In en, this message translates to:
+  /// **'Port'**
+  String get drinkPort;
+
+  /// No description provided for @drinkRose.
+  ///
+  /// In en, this message translates to:
+  /// **'Rosé'**
+  String get drinkRose;
+
+  /// No description provided for @drinkDessertWine.
+  ///
+  /// In en, this message translates to:
+  /// **'Dessert Wine'**
+  String get drinkDessertWine;
+
+  /// No description provided for @drinkSangria.
+  ///
+  /// In en, this message translates to:
+  /// **'Sangria'**
+  String get drinkSangria;
+
+  /// No description provided for @drinkSherry.
+  ///
+  /// In en, this message translates to:
+  /// **'Sherry'**
+  String get drinkSherry;
+
+  /// No description provided for @drinkVodkaShot.
+  ///
+  /// In en, this message translates to:
+  /// **'Vodka Shot'**
+  String get drinkVodkaShot;
+
+  /// No description provided for @drinkCognac.
+  ///
+  /// In en, this message translates to:
+  /// **'Cognac'**
+  String get drinkCognac;
+
+  /// No description provided for @drinkLiqueur.
+  ///
+  /// In en, this message translates to:
+  /// **'Liqueur'**
+  String get drinkLiqueur;
+
+  /// No description provided for @drinkAbsinthe.
+  ///
+  /// In en, this message translates to:
+  /// **'Absinthe'**
+  String get drinkAbsinthe;
+
+  /// No description provided for @drinkBrandy.
+  ///
+  /// In en, this message translates to:
+  /// **'Brandy'**
+  String get drinkBrandy;
+
+  /// No description provided for @drinkLongIsland.
+  ///
+  /// In en, this message translates to:
+  /// **'Long Island'**
+  String get drinkLongIsland;
+
+  /// No description provided for @drinkGinTonic.
+  ///
+  /// In en, this message translates to:
+  /// **'Gin & Tonic'**
+  String get drinkGinTonic;
+
+  /// No description provided for @drinkPinaColada.
+  ///
+  /// In en, this message translates to:
+  /// **'Piña Colada'**
+  String get drinkPinaColada;
+
+  /// No description provided for @drinkCosmopolitan.
+  ///
+  /// In en, this message translates to:
+  /// **'Cosmopolitan'**
+  String get drinkCosmopolitan;
+
+  /// No description provided for @drinkMaiTai.
+  ///
+  /// In en, this message translates to:
+  /// **'Mai Tai'**
+  String get drinkMaiTai;
+
+  /// No description provided for @drinkBloodyMary.
+  ///
+  /// In en, this message translates to:
+  /// **'Bloody Mary'**
+  String get drinkBloodyMary;
+
+  /// No description provided for @drinkDaiquiri.
+  ///
+  /// In en, this message translates to:
+  /// **'Daiquiri'**
+  String get drinkDaiquiri;
+
+  /// No description provided for @popularDrinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular {type}'**
+  String popularDrinks(Object type);
+
+  /// No description provided for @standardDrinksUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'SD'**
+  String get standardDrinksUnit;
+
+  /// No description provided for @gramsSugar.
+  ///
+  /// In en, this message translates to:
+  /// **'g sugar'**
+  String get gramsSugar;
+
+  /// No description provided for @moderateConsumption.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate consumption'**
+  String get moderateConsumption;
+
+  /// No description provided for @aboveRecommendations.
+  ///
+  /// In en, this message translates to:
+  /// **'Above recommendations'**
+  String get aboveRecommendations;
+
+  /// No description provided for @highConsumption.
+  ///
+  /// In en, this message translates to:
+  /// **'High consumption'**
+  String get highConsumption;
+
+  /// No description provided for @veryHighConsider.
+  ///
+  /// In en, this message translates to:
+  /// **'Very high - consider stopping'**
+  String get veryHighConsider;
+
+  /// No description provided for @noAlcoholToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No alcohol today'**
+  String get noAlcoholToday;
+
+  /// No description provided for @drinkWaterNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink 300-500 ml water now'**
+  String get drinkWaterNow;
+
+  /// No description provided for @addPinchSalt.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a pinch of salt'**
+  String get addPinchSalt;
+
+  /// No description provided for @avoidLateCoffee.
+  ///
+  /// In en, this message translates to:
+  /// **'Avoid late coffee'**
+  String get avoidLateCoffee;
+
+  /// No description provided for @abvPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% ABV'**
+  String abvPercent(Object percent);
+
+  /// No description provided for @todaysElectrolytes.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Electrolytes'**
+  String get todaysElectrolytes;
+
+  /// No description provided for @greatBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Great balance!'**
+  String get greatBalance;
+
+  /// No description provided for @gettingThere.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting there'**
+  String get gettingThere;
+
+  /// No description provided for @needMoreElectrolytes.
+  ///
+  /// In en, this message translates to:
+  /// **'Need more electrolytes'**
+  String get needMoreElectrolytes;
+
+  /// No description provided for @lowElectrolyteLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'Low electrolyte levels'**
+  String get lowElectrolyteLevels;
+
+  /// No description provided for @electrolyteTips.
+  ///
+  /// In en, this message translates to:
+  /// **'Electrolyte Tips'**
+  String get electrolyteTips;
+
+  /// No description provided for @takeWithWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Take with plenty of water'**
+  String get takeWithWater;
+
+  /// No description provided for @bestBetweenMeals.
+  ///
+  /// In en, this message translates to:
+  /// **'Best absorbed between meals'**
+  String get bestBetweenMeals;
+
+  /// No description provided for @startSmallAmounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Start with small amounts'**
+  String get startSmallAmounts;
+
+  /// No description provided for @extraDuringExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra needed during exercise'**
+  String get extraDuringExercise;
+
+  /// No description provided for @electrolytesBasic.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic'**
+  String get electrolytesBasic;
+
+  /// No description provided for @electrolytesMixes.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixes'**
+  String get electrolytesMixes;
+
+  /// No description provided for @electrolytesPills.
+  ///
+  /// In en, this message translates to:
+  /// **'Pills'**
+  String get electrolytesPills;
+
+  /// No description provided for @popularSalts.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular Salts & Broths'**
+  String get popularSalts;
+
+  /// No description provided for @popularMixes.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular Electrolyte Mixes'**
+  String get popularMixes;
+
+  /// No description provided for @popularSupplements.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular Supplements'**
+  String get popularSupplements;
+
+  /// No description provided for @electrolyteSaltWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Salt Water'**
+  String get electrolyteSaltWater;
+
+  /// No description provided for @electrolytePinkSalt.
+  ///
+  /// In en, this message translates to:
+  /// **'Pink Salt'**
+  String get electrolytePinkSalt;
+
+  /// No description provided for @electrolyteSeaSalt.
+  ///
+  /// In en, this message translates to:
+  /// **'Sea Salt'**
+  String get electrolyteSeaSalt;
+
+  /// No description provided for @electrolyteNuun.
+  ///
+  /// In en, this message translates to:
+  /// **'Nuun'**
+  String get electrolyteNuun;
+
+  /// No description provided for @electrolyteLiquidIV.
+  ///
+  /// In en, this message translates to:
+  /// **'Liquid IV'**
+  String get electrolyteLiquidIV;
+
+  /// No description provided for @electrolyteUltima.
+  ///
+  /// In en, this message translates to:
+  /// **'Ultima'**
+  String get electrolyteUltima;
+
+  /// No description provided for @electrolytePropel.
+  ///
+  /// In en, this message translates to:
+  /// **'Propel'**
+  String get electrolytePropel;
+
+  /// No description provided for @electrolytePedialyte.
+  ///
+  /// In en, this message translates to:
+  /// **'Pedialyte'**
+  String get electrolytePedialyte;
+
+  /// No description provided for @electrolyteGatoradeZero.
+  ///
+  /// In en, this message translates to:
+  /// **'Gatorade Zero'**
+  String get electrolyteGatoradeZero;
+
+  /// No description provided for @electrolytePotassiumChloride.
+  ///
+  /// In en, this message translates to:
+  /// **'Potassium Chloride'**
+  String get electrolytePotassiumChloride;
+
+  /// No description provided for @electrolyteMagThreonate.
+  ///
+  /// In en, this message translates to:
+  /// **'Mag Threonate'**
+  String get electrolyteMagThreonate;
+
+  /// No description provided for @electrolyteTraceMinerals.
+  ///
+  /// In en, this message translates to:
+  /// **'Trace Minerals'**
+  String get electrolyteTraceMinerals;
+
+  /// No description provided for @electrolyteZMAComplex.
+  ///
+  /// In en, this message translates to:
+  /// **'ZMA Complex'**
+  String get electrolyteZMAComplex;
+
+  /// No description provided for @electrolyteMultiMineral.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-Mineral'**
+  String get electrolyteMultiMineral;
+
+  /// No description provided for @electrolyteLMNT.
+  ///
+  /// In en, this message translates to:
+  /// **'LMNT'**
+  String get electrolyteLMNT;
+
+  /// No description provided for @hydration.
+  ///
+  /// In en, this message translates to:
+  /// **'Hydration'**
+  String get hydration;
+
+  /// No description provided for @todayHydration.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Hydration'**
+  String get todayHydration;
+
+  /// No description provided for @currentIntake.
+  ///
+  /// In en, this message translates to:
+  /// **'Consumed'**
+  String get currentIntake;
+
+  /// No description provided for @dailyGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal'**
+  String get dailyGoal;
+
+  /// No description provided for @toGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining'**
+  String get toGo;
+
+  /// No description provided for @goalReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal reached!'**
+  String get goalReached;
+
+  /// No description provided for @almostThere.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost there!'**
+  String get almostThere;
+
+  /// No description provided for @halfwayThere.
+  ///
+  /// In en, this message translates to:
+  /// **'Halfway there'**
+  String get halfwayThere;
+
+  /// No description provided for @keepGoing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep going'**
+  String get keepGoing;
+
+  /// No description provided for @startDrinking.
+  ///
+  /// In en, this message translates to:
+  /// **'Start drinking'**
+  String get startDrinking;
+
+  /// No description provided for @plainWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain'**
+  String get plainWater;
+
+  /// No description provided for @enhancedWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Enhanced'**
+  String get enhancedWater;
+
+  /// No description provided for @beverages.
+  ///
+  /// In en, this message translates to:
+  /// **'Beverages'**
+  String get beverages;
+
+  /// No description provided for @sodas.
+  ///
+  /// In en, this message translates to:
+  /// **'Sodas'**
+  String get sodas;
+
+  /// No description provided for @popularPlainWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular Water Types'**
+  String get popularPlainWater;
+
+  /// No description provided for @popularEnhancedWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Enhanced & Infused'**
+  String get popularEnhancedWater;
+
+  /// No description provided for @popularBeverages.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular Beverages'**
+  String get popularBeverages;
+
+  /// No description provided for @popularSodas.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular Sodas & Energy'**
+  String get popularSodas;
+
+  /// No description provided for @hydrationTips.
+  ///
+  /// In en, this message translates to:
+  /// **'Hydration Tips'**
+  String get hydrationTips;
+
+  /// No description provided for @drinkRegularly.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink small amounts regularly'**
+  String get drinkRegularly;
+
+  /// No description provided for @roomTemperature.
+  ///
+  /// In en, this message translates to:
+  /// **'Room temperature water absorbs better'**
+  String get roomTemperature;
+
+  /// No description provided for @addLemon.
+  ///
+  /// In en, this message translates to:
+  /// **'Add lemon for better taste'**
+  String get addLemon;
+
+  /// No description provided for @limitSugary.
+  ///
+  /// In en, this message translates to:
+  /// **'Limit sugary drinks - they dehydrate'**
+  String get limitSugary;
+
+  /// No description provided for @warmWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm Water'**
+  String get warmWater;
+
+  /// No description provided for @iceWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Ice Water'**
+  String get iceWater;
+
+  /// No description provided for @filteredWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Filtered Water'**
+  String get filteredWater;
+
+  /// No description provided for @distilledWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Distilled Water'**
+  String get distilledWater;
+
+  /// No description provided for @springWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Spring Water'**
+  String get springWater;
+
+  /// No description provided for @hydrogenWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Hydrogen Water'**
+  String get hydrogenWater;
+
+  /// No description provided for @oxygenatedWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Oxygenated Water'**
+  String get oxygenatedWater;
+
+  /// No description provided for @cucumberWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Cucumber Water'**
+  String get cucumberWater;
+
+  /// No description provided for @limeWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Lime Water'**
+  String get limeWater;
+
+  /// No description provided for @berryWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Berry Water'**
+  String get berryWater;
+
+  /// No description provided for @mintWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Mint Water'**
+  String get mintWater;
+
+  /// No description provided for @gingerWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Ginger Water'**
+  String get gingerWater;
 }
 
 class _AppLocalizationsDelegate
