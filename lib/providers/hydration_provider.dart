@@ -394,9 +394,9 @@ class HydrationProvider extends ChangeNotifier {
   double get totalWaterToday {
     double total = 0;
     for (var intake in todayIntakes) {
-      if (intake.type == 'water' || 
-          intake.type == 'electrolyte' || 
-          intake.type == 'broth') {
+      // Учитываем ВСЕ напитки, кроме алкоголя
+      // Алкоголь обрабатывается отдельно через AlcoholService
+      if (!intake.type.startsWith('alcohol_')) {
         total += intake.volume;
       }
     }
@@ -647,8 +647,13 @@ class HydrationProvider extends ChangeNotifier {
     await prefs.setString('activityLevel', activityLevel);
   }
   
-  // UPDATED: Added achievement service integration
-  void addIntake(String type, int volume, {int sodium = 0, int potassium = 0, int magnesium = 0}) {
+  // UPDATED: Added achievement service integration with control parameter
+  void addIntake(String type, int volume, {
+    int sodium = 0, 
+    int potassium = 0, 
+    int magnesium = 0,
+    bool showAchievement = true,  // NEW: Control achievement notification
+  }) {
     // Calculate old percentage BEFORE adding intake
     final oldPercent = goals.waterOpt > 0 
         ? (totalWaterToday / goals.waterOpt * 100).clamp(0.0, 200.0)
@@ -674,8 +679,8 @@ class HydrationProvider extends ChangeNotifier {
           ? (totalWaterToday / goals.waterOpt * 100).clamp(0.0, 200.0)
           : 0.0;
       
-      // Check and show achievement if context is available
-      if (_context != null && _context!.mounted) {
+      // Check and show achievement if context is available AND showAchievement is true
+      if (showAchievement && _context != null && _context!.mounted) {
         // Get units service for formatting
         final unitsService = Provider.of<UnitsService>(_context!, listen: false);
         final formattedVolume = unitsService.formatVolume(volume);

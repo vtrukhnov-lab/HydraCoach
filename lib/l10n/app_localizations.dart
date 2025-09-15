@@ -5145,6 +5145,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ginger Water'**
   String get gingerWater;
+
+  /// No description provided for @caffeineStatusNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No caffeine today'**
+  String get caffeineStatusNone;
+
+  /// No description provided for @caffeineStatusModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate: {amount}mg'**
+  String caffeineStatusModerate(Object amount);
+
+  /// No description provided for @caffeineStatusHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High: {amount}mg'**
+  String caffeineStatusHigh(Object amount);
+
+  /// No description provided for @caffeineStatusVeryHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Very high: {amount}mg!'**
+  String caffeineStatusVeryHigh(Object amount);
+
+  /// No description provided for @caffeineDailyLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily limit: 400mg'**
+  String get caffeineDailyLimit;
+
+  /// No description provided for @caffeineWarningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Caffeine Warning'**
+  String get caffeineWarningTitle;
+
+  /// No description provided for @caffeineWarning400.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve exceeded 400mg caffeine today'**
+  String get caffeineWarning400;
+
+  /// No description provided for @caffeineTipWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink extra water to compensate'**
+  String get caffeineTipWater;
+
+  /// No description provided for @caffeineTipAvoid.
+  ///
+  /// In en, this message translates to:
+  /// **'Avoid more caffeine today'**
+  String get caffeineTipAvoid;
+
+  /// No description provided for @caffeineTipSleep.
+  ///
+  /// In en, this message translates to:
+  /// **'May affect your sleep quality'**
+  String get caffeineTipSleep;
+
+  /// No description provided for @total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get total;
+
+  /// No description provided for @cupsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Cups today'**
+  String get cupsToday;
+
+  /// No description provided for @metabolizeTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to metabolize'**
+  String get metabolizeTime;
+
+  /// No description provided for @aboutCaffeine.
+  ///
+  /// In en, this message translates to:
+  /// **'About Caffeine'**
+  String get aboutCaffeine;
+
+  /// No description provided for @caffeineInfo1.
+  ///
+  /// In en, this message translates to:
+  /// **'Coffee contains natural caffeine that boosts alertness'**
+  String get caffeineInfo1;
+
+  /// No description provided for @caffeineInfo2.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily safe limit is 400mg for most adults'**
+  String get caffeineInfo2;
+
+  /// No description provided for @caffeineInfo3.
+  ///
+  /// In en, this message translates to:
+  /// **'Caffeine half-life is 5-6 hours'**
+  String get caffeineInfo3;
+
+  /// No description provided for @caffeineInfo4.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink extra water to compensate for caffeine\'s diuretic effect'**
+  String get caffeineInfo4;
+
+  /// No description provided for @caffeineWarningPregnant.
+  ///
+  /// In en, this message translates to:
+  /// **'Pregnant women should limit caffeine to 200mg/day'**
+  String get caffeineWarningPregnant;
+
+  /// No description provided for @gotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get gotIt;
+
+  /// No description provided for @consumed.
+  ///
+  /// In en, this message translates to:
+  /// **'Consumed'**
+  String get consumed;
+
+  /// No description provided for @remaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining'**
+  String get remaining;
 }
 
 class _AppLocalizationsDelegate

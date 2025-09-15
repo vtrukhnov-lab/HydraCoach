@@ -2739,4 +2739,79 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get gingerWater => 'Имбирная вода';
+
+  @override
+  String get caffeineStatusNone => 'Кофеина сегодня нет';
+
+  @override
+  String caffeineStatusModerate(Object amount) {
+    return 'Умеренно: $amountмг';
+  }
+
+  @override
+  String caffeineStatusHigh(Object amount) {
+    return 'Много: $amountмг';
+  }
+
+  @override
+  String caffeineStatusVeryHigh(Object amount) {
+    return 'Очень много: $amountмг!';
+  }
+
+  @override
+  String get caffeineDailyLimit => 'Дневной лимит: 400мг';
+
+  @override
+  String get caffeineWarningTitle => 'Предупреждение о кофеине';
+
+  @override
+  String get caffeineWarning400 => 'Вы превысили 400мг кофеина сегодня';
+
+  @override
+  String get caffeineTipWater => 'Пейте больше воды для компенсации';
+
+  @override
+  String get caffeineTipAvoid => 'Избегайте кофеина сегодня';
+
+  @override
+  String get caffeineTipSleep => 'Может повлиять на качество сна';
+
+  @override
+  String get total => 'Всего';
+
+  @override
+  String get cupsToday => 'Чашек сегодня';
+
+  @override
+  String get metabolizeTime => 'Время метаболизма';
+
+  @override
+  String get aboutCaffeine => 'О кофеине';
+
+  @override
+  String get caffeineInfo1 =>
+      'Кофе содержит натуральный кофеин, повышающий бодрость';
+
+  @override
+  String get caffeineInfo2 => 'Безопасная суточная норма для взрослых — 400 мг';
+
+  @override
+  String get caffeineInfo3 => 'Период полураспада кофеина — 5-6 часов';
+
+  @override
+  String get caffeineInfo4 =>
+      'Пейте больше воды для компенсации мочегонного эффекта';
+
+  @override
+  String get caffeineWarningPregnant =>
+      'Беременным следует ограничить кофеин до 200 мг/день';
+
+  @override
+  String get gotIt => 'Понятно';
+
+  @override
+  String get consumed => 'Выпито';
+
+  @override
+  String get remaining => 'Осталось';
 }

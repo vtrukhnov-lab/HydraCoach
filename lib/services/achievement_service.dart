@@ -42,7 +42,10 @@ class AchievementService {
     final l10n = AppLocalizations.of(context);
     if (l10n == null) return;
     
-    // Находим пересеченный порог
+    String? message;
+    Color? color;
+    
+    // Проверяем пересечение порогов
     int? crossedThreshold;
     for (final threshold in _thresholds) {
       if (oldPercent < threshold && newPercent >= threshold) {
@@ -50,9 +53,6 @@ class AchievementService {
         break;
       }
     }
-    
-    String? message;
-    Color? color;
     
     if (crossedThreshold != null) {
       // Проверяем, не показывали ли мы это достижение недавно
@@ -73,6 +73,13 @@ class AchievementService {
         // Тактильная обратная связь при достижении
         HapticFeedback.mediumImpact();
       }
+    } else if (newPercent < 25) {
+      // НОВОЕ: Показываем мотивационное сообщение для прогресса от 0 до 25%
+      message = l10n.startDrinking;
+      color = Colors.purple.shade500;
+      
+      // Легкая тактильная обратная связь
+      HapticFeedback.lightImpact();
     }
     
     // Показываем оверлей с достижением или просто с объемом

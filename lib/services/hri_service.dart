@@ -149,6 +149,25 @@ class HRIService extends ChangeNotifier {
   // GETTERS
   // ============================================================================
   
+  // Get today's total caffeine (sum of all intakes today)
+  int getTodaysCaffeine() {
+    double totalCaffeine = 0.0;
+    for (final intake in _todayCaffeineIntakes) {
+      // Sum up original caffeine amounts (not decayed)
+      totalCaffeine += intake.caffeineMg;
+    }
+    return totalCaffeine.round();
+  }
+  
+  // Get today's active caffeine (with decay)
+  int getTodaysActiveCaffeine() {
+    double totalActiveCaffeine = 0.0;
+    for (final intake in _todayCaffeineIntakes) {
+      totalActiveCaffeine += intake.getActiveCaffeine();
+    }
+    return totalActiveCaffeine.round();
+  }
+  
   double get currentHRI => _currentHRI;
   DateTime get lastUpdate => _lastUpdate;
   List<Workout> get todayWorkouts => List.unmodifiable(_todayWorkouts);

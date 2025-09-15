@@ -2755,4 +2755,80 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get gingerWater => 'Agua de jengibre';
+
+  @override
+  String get caffeineStatusNone => 'Sin cafeína hoy';
+
+  @override
+  String caffeineStatusModerate(Object amount) {
+    return 'Moderado: ${amount}mg';
+  }
+
+  @override
+  String caffeineStatusHigh(Object amount) {
+    return 'Alto: ${amount}mg';
+  }
+
+  @override
+  String caffeineStatusVeryHigh(Object amount) {
+    return 'Muy alto: ${amount}mg!';
+  }
+
+  @override
+  String get caffeineDailyLimit => 'Límite diario: 400mg';
+
+  @override
+  String get caffeineWarningTitle => 'Advertencia de cafeína';
+
+  @override
+  String get caffeineWarning400 => 'Has excedido 400mg de cafeína hoy';
+
+  @override
+  String get caffeineTipWater => 'Bebe agua extra para compensar';
+
+  @override
+  String get caffeineTipAvoid => 'Evita más cafeína hoy';
+
+  @override
+  String get caffeineTipSleep => 'Puede afectar tu calidad de sueño';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get cupsToday => 'Tazas hoy';
+
+  @override
+  String get metabolizeTime => 'Tiempo para metabolizar';
+
+  @override
+  String get aboutCaffeine => 'Acerca de la cafeína';
+
+  @override
+  String get caffeineInfo1 =>
+      'El café contiene cafeína natural que aumenta el estado de alerta';
+
+  @override
+  String get caffeineInfo2 =>
+      'El límite diario seguro es 400mg para la mayoría de adultos';
+
+  @override
+  String get caffeineInfo3 => 'La vida media de la cafeína es de 5-6 horas';
+
+  @override
+  String get caffeineInfo4 =>
+      'Bebe agua extra para compensar el efecto diurético';
+
+  @override
+  String get caffeineWarningPregnant =>
+      'Las mujeres embarazadas deben limitar la cafeína a 200mg/día';
+
+  @override
+  String get gotIt => 'Entendido';
+
+  @override
+  String get consumed => 'Consumido';
+
+  @override
+  String get remaining => 'Restante';
 }

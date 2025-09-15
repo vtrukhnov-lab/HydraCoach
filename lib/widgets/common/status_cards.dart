@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:math' as math;
 import '../../l10n/app_localizations.dart';
 import '../../services/units_service.dart';
+import 'water_ring_widget.dart';
 
 /// Animated status card showing hydration progress
 class AnimatedStatusCard extends StatelessWidget {
@@ -50,7 +51,19 @@ class AnimatedStatusCard extends StatelessWidget {
         children: [
           Row(
             children: [
-          
+              // Animated water ring
+              if (showWaterRing) ...[
+                WaterRingWithWave(
+                  consumed: intake['current'] as int,
+                  goal: intake['goal'] as int,
+                  statusColor: statusColor,
+                  units: units,
+                  l10n: l10n,
+                  size: expanded ? 90 : 70,
+                  showTarget: expanded,
+                ),
+                const SizedBox(width: 20),
+              ],
               // Text info
               Expanded(
                 child: Column(
@@ -124,7 +137,7 @@ class AnimatedStatusCard extends StatelessWidget {
   }
 }
 
-/// Simple caffeine status card without animated ring
+/// Enhanced caffeine status card with animated ring
 class CaffeineStatusCard extends StatelessWidget {
   final int todayCaffeine;
   final int maxCaffeine;
@@ -145,13 +158,6 @@ class CaffeineStatusCard extends StatelessWidget {
     if (percent <= 50) return Colors.blue;
     if (percent <= 100) return Colors.orange;
     return Colors.red;
-  }
-  
-  IconData get statusIcon {
-    if (todayCaffeine == 0) return Icons.eco;
-    if (todayCaffeine <= 200) return Icons.bolt;
-    if (todayCaffeine <= 400) return Icons.warning;
-    return Icons.error;
   }
   
   String _getStatusMessage() {
@@ -192,33 +198,12 @@ class CaffeineStatusCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              // Simple icon with background
-              Container(
-                width: 70,
-                height: 70,
-                decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      statusIcon,
-                      size: 32,
-                      color: statusColor,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${percent.toInt()}%',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: statusColor,
-                      ),
-                    ),
-                  ],
-                ),
+              // Animated caffeine ring
+              CaffeineRingWidget(
+                consumed: todayCaffeine,
+                max: maxCaffeine,
+                statusColor: statusColor,
+                size: 90,
               ),
               const SizedBox(width: 20),
               // Text info
@@ -230,7 +215,7 @@ class CaffeineStatusCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            l10n.caffeine,
+                            l10n.todaysCaffeine,
                             style: theme.textTheme.titleMedium,
                           ),
                         ),
@@ -275,24 +260,166 @@ class CaffeineStatusCard extends StatelessWidget {
               StatItem(
                 icon: Icons.coffee,
                 value: '${todayCaffeine}mg',
-                label: l10n.currentIntake,
+                label: l10n.consumed,
                 color: Colors.brown,
               ),
               StatItem(
                 icon: Icons.flag,
                 value: '${maxCaffeine}mg',
-                label: l10n.dailyGoal,
+                label: l10n.dailyLimit,
                 color: Colors.orange,
               ),
               StatItem(
                 icon: Icons.hourglass_empty,
                 value: '${(maxCaffeine - todayCaffeine).clamp(0, maxCaffeine)}mg',
-                label: l10n.toGo,
+                label: l10n.remaining,
                 color: todayCaffeine > maxCaffeine ? Colors.red : Colors.green,
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Caffeine ring progress widget with animation
+class CaffeineRingWidget extends StatefulWidget {
+  final int consumed;
+  final int max;
+  final Color statusColor;
+  final double size;
+  
+  const CaffeineRingWidget({
+    Key? key,
+    required this.consumed,
+    required this.max,
+    required this.statusColor,
+    this.size = 90,
+  }) : super(key: key);
+  
+  @override
+  State<CaffeineRingWidget> createState() => _CaffeineRingWidgetState();
+}
+
+class _CaffeineRingWidgetState extends State<CaffeineRingWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animController;
+  late Animation<double> _progressAnimation;
+  
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    
+    _progressAnimation = Tween<double>(
+      begin: 0,
+      end: (widget.consumed / widget.max).clamp(0.0, 1.5),
+    ).animate(CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeOutCubic,
+    ));
+    
+    _animController.forward();
+  }
+  
+  @override
+  void didUpdateWidget(CaffeineRingWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.consumed != widget.consumed) {
+      _progressAnimation = Tween<double>(
+        begin: (oldWidget.consumed / widget.max).clamp(0.0, 1.5),
+        end: (widget.consumed / widget.max).clamp(0.0, 1.5),
+      ).animate(CurvedAnimation(
+        parent: _animController,
+        curve: Curves.easeOutCubic,
+      ));
+      _animController.forward(from: 0);
+    }
+  }
+  
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    final percent = widget.max > 0 ? (widget.consumed / widget.max * 100).clamp(0.0, 200.0) : 0.0;
+    final isOverLimit = widget.consumed > widget.max;
+    
+    return SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: AnimatedBuilder(
+        animation: _progressAnimation,
+        builder: (context, child) {
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              // Background circle
+              Container(
+                width: widget.size,
+                height: widget.size,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.grey.shade300,
+                    width: 8,
+                  ),
+                ),
+              ),
+              // Progress arc
+              CustomPaint(
+                size: Size(widget.size, widget.size),
+                painter: ArcPainter(
+                  progress: _progressAnimation.value,
+                  color: widget.statusColor,
+                  strokeWidth: 8,
+                ),
+              ),
+              // Center content
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    isOverLimit ? Icons.error : Icons.bolt,
+                    size: widget.size * 0.25,
+                    color: widget.statusColor,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${widget.consumed}mg',
+                    style: TextStyle(
+                      fontSize: widget.size * 0.18,
+                      fontWeight: FontWeight.bold,
+                      color: widget.statusColor,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: widget.statusColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '${percent.toInt()}%',
+                      style: TextStyle(
+                        fontSize: widget.size * 0.12,
+                        fontWeight: FontWeight.w600,
+                        color: widget.statusColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }

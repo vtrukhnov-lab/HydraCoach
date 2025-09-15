@@ -2733,4 +2733,79 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gingerWater => 'Ginger Water';
+
+  @override
+  String get caffeineStatusNone => 'No caffeine today';
+
+  @override
+  String caffeineStatusModerate(Object amount) {
+    return 'Moderate: ${amount}mg';
+  }
+
+  @override
+  String caffeineStatusHigh(Object amount) {
+    return 'High: ${amount}mg';
+  }
+
+  @override
+  String caffeineStatusVeryHigh(Object amount) {
+    return 'Very high: ${amount}mg!';
+  }
+
+  @override
+  String get caffeineDailyLimit => 'Daily limit: 400mg';
+
+  @override
+  String get caffeineWarningTitle => 'Caffeine Warning';
+
+  @override
+  String get caffeineWarning400 => 'You\'ve exceeded 400mg caffeine today';
+
+  @override
+  String get caffeineTipWater => 'Drink extra water to compensate';
+
+  @override
+  String get caffeineTipAvoid => 'Avoid more caffeine today';
+
+  @override
+  String get caffeineTipSleep => 'May affect your sleep quality';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get cupsToday => 'Cups today';
+
+  @override
+  String get metabolizeTime => 'Time to metabolize';
+
+  @override
+  String get aboutCaffeine => 'About Caffeine';
+
+  @override
+  String get caffeineInfo1 =>
+      'Coffee contains natural caffeine that boosts alertness';
+
+  @override
+  String get caffeineInfo2 => 'Daily safe limit is 400mg for most adults';
+
+  @override
+  String get caffeineInfo3 => 'Caffeine half-life is 5-6 hours';
+
+  @override
+  String get caffeineInfo4 =>
+      'Drink extra water to compensate for caffeine\'s diuretic effect';
+
+  @override
+  String get caffeineWarningPregnant =>
+      'Pregnant women should limit caffeine to 200mg/day';
+
+  @override
+  String get gotIt => 'Got it';
+
+  @override
+  String get consumed => 'Consumed';
+
+  @override
+  String get remaining => 'Remaining';
 }
