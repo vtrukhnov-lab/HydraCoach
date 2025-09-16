@@ -824,7 +824,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get enterVolume => 'Введите объём в мл';
 
   @override
-  String get strength => 'Крепость (%):';
+  String get strength => 'Силовые';
 
   @override
   String get standardDrinks => 'Стандартные дринки:';
@@ -3043,4 +3043,46 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get sugarTrackingPro =>
       'Контролируйте натуральный, добавленный и скрытый сахар с анализом влияния на HRI';
+
+  @override
+  String get dayOverview => 'Обзор дня';
+
+  @override
+  String get tapForDetails => 'Нажмите для подробностей';
+
+  @override
+  String get noDataForDay => 'Нет данных за этот день';
+
+  @override
+  String get sweatLoss => 'потеря пота';
+
+  @override
+  String get cardio => 'Кардио';
+
+  @override
+  String get workout => 'Тренировка';
+
+  @override
+  String get noWaterToday => 'Вода не записана сегодня';
+
+  @override
+  String get noElectrolytesToday => 'Электролиты не записаны сегодня';
+
+  @override
+  String get noCoffeeToday => 'Кофе не записан сегодня';
+
+  @override
+  String get noWorkoutsToday => 'Тренировки не записаны сегодня';
+
+  @override
+  String get noWaterThisDay => 'Вода не записана в этот день';
+
+  @override
+  String get noElectrolytesThisDay => 'Электролиты не записаны в этот день';
+
+  @override
+  String get noCoffeeThisDay => 'Кофе не записан в этот день';
+
+  @override
+  String get noWorkoutsThisDay => 'Тренировки не записаны в этот день';
 }

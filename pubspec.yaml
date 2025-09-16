@@ -42,7 +42,6 @@ dependencies:
   permission_handler: ^11.0.1
   
   # 🔥 FIREBASE - основные сервисы
-  firebase_core: ^3.15.0
   firebase_messaging: ^15.0.0
   firebase_auth: ^5.6.0
   cloud_firestore: ^5.6.0

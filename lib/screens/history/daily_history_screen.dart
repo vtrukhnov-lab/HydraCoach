@@ -1,13 +1,20 @@
+// lib/screens/history/daily_history_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../l10n/app_localizations.dart';
 import '../../providers/hydration_provider.dart';
+import '../../services/history_service.dart';
+import '../../services/hri_service.dart';
+import '../../services/alcohol_service.dart';
+import '../../services/units_service.dart';
+import '../../services/feature_gate_service.dart';
+import '../../services/remote_config_service.dart';
 import '../../models/intake.dart';
 import '../../models/alcohol_intake.dart';
-import '../../services/alcohol_service.dart';
 
 class DailyHistoryScreen extends StatefulWidget {
   const DailyHistoryScreen({super.key});
@@ -19,449 +26,838 @@ class DailyHistoryScreen extends StatefulWidget {
 class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
   DateTime _selectedDate = DateTime.now();
   String _selectedFilter = 'all';
-  
-  // Данные для выбранного дня
-  List<Intake> selectedDayIntakes = [];
-  List<AlcoholIntake> selectedDayAlcoholIntakes = [];
-  bool isLoadingDayData = false;
-  String _loadedDateKey = '';
-  
+  bool _isLoading = false;
+
+  // Данные текущего дня
+  List<Intake> _intakes = [];
+  List<AlcoholIntake> _alcoholIntakes = [];
+  List<Map<String, dynamic>> _caffeineIntakes = [];
+  List<Workout> _workouts = [];
+  Map<String, dynamic> _daySummary = {};
+
+  // Сервисы
+  late final HistoryService _historyService;
+  late final UnitsService _unitsService;
+  late final FeatureGateService _featureGateService;
+
   @override
   void initState() {
     super.initState();
+    _historyService = HistoryService();
+    _unitsService = UnitsService.instance;
+    _featureGateService = FeatureGateService.instance;
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadDayDataSafe();
+      _loadDayData();
     });
   }
-  
-  Future<void> _loadDayDataSafe() async {
-    if (!mounted) return;
+
+  Future<void> _loadDayData() async {
+    if (_isLoading) return;
     
-    final provider = Provider.of<HydrationProvider>(context, listen: false);
-    await _loadDayData(provider);
-  }
-  
-  Future<void> _loadDayData(HydrationProvider provider) async {
-    final dateKey = _selectedDate.toIso8601String().split('T')[0];
-    
-    if (_loadedDateKey == dateKey) {
-      return;
-    }
-    
-    // Если выбран сегодня, используем данные из провайдера
-    if (_isToday()) {
-      setState(() {
-        selectedDayIntakes = provider.todayIntakes;
-        _loadedDateKey = dateKey;
-      });
-      // Загружаем алкоголь для сегодня
-      await _loadAlcoholData();
-      return;
-    }
-    
-    if (isLoadingDayData) return;
-    
-    setState(() {
-      isLoadingDayData = true;
-    });
-    
+    setState(() => _isLoading = true);
+
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final intakesKey = 'intakes_$dateKey';
-      
-      final intakesJson = prefs.getStringList(intakesKey) ?? [];
-      
-      final List<Intake> tempIntakes = [];
-      
-      for (String json in intakesJson) {
-        try {
-          final parts = json.split('|');
-          if (parts.length >= 7) {
-            tempIntakes.add(Intake(
-              id: parts[0],
-              timestamp: DateTime.parse(parts[1]),
-              type: parts[2],
-              volume: int.tryParse(parts[3]) ?? 0,
-              sodium: int.tryParse(parts[4]) ?? 0,
-              potassium: int.tryParse(parts[5]) ?? 0,
-              magnesium: int.tryParse(parts[6]) ?? 0,
-            ));
-          }
-        } catch (e) {
-          print('Error parsing entry: $json, ошибка: $e');
-          continue;
-        }
-      }
-      
-      // Загружаем алкоголь
-      await _loadAlcoholData();
-      
+      final results = await Future.wait([
+        _historyService.getIntakesForDate(_selectedDate),
+        _historyService.getAlcoholForDate(_selectedDate),
+        _historyService.getCaffeineForDate(_selectedDate),
+        _historyService.getWorkoutsForDate(_selectedDate),
+        _historyService.getDaySummary(_selectedDate),
+      ]);
+
       if (mounted) {
         setState(() {
-          selectedDayIntakes = tempIntakes;
-          isLoadingDayData = false;
-          _loadedDateKey = dateKey;
+          _intakes = results[0] as List<Intake>;
+          _alcoholIntakes = results[1] as List<AlcoholIntake>;
+          _caffeineIntakes = results[2] as List<Map<String, dynamic>>;
+          _workouts = results[3] as List<Workout>;
+          _daySummary = results[4] as Map<String, dynamic>;
+          _isLoading = false;
         });
       }
     } catch (e) {
-      print('Error loading day data: $e');
       if (mounted) {
-        setState(() {
-          selectedDayIntakes = [];
-          isLoadingDayData = false;
-          _loadedDateKey = dateKey;
-        });
+        setState(() => _isLoading = false);
+        _showErrorSnackBar('Failed to load day data: $e');
       }
     }
   }
-  
-  Future<void> _loadAlcoholData() async {
-    if (!mounted) return;
-    
-    final alcoholService = Provider.of<AlcoholService>(context, listen: false);
-    final alcoholIntakes = await alcoholService.getIntakesForDate(_selectedDate);
-    
-    if (mounted) {
-      setState(() {
-        selectedDayAlcoholIntakes = alcoholIntakes;
-      });
-    }
-  }
-  
+
   void _changeDate(DateTime newDate) {
-    // Защита от будущих дат
-    if (newDate.isAfter(DateTime.now())) {
-      return;
-    }
+    if (newDate.isAfter(DateTime.now())) return;
     
-    // Защита от слишком старых дат (больше года назад)
     final yearAgo = DateTime.now().subtract(const Duration(days: 365));
-    if (newDate.isBefore(yearAgo)) {
-      return;
-    }
+    if (newDate.isBefore(yearAgo)) return;
     
-    if (newDate.year == _selectedDate.year && 
-        newDate.month == _selectedDate.month && 
-        newDate.day == _selectedDate.day) {
-      return;
-    }
-    
-    setState(() {
-      _selectedDate = newDate;
-      _loadedDateKey = ''; // Сбрасываем кэш
-      selectedDayAlcoholIntakes = []; // Очищаем алкоголь
-    });
-    
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadDayDataSafe();
-    });
+    if (_isSameDay(newDate, _selectedDate)) return;
+
+    setState(() => _selectedDate = newDate);
+    _loadDayData();
   }
-  
+
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+           date1.month == date2.month &&
+           date1.day == date2.day;
+  }
+
+  bool _canGoForward() {
+    final now = DateTime.now();
+    return !_isSameDay(_selectedDate, now);
+  }
+
+  bool _isToday() => _isSameDay(_selectedDate, DateTime.now());
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
+  void _showUndoSnackBar(String message, VoidCallback onUndo) {
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 3),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        action: SnackBarAction(
+          label: AppLocalizations.of(context).undo,
+          textColor: Colors.white,
+          onPressed: onUndo,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     
-    return Consumer2<HydrationProvider, AlcoholService>(
-      builder: (context, provider, alcoholService, child) {
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              // Селектор даты
-              Container(
-                margin: const EdgeInsets.all(20),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
+    return Consumer4<HydrationProvider, HRIService, AlcoholService, UnitsService>(
+      builder: (context, hydrationProvider, hriService, alcoholService, unitsService, child) {
+        return Scaffold(
+          // Полностью убираем AppBar
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  _buildDateSelector(l10n),
+                  const SizedBox(height: 20),
+
+                  if (_isLoading)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(32),
+                        child: CircularProgressIndicator(),
+                      ),
                     ),
+
+                  if (!_isLoading) ...[
+                    _buildDayOverviewCard(l10n, hydrationProvider, hriService, alcoholService),
+                    const SizedBox(height: 20),
+                    _buildFilters(l10n, alcoholService),
+                    const SizedBox(height: 20),
+                    _buildEventsList(l10n, hydrationProvider, alcoholService),
                   ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.chevron_left),
-                      onPressed: () {
-                        final newDate = _selectedDate.subtract(const Duration(days: 1));
-                        final yearAgo = DateTime.now().subtract(const Duration(days: 365));
-                        if (newDate.isAfter(yearAgo)) {
-                          _changeDate(newDate);
-                        }
-                      },
-                    ),
-                    GestureDetector(
-                      onTap: () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: _selectedDate,
-                          firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                          lastDate: DateTime.now(),
-                          locale: Localizations.localeOf(context),
-                        );
-                        if (picked != null) {
-                          _changeDate(picked);
-                        }
-                      },
-                      child: Row(
-                        children: [
-                          const Icon(Icons.calendar_today, size: 20, color: Colors.blue),
-                          const SizedBox(width: 8),
-                          Text(
-                            _formatDate(_selectedDate, l10n),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.chevron_right),
-                      onPressed: _canGoForward() ? () {
-                        _changeDate(_selectedDate.add(const Duration(days: 1)));
-                      } : null,
-                    ),
-                  ],
-                ),
-              ).animate().fadeIn(),
-              
-              // Индикатор загрузки
-              if (isLoadingDayData)
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  padding: const EdgeInsets.all(20),
-                  child: const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
-              
-              // Статистика дня
-              if (!isLoadingDayData)
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Colors.blue.shade400, Colors.blue.shade600],
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildDayStat('💧', l10n.water, '${_calculateDayStats()['water']} ${l10n.ml}', Colors.white),
-                          _buildDayStat('🧂', l10n.sodium, '${_calculateDayStats()['sodium']} ${l10n.mg}', Colors.yellow.shade300),
-                          _buildDayStat('🥑', l10n.potassium, '${_calculateDayStats()['potassium']} ${l10n.mg}', Colors.purple.shade300),
-                          _buildDayStat('💊', l10n.magnesium, '${_calculateDayStats()['magnesium']} ${l10n.mg}', Colors.pink.shade300),
-                        ],
-                      ),
-                    ],
-                  ),
-                ).animate().slideX(delay: 100.ms),
-              
-              // Статистика алкоголя (если есть данные и не включен трезвый режим)
-              if (!isLoadingDayData && 
-                  selectedDayAlcoholIntakes.isNotEmpty && 
-                  !alcoholService.soberModeEnabled)
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.orange.shade200),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.local_bar, color: Colors.orange),
-                          const SizedBox(width: 8),
-                          Text(
-                            l10n.alcoholAmount(_getTotalAlcoholSD().toStringAsFixed(1)),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      ...selectedDayAlcoholIntakes.map((intake) => 
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Row(
-                            children: [
-                              Icon(intake.type.icon, size: 20, color: Colors.orange),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  '${intake.type.getLabel(context)}: ${intake.volumeMl.toInt()} ${l10n.ml}, ${intake.abv}%',
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              ),
-                              Text(
-                                intake.formattedTime,
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ).animate().fadeIn(delay: 150.ms),
-              
-              const SizedBox(height: 20),
-              
-              // Фильтр типов
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                height: 40,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    _buildFilterChip(l10n.all, 'all'),
-                    const SizedBox(width: 8),
-                    _buildFilterChip(l10n.water, 'water'),
-                    const SizedBox(width: 8),
-                    _buildFilterChip(l10n.electrolyte, 'electrolyte'),
-                    const SizedBox(width: 8),
-                    _buildFilterChip(l10n.broth, 'broth'),
-                    const SizedBox(width: 8),
-                    _buildFilterChip(l10n.coffee, 'coffee'),
-                    if (!alcoholService.soberModeEnabled && selectedDayAlcoholIntakes.isNotEmpty) ...[
-                      const SizedBox(width: 8),
-                      _buildFilterChip(l10n.alcohol, 'alcohol'),
-                    ],
-                  ],
-                ),
+
+                  const SizedBox(height: 100),
+                ],
               ),
-              
-              const SizedBox(height: 20),
-              
-              // Список приемов
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: _buildIntakesList(provider, alcoholService, l10n),
-              ),
-              
-              const SizedBox(height: 100),
-            ],
+            ),
           ),
         );
       },
     );
   }
-  
-  Widget _buildIntakesList(HydrationProvider provider, AlcoholService alcoholService, AppLocalizations l10n) {
-    if (isLoadingDayData) {
-      return const Padding(
-        padding: EdgeInsets.all(32.0),
-        child: Center(
-          child: CircularProgressIndicator(),
+
+  Widget _buildDateSelector(AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.chevron_left),
+            onPressed: () {
+              final newDate = _selectedDate.subtract(const Duration(days: 1));
+              final yearAgo = DateTime.now().subtract(const Duration(days: 365));
+              if (newDate.isAfter(yearAgo)) {
+                HapticFeedback.lightImpact();
+                _changeDate(newDate);
+              }
+            },
+          ),
+
+          GestureDetector(
+            onTap: () async {
+              HapticFeedback.lightImpact();
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: _selectedDate,
+                firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                lastDate: DateTime.now(),
+                locale: Localizations.localeOf(context),
+              );
+              if (picked != null) {
+                _changeDate(picked);
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.blue.shade200),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.calendar_today, size: 18, color: Colors.blue.shade700),
+                  const SizedBox(width: 8),
+                  Text(
+                    _formatDate(_selectedDate, l10n),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.blue.shade700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          IconButton(
+            icon: const Icon(Icons.chevron_right),
+            onPressed: _canGoForward() ? () {
+              HapticFeedback.lightImpact();
+              _changeDate(_selectedDate.add(const Duration(days: 1)));
+            } : null,
+          ),
+        ],
+      ),
+    ).animate().fadeIn();
+  }
+
+  Widget _buildDayOverviewCard(AppLocalizations l10n, HydrationProvider provider, 
+                              HRIService hriService, AlcoholService alcoholService) {
+    // Получение данных в зависимости от дня
+    int waterCurrent = 0;
+    int waterGoal = 2000;
+    double waterPercent = 0.0;
+    String hydrationStatus = l10n.noDataForDay;
+    double hri = 0.0;
+    String hriStatus = '--';
+    int totalEvents = 0;
+    int workoutCount = 0;
+    double alcoholSD = 0.0;
+    int workoutMinutes = 0;
+    bool hasAlcohol = false;
+    bool hasWorkouts = false;
+
+      if (_isToday()) {
+      // Данные текущего дня - используем динамические цели с корректировками
+      waterCurrent = provider.totalWaterToday.round();
+      waterGoal = provider.goals.waterOpt; // С учетом погоды/тренировок/алкоголя
+      waterPercent = waterGoal > 0 ? (waterCurrent / waterGoal * 100).clamp(0.0, 200.0) : 0.0;
+      hydrationStatus = provider.getHydrationStatus(l10n);
+      hri = hriService.currentHRI;
+      hriStatus = hriService.hriStatus;
+      totalEvents = provider.todayIntakes.length;
+      workoutCount = hriService.todayWorkouts.length;
+      alcoholSD = hriService.todayAlcoholSD;
+      workoutMinutes = hriService.todayWorkouts.fold(0, (sum, w) => sum + w.durationMinutes);
+      hasAlcohol = alcoholSD > 0;
+      hasWorkouts = workoutCount > 0;
+    } else {
+      // Исторические данные - используем базовую цель без корректировок
+      if (_daySummary.isNotEmpty) {
+        waterCurrent = _daySummary['water'] ?? 0;
+        
+        // ИСПРАВЛЕНО: базовая цель только от веса, без сегодняшних корректировок
+        final remoteConfig = RemoteConfigService.instance;
+        waterGoal = (remoteConfig.waterOptPerKg * provider.weight).round();
+        
+        waterPercent = waterGoal > 0 ? (waterCurrent / waterGoal * 100).clamp(0.0, 200.0) : 0.0;
+        
+        if (_daySummary['hri'] != null) {
+          hri = _daySummary['hri'];
+          hriStatus = _daySummary['hriStatus'] ?? '--';
+          
+          if (waterPercent >= 80) {
+            hydrationStatus = l10n.hydrationStatusNormal;
+          } else if (waterPercent >= 50) {
+            hydrationStatus = l10n.hydrationStatusDehydrated;
+          } else {
+            hydrationStatus = l10n.hydrationStatusLowSalt;
+          }
+        } else {
+          hri = 0.0;
+          hriStatus = '--';
+          hydrationStatus = l10n.noDataForDay;
+        }
+        
+        totalEvents = _daySummary['intakeEvents'] ?? 0;
+        workoutCount = _daySummary['workoutCount'] ?? 0;
+        alcoholSD = _daySummary['alcoholSD'] ?? 0.0;
+        workoutMinutes = _daySummary['workoutMinutes'] ?? 0;
+        hasAlcohol = _daySummary['hasAlcohol'] ?? false;
+        hasWorkouts = _daySummary['hasWorkouts'] ?? false;
+      }
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.blue.shade50,
+            Colors.blue.shade100,
+          ],
         ),
-      );
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.blue.shade200, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Заголовок
+          Row(
+            children: [
+              Icon(Icons.analytics_outlined, color: Colors.blue.shade700, size: 24),
+              const SizedBox(width: 8),
+              Text(
+                l10n.dayOverview,
+                style: TextStyle(
+                  color: Colors.blue.shade800,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          
+          // Прогресс воды
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.water_drop, color: Colors.blue.shade600, size: 20),
+                      const SizedBox(width: 4),
+                      Text(
+                        l10n.water,
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '${waterPercent.round()}%',
+                    style: TextStyle(
+                      color: Colors.blue.shade800,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              
+              // Прогресс-бар
+              Container(
+                height: 8,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: (waterPercent / 100).clamp(0.0, 1.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: _getProgressColor(waterPercent),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 4),
+              
+              Text(
+                '${_unitsService.formatVolume(waterCurrent)} / ${_unitsService.formatVolume(waterGoal)}',
+                style: TextStyle(
+                  color: Colors.blue.shade800,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Статус гидратации и HRI
+          Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: _getHRIColor(hri.round()),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    hri > 0 ? hri.round().toString() : '--',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      hydrationStatus,
+                      style: TextStyle(
+                        color: Colors.grey.shade800,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (hri > 0) 
+                      Text(
+                        'HRI: $hriStatus',
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 12,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 16),
+          
+          // Счетчик событий и дополнительные индикаторы
+          _buildEventCounters(l10n, totalEvents, workoutCount, alcoholSD, workoutMinutes, 
+                             hasAlcohol, hasWorkouts, alcoholService),
+        ],
+      ),
+    ).animate().slideY(delay: 100.ms);
+  }
+
+  Widget _buildEventCounters(AppLocalizations l10n, int totalEvents, int workoutCount, 
+                           double alcoholSD, int workoutMinutes, bool hasAlcohol, 
+                           bool hasWorkouts, AlcoholService alcoholService) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        // Основные события
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.blue.shade200),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.list_alt, color: Colors.blue.shade600, size: 16),
+              const SizedBox(width: 6),
+              Text(
+                _buildEventsCountText(l10n, totalEvents, workoutCount),
+                style: TextStyle(
+                  color: Colors.blue.shade800,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+        
+        // Индикатор алкоголя
+        if (hasAlcohol && !alcoholService.soberModeEnabled)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.orange.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.orange.shade300),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.local_bar, color: Colors.orange.shade700, size: 14),
+                const SizedBox(width: 4),
+                Text(
+                  '${alcoholSD.toStringAsFixed(1)} SD',
+                  style: TextStyle(
+                    color: Colors.orange.shade700,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        
+        // Индикатор спорта
+        if (hasWorkouts)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.green.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.green.shade300),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.fitness_center, color: Colors.green.shade700, size: 14),
+                const SizedBox(width: 4),
+                Text(
+                  '${workoutMinutes}m',
+                  style: TextStyle(
+                    color: Colors.green.shade700,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  String _buildEventsCountText(AppLocalizations l10n, int totalEvents, int workoutCount) {
+    if (totalEvents == 0 && workoutCount == 0) {
+      return l10n.noRecordsThisDay;
     }
     
-    final filteredIntakes = _getFilteredIntakesForDay();
-    final filteredAlcohol = _selectedFilter == 'alcohol' ? selectedDayAlcoholIntakes : 
-                            _selectedFilter == 'all' ? selectedDayAlcoholIntakes : [];
+    List<String> parts = [];
     
-    if (filteredIntakes.isEmpty && filteredAlcohol.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.all(32.0),
+    if (totalEvents > 0) {
+      parts.add('$totalEvents records');
+    }
+    
+    if (workoutCount > 0) {
+      parts.add('$workoutCount workouts');
+    }
+    
+    return parts.join(' • ');
+  }
+
+  Widget _buildFilters(AppLocalizations l10n, AlcoholService alcoholService) {
+    final filters = [
+      {'key': 'all', 'label': l10n.all, 'icon': Icons.list},
+      {'key': 'water', 'label': l10n.water, 'icon': Icons.water_drop},
+      {'key': 'electrolyte', 'label': l10n.electrolyte, 'icon': Icons.bolt},
+      {'key': 'coffee', 'label': l10n.coffee, 'icon': Icons.coffee},
+    ];
+    
+    if (_workouts.isNotEmpty) {
+      filters.add({'key': 'workout', 'label': l10n.todaysWorkouts, 'icon': Icons.fitness_center});
+    }
+    
+    if (_alcoholIntakes.isNotEmpty && !alcoholService.soberModeEnabled) {
+      filters.add({'key': 'alcohol', 'label': l10n.alcohol, 'icon': Icons.local_bar});
+    }
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: filters.map((filter) => Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: _buildFilterChip(
+            filter['label'] as String, 
+            filter['key'] as String, 
+            filter['icon'] as IconData,
+          ),
+        )).toList(),
+      ),
+    );
+  }
+
+  Widget _buildFilterChip(String label, String value, IconData icon) {
+    final isSelected = _selectedFilter == value;
+    
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() => _selectedFilter = value);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue : Colors.white,
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(
+            color: isSelected ? Colors.blue : Colors.grey.shade300,
+          ),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: Colors.blue.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ] : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected ? Colors.white : Colors.grey.shade600,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.black,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEventsList(AppLocalizations l10n, HydrationProvider provider, 
+                         AlcoholService alcoholService) {
+    final filteredEvents = _getFilteredEvents(alcoholService);
+    
+    if (filteredEvents.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Center(
           child: Column(
             children: [
-              Icon(Icons.water_drop_outlined, 
-                   size: 48, 
-                   color: Colors.grey.shade400),
+              Icon(
+                _getEmptyStateIcon(),
+                size: 48,
+                color: Colors.grey.shade400,
+              ),
               const SizedBox(height: 12),
               Text(
-                _isToday() ? l10n.noRecordsToday : l10n.noRecordsThisDay,
+                _getEmptyStateMessage(l10n),
                 style: TextStyle(
                   color: Colors.grey.shade600,
                   fontSize: 16,
                 ),
+                textAlign: TextAlign.center,
               ),
             ],
           ),
         ),
       );
     }
-    
-    // Объединяем обычные приемы и алкоголь, сортируем по времени
-    final List<Widget> allItems = [];
-    
-    // Добавляем обычные приемы
-    for (var intake in filteredIntakes) {
-      allItems.add(_IntakeItemWrapper(
-        timestamp: intake.timestamp,
-        child: _buildIntakeDetailItem(intake, provider, l10n),
-      ));
-    }
-    
-    // Добавляем алкогольные приемы
-    if (!alcoholService.soberModeEnabled) {
-      for (var alcohol in filteredAlcohol) {
-        allItems.add(_IntakeItemWrapper(
-          timestamp: alcohol.timestamp,
-          child: _buildAlcoholItem(alcohol, alcoholService, l10n),
-        ));
-      }
-    }
-    
-    // Сортируем по времени (новые сверху)
-    allItems.sort((a, b) => (b as _IntakeItemWrapper).timestamp
-        .compareTo((a as _IntakeItemWrapper).timestamp));
-    
-    return Column(
-      children: allItems.map((item) => 
-        (item as _IntakeItemWrapper).child).toList(),
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: filteredEvents.length,
+        separatorBuilder: (context, index) => Divider(
+          color: Colors.grey.shade200,
+          height: 1,
+          indent: 16,
+          endIndent: 16,
+        ),
+        itemBuilder: (context, index) {
+          final event = filteredEvents[index];
+          return _buildEventItem(event, l10n, provider, alcoholService, index);
+        },
+      ),
     );
   }
-  
-  Widget _buildAlcoholItem(AlcoholIntake intake, AlcoholService alcoholService, AppLocalizations l10n) {
+
+  Widget _buildEventItem(Map<String, dynamic> event, AppLocalizations l10n,
+                        HydrationProvider provider, AlcoholService alcoholService, int index) {
+    final type = event['type'] as String;
+    
+    Widget content;
+    
+    switch (type) {
+      case 'intake':
+        content = _buildIntakeItem(event['data'] as Intake, l10n, provider);
+        break;
+      case 'alcohol':
+        content = _buildAlcoholItem(event['data'] as AlcoholIntake, l10n, alcoholService);
+        break;
+      case 'caffeine':
+        content = _buildCaffeineItem(event['data'] as Map<String, dynamic>, l10n);
+        break;
+      case 'workout':
+        content = _buildWorkoutItem(event['data'] as Workout, l10n);
+        break;
+      default:
+        return const SizedBox.shrink();
+    }
+    
+    return content.animate().fadeIn(delay: Duration(milliseconds: 50 * index.clamp(0, 10)));
+  }
+
+  Widget _buildIntakeItem(Intake intake, AppLocalizations l10n, HydrationProvider provider) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey.shade200),
-        ),
-      ),
       child: Row(
         children: [
           Container(
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.1),
+              color: _getIntakeTypeColor(intake.type).withOpacity(0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
-              child: Icon(intake.type.icon, color: Colors.orange, size: 24),
+              child: Icon(
+                _getIntakeTypeIcon(intake.type),
+                color: _getIntakeTypeColor(intake.type),
+                size: 24,
+              ),
             ),
           ),
           const SizedBox(width: 16),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _getIntakeTypeName(intake.type, l10n),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _unitsService.formatVolume(intake.volume),
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
+                ),
+                if (intake.totalElectrolytes > 0) 
+                  Text(
+                    'Na: ${intake.sodium}${l10n.mg}, K: ${intake.potassium}${l10n.mg}, Mg: ${intake.magnesium}${l10n.mg}',
+                    style: TextStyle(
+                      color: Colors.grey.shade500,
+                      fontSize: 11,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                intake.formattedTime,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+              
+              if (_isToday())
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, size: 18),
+                  color: Colors.red.shade400,
+                  onPressed: () => _deleteIntake(intake, provider, l10n),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAlcoholItem(AlcoholIntake intake, AppLocalizations l10n, AlcoholService alcoholService) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.orange.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: Icon(
+                intake.type.icon,
+                color: Colors.orange,
+                size: 24,
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -473,241 +869,90 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                     fontSize: 16,
                   ),
                 ),
+                const SizedBox(height: 2),
                 Text(
-                  '${intake.volumeMl.toInt()} ${l10n.ml}, ${intake.abv}%, ${intake.standardDrinks.toStringAsFixed(1)} SD',
+                  '${_unitsService.formatVolume(intake.volumeMl.round())}, ${intake.abv}%',
                   style: TextStyle(
                     color: Colors.grey.shade600,
                     fontSize: 14,
                   ),
                 ),
+                Text(
+                  '${intake.standardDrinks.toStringAsFixed(1)} SD',
+                  style: TextStyle(
+                    color: Colors.orange.shade700,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
           ),
-          Text(
-            intake.formattedTime,
-            style: const TextStyle(
-              fontWeight: FontWeight.w500,
-            ),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                intake.formattedTime,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+              
+              if (_isToday())
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, size: 18),
+                  color: Colors.red.shade400,
+                  onPressed: () => _deleteAlcohol(intake, alcoholService, l10n),
+                ),
+            ],
           ),
-          const SizedBox(width: 8),
-          
-          // Показываем кнопку удаления только для текущего дня
-          if (_isToday())
-            IconButton(
-              icon: const Icon(Icons.delete_outline, size: 20),
-              color: Colors.red.shade400,
-              onPressed: () async {
-                final shouldDelete = await showDialog<bool>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text(l10n.deleteRecord),
-                      content: Text(l10n.deleteRecordMessage(intake.type.getLabel(context), intake.volumeMl.toInt())),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: Text(l10n.cancel),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.red,
-                          ),
-                          child: Text(l10n.delete),
-                        ),
-                      ],
-                    );
-                  },
-                );
-                
-                if (shouldDelete == true) {
-                  await alcoholService.removeIntake(intake.id);
-                  await _loadAlcoholData(); // Перезагружаем данные
-                  
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(l10n.recordDeleted),
-                        duration: const Duration(seconds: 2),
-                        backgroundColor: Colors.red,
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    );
-                  }
-                }
-              },
-            ),
         ],
       ),
     );
   }
-  
-  double _getTotalAlcoholSD() {
-    double total = 0;
-    for (var intake in selectedDayAlcoholIntakes) {
-      total += intake.standardDrinks;
-    }
-    return total;
-  }
-  
-  bool _canGoForward() {
-    final now = DateTime.now();
-    return _selectedDate.year < now.year ||
-           (_selectedDate.year == now.year && _selectedDate.month < now.month) ||
-           (_selectedDate.year == now.year && _selectedDate.month == now.month && _selectedDate.day < now.day);
-  }
-  
-  Map<String, int> _calculateDayStats() {
-    int totalWater = 0;
-    int totalSodium = 0;
-    int totalPotassium = 0;
-    int totalMagnesium = 0;
-    
-    final intakes = _getIntakesForSelectedDay();
-    
-    for (var intake in intakes) {
-      if (intake.type == 'water' || intake.type == 'electrolyte' || intake.type == 'broth') {
-        totalWater += intake.volume;
-      }
-      totalSodium += intake.sodium;
-      totalPotassium += intake.potassium;
-      totalMagnesium += intake.magnesium;
-    }
-    
-    return {
-      'water': totalWater,
-      'sodium': totalSodium,
-      'potassium': totalPotassium,
-      'magnesium': totalMagnesium,
-    };
-  }
-  
-  bool _isToday() {
-    final now = DateTime.now();
-    return _selectedDate.day == now.day && 
-           _selectedDate.month == now.month &&
-           _selectedDate.year == now.year;
-  }
-  
-  List<Intake> _getIntakesForSelectedDay() {
-    if (_isToday()) {
-      return Provider.of<HydrationProvider>(context, listen: false).todayIntakes;
-    }
-    return selectedDayIntakes;
-  }
-  
-  List<Intake> _getFilteredIntakesForDay() {
-    if (_selectedFilter == 'alcohol') {
-      return [];
-    }
-    
-    final intakes = _getIntakesForSelectedDay();
-    
-    if (_selectedFilter == 'all') {
-      return intakes.reversed.toList();
-    }
-    return intakes
-        .where((intake) => intake.type == _selectedFilter)
-        .toList()
-        .reversed
-        .toList();
-  }
-  
-  Widget _buildDayStat(String icon, String label, String value, Color color) {
-    return Column(
-      children: [
-        Text(icon, style: const TextStyle(fontSize: 24)),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.8),
-            fontSize: 12,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          style: TextStyle(
-            color: color,
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
-  
-  Widget _buildFilterChip(String label, String value) {
-    final isSelected = _selectedFilter == value;
-    
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedFilter = value;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.blue : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? Colors.blue : Colors.grey.shade300,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-          ),
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildIntakeDetailItem(Intake intake, HydrationProvider provider, AppLocalizations l10n) {
+
+  Widget _buildCaffeineItem(Map<String, dynamic> intake, AppLocalizations l10n) {
+    final timestamp = DateTime.fromMillisecondsSinceEpoch(intake['timestamp']);
+    final amount = intake['amount'] as num;
+    final source = intake['source'] as String;
+
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey.shade200),
-        ),
-      ),
       child: Row(
         children: [
           Container(
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: _getIntakeColor(intake.type).withOpacity(0.1),
+              color: Colors.brown.withOpacity(0.15),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Center(
-              child: Text(
-                _getIntakeIcon(intake.type),
-                style: const TextStyle(fontSize: 24),
+            child: const Center(
+              child: Icon(
+                Icons.coffee,
+                color: Colors.brown,
+                size: 24,
               ),
             ),
           ),
           const SizedBox(width: 16),
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _getIntakeName(intake.type, l10n),
+                  source == 'coffee' ? l10n.coffee : l10n.caffeine,
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
                   ),
                 ),
+                const SizedBox(height: 2),
                 Text(
-                  '${intake.volume} ${l10n.ml}',
+                  '${amount.toStringAsFixed(0)} ${l10n.mg} ${l10n.caffeine}',
                   style: TextStyle(
                     color: Colors.grey.shade600,
                     fontSize: 14,
@@ -716,112 +961,256 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
               ],
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                DateFormat('HH:mm').format(intake.timestamp),
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              if (intake.sodium > 0 || intake.potassium > 0)
-                Text(
-                  'Na: ${intake.sodium} K: ${intake.potassium}',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(width: 8),
-          
-          // Показываем кнопку удаления только для текущего дня
-          if (_isToday())
-            IconButton(
-              icon: const Icon(Icons.delete_outline, size: 20),
-              color: Colors.red.shade400,
-              onPressed: () async {
-                final shouldDelete = await showDialog<bool>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text(l10n.deleteRecord),
-                      content: Text(l10n.deleteRecordMessage(_getIntakeName(intake.type, l10n), intake.volume)),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: Text(l10n.cancel),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.red,
-                          ),
-                          child: Text(l10n.delete),
-                        ),
-                      ],
-                    );
-                  },
-                );
-                
-                if (shouldDelete == true) {
-                  final deletedIntake = intake;
-                  provider.removeIntake(intake.id);
-                  
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).clearSnackBars();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(l10n.itemDeleted(_getIntakeName(intake.type, l10n))),
-                        duration: const Duration(seconds: 3),
-                        action: SnackBarAction(
-                          label: l10n.undo,
-                          textColor: Colors.white,
-                          onPressed: () {
-                            provider.addIntake(
-                              deletedIntake.type,
-                              deletedIntake.volume,
-                              sodium: deletedIntake.sodium,
-                              potassium: deletedIntake.potassium,
-                              magnesium: deletedIntake.magnesium,
-                            );
-                          },
-                        ),
-                        behavior: SnackBarBehavior.floating,
-                        backgroundColor: Colors.red,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    );
-                  }
-                }
-              },
+
+          Text(
+            DateFormat('HH:mm').format(timestamp),
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
             ),
+          ),
         ],
       ),
     );
   }
-  
+
+  Widget _buildWorkoutItem(Workout workout, AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.green.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Center(
+              child: Icon(
+                Icons.fitness_center,
+                color: Colors.green,
+                size: 24,
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _getWorkoutTypeName(workout.type, l10n),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${workout.durationMinutes} ${l10n.minutes}, ${l10n.intensity} ${workout.intensity}/5',
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
+                ),
+                if (workout.waterLossMl > 0)
+                  Text(
+                    '-${_unitsService.formatVolume(workout.waterLossMl)} ${l10n.sweatLoss}',
+                    style: TextStyle(
+                      color: Colors.blue.shade600,
+                      fontSize: 11,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+
+          Text(
+            DateFormat('HH:mm').format(workout.timestamp),
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteIntake(Intake intake, HydrationProvider provider, AppLocalizations l10n) async {
+    HapticFeedback.mediumImpact();
+    
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.deleteRecord),
+        content: Text(l10n.deleteRecordMessage(
+          _getIntakeTypeName(intake.type, l10n),
+          intake.volume,
+        )),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete == true) {
+      final deletedIntake = intake;
+      
+      provider.removeIntake(intake.id);
+      
+      setState(() {
+        _intakes.removeWhere((i) => i.id == intake.id);
+      });
+
+      _showUndoSnackBar(
+        l10n.itemDeleted(_getIntakeTypeName(intake.type, l10n)),
+        () {
+          provider.addIntake(
+            deletedIntake.type,
+            deletedIntake.volume,
+            sodium: deletedIntake.sodium,
+            potassium: deletedIntake.potassium,
+            magnesium: deletedIntake.magnesium,
+            showAchievement: false,
+          );
+          _loadDayData();
+        },
+      );
+    }
+  }
+
+  Future<void> _deleteAlcohol(AlcoholIntake intake, AlcoholService alcoholService, AppLocalizations l10n) async {
+    HapticFeedback.mediumImpact();
+    
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.deleteRecord),
+        content: Text(l10n.deleteRecordMessage(
+          intake.type.getLabel(context),
+          intake.volumeMl.toInt(),
+        )),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete == true) {
+      await alcoholService.removeIntake(intake.id);
+      
+      setState(() {
+        _alcoholIntakes.removeWhere((i) => i.id == intake.id);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.recordDeleted),
+          duration: const Duration(seconds: 2),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  List<Map<String, dynamic>> _getFilteredEvents(AlcoholService alcoholService) {
+    List<Map<String, dynamic>> events = [];
+
+    if (_selectedFilter == 'all' || _selectedFilter != 'alcohol' && _selectedFilter != 'workout') {
+      for (final intake in _intakes) {
+        if (_selectedFilter == 'all' || intake.type == _selectedFilter) {
+          events.add({
+            'type': 'intake',
+            'timestamp': intake.timestamp,
+            'data': intake,
+          });
+        }
+      }
+    }
+
+    if (_selectedFilter == 'all' || _selectedFilter == 'coffee') {
+      for (final caffeine in _caffeineIntakes) {
+        events.add({
+          'type': 'caffeine',
+          'timestamp': DateTime.fromMillisecondsSinceEpoch(caffeine['timestamp']),
+          'data': caffeine,
+        });
+      }
+    }
+
+    if (!alcoholService.soberModeEnabled && (_selectedFilter == 'all' || _selectedFilter == 'alcohol')) {
+      for (final alcohol in _alcoholIntakes) {
+        events.add({
+          'type': 'alcohol',
+          'timestamp': alcohol.timestamp,
+          'data': alcohol,
+        });
+      }
+    }
+
+    if (_selectedFilter == 'all' || _selectedFilter == 'workout') {
+      for (final workout in _workouts) {
+        events.add({
+          'type': 'workout',
+          'timestamp': workout.timestamp,
+          'data': workout,
+        });
+      }
+    }
+
+    events.sort((a, b) => b['timestamp'].compareTo(a['timestamp']));
+    
+    return events;
+  }
+
   String _formatDate(DateTime date, AppLocalizations l10n) {
     final now = DateTime.now();
     final yesterday = now.subtract(const Duration(days: 1));
     
-    if (date.day == now.day && date.month == now.month && date.year == now.year) {
+    if (_isSameDay(date, now)) {
       return l10n.today;
-    } else if (date.day == yesterday.day && date.month == yesterday.month && date.year == yesterday.year) {
+    } else if (_isSameDay(date, yesterday)) {
       return l10n.yesterday;
     }
     
-    // Используем локализованный формат даты
     final locale = Localizations.localeOf(context).toString();
     final formatter = DateFormat.MMMMd(locale);
     return formatter.format(date);
   }
-  
-  Color _getIntakeColor(String type) {
+
+  Color _getProgressColor(double percent) {
+    if (percent >= 80) return Colors.green;
+    if (percent >= 50) return Colors.orange;
+    return Colors.red;
+  }
+
+  Color _getHRIColor(int hri) {
+    if (hri <= 30) return Colors.green;
+    if (hri <= 60) return Colors.orange;
+    return Colors.red;
+  }
+
+  Color _getIntakeTypeColor(String type) {
     switch (type) {
       case 'water': return Colors.blue;
       case 'electrolyte': return Colors.orange;
@@ -830,18 +1219,18 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
       default: return Colors.grey;
     }
   }
-  
-  String _getIntakeIcon(String type) {
+
+  IconData _getIntakeTypeIcon(String type) {
     switch (type) {
-      case 'water': return '💧';
-      case 'electrolyte': return '⚡';
-      case 'broth': return '🍲';
-      case 'coffee': return '☕';
-      default: return '🥤';
+      case 'water': return Icons.water_drop;
+      case 'electrolyte': return Icons.bolt;
+      case 'broth': return Icons.soup_kitchen;
+      case 'coffee': return Icons.coffee;
+      default: return Icons.local_drink;
     }
   }
-  
-  String _getIntakeName(String type, AppLocalizations l10n) {
+
+  String _getIntakeTypeName(String type, AppLocalizations l10n) {
     switch (type) {
       case 'water': return l10n.water;
       case 'electrolyte': return l10n.electrolyte;
@@ -850,18 +1239,49 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
       default: return l10n.drink;
     }
   }
-}
 
-// Вспомогательный класс для сортировки
-class _IntakeItemWrapper extends StatelessWidget {
-  final DateTime timestamp;
-  final Widget child;
+  String _getWorkoutTypeName(String type, AppLocalizations l10n) {
+    switch (type) {
+      case 'cardio': return 'Cardio';
+      case 'strength': return 'Strength';
+      case 'yoga': return 'Yoga';
+      case 'running': return l10n.running;
+      case 'cycling': return l10n.cycling;
+      case 'sauna': return l10n.sauna;
+      default: return 'Workout';
+    }
+  }
 
-  const _IntakeItemWrapper({
-    required this.timestamp,
-    required this.child,
-  });
+  IconData _getEmptyStateIcon() {
+    switch (_selectedFilter) {
+      case 'water': return Icons.water_drop_outlined;
+      case 'electrolyte': return Icons.bolt;
+      case 'coffee': return Icons.coffee_outlined;
+      case 'alcohol': return Icons.local_bar_outlined;
+      case 'workout': return Icons.fitness_center_outlined;
+      default: return Icons.history_outlined;
+    }
+  }
 
-  @override
-  Widget build(BuildContext context) => child;
+  String _getEmptyStateMessage(AppLocalizations l10n) {
+    if (_isToday()) {
+      switch (_selectedFilter) {
+        case 'water': return l10n.noRecordsToday;
+        case 'electrolyte': return l10n.noRecordsToday;
+        case 'coffee': return l10n.noRecordsToday;
+        case 'alcohol': return l10n.noAlcoholToday;
+        case 'workout': return l10n.noRecordsToday;
+        default: return l10n.noRecordsToday;
+      }
+    } else {
+      switch (_selectedFilter) {
+        case 'water': return l10n.noRecordsThisDay;
+        case 'electrolyte': return l10n.noRecordsThisDay;
+        case 'coffee': return l10n.noRecordsThisDay;
+        case 'alcohol': return l10n.noRecordsThisDay;
+        case 'workout': return l10n.noRecordsThisDay;
+        default: return l10n.noRecordsThisDay;
+      }
+    }
+  }
 }

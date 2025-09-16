@@ -1591,7 +1591,7 @@ abstract class AppLocalizations {
   /// No description provided for @strength.
   ///
   /// In en, this message translates to:
-  /// **'Strength (%):'**
+  /// **'Strength'**
   String get strength;
 
   /// No description provided for @standardDrinks.
@@ -5715,6 +5715,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Monitor natural, added & hidden sugar intake with HRI impact analysis'**
   String get sugarTrackingPro;
+
+  /// No description provided for @dayOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Day Overview'**
+  String get dayOverview;
+
+  /// No description provided for @tapForDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap for details'**
+  String get tapForDetails;
+
+  /// No description provided for @noDataForDay.
+  ///
+  /// In en, this message translates to:
+  /// **'No data for this day'**
+  String get noDataForDay;
+
+  /// No description provided for @sweatLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'sweat loss'**
+  String get sweatLoss;
+
+  /// No description provided for @cardio.
+  ///
+  /// In en, this message translates to:
+  /// **'Cardio'**
+  String get cardio;
+
+  /// No description provided for @workout.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout'**
+  String get workout;
+
+  /// No description provided for @noWaterToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No water recorded today'**
+  String get noWaterToday;
+
+  /// No description provided for @noElectrolytesToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No electrolytes recorded today'**
+  String get noElectrolytesToday;
+
+  /// No description provided for @noCoffeeToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No coffee recorded today'**
+  String get noCoffeeToday;
+
+  /// No description provided for @noWorkoutsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No workouts recorded today'**
+  String get noWorkoutsToday;
+
+  /// No description provided for @noWaterThisDay.
+  ///
+  /// In en, this message translates to:
+  /// **'No water recorded this day'**
+  String get noWaterThisDay;
+
+  /// No description provided for @noElectrolytesThisDay.
+  ///
+  /// In en, this message translates to:
+  /// **'No electrolytes recorded this day'**
+  String get noElectrolytesThisDay;
+
+  /// No description provided for @noCoffeeThisDay.
+  ///
+  /// In en, this message translates to:
+  /// **'No coffee recorded this day'**
+  String get noCoffeeThisDay;
+
+  /// No description provided for @noWorkoutsThisDay.
+  ///
+  /// In en, this message translates to:
+  /// **'No workouts recorded this day'**
+  String get noWorkoutsThisDay;
 }
 
 class _AppLocalizationsDelegate

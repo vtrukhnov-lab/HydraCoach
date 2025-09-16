@@ -63,10 +63,6 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                 fontWeight: FontWeight.bold,
               ),
             ),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
-              onPressed: () => Navigator.pop(context),
-            ),
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(46.0),
               child: Container(

@@ -1447,6 +1447,21 @@
 "weather": "Clima", 
 "weatherTrackingPro": "Rastrea el índice de calor, humedad e impacto del clima en los objetivos de hidratación",
 "sugarTracking": "Seguimiento de Azúcar",
-"sugarTrackingPro": "Monitorea la ingesta de azúcar natural, añadido y oculto con análisis de impacto HRI"
-
+"sugarTrackingPro": "Monitorea la ingesta de azúcar natural, añadido y oculto con análisis de impacto HRI",
+"electrolyteTrackingPro": "Rastrea los objetivos de sodio, potasio y magnesio con barras de progreso detalladas",
+"dayOverview": "Resumen del día",
+"tapForDetails": "Toca para detalles",
+"noDataForDay": "Sin datos para este día",
+"sweatLoss": "pérdida de sudor",
+"cardio": "Cardio",
+"strength": "Fuerza",
+"workout": "Ejercicio",
+"noWaterToday": "No se registró agua hoy",
+"noElectrolytesToday": "No se registraron electrolitos hoy",
+"noCoffeeToday": "No se registró café hoy",
+"noWorkoutsToday": "No se registraron ejercicios hoy",
+"noWaterThisDay": "No se registró agua este día",
+"noElectrolytesThisDay": "No se registraron electrolitos este día",
+"noCoffeeThisDay": "No se registró café este día",
+"noWorkoutsThisDay": "No se registraron ejercicios este día"
 }

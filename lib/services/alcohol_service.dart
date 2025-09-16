@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/alcohol_intake.dart';
 import '../services/remote_config_service.dart';
+import '../services/history_service.dart';
 
 class AlcoholService extends ChangeNotifier {
   static const String _intakesKey = 'alcohol_intakes';
@@ -103,6 +104,18 @@ class AlcoholService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// NEW: Save alcohol intake to Firestore via HistoryService
+  Future<void> _saveToFirestore(AlcoholIntake intake) async {
+    try {
+      final historyService = HistoryService();
+      await historyService.saveAlcoholIntake(intake);
+      print('Alcohol intake saved to Firestore: ${intake.type} ${intake.standardDrinks}SD');
+    } catch (e) {
+      print('Error saving alcohol intake to Firestore: $e');
+      // Не блокируем UI если Firestore недоступен - данные остаются в SharedPreferences
+    }
+  }
+
   /// Добавить запись алкоголя
   Future<void> addIntake(AlcoholIntake intake) async {
     final prefs = await SharedPreferences.getInstance();
@@ -119,8 +132,11 @@ class AlcoholService extends ChangeNotifier {
     // Добавляем новую запись
     allIntakes.add(intake.toJson());
     
-    // Сохраняем
+    // Сохраняем в SharedPreferences
     await prefs.setString(_intakesKey, json.encode(allIntakes));
+    
+    // NEW: Save to Firestore via HistoryService
+    await _saveToFirestore(intake);
     
     // Обновляем сегодняшние записи
     if (_isSameDay(intake.timestamp, DateTime.now())) {
@@ -146,9 +162,25 @@ class AlcoholService extends ChangeNotifier {
     // Сохраняем
     await prefs.setString(_intakesKey, json.encode(allIntakes));
     
+    // TODO: Remove from Firestore via HistoryService
+    // await _removeFromFirestore(intakeId);
+    
     // Обновляем сегодняшние записи
     _todayIntakes.removeWhere((intake) => intake.id == intakeId);
     notifyListeners();
+  }
+
+  /// NEW: Save check-in to Firestore via HistoryService
+  Future<void> _saveCheckinToFirestore(AlcoholCheckin checkin) async {
+    try {
+      final historyService = HistoryService();
+      // TODO: Add saveAlcoholCheckin method to HistoryService when needed
+      // await historyService.saveAlcoholCheckin(checkin);
+      print('Alcohol check-in ready for Firestore: ${checkin.date} (method not implemented yet)');
+    } catch (e) {
+      print('Error saving alcohol check-in to Firestore: $e');
+      // Не блокируем UI если Firestore недоступен
+    }
   }
 
   /// Сохранить утренний чек-ин
@@ -167,8 +199,11 @@ class AlcoholService extends ChangeNotifier {
     // Добавляем новый чек-ин
     allCheckins.add(checkin.toJson());
     
-    // Сохраняем
+    // Сохраняем в SharedPreferences
     await prefs.setString(_checkinsKey, json.encode(allCheckins));
+    
+    // NEW: Save to Firestore via HistoryService
+    await _saveCheckinToFirestore(checkin);
     
     // Обновляем сегодняшний чек-ин
     if (_isSameDay(checkin.date, DateTime.now())) {

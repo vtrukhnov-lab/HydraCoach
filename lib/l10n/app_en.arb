@@ -1670,5 +1670,20 @@
 "weather": "Weather",
 "weatherTrackingPro": "Track heat index, humidity & weather impact on hydration goals",
 "sugarTracking": "Sugar Tracking", 
-"sugarTrackingPro": "Monitor natural, added & hidden sugar intake with HRI impact analysis"
+"sugarTrackingPro": "Monitor natural, added & hidden sugar intake with HRI impact analysis",
+"dayOverview": "Day Overview",
+"tapForDetails": "Tap for details",
+"noDataForDay": "No data for this day",
+"sweatLoss": "sweat loss",
+"cardio": "Cardio",
+"strength": "Strength",
+"workout": "Workout",
+"noWaterToday": "No water recorded today",
+"noElectrolytesToday": "No electrolytes recorded today",
+"noCoffeeToday": "No coffee recorded today",
+"noWorkoutsToday": "No workouts recorded today",
+"noWaterThisDay": "No water recorded this day",
+"noElectrolytesThisDay": "No electrolytes recorded this day",
+"noCoffeeThisDay": "No coffee recorded this day",
+"noWorkoutsThisDay": "No workouts recorded this day"
 }

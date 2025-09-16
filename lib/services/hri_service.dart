@@ -2,12 +2,13 @@
 // 
 // HRI (Hydration Risk Index) Service - Complete Rewrite
 // Manages hydration risk calculation with all factors
-// UPDATED: Added workout loss calculations and proper tracking
+// UPDATED: Added workout loss calculations and proper tracking + HistoryService integration
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
 import 'remote_config_service.dart';
+import 'history_service.dart';
 import '../data/catalog_item.dart';
 
 // ============================================================================
@@ -433,11 +434,22 @@ class HRIService extends ChangeNotifier {
     await prefs.setString(_componentsKey, componentsStr);
   }
   
+  // ============================================================================
+  // DAILY RESET WITH HRI AUTOSAVE
+  // ============================================================================
+  
   void _checkAndResetDaily() {
     final now = DateTime.now();
     if (_lastUpdate.day != now.day || 
         _lastUpdate.month != now.month || 
         _lastUpdate.year != now.year) {
+      
+      // NEW: Save yesterday's HRI before reset
+      if (_lastUpdate.isBefore(now.subtract(const Duration(hours: 1)))) {
+        // Only save if last update was more than 1 hour ago (avoid duplicate saves)
+        _saveEndOfDaySnapshot();
+      }
+      
       // New day - reset daily data
       _todayWorkouts.clear();
       _todayCaffeineIntakes.clear();
@@ -462,10 +474,43 @@ class HRIService extends ChangeNotifier {
   }
   
   // ============================================================================
+  // FIRESTORE INTEGRATION (NEW)
+  // ============================================================================
+  
+  // NEW: Save workout to Firestore via HistoryService
+  Future<void> _saveWorkoutToFirestore(Workout workout) async {
+    try {
+      final historyService = HistoryService();
+      await historyService.saveWorkout(workout);
+      print('Workout saved to Firestore: ${workout.type} ${workout.durationMinutes}min');
+    } catch (e) {
+      print('Error saving workout to Firestore: $e');
+      // Не блокируем UI если Firestore недоступен - данные остаются в SharedPreferences
+    }
+  }
+  
+  // NEW: Save caffeine intake to Firestore via HistoryService
+  Future<void> _saveCaffeineToFirestore(CaffeineIntake intake) async {
+    try {
+      final historyService = HistoryService();
+      await historyService.saveCaffeineIntake(
+        intake.id,
+        intake.timestamp,
+        intake.caffeineMg,
+        intake.source,
+      );
+      print('Caffeine saved to Firestore: ${intake.caffeineMg}mg from ${intake.source}');
+    } catch (e) {
+      print('Error saving caffeine to Firestore: $e');
+      // Не блокируем UI если Firestore недоступен - данные остаются в SharedPreferences
+    }
+  }
+  
+  // ============================================================================
   // DATA INPUT METHODS
   // ============================================================================
   
-  // Updated method with loss tracking
+  // Updated method with loss tracking and Firestore integration
   Future<void> addWorkout({
     required String type,
     required int intensity,
@@ -504,6 +549,9 @@ class HRIService extends ChangeNotifier {
     _totalPotassiumLossMg += workout.potassiumLossMg;
     _totalMagnesiumLossMg += workout.magnesiumLossMg;
     
+    // NEW: Save to Firestore via HistoryService
+    await _saveWorkoutToFirestore(workout);
+    
     await _recalculateHRI();
   }
   
@@ -520,6 +568,7 @@ class HRIService extends ChangeNotifier {
     );
   }
   
+  // Updated method with Firestore integration
   Future<void> addCaffeineIntake(double caffeineMg, {String source = 'coffee'}) async {
     if (caffeineMg <= 0) return;
     
@@ -531,6 +580,10 @@ class HRIService extends ChangeNotifier {
     );
     
     _todayCaffeineIntakes.add(intake);
+    
+    // NEW: Save to Firestore via HistoryService
+    await _saveCaffeineToFirestore(intake);
+    
     await _recalculateHRI();
   }
   
@@ -796,7 +849,7 @@ class HRIService extends ChangeNotifier {
   }
   
   // ============================================================================
-  // HELPER METHODS
+  // ENHANCED RECALCULATE WITH AUTOSAVE
   // ============================================================================
   
   Future<void> _recalculateHRI() async {
@@ -810,7 +863,6 @@ class HRIService extends ChangeNotifier {
     // Recalculate dehydration component
     _components['dehydration'] = 0.0;
     if (_totalWaterLossMl > 100) {
-      // Simple calculation for dehydration when we don't have full data
       _components['dehydration'] = min(15.0, _totalWaterLossMl / 200.0);
     }
     
@@ -838,7 +890,64 @@ class HRIService extends ChangeNotifier {
     
     await _saveData();
     notifyListeners();
+    
+    // NEW: Auto-save snapshot at specific times (e.g., 23:00)
+    final now = DateTime.now();
+    if (now.hour == 23 && now.minute == 0) {
+      await saveCurrentDaySnapshot();
+    }
   }
+  
+  // ============================================================================
+  // AUTOMATIC HRI SAVING
+  // ============================================================================
+  
+  /// Save current HRI snapshot to history when day changes
+  Future<void> _saveEndOfDaySnapshot() async {
+    try {
+      final historyService = HistoryService();
+      final yesterday = DateTime.now().subtract(const Duration(days: 1));
+      
+      await historyService.saveDailyHRI(
+        date: yesterday,
+        hri: _currentHRI,
+        status: hriStatus,
+        components: Map<String, double>.from(_components),
+      );
+      
+      print('End-of-day HRI snapshot saved for ${_formatDate(yesterday)}');
+    } catch (e) {
+      print('Error saving end-of-day HRI snapshot: $e');
+    }
+  }
+  
+  /// Manual save of current day's HRI (for testing or end-of-day triggers)
+  Future<void> saveCurrentDaySnapshot() async {
+    try {
+      final historyService = HistoryService();
+      final today = DateTime.now();
+      
+      await historyService.saveDailyHRI(
+        date: today,
+        hri: _currentHRI,
+        status: hriStatus,
+        components: Map<String, double>.from(_components),
+      );
+      
+      print('Current day HRI snapshot saved: HRI ${_currentHRI.toStringAsFixed(1)}, Status: $hriStatus');
+    } catch (e) {
+      print('Error saving current day HRI snapshot: $e');
+    }
+  }
+  
+  /// Utility method for date formatting
+  String _formatDate(DateTime date) {
+    return date.toIso8601String().split('T')[0];
+  }
+  
+  // ============================================================================
+  // UTILITY METHODS
+  // ============================================================================
   
   Future<void> resetDaily() async {
     _currentHRI = 25.0;

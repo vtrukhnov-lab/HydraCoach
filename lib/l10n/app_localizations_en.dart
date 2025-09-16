@@ -825,7 +825,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterVolume => 'Enter volume in ml';
 
   @override
-  String get strength => 'Strength (%):';
+  String get strength => 'Strength';
 
   @override
   String get standardDrinks => 'Standard drinks:';
@@ -3037,4 +3037,46 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get sugarTrackingPro =>
       'Monitor natural, added & hidden sugar intake with HRI impact analysis';
+
+  @override
+  String get dayOverview => 'Day Overview';
+
+  @override
+  String get tapForDetails => 'Tap for details';
+
+  @override
+  String get noDataForDay => 'No data for this day';
+
+  @override
+  String get sweatLoss => 'sweat loss';
+
+  @override
+  String get cardio => 'Cardio';
+
+  @override
+  String get workout => 'Workout';
+
+  @override
+  String get noWaterToday => 'No water recorded today';
+
+  @override
+  String get noElectrolytesToday => 'No electrolytes recorded today';
+
+  @override
+  String get noCoffeeToday => 'No coffee recorded today';
+
+  @override
+  String get noWorkoutsToday => 'No workouts recorded today';
+
+  @override
+  String get noWaterThisDay => 'No water recorded this day';
+
+  @override
+  String get noElectrolytesThisDay => 'No electrolytes recorded this day';
+
+  @override
+  String get noCoffeeThisDay => 'No coffee recorded this day';
+
+  @override
+  String get noWorkoutsThisDay => 'No workouts recorded this day';
 }

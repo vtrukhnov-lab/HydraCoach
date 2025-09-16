@@ -2,7 +2,7 @@
 // FILE: lib/providers/hydration_provider.dart
 // 
 // PURPOSE: Provider for hydration tracking and goals management
-// UPDATED: Added workout losses integration with HRIService
+// UPDATED: Added workout losses integration with HRIService + HistoryService integration
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -22,6 +22,7 @@ import '../services/alcohol_service.dart';
 import '../services/weather_service.dart';
 import '../services/achievement_service.dart';
 import '../services/units_service.dart';
+import '../services/history_service.dart';
 import '../models/daily_goals.dart';
 import '../models/intake.dart';
 import '../models/alcohol_intake.dart';
@@ -731,6 +732,18 @@ class HydrationProvider extends ChangeNotifier {
     await prefs.setString('activityLevel', activityLevel);
   }
   
+  // NEW: Save intake to Firestore via HistoryService
+  Future<void> _saveToFirestore(Intake intake) async {
+    try {
+      final historyService = HistoryService();
+      await historyService.saveIntake(intake);
+      print('Intake saved to Firestore: ${intake.type} ${intake.volume}ml');
+    } catch (e) {
+      print('Error saving to Firestore: $e');
+      // Не блокируем UI если Firestore недоступен - данные остаются в SharedPreferences
+    }
+  }
+  
   // UPDATED: Added achievement service integration with control parameter
   void addIntake(String type, int volume, {
     int sodium = 0, 
@@ -744,7 +757,7 @@ class HydrationProvider extends ChangeNotifier {
         : 0.0;
     
     // Add to list
-    todayIntakes.add(Intake(
+    final newIntake = Intake(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       timestamp: DateTime.now(),
       type: type,
@@ -752,7 +765,12 @@ class HydrationProvider extends ChangeNotifier {
       sodium: sodium,
       potassium: potassium,
       magnesium: magnesium,
-    ));
+    );
+    
+    todayIntakes.add(newIntake);
+    
+    // NEW: Save to Firestore via HistoryService
+    _saveToFirestore(newIntake);
     
     // Haptic feedback
     HapticFeedback.lightImpact();
