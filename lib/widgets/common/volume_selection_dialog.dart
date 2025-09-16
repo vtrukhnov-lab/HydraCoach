@@ -55,33 +55,62 @@ class VolumeSelectionDialog extends StatefulWidget {
 
 class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
   late double sliderVolume;
+  late double minVolume;
+  late double maxVolume;
 
   @override
   void initState() {
     super.initState();
-    sliderVolume = widget.item.getDefaultVolume(widget.units).toDouble();
+    _initializeVolumes();
   }
 
-  // Get volume limits based on units and item type
-  double get minVolume {
-    // For electrolytes, allow smaller volumes
+  void _initializeVolumes() {
+    // Set min/max based on type
     if (widget.showElectrolytes) {
-      return widget.units == 'imperial' ? 1.0 : 30.0;
+      minVolume = widget.units == 'imperial' ? 1.0 : 30.0;
+      maxVolume = widget.units == 'imperial' ? 40.0 : 1000.0;
+    } else {
+      minVolume = widget.units == 'imperial' ? 4.0 : 100.0;
+      maxVolume = widget.units == 'imperial' ? 40.0 : 1000.0;
     }
-    return widget.units == 'imperial' ? 4.0 : 100.0;
+
+    // Safe initialization of slider value
+    try {
+      final defaultVol = widget.item.getDefaultVolume(widget.units);
+      
+      // Validate the value
+      if (defaultVol == null || 
+          defaultVol.isNaN || 
+          defaultVol.isInfinite || 
+          defaultVol <= 0) {
+        // Use sensible default
+        sliderVolume = _getDefaultVolume();
+      } else {
+        sliderVolume = defaultVol.toDouble();
+      }
+    } catch (e) {
+      print('Error getting default volume: $e');
+      sliderVolume = _getDefaultVolume();
+    }
+    
+    // Ensure value is within bounds
+    sliderVolume = sliderVolume.clamp(minVolume, maxVolume);
   }
 
-  double get maxVolume {
-    // For electrolytes, may need larger volumes
-    if (widget.showElectrolytes) {
-      return widget.units == 'imperial' ? 40.0 : 1000.0;
+  double _getDefaultVolume() {
+    // Return sensible defaults based on units
+    if (widget.units == 'imperial') {
+      return 8.0; // 8 oz
+    } else {
+      return 250.0; // 250 ml
     }
-    return widget.units == 'imperial' ? 40.0 : 1000.0;
   }
 
-  // Helper functions
   double getVolumeMl() {
-    return widget.units == 'imperial' ? sliderVolume * 29.5735 : sliderVolume;
+    if (widget.units == 'imperial') {
+      return sliderVolume * 29.5735;
+    }
+    return sliderVolume;
   }
 
   double getHydrationValue() {
@@ -89,61 +118,95 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
     return getVolumeMl() * hydration.toDouble();
   }
 
-  // Calculate proportional electrolytes
   Map<String, int> getElectrolytes() {
-    if (!widget.showElectrolytes) return {};
+    if (!widget.showElectrolytes) {
+      return {'sodium': 0, 'potassium': 0, 'magnesium': 0};
+    }
     
-    final baseVolume = widget.item.getDefaultVolume(widget.units).toDouble();
-    final multiplier = sliderVolume / baseVolume;
-    
-    return {
-      'sodium': ((widget.item.properties['sodium'] ?? 0) * multiplier).round(),
-      'potassium': ((widget.item.properties['potassium'] ?? 0) * multiplier).round(),
-      'magnesium': ((widget.item.properties['magnesium'] ?? 0) * multiplier).round(),
-    };
+    try {
+      final baseVolume = widget.item.getDefaultVolume(widget.units)?.toDouble() ?? _getDefaultVolume();
+      if (baseVolume <= 0) {
+        return {'sodium': 0, 'potassium': 0, 'magnesium': 0};
+      }
+      
+      final multiplier = sliderVolume / baseVolume;
+      
+      return {
+        'sodium': ((widget.item.properties['sodium'] ?? 0) * multiplier).round(),
+        'potassium': ((widget.item.properties['potassium'] ?? 0) * multiplier).round(),
+        'magnesium': ((widget.item.properties['magnesium'] ?? 0) * multiplier).round(),
+      };
+    } catch (e) {
+      print('Error calculating electrolytes: $e');
+      return {'sodium': 0, 'potassium': 0, 'magnesium': 0};
+    }
   }
 
   double getTotalSugar() {
-    final baseVolume = widget.item.getDefaultVolume(widget.units).toDouble();
-    final baseSugar = (widget.item.properties['sugar'] ?? 0.0) as num;
-    final currentVolume = sliderVolume;
-    return (baseSugar * currentVolume / baseVolume);
+    try {
+      final baseVolume = widget.item.getDefaultVolume(widget.units)?.toDouble() ?? _getDefaultVolume();
+      if (baseVolume <= 0) return 0.0;
+      
+      final baseSugar = (widget.item.properties['sugar'] ?? 0.0) as num;
+      return (baseSugar * sliderVolume / baseVolume);
+    } catch (e) {
+      print('Error calculating sugar: $e');
+      return 0.0;
+    }
+  }
+
+  double getCaffeine() {
+    try {
+      final baseVolume = widget.item.getDefaultVolume(widget.units)?.toDouble() ?? _getDefaultVolume();
+      if (baseVolume <= 0) return 0.0;
+      
+      final baseCaffeine = (widget.item.properties['caffeineMgPer100ml'] ?? 0.0) as num;
+      return (baseCaffeine * getVolumeMl() / 100);
+    } catch (e) {
+      print('Error calculating caffeine: $e');
+      return 0.0;
+    }
   }
 
   double getHRIImpact() {
-    final volumeMl = getVolumeMl();
-    final hydrationFactor = (widget.item.properties['hydration'] as num? ?? 1.0).toDouble();
-    final effectiveVolume = volumeMl * hydrationFactor;
-    
-    // Base impact calculation
-    double impact = -(effectiveVolume / 2000.0 * 10); // Negative is good
-    
-    // Electrolyte bonus if applicable
-    if (widget.showElectrolytes) {
-      final electrolytes = getElectrolytes();
-      if (electrolytes['sodium']! > 500) {
-        impact -= 3; // High sodium helps retention
-      } else if (electrolytes['sodium']! > 0) {
-        impact -= 1;
+    try {
+      final volumeMl = getVolumeMl();
+      final hydrationFactor = (widget.item.properties['hydration'] as num? ?? 1.0).toDouble();
+      final effectiveVolume = volumeMl * hydrationFactor;
+      
+      // Base impact (negative is good)
+      double impact = -(effectiveVolume / 2000.0 * 10);
+      
+      // Electrolyte bonus
+      if (widget.showElectrolytes) {
+        final electrolytes = getElectrolytes();
+        final sodium = electrolytes['sodium'] ?? 0;
+        if (sodium > 500) {
+          impact -= 3;
+        } else if (sodium > 0) {
+          impact -= 1;
+        }
       }
+      
+      // Sugar penalty
+      final sugar = getTotalSugar();
+      if (sugar > 50) {
+        impact += (sugar - 50) * 0.2;
+      } else if (sugar > 25) {
+        impact += (sugar - 25) * 0.1;
+      }
+      
+      // Caffeine impact
+      final caffeine = getCaffeine();
+      if (caffeine > 0) {
+        impact += (caffeine * 0.02).clamp(0, 5);
+      }
+      
+      return impact;
+    } catch (e) {
+      print('Error calculating HRI impact: $e');
+      return 0.0;
     }
-    
-    // Sugar penalty
-    final sugar = getTotalSugar();
-    if (sugar > 50) {
-      impact += (sugar - 50) * 0.2;
-    } else if (sugar > 25) {
-      impact += (sugar - 25) * 0.1;
-    }
-    
-    // Caffeine impact
-    final caffeine = (widget.item.properties['caffeine'] ?? 0) as num;
-    if (caffeine > 0) {
-      final caffeineMultiplier = sliderVolume / widget.item.getDefaultVolume(widget.units);
-      impact += (caffeine * caffeineMultiplier * 0.02).clamp(0, 5);
-    }
-    
-    return impact;
   }
 
   List<Color> getHRIGradientColors() {
@@ -174,7 +237,9 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
   bool get hasSignificantElectrolytes {
     if (!widget.showElectrolytes) return false;
     final e = getElectrolytes();
-    return (e['sodium'] ?? 0) > 0 || (e['potassium'] ?? 0) > 0 || (e['magnesium'] ?? 0) > 0;
+    return (e['sodium'] ?? 0) > 0 || 
+           (e['potassium'] ?? 0) > 0 || 
+           (e['magnesium'] ?? 0) > 0;
   }
 
   @override
@@ -184,6 +249,8 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
     final itemName = widget.item.getName(l10n);
     final hydration = (widget.item.properties['hydration'] as num? ?? 1.0);
     final sliderActiveColor = widget.sliderColor ?? Colors.blue;
+    final caffeine = getCaffeine();
+    final sugar = getTotalSugar();
 
     return AlertDialog(
       shape: RoundedRectangleBorder(
@@ -191,7 +258,10 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
       ),
       title: Row(
         children: [
-          Text(widget.item.icon as String, style: const TextStyle(fontSize: 28)),
+          Text(
+            widget.item.icon as String? ?? '🥤',
+            style: const TextStyle(fontSize: 28),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -222,212 +292,217 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
           ),
         ],
       ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Volume slider
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    l10n.volume,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primaryContainer.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '${sliderVolume.toStringAsFixed(0)} ${widget.units == 'imperial' ? 'oz' : 'ml'}',
-                      style: TextStyle(
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Volume slider
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      l10n.volume,
+                      style: const TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
-                ],
-              ),
-              SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  activeTrackColor: sliderActiveColor,
-                  inactiveTrackColor: sliderActiveColor.withOpacity(0.2),
-                  thumbColor: sliderActiveColor,
-                  overlayColor: sliderActiveColor.withOpacity(0.1),
-                  trackHeight: 6,
-                  thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '${sliderVolume.toStringAsFixed(0)} ${widget.units == 'imperial' ? 'oz' : 'ml'}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                child: Slider(
-                  value: sliderVolume,
-                  min: minVolume,
-                  max: maxVolume,
-                  divisions: widget.units == 'imperial' ? 36 : 90,
-                  onChanged: (value) {
-                    setState(() => sliderVolume = value);
-                    HapticFeedback.selectionClick();
-                  },
+                const SizedBox(height: 8),
+                SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    activeTrackColor: sliderActiveColor,
+                    inactiveTrackColor: sliderActiveColor.withOpacity(0.2),
+                    thumbColor: sliderActiveColor,
+                    overlayColor: sliderActiveColor.withOpacity(0.1),
+                    trackHeight: 6,
+                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+                  ),
+                  child: Slider(
+                    value: sliderVolume.clamp(minVolume, maxVolume),
+                    min: minVolume,
+                    max: maxVolume,
+                    divisions: widget.units == 'imperial' ? 36 : 90,
+                    onChanged: (value) {
+                      setState(() => sliderVolume = value);
+                      HapticFeedback.selectionClick();
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            
+            // Metrics display
+            Row(
+              children: [
+                // HRI Impact card
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: getHRIGradientColors(),
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.favorite,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${getHRIImpact() > 0 ? "+" : ""}${getHRIImpact().toStringAsFixed(1)}',
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          l10n.hriImpact,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white.withOpacity(0.9),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Sugar card
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: getSugarGradientColors(sugar),
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.cake,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          sugar.toStringAsFixed(1),
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          l10n.gramsSugar ?? 'g sugar',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white.withOpacity(0.9),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            
+            // Electrolyte content
+            if (widget.showElectrolytes && hasSignificantElectrolytes) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildElectrolyteMetric(
+                      'Na',
+                      getElectrolytes()['sodium']!,
+                      Colors.blue,
+                    ),
+                    _buildElectrolyteMetric(
+                      'K',
+                      getElectrolytes()['potassium']!,
+                      Colors.green,
+                    ),
+                    _buildElectrolyteMetric(
+                      'Mg',
+                      getElectrolytes()['magnesium']!,
+                      Colors.purple,
+                    ),
+                  ],
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 20),
-          
-          // Metrics display with gradients
-          Row(
-            children: [
-              // HRI Impact card
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: getHRIGradientColors(),
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    children: [
-                      const Icon(
-                        Icons.favorite,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '${getHRIImpact() > 0 ? "+" : ""}${getHRIImpact().toStringAsFixed(1)}',
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Text(
-                        l10n.hriImpact,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white.withOpacity(0.9),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
+            
+            // Caffeine display
+            if (caffeine > 0.5) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.brown.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.brown.shade200),
                 ),
-              ),
-              const SizedBox(width: 12),
-              // Sugar card
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: getSugarGradientColors(getTotalSugar()),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.bolt, size: 16, color: Colors.brown.shade700),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${l10n.caffeine}: ${caffeine.round()} mg',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.brown.shade700,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    children: [
-                      const Icon(
-                        Icons.cake,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        getTotalSugar().toStringAsFixed(1),
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Text(
-                        l10n.gramsSugar,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white.withOpacity(0.9),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ],
-          ),
-          
-          // Electrolyte content display (if applicable)
-          if (widget.showElectrolytes && hasSignificantElectrolytes) ...[
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildElectrolyteMetric(
-                    'Na',
-                    getElectrolytes()['sodium']!,
-                    Colors.blue,
-                  ),
-                  _buildElectrolyteMetric(
-                    'K',
-                    getElectrolytes()['potassium']!,
-                    Colors.green,
-                  ),
-                  _buildElectrolyteMetric(
-                    'Mg',
-                    getElectrolytes()['magnesium']!,
-                    Colors.purple,
-                  ),
-                ],
-              ),
-            ),
           ],
-          // Caffeine display (if applicable)
-          if ((widget.item.properties['caffeine'] ?? 0) > 0) ...[
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.brown.shade50,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.brown.shade200),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.bolt, size: 16, color: Colors.brown.shade700),
-                  const SizedBox(width: 8),
-                  Text(
-                    '${l10n.caffeine}: ${((widget.item.properties['caffeine'] ?? 0) * sliderVolume / widget.item.getDefaultVolume(widget.units)).round()} mg',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.brown.shade700,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-          
-
-        ],
+        ),
       ),
       actions: [
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Add button - full width
+            // Add button
             SizedBox(
               width: double.infinity,
               height: 53,
@@ -448,18 +523,17 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
               ),
             ),
             const SizedBox(height: 12),
-            // Save to Favorites button - full width
+            // Save to Favorites button
             SizedBox(
               width: double.infinity,
               height: 53,
               child: OutlinedButton.icon(
                 onPressed: () async {
                   HapticFeedback.lightImpact();
-                  // Не закрываем диалог - пусть callback сам управляет
                   await widget.onSaveToFavorites(getVolumeMl());
                 },
                 icon: const Icon(Icons.star_border),
-                label: Text(l10n.saveToFavorites),
+                label: Text(l10n.saveToFavorites ?? 'Save to favorites'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.amber[700],
                   side: BorderSide(color: Colors.amber[600]!, width: 1.5),
@@ -476,7 +550,6 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
   }
 
   Widget _buildElectrolyteMetric(String label, int value, Color color) {
-    // Only show if value is significant
     if (value == 0) {
       return const SizedBox.shrink();
     }

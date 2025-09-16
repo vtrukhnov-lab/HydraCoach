@@ -1361,6 +1361,7 @@
   "gotIt": "Понятно",
   "consumed": "Выпито",
   "remaining": "Осталось",
-"todaysCaffeine": "Кофеин сегодня"
+"todaysCaffeine": "Кофеин сегодня",
+"alreadyInFavorites": "Уже в избранном"
 
 }

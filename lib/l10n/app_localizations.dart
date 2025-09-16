@@ -5283,6 +5283,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Today\'s Caffeine'**
   String get todaysCaffeine;
+
+  /// No description provided for @alreadyInFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Already in favorites'**
+  String get alreadyInFavorites;
 }
 
 class _AppLocalizationsDelegate

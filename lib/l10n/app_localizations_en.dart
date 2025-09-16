@@ -2811,4 +2811,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todaysCaffeine => 'Today\'s Caffeine';
+
+  @override
+  String get alreadyInFavorites => 'Already in favorites';
 }

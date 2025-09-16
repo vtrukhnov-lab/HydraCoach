@@ -46,9 +46,6 @@ class _HotDrinksScreenState extends State<HotDrinksScreen>
   // Items catalog
   final ItemsCatalog _catalog = ItemsCatalog();
   
-  // PRO status
-  bool _isPro = false;
-  
   // Units
   String _units = 'metric';
   
@@ -83,12 +80,11 @@ class _HotDrinksScreenState extends State<HotDrinksScreen>
     await Future.delayed(Duration.zero);
     if (!mounted) return;
     
-    // Get PRO status
+    // Get PRO status from provider (not stored locally)
     final subscription = Provider.of<SubscriptionProvider>(context, listen: false);
-    _isPro = subscription.isPro;
     
-    // Initialize favorites
-    await _favoritesManager.init(_isPro);
+    // Initialize favorites with current PRO status
+    await _favoritesManager.init(subscription.isPro);
     
     // Get today's caffeine from HRIService
     final hriService = Provider.of<HRIService>(context, listen: false);
@@ -254,11 +250,15 @@ class _HotDrinksScreenState extends State<HotDrinksScreen>
   }) async {
     final l10n = AppLocalizations.of(context);
     
-    // Show favorite slot selector
+    // Get current PRO status from provider
+    final subscription = Provider.of<SubscriptionProvider>(context, listen: false);
+    final isPro = subscription.isPro;
+    
+    // Show favorite slot selector with current PRO status
     final slot = await FavoriteSlotSelector.show(
       context: context,
       favoritesManager: _favoritesManager,
-      isPro: _isPro,
+      isPro: isPro,
     );
     
     if (slot == null) return;
@@ -302,37 +302,52 @@ class _HotDrinksScreenState extends State<HotDrinksScreen>
   }
   
   // Show hot drink dialog
-  Future<void> _showHotDrinkDialog(CatalogItem item) async {
-    // Check if PRO drink
-    if (item.isPro && !_isPro) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const PaywallScreen(),
-          fullscreenDialog: true,
-        ),
-      );
+Future<void> _showHotDrinkDialog(CatalogItem item) async {
+  // Get current PRO status from provider
+  final subscription = Provider.of<SubscriptionProvider>(context, listen: false);
+  final isPro = subscription.isPro;
+  
+  // Check if PRO drink
+  if (item.isPro && !isPro) {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const PaywallScreen(),
+        fullscreenDialog: true,
+      ),
+    );
+    
+    // После возврата из paywall проверяем статус снова
+    final updatedSubscription = Provider.of<SubscriptionProvider>(context, listen: false);
+    if (!updatedSubscription.isPro) {
+      // Подписка не куплена - выходим
       return;
     }
-    
-    await VolumeSelectionDialog.show(
-      context: context,
-      item: item,
-      units: _units,
-      sliderColor: Colors.blue,  // Изменено с Colors.brown на Colors.blue
-      onConfirm: (volumeMl) async {
-        await _logIntake(item: item, volumeMl: volumeMl);
-        
-        // Return to main screen with update
-        if (mounted) {
-          Navigator.of(context).pop(true);
-        }
-      },
-      onSaveToFavorites: (volumeMl) async {
-        await _saveToFavorites(item: item, volumeMl: volumeMl);
-      },
-    );
+    // Подписка куплена - продолжаем показывать диалог
   }
+  
+  // Обновляем favorites manager с актуальным PRO статусом
+  final currentSubscription = Provider.of<SubscriptionProvider>(context, listen: false);
+  await _favoritesManager.init(currentSubscription.isPro);
+  
+  await VolumeSelectionDialog.show(
+    context: context,
+    item: item,
+    units: _units,
+    sliderColor: Colors.blue,
+    onConfirm: (volumeMl) async {
+      await _logIntake(item: item, volumeMl: volumeMl);
+      
+      // Return to main screen with update
+      if (mounted) {
+        Navigator.of(context).pop(true);
+      }
+    },
+    onSaveToFavorites: (volumeMl) async {
+      await _saveToFavorites(item: item, volumeMl: volumeMl);
+    },
+  );
+}
   
   // Show caffeine info dialog
   void _showCaffeineInfoDialog() {
@@ -428,9 +443,9 @@ class _HotDrinksScreenState extends State<HotDrinksScreen>
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     
-    // Update PRO status
+    // Get PRO status from provider (always current)
     final subscription = Provider.of<SubscriptionProvider>(context);
-    _isPro = subscription.isPro;
+    final isPro = subscription.isPro;
     
     // Get current items
     final currentItems = _getCurrentItems();
@@ -476,10 +491,10 @@ class _HotDrinksScreenState extends State<HotDrinksScreen>
           
           const SizedBox(height: 20),
           
-          // Items grid
+          // Items grid - uses current PRO status
           ItemsGrid(
             items: currentItems,
-            isPro: _isPro,
+            isPro: isPro,  // Always current from Provider
             title: _getGridTitle(),
             onItemSelected: (item) async {
               await _showHotDrinkDialog(item);

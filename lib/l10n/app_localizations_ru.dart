@@ -2817,4 +2817,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get todaysCaffeine => 'Кофеин сегодня';
+
+  @override
+  String get alreadyInFavorites => 'Уже в избранном';
 }

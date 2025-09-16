@@ -9,8 +9,11 @@ import '../../models/quick_favorites.dart';
 import '../../providers/hydration_provider.dart';
 import '../../screens/paywall_screen.dart';
 import '../../services/alcohol_service.dart';
+import '../../services/hri_service.dart';
 import '../../services/subscription_service.dart';
 import '../../services/units_service.dart';
+import '../../widgets/common/volume_selection_dialog.dart';
+import '../../data/catalog_item.dart';
 
 class FavoriteBeveragesBar extends StatefulWidget {
   final VoidCallback onUpdate;
@@ -22,32 +25,13 @@ class FavoriteBeveragesBar extends StatefulWidget {
 
 class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
   final QuickFavoritesManager _favoritesManager = QuickFavoritesManager();
-  bool _isPro = false;
   int? _pressedIndex;
+  bool? _lastKnownProStatus;
 
   @override
   void initState() {
     super.initState();
-
     _favoritesManager.addListener(_onFavoritesChanged);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final subscription = Provider.of<SubscriptionProvider>(context, listen: false);
-      _isPro = subscription.isPro;
-      await _favoritesManager.init(_isPro);
-      if (mounted) setState(() {});
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final subscription = Provider.of<SubscriptionProvider>(context, listen: false);
-    if (_isPro != subscription.isPro) {
-      _isPro = subscription.isPro;
-      _favoritesManager.updateProStatus(_isPro);
-      if (mounted) setState(() {});
-    }
   }
 
   @override
@@ -57,16 +41,108 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
   }
 
   void _onFavoritesChanged() {
-    if (!mounted) return;
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
-  void _applyFavorite(QuickFavorite favorite, int index) {
-    setState(() => _pressedIndex = index);
+  // Создаем CatalogItem из QuickFavorite для диалога выбора объема
+  CatalogItem _createCatalogItemFromFavorite(QuickFavorite favorite) {
+    // Собираем свойства напитка
+    Map<String, dynamic> properties = {
+      'type': favorite.type,
+      'hydration': 1.0,
+      'defaultVolume': {
+        'metric': favorite.volumeMl ?? 250,
+        'imperial': ((favorite.volumeMl ?? 250) / 29.5735).round(),
+      },
+    };
 
+    // Добавляем электролиты если есть
+    if (favorite.sodiumMg != null && favorite.sodiumMg! > 0) {
+      properties['sodium'] = favorite.sodiumMg;
+    }
+    if (favorite.potassiumMg != null && favorite.potassiumMg! > 0) {
+      properties['potassium'] = favorite.potassiumMg;
+    }
+    if (favorite.magnesiumMg != null && favorite.magnesiumMg! > 0) {
+      properties['magnesium'] = favorite.magnesiumMg;
+    }
+
+    // Добавляем кофеин для горячих напитков
+    final caffeine = favorite.metadata?['caffeine'];
+    if (caffeine != null && caffeine > 0) {
+      final baseVolume = favorite.volumeMl ?? 250;
+      properties['caffeineMgPer100ml'] = (caffeine * 100 / baseVolume).round();
+    }
+
+    // Добавляем алкогольные свойства если нужно
+    if (favorite.type == 'alcohol') {
+      properties['abv'] = favorite.metadata?['abv'] ?? 5.0;
+    }
+
+    // ВАЖНО: Берем правильное имя напитка из метаданных или label
+    final drinkName = favorite.metadata?['itemName'] ?? favorite.label;
+
+    return CatalogItem(
+      id: favorite.id,
+      getName: (l10n) => drinkName,  // Возвращаем сохраненное имя напитка
+      icon: favorite.emoji.isNotEmpty ? favorite.emoji : _getDefaultIcon(favorite.type),
+      properties: properties,
+      isPro: false,
+    );
+  }
+
+  // Обработка нажатия на избранное - открываем диалог выбора объема
+  Future<void> _handleFavoriteTap(QuickFavorite favorite, int index) async {
+    setState(() => _pressedIndex = index);
+    
+    final units = UnitsService.instance.units;
+    
+    // Создаем CatalogItem из избранного
+    final item = _createCatalogItemFromFavorite(favorite);
+    
+    // Определяем нужно ли показывать электролиты
+    final showElectrolytes = favorite.type == 'electrolyte' || 
+                            (favorite.sodiumMg != null && favorite.sodiumMg! > 0) ||
+                            (favorite.potassiumMg != null && favorite.potassiumMg! > 0) ||
+                            (favorite.magnesiumMg != null && favorite.magnesiumMg! > 0);
+    
+    // Показываем диалог выбора объема для ВСЕХ напитков
+    await VolumeSelectionDialog.show(
+      context: context,
+      item: item,
+      units: units,
+      showElectrolytes: showElectrolytes,
+      sliderColor: _getDrinkColor(favorite.type),
+      onConfirm: (volumeMl) async {
+        await _applyDrink(favorite, volumeMl);
+      },
+      onSaveToFavorites: (volumeMl) {
+        // Уже в избранном - показываем сообщение
+        final l10n = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.alreadyInFavorites),
+            duration: const Duration(seconds: 1),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      },
+    );
+    
+    if (mounted) {
+      setState(() => _pressedIndex = null);
+    }
+  }
+
+  // Применяем напиток с выбранным объемом
+  Future<void> _applyDrink(QuickFavorite favorite, double volumeMl) async {
     final hydrationProvider = Provider.of<HydrationProvider>(context, listen: false);
+    final hriService = Provider.of<HRIService>(context, listen: false);
+    final units = Provider.of<UnitsService>(context, listen: false);
 
     if (favorite.type == 'alcohol') {
+      // Обработка алкоголя
       final alcoholService = Provider.of<AlcoholService>(context, listen: false);
       final alcoholTypeString = favorite.metadata?['alcoholType'] ?? 'beer';
       final alcoholType = AlcoholType.values.firstWhere(
@@ -77,27 +153,63 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
       final intake = AlcoholIntake(
         timestamp: DateTime.now(),
         type: alcoholType,
-        volumeMl: (favorite.volumeMl ?? 200).toDouble(),
+        volumeMl: volumeMl,
         abv: (favorite.metadata?['abv'] ?? 5.0).toDouble(),
       );
       alcoholService.addIntake(intake);
+      
+    } else if (favorite.type == 'coffee' || favorite.type == 'tea' || favorite.type == 'hot') {
+      // Горячие напитки - добавляем как воду
+      hydrationProvider.addIntake(
+        'water',
+        volumeMl.round(),
+        sodium: 0,
+        potassium: 0,
+        magnesium: 0,
+      );
+      
+      // Рассчитываем пропорциональный кофеин
+      final baseCaffeine = favorite.metadata?['caffeine'] as int?;
+      final baseVolume = favorite.volumeMl ?? 250;
+      if (baseCaffeine != null && baseCaffeine > 0 && baseVolume > 0) {
+        final actualCaffeine = (baseCaffeine * volumeMl / baseVolume).round();
+        await hriService.addCaffeineIntake(actualCaffeine.toDouble());
+      }
+      
+    } else if (favorite.type == 'electrolyte' || 
+               favorite.sodiumMg != null || 
+               favorite.potassiumMg != null || 
+               favorite.magnesiumMg != null) {
+      // Напитки с электролитами - рассчитываем пропорциональные количества
+      final baseVolume = favorite.volumeMl ?? 250;
+      final multiplier = volumeMl / baseVolume;
+      
+      hydrationProvider.addIntake(
+        favorite.type == 'electrolyte' ? 'electrolyte' : 'water',
+        volumeMl.round(),
+        sodium: ((favorite.sodiumMg ?? 0) * multiplier).round(),
+        potassium: ((favorite.potassiumMg ?? 0) * multiplier).round(),
+        magnesium: ((favorite.magnesiumMg ?? 0) * multiplier).round(),
+      );
     } else {
+      // Обычные напитки без особых свойств
       hydrationProvider.addIntake(
         favorite.type,
-        favorite.volumeMl ?? 0,
-        sodium: favorite.sodiumMg ?? 0,
-        potassium: favorite.potassiumMg ?? 0,
-        magnesium: favorite.magnesiumMg ?? 0,
+        volumeMl.round(),
+        sodium: 0,
+        potassium: 0,
+        magnesium: 0,
       );
     }
 
     widget.onUpdate();
     HapticFeedback.lightImpact();
 
+    // Показываем сообщение об успехе
     final l10n = AppLocalizations.of(context);
-    final units = Provider.of<UnitsService>(context, listen: false);
-    final displayVolume = units.formatVolume(favorite.volumeMl ?? 0);
-
+    final displayVolume = units.formatVolume(volumeMl.round());
+    final drinkName = favorite.metadata?['itemName'] ?? favorite.label;
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -106,9 +218,8 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                '${favorite.label} ($displayVolume) ${l10n.addedSuccessfully ?? "added!"}',
+                '$drinkName - $displayVolume ${l10n.addedSuccessfully}',
                 style: const TextStyle(fontWeight: FontWeight.w500),
-                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
@@ -121,17 +232,13 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
         margin: const EdgeInsets.all(16),
       ),
     );
-
-    if (mounted) {
-      setState(() => _pressedIndex = null);
-    }
   }
 
   void _handleEmptySlotTap() {
     final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(l10n.createFavoriteHint ?? 'Long press a drink to add to favorites'),
+        content: Text(l10n.createFavoriteHint),
         duration: const Duration(seconds: 3),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -139,88 +246,147 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
     );
   }
 
+  Future<void> _handleProSlotTap() async {
+    HapticFeedback.lightImpact();
+    
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const PaywallScreen(), 
+        fullscreenDialog: true
+      ),
+    );
+    
+    if (result == true && mounted) {
+      final l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.star_rounded, color: Colors.white, size: 20),
+              const SizedBox(width: 8),
+              Text(l10n.welcomeToPro),
+            ],
+          ),
+          backgroundColor: Colors.purple.shade600,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    // Слушаем изменения PRO статуса
+    final isPro = context.select<SubscriptionProvider, bool>((provider) => provider.isPro);
+    
+    // Переинициализируем менеджер избранного при изменении PRO статуса
+    if (_lastKnownProStatus != isPro) {
+      _lastKnownProStatus = isPro;
+      _favoritesManager.init(isPro).then((_) {
+        if (mounted) setState(() {});
+      });
+    }
 
-    final favs = _favoritesManager.favorites;
+    final favorites = _favoritesManager.favorites;
+    
+    // Адаптивные размеры на основе ширины экрана
+    final cardHeight = screenWidth * 0.28; // ~28% от ширины экрана (было 85px)
+    final horizontalPadding = screenWidth * 0.01; // 1% от ширины
+    final cardSpacing = screenWidth * 0.01; // 1% между карточками
+    
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: List.generate(3, (index) {
-          return Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(left: index == 0 ? 0 : 4, right: index == 2 ? 0 : 4),
-              child: _buildFavoriteSlot(favs[index], index, l10n, isDarkMode),
-            ),
-          );
-        }),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 3),
+      child: SizedBox(
+        height: cardHeight,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(3, (index) {
+            final isLocked = !isPro && index > 0;
+            final favorite = favorites[index];
+            
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: index == 0 ? 0 : cardSpacing,
+                  right: index == 2 ? 0 : cardSpacing,
+                ),
+                child: isLocked
+                    ? _buildProLockedSlot(isDarkMode, l10n, cardHeight)
+                    : favorite != null
+                        ? _buildFilledSlot(favorite, index, isDarkMode, cardHeight)
+                        : _buildEmptySlot(l10n, isDarkMode, cardHeight),
+              ),
+            );
+          }),
+        ),
       ),
     );
   }
 
-  Widget _buildFavoriteSlot(QuickFavorite? favorite, int slot, AppLocalizations l10n, bool isDarkMode) {
-    final isLocked = !_isPro && slot > 0;
-    final isPressed = _pressedIndex == slot;
-
-    if (isLocked) return _buildProLockedSlot(isDarkMode, l10n);
-    if (favorite == null) return _buildEmptySlot(l10n, isDarkMode);
-    return _buildFilledSlot(favorite, slot, isPressed, isDarkMode);
-  }
-
-  Widget _buildFilledSlot(QuickFavorite fav, int index, bool isPressed, bool isDarkMode) {
-    final units = Provider.of<UnitsService>(context, listen: false);
-    final displayVolume = units.formatVolume(fav.volumeMl ?? 0, hideUnit: true);
-    final color = _getModernIconColor(fav.type);
-    final icon = _getIconForType(fav);
+  Widget _buildFilledSlot(QuickFavorite favorite, int index, bool isDarkMode, double cardHeight) {
+    final isPressed = _pressedIndex == index;
+    final color = _getDrinkColor(favorite.type);
+    final icon = favorite.emoji.isNotEmpty ? favorite.emoji : _getDefaultIcon(favorite.type);
+    final drinkName = favorite.metadata?['itemName'] ?? favorite.label;
+    
+    // Адаптивные размеры на основе высоты карточки
+    final iconSize = cardHeight * 0.25; // 25% от высоты карточки
+    final textSize = cardHeight * 0.1; // 10% от высоты карточки
+    final verticalSpacing = cardHeight * 0.08; // 8% для отступов
+    final horizontalPadding = cardHeight * 0.08; // 8% для горизонтальных отступов
 
     return AnimatedScale(
       scale: isPressed ? 0.95 : 1.0,
       duration: const Duration(milliseconds: 100),
       child: GestureDetector(
         onTapDown: (_) => setState(() => _pressedIndex = index),
-        onTapUp: (_) => _applyFavorite(fav, index),
+        onTapUp: (_) => _handleFavoriteTap(favorite, index),
         onTapCancel: () => setState(() => _pressedIndex = null),
         child: Container(
-          height: 85,
+          height: cardHeight,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
             ),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(cardHeight * 0.2), // 20% от высоты
             border: Border.all(color: color.withOpacity(0.2), width: 1.5),
-            boxShadow: isPressed
-                ? []
-                : [
-                    BoxShadow(color: color.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4)),
-                  ],
+            boxShadow: isPressed ? [] : [
+              BoxShadow(
+                color: color.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(icon, style: const TextStyle(fontSize: 26)),
-              const SizedBox(height: 6),
-              Text(
-                _getLocalizedLabel(fav),
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: isDarkMode ? Colors.grey[300] : Colors.grey[800],
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 2),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+              // Иконка напитка
+              Text(icon, style: TextStyle(fontSize: iconSize)),
+              SizedBox(height: verticalSpacing),
+              // Название напитка (может быть в 2 строки)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                 child: Text(
-                  '$displayVolume ${units.volumeUnit}',
-                  style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: color),
+                  drinkName,
+                  style: TextStyle(
+                    fontSize: textSize,
+                    fontWeight: FontWeight.w600,
+                    color: color.withOpacity(0.9),
+                    height: 1.15,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
                 ),
               ),
             ],
@@ -230,9 +396,15 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
     );
   }
 
-  Widget _buildEmptySlot(AppLocalizations l10n, bool isDarkMode) {
+  Widget _buildEmptySlot(AppLocalizations l10n, bool isDarkMode, double cardHeight) {
+    // Адаптивные размеры
+    final iconSize = cardHeight * 0.28; // 28% от высоты карточки
+    final textSize = cardHeight * 0.11; // 11% от высоты карточки
+    final iconPadding = cardHeight * 0.1; // 10% для padding иконки
+    final verticalSpacing = cardHeight * 0.08; // 8% для отступов
+    
     return Container(
-      height: 85,
+      height: cardHeight,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -241,30 +413,40 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
               ? [Colors.grey[850]!.withOpacity(0.5), Colors.grey[900]!.withOpacity(0.3)]
               : [Colors.grey[50]!, Colors.white],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(cardHeight * 0.2),
         border: Border.all(
-          color: isDarkMode ? Colors.grey[700]!.withOpacity(0.5) : Colors.grey[300]!.withOpacity(0.8),
+          color: isDarkMode 
+              ? Colors.grey[700]!.withOpacity(0.5) 
+              : Colors.grey[300]!.withOpacity(0.8),
           width: 1.5,
         ),
       ),
       child: InkWell(
         onTap: _handleEmptySlotTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(cardHeight * 0.2),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(iconPadding),
               decoration: BoxDecoration(
                 color: isDarkMode ? Colors.grey[800]!.withOpacity(0.5) : Colors.grey[100],
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.add_rounded, size: 24, color: isDarkMode ? Colors.grey[500] : Colors.grey[400]),
+              child: Icon(
+                Icons.add_rounded,
+                size: iconSize,
+                color: isDarkMode ? Colors.grey[500] : Colors.grey[400],
+              ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: verticalSpacing),
             Text(
-              l10n.addFavorite ?? 'Add Favorite',
-              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: isDarkMode ? Colors.grey[500] : Colors.grey[600]),
+              l10n.addFavorite,
+              style: TextStyle(
+                fontSize: textSize,
+                fontWeight: FontWeight.w500,
+                color: isDarkMode ? Colors.grey[500] : Colors.grey[600],
+              ),
             ),
           ],
         ),
@@ -272,49 +454,73 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
     );
   }
 
-  Widget _buildProLockedSlot(bool isDarkMode, AppLocalizations l10n) {
+  Widget _buildProLockedSlot(bool isDarkMode, AppLocalizations l10n, double cardHeight) {
+    // Адаптивные размеры
+    final iconSize = cardHeight * 0.26; // 26% от высоты карточки
+    final badgeTextSize = cardHeight * 0.11; // 11% от высоты карточки
+    final iconPadding = cardHeight * 0.08; // 8% для padding иконки
+    final verticalSpacing = cardHeight * 0.06; // 6% для отступов
+    final badgePaddingH = cardHeight * 0.12; // 12% горизонтальный padding бейджа
+    final badgePaddingV = cardHeight * 0.035; // 3.5% вертикальный padding бейджа
+    
     return Container(
-      height: 85,
+      height: cardHeight,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.purple.shade400.withOpacity(0.8), Colors.purple.shade600.withOpacity(0.8)],
+          colors: [
+            Colors.purple.shade400.withOpacity(0.8),
+            Colors.purple.shade600.withOpacity(0.8),
+          ],
         ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.purple.withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 6))],
+        borderRadius: BorderRadius.circular(cardHeight * 0.2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.purple.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {
-            HapticFeedback.lightImpact();
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const PaywallScreen(), fullscreenDialog: true),
-            ).then((_) {
-              final subscription = Provider.of<SubscriptionProvider>(context, listen: false);
-              _isPro = subscription.isPro;
-              _favoritesManager.updateProStatus(_isPro);
-              if (mounted) setState(() {});
-            });
-          },
-          borderRadius: BorderRadius.circular(16),
+          onTap: _handleProSlotTap,
+          borderRadius: BorderRadius.circular(cardHeight * 0.2),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), shape: BoxShape.circle),
-                child: const Icon(Icons.star_rounded, color: Colors.white, size: 22),
+                padding: EdgeInsets.all(iconPadding),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.star_rounded,
+                  color: Colors.white,
+                  size: iconSize,
+                ),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: verticalSpacing),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
-                child: const Text(
+                padding: EdgeInsets.symmetric(
+                  horizontal: badgePaddingH, 
+                  vertical: badgePaddingV
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(cardHeight * 0.15),
+                ),
+                child: Text(
                   'PRO',
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: 1),
+                  style: TextStyle(
+                    fontSize: badgeTextSize,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    letterSpacing: 1,
+                  ),
                 ),
               ),
             ],
@@ -324,98 +530,38 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
     );
   }
 
-  String _getIconForType(QuickFavorite fav) {
-    if (fav.type == 'alcohol') {
-      final alcoholType = fav.metadata?['alcoholType'] ?? 'beer';
-      switch (alcoholType) {
-        case 'beer':
-          return '🍺';
-        case 'wine':
-          return '🍷';
-        case 'spirits':
-          return '🥃';
-        case 'cocktail':
-          return '🍹';
-        default:
-          return '🍺';
-      }
+  String _getDefaultIcon(String type) {
+    if (type == 'alcohol') {
+      return '🍺';
     }
-    if (fav.emoji.isNotEmpty) return fav.emoji;
-
-    switch (fav.type) {
-      case 'water':
-        return '💧';
-      case 'electrolyte':
-        return '⚡';
-      case 'coffee':
-      case 'hot':
-        return '☕';
-      case 'tea':
-        return '🍵';
-      case 'broth':
-        return '🍲';
-      case 'juice':
-        return '🧃';
-      case 'milk':
-        return '🥛';
-      case 'soda':
-        return '🥤';
-      default:
-        return '🥤';
-    }
-  }
-
-  Color _getModernIconColor(String type) {
+    
     switch (type) {
-      case 'water':
-        return const Color(0xFF4A90E2);
-      case 'electrolyte':
-        return const Color(0xFFFFA502);
-      case 'coffee':
-      case 'hot':
-        return const Color(0xFF8B4513);
-      case 'tea':
-        return const Color(0xFF4CAF50);
-      case 'broth':
-        return const Color(0xFFFF6B6B);
-      case 'alcohol':
-        return const Color(0xFFFFB300);
-      case 'juice':
-        return const Color(0xFFFF9800);
-      case 'milk':
-        return const Color(0xFFF5F5DC);
-      case 'soda':
-        return const Color(0xFF9C27B0);
-      default:
-        return Colors.grey;
+      case 'water': return '💧';
+      case 'electrolyte': return '⚡';
+      case 'coffee': return '☕';
+      case 'tea': return '🍵';
+      case 'hot': return '☕';
+      case 'broth': return '🍲';
+      case 'juice': return '🧃';
+      case 'milk': return '🥛';
+      case 'soda': return '🥤';
+      default: return '🥤';
     }
   }
 
-  String _getLocalizedLabel(QuickFavorite favorite) {
-    final l10n = AppLocalizations.of(context);
-    if (favorite.type == 'alcohol') return favorite.label;
-
-    switch (favorite.type) {
-      case 'water':
-        return l10n.water;
-      case 'electrolyte':
-        return l10n.electrolyte;
-      case 'coffee':
-        return l10n.coffee;
-      case 'tea':
-        return l10n.tea;
-      case 'broth':
-        return l10n.broth;
-      case 'juice':
-        return l10n.juice;
-      case 'milk':
-        return l10n.drink_milk;
-      case 'soda':
-        return l10n.drink_soda;
-      case 'hot':
-        return l10n.hotDrinks;
-      default:
-        return favorite.label;
+  Color _getDrinkColor(String type) {
+    switch (type) {
+      case 'water': return const Color(0xFF4A90E2);
+      case 'electrolyte': return const Color(0xFFFFA502);
+      case 'coffee': return const Color(0xFF8B4513);
+      case 'tea': return const Color(0xFF4CAF50);
+      case 'hot': return const Color(0xFF8B4513);
+      case 'broth': return const Color(0xFFFF6B6B);
+      case 'alcohol': return const Color(0xFFFFB300);
+      case 'juice': return const Color(0xFFFF9800);
+      case 'milk': return const Color(0xFFF5F5DC);
+      case 'soda': return const Color(0xFF9C27B0);
+      default: return Colors.grey;
     }
   }
 }

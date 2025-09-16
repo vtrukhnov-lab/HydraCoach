@@ -2834,4 +2834,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get todaysCaffeine => 'Cafeína de hoy';
+
+  @override
+  String get alreadyInFavorites => 'Ya está en favoritos';
 }
