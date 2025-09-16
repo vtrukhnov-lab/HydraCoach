@@ -208,7 +208,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       );
     }
 
-    final provider = Provider.of<HydrationProvider>(context, listen: false);
+    // ИСПРАВЛЕНО: убрали listen: false для получения обновлений целей
+    final provider = Provider.of<HydrationProvider>(context);
     final screenWidth = MediaQuery.of(context).size.width;
     
     final List<Widget> cards = [

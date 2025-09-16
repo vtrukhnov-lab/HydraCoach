@@ -2820,4 +2820,227 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get alreadyInFavorites => 'Уже в избранном';
+
+  @override
+  String get ofRecommendedLimit => 'от рекомендуемого лимита';
+
+  @override
+  String get aboutAlcohol => 'Об алкоголе';
+
+  @override
+  String get alcoholInfo1 =>
+      'Один стандартный напиток равен 10г чистого спирта';
+
+  @override
+  String get alcoholInfo2 =>
+      'Алкоголь обезвоживает — выпейте 250мл воды на каждый напиток';
+
+  @override
+  String get alcoholInfo3 =>
+      'Добавьте соль, чтобы удержать жидкость после алкоголя';
+
+  @override
+  String get alcoholInfo4 =>
+      'Каждый стандартный напиток повышает HRI на 3-5 пунктов';
+
+  @override
+  String get alcoholWarningHealth =>
+      'Чрезмерное употребление алкоголя вредит здоровью. Рекомендуемый лимит: 2 СН для мужчин и 1 СН для женщин в день.';
+
+  @override
+  String get supplementsInfo1 =>
+      'Добавки помогают поддерживать баланс электролитов';
+
+  @override
+  String get supplementsInfo2 => 'Лучше принимать во время еды для усвоения';
+
+  @override
+  String get supplementsInfo3 => 'Всегда запивайте большим количеством воды';
+
+  @override
+  String get supplementsInfo4 => 'Магний и калий ключевые для гидратации';
+
+  @override
+  String get supplementsWarning =>
+      'Проконсультируйтесь с врачом перед началом приема добавок';
+
+  @override
+  String get fromSupplementsToday => 'Из добавок сегодня';
+
+  @override
+  String get minerals => 'Минералы';
+
+  @override
+  String get vitamins => 'Витамины';
+
+  @override
+  String get essentialMinerals => 'Основные минералы';
+
+  @override
+  String get otherSupplements => 'Другие добавки';
+
+  @override
+  String get supplementTip1 => 'Принимайте добавки с едой для лучшего усвоения';
+
+  @override
+  String get supplementTip2 => 'Пейте много воды с добавками';
+
+  @override
+  String get supplementTip3 => 'Распределяйте прием добавок в течение дня';
+
+  @override
+  String get supplementTip4 => 'Отслеживайте что работает для вас';
+
+  @override
+  String get calciumCarbonate => 'Карбонат кальция';
+
+  @override
+  String get traceMinerals => 'Микроэлементы';
+
+  @override
+  String get vitaminA => 'Витамин А';
+
+  @override
+  String get vitaminE => 'Витамин Е';
+
+  @override
+  String get vitaminK2 => 'Витамин К2';
+
+  @override
+  String get folate => 'Фолат';
+
+  @override
+  String get biotin => 'Биотин';
+
+  @override
+  String get probiotics => 'Пробиотики';
+
+  @override
+  String get melatonin => 'Мелатонин';
+
+  @override
+  String get collagen => 'Коллаген';
+
+  @override
+  String get glucosamine => 'Глюкозамин';
+
+  @override
+  String get turmeric => 'Куркума';
+
+  @override
+  String get coq10 => 'Коэнзим Q10';
+
+  @override
+  String get creatine => 'Креатин';
+
+  @override
+  String get ashwagandha => 'Ашваганда';
+
+  @override
+  String get selectCardioActivity => 'Выберите кардио активность';
+
+  @override
+  String get selectStrengthActivity => 'Выберите силовую тренировку';
+
+  @override
+  String get selectSportsActivity => 'Выберите вид спорта';
+
+  @override
+  String get sessions => 'Сессий';
+
+  @override
+  String get totalTime => 'Общее время';
+
+  @override
+  String get waterLoss => 'Потеря воды';
+
+  @override
+  String get intensity => 'Интенсивность';
+
+  @override
+  String get drinkWaterAfterWorkout => 'Пейте воду после тренировки';
+
+  @override
+  String get replenishElectrolytes => 'Восполните электролиты';
+
+  @override
+  String get restAndRecover => 'Отдыхайте и восстанавливайтесь';
+
+  @override
+  String get avoidSugaryDrinks => 'Избегайте сладких спортивных напитков';
+
+  @override
+  String get elliptical => 'Эллиптический тренажер';
+
+  @override
+  String get rowing => 'Гребля';
+
+  @override
+  String get jumpRope => 'Скакалка';
+
+  @override
+  String get stairClimbing => 'Подъем по лестнице';
+
+  @override
+  String get bodyweight => 'Собственный вес';
+
+  @override
+  String get powerlifting => 'Пауэрлифтинг';
+
+  @override
+  String get calisthenics => 'Калистеника';
+
+  @override
+  String get resistanceBands => 'Резиновые ленты';
+
+  @override
+  String get kettlebell => 'Гири';
+
+  @override
+  String get trx => 'TRX';
+
+  @override
+  String get strongman => 'Силовой экстрим';
+
+  @override
+  String get pilates => 'Пилатес';
+
+  @override
+  String get basketball => 'Баскетбол';
+
+  @override
+  String get soccerFootball => 'Футбол';
+
+  @override
+  String get golf => 'Гольф';
+
+  @override
+  String get martialArts => 'Боевые искусства';
+
+  @override
+  String get rockClimbing => 'Скалолазание';
+
+  @override
+  String get needsToReplenish => 'Необходимо восполнить';
+
+  @override
+  String get electrolyteTrackingPro =>
+      'Отслеживайте цели натрия, калия и магния с детальными индикаторами';
+
+  @override
+  String get unlock => 'Разблокировать';
+
+  @override
+  String get weather => 'Погода';
+
+  @override
+  String get weatherTrackingPro =>
+      'Отслеживайте индекс жары, влажность и влияние погоды на цели гидратации';
+
+  @override
+  String get sugarTracking => 'Отслеживание сахара';
+
+  @override
+  String get sugarTrackingPro =>
+      'Контролируйте натуральный, добавленный и скрытый сахар с анализом влияния на HRI';
 }

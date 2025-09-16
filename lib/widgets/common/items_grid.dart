@@ -14,6 +14,8 @@ class ItemsGrid extends StatelessWidget {
   final double childAspectRatio;
   final bool showElectrolyteIndicators;
   final bool showSugarIndicators;
+  final bool showCaffeineIndicators;
+  final bool showAlcoholIndicators;
 
   const ItemsGrid({
     Key? key,
@@ -25,6 +27,8 @@ class ItemsGrid extends StatelessWidget {
     this.childAspectRatio = 1.0,
     this.showElectrolyteIndicators = false,
     this.showSugarIndicators = false,
+    this.showCaffeineIndicators = false,
+    this.showAlcoholIndicators = false,
   }) : super(key: key);
 
   @override
@@ -66,6 +70,8 @@ class ItemsGrid extends StatelessWidget {
               l10n: l10n,
               showElectrolyteIndicators: showElectrolyteIndicators,
               showSugarIndicators: showSugarIndicators,
+              showCaffeineIndicators: showCaffeineIndicators,
+              showAlcoholIndicators: showAlcoholIndicators,
             );
           },
         ),
@@ -82,6 +88,8 @@ class ItemGridTile extends StatelessWidget {
   final AppLocalizations l10n;
   final bool showElectrolyteIndicators;
   final bool showSugarIndicators;
+  final bool showCaffeineIndicators;
+  final bool showAlcoholIndicators;
 
   const ItemGridTile({
     Key? key,
@@ -91,6 +99,8 @@ class ItemGridTile extends StatelessWidget {
     required this.l10n,
     this.showElectrolyteIndicators = false,
     this.showSugarIndicators = false,
+    this.showCaffeineIndicators = false,
+    this.showAlcoholIndicators = false,
   }) : super(key: key);
 
   @override
@@ -152,21 +162,8 @@ class ItemGridTile extends StatelessWidget {
                   ),
                   // Show additional info if available
                   if (!isLocked) ...[
-                    // Electrolyte indicators
-                    if (showElectrolyteIndicators) ...[
-                      const SizedBox(height: 2),
-                      _buildElectrolyteIndicators(),
-                    ],
-                    // Sugar indicator
-                    if (showSugarIndicators) ...[
-                      const SizedBox(height: 2),
-                      _buildSugarIndicator(),
-                    ],
-                    // Default indicators if neither is explicitly set
-                    if (!showElectrolyteIndicators && !showSugarIndicators) ...[
-                      const SizedBox(height: 2),
-                      _buildDefaultInfo(context),
-                    ],
+                    const SizedBox(height: 2),
+                    _buildIndicators(context),
                   ],
                 ],
               ),
@@ -205,6 +202,39 @@ class ItemGridTile extends StatelessWidget {
     );
   }
 
+  Widget _buildIndicators(BuildContext context) {
+    // Priority order for indicators based on flags
+    
+    // Alcohol indicators - now returns empty (no indicators for alcohol in grid)
+    if (showAlcoholIndicators) {
+      return _buildAlcoholIndicators(context);
+    }
+    
+    // Electrolyte indicators
+    if (showElectrolyteIndicators) {
+      return _buildElectrolyteIndicators();
+    }
+    
+    // Sugar indicator
+    if (showSugarIndicators) {
+      return _buildSugarIndicator();
+    }
+    
+    // Caffeine indicator
+    if (showCaffeineIndicators) {
+      return _buildCaffeineIndicator();
+    }
+    
+    // Default: smart detection
+    return _buildDefaultInfo(context);
+  }
+
+  Widget _buildAlcoholIndicators(BuildContext context) {
+    // For alcohol items, we don't show any indicators in the grid
+    // The ABV and other info will be shown in the selection dialog
+    return const SizedBox.shrink();
+  }
+
   Widget _buildElectrolyteIndicators() {
     final indicators = _getElectrolyteIndicators();
     if (indicators.isEmpty) return const SizedBox.shrink();
@@ -212,9 +242,7 @@ class ItemGridTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: isLocked 
-          ? Colors.grey.shade200 
-          : Colors.orange.shade100,
+        color: Colors.orange.shade100,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
@@ -222,9 +250,7 @@ class ItemGridTile extends StatelessWidget {
         style: TextStyle(
           fontSize: 9,
           fontWeight: FontWeight.bold,
-          color: isLocked 
-            ? Colors.grey.shade400 
-            : Colors.orange.shade700,
+          color: Colors.orange.shade700,
         ),
       ),
     );
@@ -237,9 +263,7 @@ class ItemGridTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: isLocked 
-          ? Colors.grey.shade200 
-          : _getSugarBadgeColor(sugar.toDouble()),
+        color: _getSugarBadgeColor(sugar.toDouble()),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
@@ -253,8 +277,43 @@ class ItemGridTile extends StatelessWidget {
     );
   }
 
+  Widget _buildCaffeineIndicator() {
+    final caffeine = item.properties['caffeine'] as num? ?? 0;
+    if (caffeine <= 0) return const SizedBox.shrink();
+    
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.bolt,
+          size: 10,
+          color: Colors.brown[700],
+        ),
+        const SizedBox(width: 2),
+        Text(
+          '${caffeine}mg',
+          style: TextStyle(
+            fontSize: 9,
+            color: Colors.brown[700],
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildDefaultInfo(BuildContext context) {
     final theme = Theme.of(context);
+    
+    // Check for alcohol content first - but don't show it in grid
+    if (item.properties.containsKey('abv')) {
+      final abv = item.properties['abv'] as num? ?? 0;
+      if (abv > 0) {
+        // For alcohol items, don't show any indicators in the grid
+        return const SizedBox.shrink();
+      }
+    }
     
     // Show hydration percentage if available and not 100%
     if (item.properties.containsKey('hydration')) {
@@ -274,48 +333,15 @@ class ItemGridTile extends StatelessWidget {
     if (item.properties.containsKey('caffeine')) {
       final caffeine = item.properties['caffeine'] as num? ?? 0;
       if (caffeine > 0) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.bolt,
-              size: 10,
-              color: Colors.orange[700],
-            ),
-            const SizedBox(width: 2),
-            Text(
-              '${caffeine}mg',
-              style: TextStyle(
-                fontSize: 9,
-                color: Colors.orange[700],
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        );
+        return _buildCaffeineIndicator();
       }
     }
     
-    // Show alcohol content if present
-    if (item.properties.containsKey('abv')) {
-      final abv = item.properties['abv'] as num? ?? 0;
-      if (abv > 0) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          decoration: BoxDecoration(
-            color: Colors.purple.shade100,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Text(
-            '${abv}%',
-            style: TextStyle(
-              fontSize: 9,
-              color: Colors.purple.shade700,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        );
+    // Show sugar if significant
+    if (item.properties.containsKey('sugar')) {
+      final sugar = item.properties['sugar'] as num? ?? 0;
+      if (sugar > 0.1) {
+        return _buildSugarIndicator();
       }
     }
     

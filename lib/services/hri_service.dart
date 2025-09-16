@@ -2,12 +2,13 @@
 // 
 // HRI (Hydration Risk Index) Service - Complete Rewrite
 // Manages hydration risk calculation with all factors
-// UPDATED: Added sugar component
+// UPDATED: Added workout loss calculations and proper tracking
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
 import 'remote_config_service.dart';
+import '../data/catalog_item.dart';
 
 // ============================================================================
 // DATA MODELS
@@ -19,6 +20,11 @@ class Workout {
   final String type;
   final int intensity; // 1-5
   final int durationMinutes;
+  final int waterLossMl; // NEW: Track water loss
+  final int sodiumLossMg; // NEW: Track sodium loss
+  final int potassiumLossMg; // NEW: Track potassium loss
+  final int magnesiumLossMg; // NEW: Track magnesium loss
+  final int caloriesBurned; // NEW: Track calories
   
   Workout({
     required this.id,
@@ -26,12 +32,22 @@ class Workout {
     required this.type,
     required this.intensity,
     required this.durationMinutes,
+    this.waterLossMl = 0,
+    this.sodiumLossMg = 0,
+    this.potassiumLossMg = 0,
+    this.magnesiumLossMg = 0,
+    this.caloriesBurned = 0,
   });
   
   // Calculate HRI impact based on intensity, duration and time elapsed
   double getHRIImpact() {
-    // Base impact: intensity * duration factor
+    // Base impact: intensity * duration factor * water loss factor
     double base = intensity * (durationMinutes / 30.0);
+    
+    // Add impact based on water loss
+    if (waterLossMl > 0) {
+      base += (waterLossMl / 500.0); // Every 500ml lost adds 1 point
+    }
     
     // Decay over time
     final hoursSince = DateTime.now().difference(timestamp).inHours;
@@ -48,14 +64,24 @@ class Workout {
     'type': type,
     'intensity': intensity,
     'durationMinutes': durationMinutes,
+    'waterLossMl': waterLossMl,
+    'sodiumLossMg': sodiumLossMg,
+    'potassiumLossMg': potassiumLossMg,
+    'magnesiumLossMg': magnesiumLossMg,
+    'caloriesBurned': caloriesBurned,
   };
   
   factory Workout.fromJson(Map<String, dynamic> json) => Workout(
-    id: json['id'],
+    id: json['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
     timestamp: DateTime.parse(json['timestamp']),
-    type: json['type'],
-    intensity: json['intensity'],
-    durationMinutes: json['durationMinutes'],
+    type: json['type'] ?? 'unknown',
+    intensity: json['intensity'] ?? 3,
+    durationMinutes: json['durationMinutes'] ?? 0,
+    waterLossMl: json['waterLossMl'] ?? 0,
+    sodiumLossMg: json['sodiumLossMg'] ?? 0,
+    potassiumLossMg: json['potassiumLossMg'] ?? 0,
+    magnesiumLossMg: json['magnesiumLossMg'] ?? 0,
+    caloriesBurned: json['caloriesBurned'] ?? 0,
   );
 }
 
@@ -95,6 +121,23 @@ class CaffeineIntake {
   );
 }
 
+// NEW: Workout loss calculations result
+class WorkoutLossResult {
+  final int waterLossMl;
+  final int sodiumLossMg;
+  final int potassiumLossMg;
+  final int magnesiumLossMg;
+  final int caloriesBurned;
+  
+  WorkoutLossResult({
+    required this.waterLossMl,
+    required this.sodiumLossMg,
+    required this.potassiumLossMg,
+    required this.magnesiumLossMg,
+    required this.caloriesBurned,
+  });
+}
+
 // ============================================================================
 // HRI SERVICE
 // ============================================================================
@@ -107,6 +150,7 @@ class HRIService extends ChangeNotifier {
   static const String _workoutsKey = 'today_workouts';
   static const String _caffeineKey = 'today_caffeine';
   static const String _alcoholKey = 'today_alcohol_sd';
+  static const String _workoutLossesKey = 'today_workout_losses';
   
   // Current HRI value and components
   double _currentHRI = 25.0; // Start at low risk
@@ -116,6 +160,12 @@ class HRIService extends ChangeNotifier {
   final List<Workout> _todayWorkouts = [];
   final List<CaffeineIntake> _todayCaffeineIntakes = [];
   double _todayAlcoholSD = 0.0;
+  
+  // NEW: Track total workout losses for the day
+  int _totalWaterLossMl = 0;
+  int _totalSodiumLossMg = 0;
+  int _totalPotassiumLossMg = 0;
+  int _totalMagnesiumLossMg = 0;
   
   // Component breakdown (for display)
   final Map<String, double> _components = {
@@ -127,9 +177,10 @@ class HRIService extends ChangeNotifier {
     'workouts': 0.0,
     'caffeine': 0.0,
     'alcohol': 0.0,
-    'sugar': 0.0,  // NEW: Sugar component
+    'sugar': 0.0,
     'timeSinceIntake': 0.0,
     'morning': 0.0,
+    'dehydration': 0.0, // NEW: Track dehydration from workouts
   };
   
   // State tracking for smart clamping
@@ -153,7 +204,6 @@ class HRIService extends ChangeNotifier {
   int getTodaysCaffeine() {
     double totalCaffeine = 0.0;
     for (final intake in _todayCaffeineIntakes) {
-      // Sum up original caffeine amounts (not decayed)
       totalCaffeine += intake.caffeineMg;
     }
     return totalCaffeine.round();
@@ -166,6 +216,16 @@ class HRIService extends ChangeNotifier {
       totalActiveCaffeine += intake.getActiveCaffeine();
     }
     return totalActiveCaffeine.round();
+  }
+  
+  // NEW: Get today's workout losses
+  Map<String, int> getTodaysWorkoutLosses() {
+    return {
+      'water': _totalWaterLossMl,
+      'sodium': _totalSodiumLossMg,
+      'potassium': _totalPotassiumLossMg,
+      'magnesium': _totalMagnesiumLossMg,
+    };
   }
   
   double get currentHRI => _currentHRI;
@@ -198,6 +258,46 @@ class HRIService extends ChangeNotifier {
   Map<String, double> getComponentsBreakdown() => Map.from(_components);
   
   // ============================================================================
+  // WORKOUT LOSS CALCULATIONS (NEW)
+  // ============================================================================
+  
+  static WorkoutLossResult calculateWorkoutLosses({
+    required CatalogItem item,
+    required int durationMinutes,
+    required double userWeight,
+  }) {
+    // Get parameters from item properties with defaults
+    final naPerL = (item.properties['naPerL'] as int? ?? 800);
+    final kPerL = (item.properties['kPerL'] as int? ?? 200);
+    final mgPerL = (item.properties['mgPerL'] as int? ?? 40);
+    final baseSweatRate = (item.properties['sweatRate'] as int? ?? 600); // ml/hour
+    final met = (item.properties['met'] as num? ?? 5.0);
+    final intensityValue = (item.properties['intensityValue'] as int? ?? 3);
+    
+    // Calculate sweat loss based on duration and body weight
+    final hours = durationMinutes / 60.0;
+    final adjustedSweatRate = baseSweatRate * (userWeight / 70) * (intensityValue / 3.0);
+    final waterLossMl = (adjustedSweatRate * hours).round();
+    
+    // Calculate electrolyte losses based on sweat volume
+    final liters = waterLossMl / 1000.0;
+    final sodiumMg = (naPerL * liters).round();
+    final potassiumMg = (kPerL * liters).round();
+    final magnesiumMg = (mgPerL * liters).round();
+    
+    // Calculate calories burned
+    final caloriesBurned = (met * userWeight * hours).round();
+    
+    return WorkoutLossResult(
+      waterLossMl: waterLossMl,
+      sodiumLossMg: sodiumMg,
+      potassiumLossMg: potassiumMg,
+      magnesiumLossMg: magnesiumMg,
+      caloriesBurned: caloriesBurned,
+    );
+  }
+  
+  // ============================================================================
   // INITIALIZATION
   // ============================================================================
   
@@ -222,20 +322,37 @@ class HRIService extends ChangeNotifier {
       _lastUpdate = DateTime.fromMillisecondsSinceEpoch(lastUpdateMillis);
     }
     
-    // Load today's workouts
+    // Load today's workouts with new format
     final workoutsJson = prefs.getStringList(_workoutsKey) ?? [];
     _todayWorkouts.clear();
+    _totalWaterLossMl = 0;
+    _totalSodiumLossMg = 0;
+    _totalPotassiumLossMg = 0;
+    _totalMagnesiumLossMg = 0;
+    
     for (final json in workoutsJson) {
       try {
         final parts = json.split('|');
         if (parts.length >= 5) {
-          _todayWorkouts.add(Workout(
+          final workout = Workout(
             id: parts[0],
             timestamp: DateTime.parse(parts[1]),
             type: parts[2],
             intensity: int.parse(parts[3]),
             durationMinutes: int.parse(parts[4]),
-          ));
+            waterLossMl: parts.length > 5 ? int.parse(parts[5]) : 0,
+            sodiumLossMg: parts.length > 6 ? int.parse(parts[6]) : 0,
+            potassiumLossMg: parts.length > 7 ? int.parse(parts[7]) : 0,
+            magnesiumLossMg: parts.length > 8 ? int.parse(parts[8]) : 0,
+            caloriesBurned: parts.length > 9 ? int.parse(parts[9]) : 0,
+          );
+          _todayWorkouts.add(workout);
+          
+          // Sum up losses
+          _totalWaterLossMl += workout.waterLossMl;
+          _totalSodiumLossMg += workout.sodiumLossMg;
+          _totalPotassiumLossMg += workout.potassiumLossMg;
+          _totalMagnesiumLossMg += workout.magnesiumLossMg;
         }
       } catch (e) {
         print('Error loading workout: $e');
@@ -293,9 +410,10 @@ class HRIService extends ChangeNotifier {
     await prefs.setDouble(_hriKey, _currentHRI);
     await prefs.setInt(_lastUpdateKey, DateTime.now().millisecondsSinceEpoch);
     
-    // Save workouts
+    // Save workouts with loss data
     final workoutsJson = _todayWorkouts.map((w) =>
-      '${w.id}|${w.timestamp.toIso8601String()}|${w.type}|${w.intensity}|${w.durationMinutes}'
+      '${w.id}|${w.timestamp.toIso8601String()}|${w.type}|${w.intensity}|${w.durationMinutes}|'
+      '${w.waterLossMl}|${w.sodiumLossMg}|${w.potassiumLossMg}|${w.magnesiumLossMg}|${w.caloriesBurned}'
     ).toList();
     await prefs.setStringList(_workoutsKey, workoutsJson);
     
@@ -324,6 +442,10 @@ class HRIService extends ChangeNotifier {
       _todayWorkouts.clear();
       _todayCaffeineIntakes.clear();
       _todayAlcoholSD = 0.0;
+      _totalWaterLossMl = 0;
+      _totalSodiumLossMg = 0;
+      _totalPotassiumLossMg = 0;
+      _totalMagnesiumLossMg = 0;
       _lastIntakeTime = null;
       _currentHRI = 25.0; // Reset to baseline
       _components.updateAll((key, value) => 0.0);
@@ -337,28 +459,65 @@ class HRIService extends ChangeNotifier {
   
   void setFastingStatus(bool value) {
     _isFasting = value;
-    // Could adjust HRI calculation if needed during fasting
   }
   
   // ============================================================================
   // DATA INPUT METHODS
   // ============================================================================
   
+  // Updated method with loss tracking
   Future<void> addWorkout({
     required String type,
     required int intensity,
     required int durationMinutes,
+    CatalogItem? item,
+    double? userWeight,
   }) async {
+    // Calculate losses if item is provided
+    WorkoutLossResult? losses;
+    if (item != null && userWeight != null) {
+      losses = calculateWorkoutLosses(
+        item: item,
+        durationMinutes: durationMinutes,
+        userWeight: userWeight,
+      );
+    }
+    
     final workout = Workout(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       timestamp: DateTime.now(),
       type: type,
       intensity: intensity.clamp(1, 5),
       durationMinutes: durationMinutes,
+      waterLossMl: losses?.waterLossMl ?? 0,
+      sodiumLossMg: losses?.sodiumLossMg ?? 0,
+      potassiumLossMg: losses?.potassiumLossMg ?? 0,
+      magnesiumLossMg: losses?.magnesiumLossMg ?? 0,
+      caloriesBurned: losses?.caloriesBurned ?? 0,
     );
     
     _todayWorkouts.add(workout);
+    
+    // Update total losses
+    _totalWaterLossMl += workout.waterLossMl;
+    _totalSodiumLossMg += workout.sodiumLossMg;
+    _totalPotassiumLossMg += workout.potassiumLossMg;
+    _totalMagnesiumLossMg += workout.magnesiumLossMg;
+    
     await _recalculateHRI();
+  }
+  
+  // Compatibility method for legacy calls
+  Future<void> addWorkoutSimple({
+    required String type,
+    required int intensity,
+    required int durationMinutes,
+  }) async {
+    await addWorkout(
+      type: type,
+      intensity: intensity,
+      durationMinutes: durationMinutes,
+    );
   }
   
   Future<void> addCaffeineIntake(double caffeineMg, {String source = 'coffee'}) async {
@@ -413,7 +572,7 @@ class HRIService extends ChangeNotifier {
     int activityLevel = 0,
     int coffeeCups = 0,
     double alcoholSD = 0.0,
-    double? sugarIntake,  // NEW: Sugar intake parameter
+    double? sugarIntake,
     DateTime? lastIntakeTime,
     double? morningWeightChange,
     int? urineColorValue,
@@ -422,7 +581,7 @@ class HRIService extends ChangeNotifier {
   }) async {
     _checkAndResetDaily();
     
-    // Update alcohol SD if provided (FIXED: always update when provided)
+    // Update alcohol SD if provided
     if (alcoholSD >= 0) {
       _todayAlcoholSD = alcoholSD;
     }
@@ -437,43 +596,71 @@ class HRIService extends ChangeNotifier {
     if (urineColorValue != null) _urineColor = urineColorValue;
     if (sleepQualityValue != null) _sleepQuality = sleepQualityValue;
     
-    // ========== WATER COMPONENT ==========
-    final waterRatio = waterGoal > 0 ? (waterIntake / waterGoal) : 0.0;
+    // ========== WATER COMPONENT WITH WORKOUT LOSSES ==========
+    // Account for workout water losses
+    double effectiveWaterIntake = waterIntake;
+    double effectiveWaterGoal = waterGoal;
+    
+    if (_totalWaterLossMl > 0) {
+      // Add losses to the goal (you need to drink more to compensate)
+      effectiveWaterGoal += _totalWaterLossMl;
+    }
+    
+    final waterRatio = effectiveWaterGoal > 0 ? (effectiveWaterIntake / effectiveWaterGoal) : 0.0;
     _components['water'] = _calculateWaterComponent(waterRatio);
     
-    // ========== ELECTROLYTE COMPONENTS ==========
-    final sodiumRatio = sodiumGoal > 0 ? (sodiumIntake / sodiumGoal) : 0.0;
+    // ========== ELECTROLYTE COMPONENTS WITH WORKOUT LOSSES ==========
+    // Account for electrolyte losses
+    double effectiveSodiumGoal = sodiumGoal;
+    double effectivePotassiumGoal = potassiumGoal;
+    double effectiveMagnesiumGoal = magnesiumGoal;
+    
+    if (_totalSodiumLossMg > 0) {
+      effectiveSodiumGoal += _totalSodiumLossMg;
+    }
+    if (_totalPotassiumLossMg > 0) {
+      effectivePotassiumGoal += _totalPotassiumLossMg;
+    }
+    if (_totalMagnesiumLossMg > 0) {
+      effectiveMagnesiumGoal += _totalMagnesiumLossMg;
+    }
+    
+    final sodiumRatio = effectiveSodiumGoal > 0 ? (sodiumIntake / effectiveSodiumGoal) : 0.0;
     _components['sodium'] = _calculateElectrolyteComponent(sodiumRatio, maxPoints: 15);
     
-    final potassiumRatio = potassiumGoal > 0 ? (potassiumIntake / potassiumGoal) : 0.0;
+    final potassiumRatio = effectivePotassiumGoal > 0 ? (potassiumIntake / effectivePotassiumGoal) : 0.0;
     _components['potassium'] = _calculateElectrolyteComponent(potassiumRatio, maxPoints: 10);
     
-    final magnesiumRatio = magnesiumGoal > 0 ? (magnesiumIntake / magnesiumGoal) : 0.0;
+    final magnesiumRatio = effectiveMagnesiumGoal > 0 ? (magnesiumIntake / effectiveMagnesiumGoal) : 0.0;
     _components['magnesium'] = _calculateElectrolyteComponent(magnesiumRatio, maxPoints: 10);
+    
+    // ========== DEHYDRATION COMPONENT (NEW) ==========
+    // Track uncompensated workout losses
+    _components['dehydration'] = 0.0;
+    if (_totalWaterLossMl > 0) {
+      final compensationRatio = waterIntake / _totalWaterLossMl;
+      if (compensationRatio < 0.5) {
+        // Severe dehydration from workout
+        _components['dehydration'] = 15.0;
+      } else if (compensationRatio < 0.8) {
+        // Moderate dehydration
+        _components['dehydration'] = 10.0 * (1 - (compensationRatio - 0.5) / 0.3);
+      } else if (compensationRatio < 1.0) {
+        // Mild dehydration
+        _components['dehydration'] = 5.0 * (1 - (compensationRatio - 0.8) / 0.2);
+      }
+    }
     
     // ========== HEAT COMPONENT ==========
     _components['heat'] = 0.0;
     if (heatIndex != null) {
-      // DEBUG: Log heat index calculation
-      print('=== HEAT COMPONENT DEBUG ===');
-      print('Heat Index received: $heatIndex°C');
-      
       if (heatIndex >= 39) {
         _components['heat'] = 15;
-        print('Heat component set to 15 (extreme heat)');
       } else if (heatIndex >= 32) {
         _components['heat'] = 10;
-        print('Heat component set to 10 (high heat)');
       } else if (heatIndex >= 27) {
         _components['heat'] = 5;
-        print('Heat component set to 5 (moderate heat)');
-      } else {
-        print('Heat component set to 0 (comfortable)');
       }
-      print('Final heat component: ${_components['heat']}');
-      print('===========================');
-    } else {
-      print('WARNING: Heat Index is null');
     }
     
     // ========== WORKOUT COMPONENT ==========
@@ -490,7 +677,7 @@ class HRIService extends ChangeNotifier {
     }
     // Add coffee cups if provided
     if (coffeeCups > 0) {
-      totalActiveCaffeine += coffeeCups * 95.0; // Average caffeine per cup
+      totalActiveCaffeine += coffeeCups * 95.0;
     }
     _components['caffeine'] = min(15.0, (totalActiveCaffeine / 100) * 2);
     
@@ -498,11 +685,9 @@ class HRIService extends ChangeNotifier {
     final rc = RemoteConfigService.instance;
     final alcPerSD = rc.getDouble('alc_hri_risk_per_sd');
     final alcCap = rc.getDouble('alc_hri_risk_cap');
-    
-    // Use the current total SD (FIXED: now properly updated)
     _components['alcohol'] = min(alcCap, _todayAlcoholSD * alcPerSD);
     
-    // ========== SUGAR COMPONENT (NEW) ==========
+    // ========== SUGAR COMPONENT ==========
     _components['sugar'] = 0.0;
     if (sugarIntake != null) {
       final sugarThreshold = rc.getDouble('sugar_hri_threshold_grams') ?? 50.0;
@@ -512,17 +697,6 @@ class HRIService extends ChangeNotifier {
       if (sugarIntake > sugarThreshold) {
         final excess = sugarIntake - sugarThreshold;
         _components['sugar'] = (excess * sugarMultiplier).clamp(0, sugarMaxImpact);
-        
-        // Debug logging
-        if (kDebugMode) {
-          print('=== SUGAR COMPONENT DEBUG ===');
-          print('Sugar intake: ${sugarIntake}g');
-          print('Threshold: ${sugarThreshold}g');
-          print('Excess: ${excess}g');
-          print('Multiplier: $sugarMultiplier');
-          print('Sugar HRI impact: ${_components['sugar']}');
-          print('=============================');
-        }
       }
     }
     
@@ -569,11 +743,12 @@ class HRIService extends ChangeNotifier {
       print('Sodium: ${_components['sodium']?.toStringAsFixed(1)}');
       print('Potassium: ${_components['potassium']?.toStringAsFixed(1)}');
       print('Magnesium: ${_components['magnesium']?.toStringAsFixed(1)}');
-      print('Heat: ${_components['heat']?.toStringAsFixed(1)} (index: ${heatIndex?.toStringAsFixed(1)})');
+      print('Heat: ${_components['heat']?.toStringAsFixed(1)}');
       print('Workouts: ${_components['workouts']?.toStringAsFixed(1)} (${_todayWorkouts.length} workouts)');
+      print('Dehydration: ${_components['dehydration']?.toStringAsFixed(1)} (loss: ${_totalWaterLossMl}ml)');
       print('Caffeine: ${_components['caffeine']?.toStringAsFixed(1)} (${totalActiveCaffeine.toStringAsFixed(0)}mg active)');
       print('Alcohol: ${_components['alcohol']?.toStringAsFixed(1)} (${_todayAlcoholSD.toStringAsFixed(1)} SD)');
-      print('Sugar: ${_components['sugar']?.toStringAsFixed(1)} (${sugarIntake?.toStringAsFixed(1)}g intake)');  // NEW
+      print('Sugar: ${_components['sugar']?.toStringAsFixed(1)}');
       print('Time: ${_components['timeSinceIntake']?.toStringAsFixed(1)}');
       print('Morning: ${_components['morning']?.toStringAsFixed(1)}');
       print('TOTAL HRI: ${_currentHRI.toStringAsFixed(1)}');
@@ -625,15 +800,19 @@ class HRIService extends ChangeNotifier {
   // ============================================================================
   
   Future<void> _recalculateHRI() async {
-    // This method is called when we add workouts, caffeine, or alcohol
-    // but don't have full hydration data. We just update those components.
-    
     // Recalculate workout component
     _components['workouts'] = 0.0;
     for (final workout in _todayWorkouts) {
       _components['workouts'] = (_components['workouts']! + workout.getHRIImpact());
     }
     _components['workouts'] = min(20.0, _components['workouts']!);
+    
+    // Recalculate dehydration component
+    _components['dehydration'] = 0.0;
+    if (_totalWaterLossMl > 100) {
+      // Simple calculation for dehydration when we don't have full data
+      _components['dehydration'] = min(15.0, _totalWaterLossMl / 200.0);
+    }
     
     // Recalculate caffeine component
     double totalActiveCaffeine = 0.0;
@@ -647,9 +826,6 @@ class HRIService extends ChangeNotifier {
     final alcPerSD = rc.getDouble('alc_hri_risk_per_sd');
     final alcCap = rc.getDouble('alc_hri_risk_cap');
     _components['alcohol'] = min(alcCap, _todayAlcoholSD * alcPerSD);
-    
-    // Note: Sugar component requires full data from HydrationProvider,
-    // so it's only updated in the main calculateHRI method
     
     // Recalculate total
     double total = 0.0;
@@ -669,6 +845,10 @@ class HRIService extends ChangeNotifier {
     _todayWorkouts.clear();
     _todayCaffeineIntakes.clear();
     _todayAlcoholSD = 0.0;
+    _totalWaterLossMl = 0;
+    _totalSodiumLossMg = 0;
+    _totalPotassiumLossMg = 0;
+    _totalMagnesiumLossMg = 0;
     _lastIntakeTime = null;
     _components.updateAll((key, value) => 0.0);
     _lastUpdate = DateTime.now();

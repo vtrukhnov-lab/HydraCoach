@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../services/weather_service.dart';
 import '../../services/units_service.dart';
+import '../../services/subscription_service.dart';
+import '../../screens/paywall_screen.dart';
 import '../../l10n/app_localizations.dart';
 
 class WeatherCard extends StatelessWidget {
@@ -11,9 +13,17 @@ class WeatherCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final subscription = context.watch<SubscriptionProvider>();
+    final l10n = AppLocalizations.of(context);
+    
+    // Проверяем PRO статус
+    if (!subscription.isPro) {
+      return _buildProLockedCard(context, l10n);
+    }
+    
+    // Остальной код для PRO пользователей
     final weather = Provider.of<WeatherService>(context);
     final units = Provider.of<UnitsService>(context);
-    final l10n = AppLocalizations.of(context);
 
     final weatherData = weather.currentWeather;
     final heatIndex = weather.heatIndex;
@@ -227,6 +237,147 @@ class WeatherCard extends StatelessWidget {
               ),
             ],
           ],
+        ),
+      ),
+    ).animate().fadeIn(delay: 200.ms);
+  }
+
+  // PRO-заблокированная карточка
+  Widget _buildProLockedCard(BuildContext context, AppLocalizations l10n) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const PaywallScreen(),
+            fullscreenDialog: true,
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.grey.shade700,
+              Colors.grey.shade800,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // PRO иконка
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.amber,
+                    width: 2,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.cloud,
+                  color: Colors.amber,
+                  size: 32,
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Заголовок PRO
+              Text(
+                'PRO',
+                style: TextStyle(
+                  color: Colors.amber.shade600,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                ),
+              ),
+              
+              const SizedBox(height: 8),
+              
+              // Название функции
+              Text(
+                l10n.weather,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // Описание
+              Text(
+                l10n.weatherTrackingPro,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.8),
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Кнопка разблокировки
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.amber.shade600, Colors.orange.shade600],
+                  ),
+                  borderRadius: BorderRadius.circular(25),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.amber.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.lock_open,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      l10n.unlock,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     ).animate().fadeIn(delay: 200.ms);

@@ -31,6 +31,18 @@ class _MainProgressCardState extends State<MainProgressCard> {
   
   // Флаг для визуального отклика при нажатии
   bool _isPressed = false;
+  
+  @override
+  void initState() {
+    super.initState();
+    // Убеждаемся, что контекст установлен при инициализации
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final provider = context.read<HydrationProvider>();
+        provider.setContext(context);
+      }
+    });
+  }
 
   /// Добавляет воду через одиночное нажатие
   void _handleQuickAdd() {
@@ -38,6 +50,9 @@ class _MainProgressCardState extends State<MainProgressCard> {
     
     // Тактильная обратная связь
     HapticFeedback.lightImpact();
+    
+    // Убеждаемся, что контекст установлен перед добавлением
+    provider.setContext(context);
     
     // Добавляем воду (AchievementService покажет уведомление автоматически)
     provider.addIntake('water', _quickAddVolume);
@@ -51,6 +66,9 @@ class _MainProgressCardState extends State<MainProgressCard> {
     final provider = context.read<HydrationProvider>();
     
     HapticFeedback.mediumImpact();
+    
+    // Убеждаемся, что контекст установлен перед добавлением
+    provider.setContext(context);
     
     // Добавляем двойной объем
     provider.addIntake('water', _quickAddVolume * 2);

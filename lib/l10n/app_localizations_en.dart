@@ -2814,4 +2814,227 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alreadyInFavorites => 'Already in favorites';
+
+  @override
+  String get ofRecommendedLimit => 'of recommended limit';
+
+  @override
+  String get aboutAlcohol => 'About Alcohol';
+
+  @override
+  String get alcoholInfo1 => 'One standard drink equals 10g of pure alcohol';
+
+  @override
+  String get alcoholInfo2 =>
+      'Alcohol dehydrates — drink 250ml extra water per drink';
+
+  @override
+  String get alcoholInfo3 => 'Add sodium to help retain fluids after drinking';
+
+  @override
+  String get alcoholInfo4 => 'Each standard drink increases HRI by 3-5 points';
+
+  @override
+  String get alcoholWarningHealth =>
+      'Excessive alcohol consumption is harmful to health. The recommended limit is 2 SD for men and 1 SD for women per day.';
+
+  @override
+  String get supplementsInfo1 =>
+      'Supplements help maintain electrolyte balance';
+
+  @override
+  String get supplementsInfo2 => 'Best taken with meals for absorption';
+
+  @override
+  String get supplementsInfo3 => 'Always take with plenty of water';
+
+  @override
+  String get supplementsInfo4 =>
+      'Magnesium and potassium are key for hydration';
+
+  @override
+  String get supplementsWarning =>
+      'Consult with healthcare provider before starting any supplement regimen';
+
+  @override
+  String get fromSupplementsToday => 'From Supplements Today';
+
+  @override
+  String get minerals => 'Minerals';
+
+  @override
+  String get vitamins => 'Vitamins';
+
+  @override
+  String get essentialMinerals => 'Essential Minerals';
+
+  @override
+  String get otherSupplements => 'Other Supplements';
+
+  @override
+  String get supplementTip1 =>
+      'Take supplements with food for better absorption';
+
+  @override
+  String get supplementTip2 => 'Drink plenty of water with supplements';
+
+  @override
+  String get supplementTip3 =>
+      'Space out multiple supplements throughout the day';
+
+  @override
+  String get supplementTip4 => 'Keep track of what works for you';
+
+  @override
+  String get calciumCarbonate => 'Calcium Carbonate';
+
+  @override
+  String get traceMinerals => 'Trace Minerals';
+
+  @override
+  String get vitaminA => 'Vitamin A';
+
+  @override
+  String get vitaminE => 'Vitamin E';
+
+  @override
+  String get vitaminK2 => 'Vitamin K2';
+
+  @override
+  String get folate => 'Folate';
+
+  @override
+  String get biotin => 'Biotin';
+
+  @override
+  String get probiotics => 'Probiotics';
+
+  @override
+  String get melatonin => 'Melatonin';
+
+  @override
+  String get collagen => 'Collagen';
+
+  @override
+  String get glucosamine => 'Glucosamine';
+
+  @override
+  String get turmeric => 'Turmeric';
+
+  @override
+  String get coq10 => 'CoQ10';
+
+  @override
+  String get creatine => 'Creatine';
+
+  @override
+  String get ashwagandha => 'Ashwagandha';
+
+  @override
+  String get selectCardioActivity => 'Select Cardio Activity';
+
+  @override
+  String get selectStrengthActivity => 'Select Strength Activity';
+
+  @override
+  String get selectSportsActivity => 'Select Sport';
+
+  @override
+  String get sessions => 'Sessions';
+
+  @override
+  String get totalTime => 'Total Time';
+
+  @override
+  String get waterLoss => 'Water Loss';
+
+  @override
+  String get intensity => 'Intensity';
+
+  @override
+  String get drinkWaterAfterWorkout => 'Drink water after workout';
+
+  @override
+  String get replenishElectrolytes => 'Replenish electrolytes';
+
+  @override
+  String get restAndRecover => 'Rest and recover';
+
+  @override
+  String get avoidSugaryDrinks => 'Avoid sugary sports drinks';
+
+  @override
+  String get elliptical => 'Elliptical';
+
+  @override
+  String get rowing => 'Rowing';
+
+  @override
+  String get jumpRope => 'Jump Rope';
+
+  @override
+  String get stairClimbing => 'Stair Climbing';
+
+  @override
+  String get bodyweight => 'Bodyweight';
+
+  @override
+  String get powerlifting => 'Powerlifting';
+
+  @override
+  String get calisthenics => 'Calisthenics';
+
+  @override
+  String get resistanceBands => 'Resistance Bands';
+
+  @override
+  String get kettlebell => 'Kettlebell';
+
+  @override
+  String get trx => 'TRX';
+
+  @override
+  String get strongman => 'Strongman';
+
+  @override
+  String get pilates => 'Pilates';
+
+  @override
+  String get basketball => 'Basketball';
+
+  @override
+  String get soccerFootball => 'Soccer/Football';
+
+  @override
+  String get golf => 'Golf';
+
+  @override
+  String get martialArts => 'Martial Arts';
+
+  @override
+  String get rockClimbing => 'Rock Climbing';
+
+  @override
+  String get needsToReplenish => 'Need to replenish';
+
+  @override
+  String get electrolyteTrackingPro =>
+      'Track sodium, potassium & magnesium goals with detailed progress bars';
+
+  @override
+  String get unlock => 'Unlock';
+
+  @override
+  String get weather => 'Weather';
+
+  @override
+  String get weatherTrackingPro =>
+      'Track heat index, humidity & weather impact on hydration goals';
+
+  @override
+  String get sugarTracking => 'Sugar Tracking';
+
+  @override
+  String get sugarTrackingPro =>
+      'Monitor natural, added & hidden sugar intake with HRI impact analysis';
 }

@@ -2,7 +2,7 @@
 // FILE: lib/providers/hydration_provider.dart
 // 
 // PURPOSE: Provider for hydration tracking and goals management
-// UPDATED: Added AchievementService integration for global achievement notifications
+// UPDATED: Added workout losses integration with HRIService
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -25,6 +25,7 @@ import '../services/units_service.dart';
 import '../models/daily_goals.dart';
 import '../models/intake.dart';
 import '../models/alcohol_intake.dart';
+import '../data/catalog_item.dart'; // Added for CatalogItem
 import '../widgets/home/sugar_intake_card.dart'; // Added for SugarIntakeData
 
 // Internal status enum for logic (not exposed to UI)
@@ -48,6 +49,12 @@ class HydrationProvider extends ChangeNotifier {
   double alcoholWaterAdjustment = 0;
   int alcoholSodiumAdjustment = 0;
   
+  // NEW: Workout adjustments from HRIService
+  double workoutWaterAdjustment = 0;
+  int workoutSodiumAdjustment = 0;
+  int workoutPotassiumAdjustment = 0;
+  int workoutMagnesiumAdjustment = 0;
+  
   // Track last reschedule time to prevent too frequent updates
   DateTime? _lastRescheduleTime;
   
@@ -68,6 +75,44 @@ class HydrationProvider extends ChangeNotifier {
   // Set context for AchievementService
   void setContext(BuildContext context) {
     _context = context;
+  }
+
+  // NEW: Update workout adjustments from HRIService
+  void updateWorkoutAdjustments({
+    required double waterAdjustment,
+    required int sodiumAdjustment,
+    required int potassiumAdjustment,
+    required int magnesiumAdjustment,
+  }) {
+    workoutWaterAdjustment = waterAdjustment;
+    workoutSodiumAdjustment = sodiumAdjustment;
+    workoutPotassiumAdjustment = potassiumAdjustment;
+    workoutMagnesiumAdjustment = magnesiumAdjustment;
+    _calculateGoals();
+    notifyListeners();
+  }
+
+  // NEW: Get workout losses from HRIService and update goals
+  Future<void> syncWithHRIService(HRIService hriService) async {
+    final losses = hriService.getTodaysWorkoutLosses();
+    print('=== SYNC DEBUG ===');
+    print('Losses from HRI: ${losses['water']} ml');
+    print('Old water goal: ${goals.waterOpt}');
+    
+    // ИСПРАВЛЕНО: обновляем adjustments напрямую
+    workoutWaterAdjustment = losses['water']!.toDouble();
+    workoutSodiumAdjustment = losses['sodium']!;
+    workoutPotassiumAdjustment = losses['potassium']!;
+    workoutMagnesiumAdjustment = losses['magnesium']!;
+    
+    // КРИТИЧНО: пересчитать цели после обновления adjustments
+    _calculateGoals();
+    
+    print('New water goal: ${goals.waterOpt}');
+    print('=================');
+    
+    // КРИТИЧНО: уведомить слушателей об изменениях
+    notifyListeners();
   }
   
   // ============ SUGAR INTAKE METHODS (UPDATED) ============
@@ -322,18 +367,32 @@ class HydrationProvider extends ChangeNotifier {
   
   // ============ HRI SERVICE INTEGRATION ============
   
-  // Log workout
+  // Log workout with proper loss tracking
   Future<void> logWorkout({
     required String type,
     required int intensity, // 1-5
     required int durationMinutes,
+    CatalogItem? item,
   }) async {
-    final hriService = HRIService();
+    print('=== LOGWORKOUT DEBUG ===');
+    print('Logging workout: $type, $intensity, ${durationMinutes}min, weight: $weight');
+    print('Item: ${item?.id}');
+    
+    // ИСПРАВЛЕНО: используем Provider.of для получения существующего HRIService
+    final hriService = Provider.of<HRIService>(_context!, listen: false);
+    
+    // Add workout with full loss calculations
     await hriService.addWorkout(
       type: type,
       intensity: intensity,
       durationMinutes: durationMinutes,
+      item: item,
+      userWeight: weight,
     );
+    
+    // NEW: Sync workout losses back to goals
+    await syncWithHRIService(hriService);
+    
     notifyListeners();
   }
   
@@ -387,6 +446,9 @@ class HydrationProvider extends ChangeNotifier {
       lastIntakeTime: lastIntakeTime,
       userWeightKg: weight,
     );
+
+    // NEW: Sync workout losses back to update goals
+    await syncWithHRIService(hriService);
   }
   
   // ============ GETTERS ============
@@ -475,6 +537,13 @@ class HydrationProvider extends ChangeNotifier {
       waterOpt += alcoholWaterAdjustment.round();
       waterMax += alcoholWaterAdjustment.round();
     }
+
+    // NEW: Apply workout correction (addition to already corrected values)
+    if (workoutWaterAdjustment > 0) {
+      waterMin += workoutWaterAdjustment.round();
+      waterOpt += workoutWaterAdjustment.round();
+      waterMax += workoutWaterAdjustment.round();
+    }
     
     // BASE electrolyte values
     int baseSodium = dietMode == 'keto' || dietMode == 'fasting' 
@@ -497,6 +566,11 @@ class HydrationProvider extends ChangeNotifier {
     
     // Add alcohol salt correction
     sodium += alcoholSodiumAdjustment;
+
+    // NEW: Add workout corrections
+    sodium += workoutSodiumAdjustment;
+    potassium += workoutPotassiumAdjustment;
+    magnesium += workoutMagnesiumAdjustment;
     
     // Create final goals
     goals = DailyGoals(
@@ -610,7 +684,17 @@ class HydrationProvider extends ChangeNotifier {
         final lastReset = DateTime.parse(lastResetStr);
         if (lastReset.day != now.day) {
           todayIntakes.clear();
+          
+          // NEW: Reset workout adjustments for new day
+          workoutWaterAdjustment = 0;
+          workoutSodiumAdjustment = 0;
+          workoutPotassiumAdjustment = 0;
+          workoutMagnesiumAdjustment = 0;
+          
           await prefs.setString(lastResetKey, now.toIso8601String());
+          
+          // Recalculate goals after reset
+          _calculateGoals();
           
           // Reset water progress cache for new day
           await _updateWaterProgressCache();

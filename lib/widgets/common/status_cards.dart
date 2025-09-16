@@ -5,6 +5,9 @@ import 'dart:math' as math;
 import '../../l10n/app_localizations.dart';
 import '../../services/units_service.dart';
 import 'water_ring_widget.dart';
+import 'package:provider/provider.dart';
+import '../../services/subscription_service.dart';
+import '../../screens/paywall_screen.dart';
 
 /// Animated status card showing hydration progress
 class AnimatedStatusCard extends StatelessWidget {
@@ -134,6 +137,250 @@ class AnimatedStatusCard extends StatelessWidget {
     if (percent >= 50) return l10n.halfwayThere;
     if (percent >= 25) return l10n.keepGoing;
     return l10n.startDrinking;
+  }
+}
+
+/// Alcohol status card with SD tracking and corrections
+class AlcoholStatusCard extends StatelessWidget {
+  final double todaySD;
+  final Color statusColor;
+  final String statusMessage;
+  final double waterCorrection;
+  final double sodiumCorrection;
+  final double hriModifier;
+  final AppLocalizations l10n;
+  final String units;
+  
+  const AlcoholStatusCard({
+    Key? key,
+    required this.todaySD,
+    required this.statusColor,
+    required this.statusMessage,
+    required this.waterCorrection,
+    required this.sodiumCorrection,
+    required this.hriModifier,
+    required this.l10n,
+    required this.units,
+  }) : super(key: key);
+  
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final progress = (todaySD / 3.0).clamp(0.0, 1.0);
+    
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            statusColor.withOpacity(0.1),
+            statusColor.withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: statusColor.withOpacity(0.3),
+          width: 1.5,
+        ),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              // Circular progress
+              SizedBox(
+                width: 80,
+                height: 80,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      value: progress,
+                      strokeWidth: 8,
+                      backgroundColor: Colors.grey.shade200,
+                      valueColor: AlwaysStoppedAnimation(statusColor),
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          todaySD.toStringAsFixed(1),
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: statusColor,
+                          ),
+                        ),
+                        Text(
+                          l10n.standardDrinksUnit,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.todayConsumed,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      statusMessage,
+                      style: TextStyle(
+                        color: statusColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    LinearProgressIndicator(
+                      value: progress,
+                      backgroundColor: Colors.grey.shade200,
+                      valueColor: AlwaysStoppedAnimation(statusColor),
+                      minHeight: 6,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (todaySD > 0) ...[
+            const SizedBox(height: 16),
+            // Corrections
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                StatItem(
+                  icon: Icons.water_drop,
+                  value: '+${UnitsService.instance.formatVolume(waterCorrection.round(), hideUnit: true)} ${UnitsService.instance.volumeUnit}',
+                  label: l10n.additionalWater,
+                  color: Colors.blue,
+                ),
+                StatItem(
+                  icon: Icons.grain,
+                  value: '+${sodiumCorrection.toStringAsFixed(0)} mg',
+                  label: l10n.additionalSodium,
+                  color: Colors.purple,
+                ),
+                StatItem(
+                  icon: Icons.warning,
+                  value: '+${hriModifier.toStringAsFixed(1)}',
+                  label: l10n.hriRisk,
+                  color: Colors.orange,
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Harm reduction card for alcohol
+class HarmReductionCard extends StatelessWidget {
+  final VoidCallback onDismiss;
+  final AppLocalizations l10n;
+  final bool isPro;
+  
+  const HarmReductionCard({
+    Key? key,
+    required this.onDismiss,
+    required this.l10n,
+    required this.isPro,
+  }) : super(key: key);
+  
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blue.shade50, Colors.green.shade50],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.blue.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.health_and_safety, color: Colors.blue.shade700),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l10n.minimumHarm,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: onDismiss,
+                icon: const Icon(Icons.close),
+                iconSize: 20,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildStep('💧', l10n.drinkWaterNow),
+          _buildStep('🧂', l10n.addPinchSalt),
+          _buildStep('☕', l10n.avoidLateCoffee),
+          _buildStep('🛏️', l10n.goToBedEarly ?? 'Go to bed early'),
+          if (isPro) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.purple.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.star, color: Colors.purple.shade600, size: 16),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      l10n.alcoholProtocolsDesc,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.purple.shade700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildStep(String emoji, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 20)),
+          const SizedBox(width: 12),
+          Expanded(child: Text(text, style: const TextStyle(fontSize: 14))),
+        ],
+      ),
+    );
   }
 }
 
@@ -489,33 +736,176 @@ class ArcPainter extends CustomPainter {
   }
 }
 
-/// Specialized status card for electrolytes with 3 bars
+/// Specialized status card for electrolytes with 3 bars - PRO blocked version
 class ElectrolyteStatusCard extends StatelessWidget {
   final Map<String, int> totals;
   final AppLocalizations l10n;
+  final VoidCallback? onInfoTap;
   
   const ElectrolyteStatusCard({
     Key? key,
     required this.totals,
     required this.l10n,
+    this.onInfoTap,
   }) : super(key: key);
-  
-  Color get statusColor {
-    final sodiumPercent = (totals['sodium']! / totals['sodiumGoal']!) * 100;
-    final potassiumPercent = (totals['potassium']! / totals['potassiumGoal']!) * 100;
-    final magnesiumPercent = (totals['magnesium']! / totals['magnesiumGoal']!) * 100;
-    
-    final avgPercent = (sodiumPercent + potassiumPercent + magnesiumPercent) / 3;
-    
-    if (avgPercent >= 80) return Colors.green;
-    if (avgPercent >= 50) return Colors.orange;
-    return Colors.red;
-  }
   
   @override
   Widget build(BuildContext context) {
+    // Проверяем PRO статус
+    final subscription = context.watch<SubscriptionProvider>();
+    
+    // Если не PRO - показываем заблокированную карточку
+    if (!subscription.isPro) {
+      return _buildProLockedCard(context, l10n);
+    }
+    
+    // PRO версия карточки
+    return _buildProCard(context, l10n);
+  }
+  
+  // PRO-заблокированная карточка
+  Widget _buildProLockedCard(BuildContext context, AppLocalizations l10n) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const PaywallScreen(),
+            fullscreenDialog: true,
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.grey.shade700,
+              Colors.grey.shade800,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // PRO иконка
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.2),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.orange,
+                  width: 2,
+                ),
+              ),
+              child: const Icon(
+                Icons.bolt,
+                color: Colors.orange,
+                size: 32,
+              ),
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Заголовок PRO
+            Text(
+              'PRO',
+              style: TextStyle(
+                color: Colors.orange.shade600,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2,
+              ),
+            ),
+            
+            const SizedBox(height: 8),
+            
+            // Название функции
+            Text(
+              l10n.todaysElectrolytes,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            
+            const SizedBox(height: 12),
+            
+            // Описание
+            Text(
+              l10n.electrolyteTrackingPro,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            
+            const SizedBox(height: 20),
+            
+            // Кнопка разблокировки
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 12,
+              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.orange.shade600, Colors.deepOrange.shade600],
+                ),
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.orange.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.lock_open,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    l10n.unlock,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ).animate().fadeIn(delay: 200.ms);
+  }
+  
+  // PRO версия карточки (оригинальная логика)
+  Widget _buildProCard(BuildContext context, AppLocalizations l10n) {
     final theme = Theme.of(context);
-    final color = statusColor;
+    final color = _getStatusColor();
     
     return Container(
       padding: const EdgeInsets.all(20),
@@ -557,13 +947,30 @@ class ElectrolyteStatusCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      l10n.todaysElectrolytes,
-                      style: theme.textTheme.titleMedium,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            l10n.todaysElectrolytes,
+                            style: theme.textTheme.titleMedium,
+                          ),
+                        ),
+                        if (onInfoTap != null)
+                          IconButton(
+                            onPressed: onInfoTap,
+                            icon: Icon(
+                              Icons.info_outline,
+                              size: 20,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      _getStatusMessage(totals, l10n),
+                      _getStatusMessage(l10n),
                       style: TextStyle(
                         color: color,
                         fontWeight: FontWeight.w600,
@@ -606,7 +1013,21 @@ class ElectrolyteStatusCard extends StatelessWidget {
       .slideY(begin: -0.1, end: 0);
   }
   
-  String _getStatusMessage(Map<String, int> totals, AppLocalizations l10n) {
+  // Определяем цвет статуса
+  Color _getStatusColor() {
+    final sodiumPercent = (totals['sodium']! / totals['sodiumGoal']!) * 100;
+    final potassiumPercent = (totals['potassium']! / totals['potassiumGoal']!) * 100;
+    final magnesiumPercent = (totals['magnesium']! / totals['magnesiumGoal']!) * 100;
+    
+    final avgPercent = (sodiumPercent + potassiumPercent + magnesiumPercent) / 3;
+    
+    if (avgPercent >= 80) return Colors.green;
+    if (avgPercent >= 50) return Colors.orange;
+    return Colors.red;
+  }
+  
+  // Определяем текст статуса
+  String _getStatusMessage(AppLocalizations l10n) {
     final sodiumPercent = (totals['sodium']! / totals['sodiumGoal']!) * 100;
     final potassiumPercent = (totals['potassium']! / totals['potassiumGoal']!) * 100;
     final magnesiumPercent = (totals['magnesium']! / totals['magnesiumGoal']!) * 100;

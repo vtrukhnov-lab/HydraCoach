@@ -2837,4 +2837,229 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get alreadyInFavorites => 'Ya está en favoritos';
+
+  @override
+  String get ofRecommendedLimit => 'of recommended limit';
+
+  @override
+  String get aboutAlcohol => 'Acerca del Alcohol';
+
+  @override
+  String get alcoholInfo1 =>
+      'Una bebida estándar equivale a 10g de alcohol puro';
+
+  @override
+  String get alcoholInfo2 =>
+      'El alcohol deshidrata — bebe 250ml extra de agua por bebida';
+
+  @override
+  String get alcoholInfo3 =>
+      'Añade sodio para ayudar a retener líquidos después de beber';
+
+  @override
+  String get alcoholInfo4 =>
+      'Cada bebida estándar aumenta el HRI en 3-5 puntos';
+
+  @override
+  String get alcoholWarningHealth =>
+      'El consumo excesivo de alcohol es perjudicial para la salud. El límite recomendado es 2 BE para hombres y 1 BE para mujeres al día.';
+
+  @override
+  String get supplementsInfo1 =>
+      'Los suplementos ayudan a mantener el equilibrio de electrolitos';
+
+  @override
+  String get supplementsInfo2 => 'Mejor tomar con las comidas para absorción';
+
+  @override
+  String get supplementsInfo3 => 'Siempre tome con abundante agua';
+
+  @override
+  String get supplementsInfo4 =>
+      'Magnesio y potasio son clave para la hidratación';
+
+  @override
+  String get supplementsWarning =>
+      'Consulte con su médico antes de comenzar cualquier régimen de suplementos';
+
+  @override
+  String get fromSupplementsToday => 'De suplementos hoy';
+
+  @override
+  String get minerals => 'Minerales';
+
+  @override
+  String get vitamins => 'Vitaminas';
+
+  @override
+  String get essentialMinerals => 'Minerales esenciales';
+
+  @override
+  String get otherSupplements => 'Otros suplementos';
+
+  @override
+  String get supplementTip1 =>
+      'Tome suplementos con comida para mejor absorción';
+
+  @override
+  String get supplementTip2 => 'Beba mucha agua con suplementos';
+
+  @override
+  String get supplementTip3 => 'Espacie los suplementos durante el día';
+
+  @override
+  String get supplementTip4 => 'Registre lo que funciona para usted';
+
+  @override
+  String get calciumCarbonate => 'Carbonato de Calcio';
+
+  @override
+  String get traceMinerals => 'Minerales Traza';
+
+  @override
+  String get vitaminA => 'Vitamina A';
+
+  @override
+  String get vitaminE => 'Vitamina E';
+
+  @override
+  String get vitaminK2 => 'Vitamina K2';
+
+  @override
+  String get folate => 'Folato';
+
+  @override
+  String get biotin => 'Biotina';
+
+  @override
+  String get probiotics => 'Probióticos';
+
+  @override
+  String get melatonin => 'Melatonina';
+
+  @override
+  String get collagen => 'Colágeno';
+
+  @override
+  String get glucosamine => 'Glucosamina';
+
+  @override
+  String get turmeric => 'Cúrcuma';
+
+  @override
+  String get coq10 => 'CoQ10';
+
+  @override
+  String get creatine => 'Creatina';
+
+  @override
+  String get ashwagandha => 'Ashwagandha';
+
+  @override
+  String get selectCardioActivity => 'Seleccionar actividad cardio';
+
+  @override
+  String get selectStrengthActivity => 'Seleccionar entrenamiento de fuerza';
+
+  @override
+  String get selectSportsActivity => 'Seleccionar deporte';
+
+  @override
+  String get sessions => 'Sesiones';
+
+  @override
+  String get totalTime => 'Tiempo total';
+
+  @override
+  String get waterLoss => 'Pérdida de agua';
+
+  @override
+  String get intensity => 'Intensidad';
+
+  @override
+  String get drinkWaterAfterWorkout => 'Bebe agua después del entrenamiento';
+
+  @override
+  String get replenishElectrolytes => 'Reponer electrolitos';
+
+  @override
+  String get restAndRecover => 'Descansar y recuperarse';
+
+  @override
+  String get avoidSugaryDrinks => 'Evitar bebidas deportivas azucaradas';
+
+  @override
+  String get elliptical => 'Elíptica';
+
+  @override
+  String get rowing => 'Remo';
+
+  @override
+  String get jumpRope => 'Saltar la cuerda';
+
+  @override
+  String get stairClimbing => 'Subir escaleras';
+
+  @override
+  String get bodyweight => 'Peso corporal';
+
+  @override
+  String get powerlifting => 'Powerlifting';
+
+  @override
+  String get calisthenics => 'Calistenia';
+
+  @override
+  String get resistanceBands => 'Bandas de resistencia';
+
+  @override
+  String get kettlebell => 'Pesas rusas';
+
+  @override
+  String get trx => 'TRX';
+
+  @override
+  String get strongman => 'Hombre fuerte';
+
+  @override
+  String get pilates => 'Pilates';
+
+  @override
+  String get basketball => 'Baloncesto';
+
+  @override
+  String get soccerFootball => 'Fútbol';
+
+  @override
+  String get golf => 'Golf';
+
+  @override
+  String get martialArts => 'Artes marciales';
+
+  @override
+  String get rockClimbing => 'Escalada en roca';
+
+  @override
+  String get needsToReplenish => 'Necesita reponer';
+
+  @override
+  String get electrolyteTrackingPro =>
+      'Rastrea los objetivos de sodio, potasio y magnesio con barras de progreso detalladas';
+
+  @override
+  String get unlock => 'Desbloquear';
+
+  @override
+  String get weather => 'Clima';
+
+  @override
+  String get weatherTrackingPro =>
+      'Rastrea el índice de calor, humedad e impacto del clima en los objetivos de hidratación';
+
+  @override
+  String get sugarTracking => 'Seguimiento de Azúcar';
+
+  @override
+  String get sugarTrackingPro =>
+      'Monitorea la ingesta de azúcar natural, añadido y oculto con análisis de impacto HRI';
 }

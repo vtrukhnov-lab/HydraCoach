@@ -5289,6 +5289,432 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Already in favorites'**
   String get alreadyInFavorites;
+
+  /// No description provided for @ofRecommendedLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'of recommended limit'**
+  String get ofRecommendedLimit;
+
+  /// No description provided for @aboutAlcohol.
+  ///
+  /// In en, this message translates to:
+  /// **'About Alcohol'**
+  String get aboutAlcohol;
+
+  /// No description provided for @alcoholInfo1.
+  ///
+  /// In en, this message translates to:
+  /// **'One standard drink equals 10g of pure alcohol'**
+  String get alcoholInfo1;
+
+  /// No description provided for @alcoholInfo2.
+  ///
+  /// In en, this message translates to:
+  /// **'Alcohol dehydrates — drink 250ml extra water per drink'**
+  String get alcoholInfo2;
+
+  /// No description provided for @alcoholInfo3.
+  ///
+  /// In en, this message translates to:
+  /// **'Add sodium to help retain fluids after drinking'**
+  String get alcoholInfo3;
+
+  /// No description provided for @alcoholInfo4.
+  ///
+  /// In en, this message translates to:
+  /// **'Each standard drink increases HRI by 3-5 points'**
+  String get alcoholInfo4;
+
+  /// No description provided for @alcoholWarningHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Excessive alcohol consumption is harmful to health. The recommended limit is 2 SD for men and 1 SD for women per day.'**
+  String get alcoholWarningHealth;
+
+  /// No description provided for @supplementsInfo1.
+  ///
+  /// In en, this message translates to:
+  /// **'Supplements help maintain electrolyte balance'**
+  String get supplementsInfo1;
+
+  /// No description provided for @supplementsInfo2.
+  ///
+  /// In en, this message translates to:
+  /// **'Best taken with meals for absorption'**
+  String get supplementsInfo2;
+
+  /// No description provided for @supplementsInfo3.
+  ///
+  /// In en, this message translates to:
+  /// **'Always take with plenty of water'**
+  String get supplementsInfo3;
+
+  /// No description provided for @supplementsInfo4.
+  ///
+  /// In en, this message translates to:
+  /// **'Magnesium and potassium are key for hydration'**
+  String get supplementsInfo4;
+
+  /// No description provided for @supplementsWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Consult with healthcare provider before starting any supplement regimen'**
+  String get supplementsWarning;
+
+  /// No description provided for @fromSupplementsToday.
+  ///
+  /// In en, this message translates to:
+  /// **'From Supplements Today'**
+  String get fromSupplementsToday;
+
+  /// No description provided for @minerals.
+  ///
+  /// In en, this message translates to:
+  /// **'Minerals'**
+  String get minerals;
+
+  /// No description provided for @vitamins.
+  ///
+  /// In en, this message translates to:
+  /// **'Vitamins'**
+  String get vitamins;
+
+  /// No description provided for @essentialMinerals.
+  ///
+  /// In en, this message translates to:
+  /// **'Essential Minerals'**
+  String get essentialMinerals;
+
+  /// No description provided for @otherSupplements.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Supplements'**
+  String get otherSupplements;
+
+  /// No description provided for @supplementTip1.
+  ///
+  /// In en, this message translates to:
+  /// **'Take supplements with food for better absorption'**
+  String get supplementTip1;
+
+  /// No description provided for @supplementTip2.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink plenty of water with supplements'**
+  String get supplementTip2;
+
+  /// No description provided for @supplementTip3.
+  ///
+  /// In en, this message translates to:
+  /// **'Space out multiple supplements throughout the day'**
+  String get supplementTip3;
+
+  /// No description provided for @supplementTip4.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep track of what works for you'**
+  String get supplementTip4;
+
+  /// No description provided for @calciumCarbonate.
+  ///
+  /// In en, this message translates to:
+  /// **'Calcium Carbonate'**
+  String get calciumCarbonate;
+
+  /// No description provided for @traceMinerals.
+  ///
+  /// In en, this message translates to:
+  /// **'Trace Minerals'**
+  String get traceMinerals;
+
+  /// No description provided for @vitaminA.
+  ///
+  /// In en, this message translates to:
+  /// **'Vitamin A'**
+  String get vitaminA;
+
+  /// No description provided for @vitaminE.
+  ///
+  /// In en, this message translates to:
+  /// **'Vitamin E'**
+  String get vitaminE;
+
+  /// No description provided for @vitaminK2.
+  ///
+  /// In en, this message translates to:
+  /// **'Vitamin K2'**
+  String get vitaminK2;
+
+  /// No description provided for @folate.
+  ///
+  /// In en, this message translates to:
+  /// **'Folate'**
+  String get folate;
+
+  /// No description provided for @biotin.
+  ///
+  /// In en, this message translates to:
+  /// **'Biotin'**
+  String get biotin;
+
+  /// No description provided for @probiotics.
+  ///
+  /// In en, this message translates to:
+  /// **'Probiotics'**
+  String get probiotics;
+
+  /// No description provided for @melatonin.
+  ///
+  /// In en, this message translates to:
+  /// **'Melatonin'**
+  String get melatonin;
+
+  /// No description provided for @collagen.
+  ///
+  /// In en, this message translates to:
+  /// **'Collagen'**
+  String get collagen;
+
+  /// No description provided for @glucosamine.
+  ///
+  /// In en, this message translates to:
+  /// **'Glucosamine'**
+  String get glucosamine;
+
+  /// No description provided for @turmeric.
+  ///
+  /// In en, this message translates to:
+  /// **'Turmeric'**
+  String get turmeric;
+
+  /// No description provided for @coq10.
+  ///
+  /// In en, this message translates to:
+  /// **'CoQ10'**
+  String get coq10;
+
+  /// No description provided for @creatine.
+  ///
+  /// In en, this message translates to:
+  /// **'Creatine'**
+  String get creatine;
+
+  /// No description provided for @ashwagandha.
+  ///
+  /// In en, this message translates to:
+  /// **'Ashwagandha'**
+  String get ashwagandha;
+
+  /// No description provided for @selectCardioActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Cardio Activity'**
+  String get selectCardioActivity;
+
+  /// No description provided for @selectStrengthActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Strength Activity'**
+  String get selectStrengthActivity;
+
+  /// No description provided for @selectSportsActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Sport'**
+  String get selectSportsActivity;
+
+  /// No description provided for @sessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions'**
+  String get sessions;
+
+  /// No description provided for @totalTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Time'**
+  String get totalTime;
+
+  /// No description provided for @waterLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Water Loss'**
+  String get waterLoss;
+
+  /// No description provided for @intensity.
+  ///
+  /// In en, this message translates to:
+  /// **'Intensity'**
+  String get intensity;
+
+  /// No description provided for @drinkWaterAfterWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink water after workout'**
+  String get drinkWaterAfterWorkout;
+
+  /// No description provided for @replenishElectrolytes.
+  ///
+  /// In en, this message translates to:
+  /// **'Replenish electrolytes'**
+  String get replenishElectrolytes;
+
+  /// No description provided for @restAndRecover.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest and recover'**
+  String get restAndRecover;
+
+  /// No description provided for @avoidSugaryDrinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Avoid sugary sports drinks'**
+  String get avoidSugaryDrinks;
+
+  /// No description provided for @elliptical.
+  ///
+  /// In en, this message translates to:
+  /// **'Elliptical'**
+  String get elliptical;
+
+  /// No description provided for @rowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Rowing'**
+  String get rowing;
+
+  /// No description provided for @jumpRope.
+  ///
+  /// In en, this message translates to:
+  /// **'Jump Rope'**
+  String get jumpRope;
+
+  /// No description provided for @stairClimbing.
+  ///
+  /// In en, this message translates to:
+  /// **'Stair Climbing'**
+  String get stairClimbing;
+
+  /// No description provided for @bodyweight.
+  ///
+  /// In en, this message translates to:
+  /// **'Bodyweight'**
+  String get bodyweight;
+
+  /// No description provided for @powerlifting.
+  ///
+  /// In en, this message translates to:
+  /// **'Powerlifting'**
+  String get powerlifting;
+
+  /// No description provided for @calisthenics.
+  ///
+  /// In en, this message translates to:
+  /// **'Calisthenics'**
+  String get calisthenics;
+
+  /// No description provided for @resistanceBands.
+  ///
+  /// In en, this message translates to:
+  /// **'Resistance Bands'**
+  String get resistanceBands;
+
+  /// No description provided for @kettlebell.
+  ///
+  /// In en, this message translates to:
+  /// **'Kettlebell'**
+  String get kettlebell;
+
+  /// No description provided for @trx.
+  ///
+  /// In en, this message translates to:
+  /// **'TRX'**
+  String get trx;
+
+  /// No description provided for @strongman.
+  ///
+  /// In en, this message translates to:
+  /// **'Strongman'**
+  String get strongman;
+
+  /// No description provided for @pilates.
+  ///
+  /// In en, this message translates to:
+  /// **'Pilates'**
+  String get pilates;
+
+  /// No description provided for @basketball.
+  ///
+  /// In en, this message translates to:
+  /// **'Basketball'**
+  String get basketball;
+
+  /// No description provided for @soccerFootball.
+  ///
+  /// In en, this message translates to:
+  /// **'Soccer/Football'**
+  String get soccerFootball;
+
+  /// No description provided for @golf.
+  ///
+  /// In en, this message translates to:
+  /// **'Golf'**
+  String get golf;
+
+  /// No description provided for @martialArts.
+  ///
+  /// In en, this message translates to:
+  /// **'Martial Arts'**
+  String get martialArts;
+
+  /// No description provided for @rockClimbing.
+  ///
+  /// In en, this message translates to:
+  /// **'Rock Climbing'**
+  String get rockClimbing;
+
+  /// No description provided for @needsToReplenish.
+  ///
+  /// In en, this message translates to:
+  /// **'Need to replenish'**
+  String get needsToReplenish;
+
+  /// No description provided for @electrolyteTrackingPro.
+  ///
+  /// In en, this message translates to:
+  /// **'Track sodium, potassium & magnesium goals with detailed progress bars'**
+  String get electrolyteTrackingPro;
+
+  /// No description provided for @unlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get unlock;
+
+  /// No description provided for @weather.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather'**
+  String get weather;
+
+  /// No description provided for @weatherTrackingPro.
+  ///
+  /// In en, this message translates to:
+  /// **'Track heat index, humidity & weather impact on hydration goals'**
+  String get weatherTrackingPro;
+
+  /// No description provided for @sugarTracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Sugar Tracking'**
+  String get sugarTracking;
+
+  /// No description provided for @sugarTrackingPro.
+  ///
+  /// In en, this message translates to:
+  /// **'Monitor natural, added & hidden sugar intake with HRI impact analysis'**
+  String get sugarTrackingPro;
 }
 
 class _AppLocalizationsDelegate
