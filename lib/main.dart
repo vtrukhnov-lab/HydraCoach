@@ -24,6 +24,7 @@ import 'screens/hot_drinks_screen.dart';
 import 'screens/sports_screen.dart';
 import 'screens/main_shell.dart';
 import 'screens/paywall_screen.dart';
+import 'screens/achievements_screen.dart';
 
 // Services
 import 'services/notification_service.dart';
@@ -216,6 +217,7 @@ class MyApp extends StatelessWidget {
             '/sports': (context) => const SportsScreen(),
             '/main': (context) => const MainShell(), 
             '/paywall': (context) => const PaywallScreen(),
+            '/achievements': (context) => const AchievementsScreen(),
           },
         );
       },

@@ -2289,7 +2289,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get fl_oz => 'fl oz';
 
   @override
-  String get gallons => 'gal';
+  String get gallons => 'galones';
 
   @override
   String get lb => 'lb';
@@ -2793,7 +2793,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get caffeineTipSleep => 'Puede afectar tu calidad de sueño';
 
   @override
-  String get total => 'Total';
+  String get total => 'total';
 
   @override
   String get cupsToday => 'Tazas hoy';
@@ -2830,7 +2830,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get consumed => 'Consumido';
 
   @override
-  String get remaining => 'Restante';
+  String get remaining => 'restante';
 
   @override
   String get todaysCaffeine => 'Cafeína de hoy';
@@ -2965,7 +2965,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get selectSportsActivity => 'Seleccionar deporte';
 
   @override
-  String get sessions => 'Sesiones';
+  String get sessions => 'sesiones';
 
   @override
   String get totalTime => 'Tiempo total';
@@ -3165,4 +3165,514 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get sundayShort => 'DOM';
+
+  @override
+  String get achievements => 'Logros';
+
+  @override
+  String get achievementsTabAll => 'Todos';
+
+  @override
+  String get achievementsTabHydration => 'Hidratación';
+
+  @override
+  String get achievementsTabElectrolytes => 'Electrolitos';
+
+  @override
+  String get achievementsTabSugar => 'Control Azúcar';
+
+  @override
+  String get achievementsTabAlcohol => 'Alcohol';
+
+  @override
+  String get achievementsTabWorkout => 'Ejercicio';
+
+  @override
+  String get achievementsTabHRI => 'HRI';
+
+  @override
+  String get achievementsTabStreaks => 'Rachas';
+
+  @override
+  String get achievementsTabSpecial => 'Especiales';
+
+  @override
+  String get achievementUnlocked => '¡Logro desbloqueado!';
+
+  @override
+  String get achievementProgress => 'Progreso';
+
+  @override
+  String get achievementPoints => 'puntos';
+
+  @override
+  String get achievementRarityCommon => 'Común';
+
+  @override
+  String get achievementRarityUncommon => 'Poco común';
+
+  @override
+  String get achievementRarityRare => 'Raro';
+
+  @override
+  String get achievementRarityEpic => 'Épico';
+
+  @override
+  String get achievementRarityLegendary => 'Legendario';
+
+  @override
+  String get achievementStatsUnlocked => 'Desbloqueados';
+
+  @override
+  String get achievementStatsTotal => 'Puntos totales';
+
+  @override
+  String get achievementFilterAll => 'Todos';
+
+  @override
+  String get achievementFilterUnlocked => 'Desbloqueados';
+
+  @override
+  String get achievementSortProgress => 'Progreso';
+
+  @override
+  String get achievementSortName => 'Nombre';
+
+  @override
+  String get achievementSortRarity => 'Rareza';
+
+  @override
+  String get achievementNoAchievements => 'Aún no hay logros';
+
+  @override
+  String get achievementKeepUsing =>
+      '¡Sigue usando la app para desbloquear logros!';
+
+  @override
+  String get achievementFirstGlass => 'Primera gota';
+
+  @override
+  String get achievementFirstGlassDesc => 'Bebe tu primer vaso de agua';
+
+  @override
+  String get achievementHydrationGoal1 => 'Hidratado';
+
+  @override
+  String get achievementHydrationGoal1Desc => 'Alcanza tu meta diaria de agua';
+
+  @override
+  String get achievementHydrationGoal7 => 'Semana de hidratación';
+
+  @override
+  String get achievementHydrationGoal7Desc =>
+      'Alcanza la meta de agua 7 días seguidos';
+
+  @override
+  String get achievementHydrationGoal30 => 'Maestro de hidratación';
+
+  @override
+  String get achievementHydrationGoal30Desc =>
+      'Alcanza la meta de agua 30 días seguidos';
+
+  @override
+  String get achievementPerfectHydration => 'Equilibrio perfecto';
+
+  @override
+  String get achievementPerfectHydrationDesc =>
+      'Logra 90-110% de tu meta de agua';
+
+  @override
+  String get achievementEarlyBird => 'Madrugador';
+
+  @override
+  String get achievementEarlyBirdDesc =>
+      'Bebe tu primera agua antes de las 9 AM';
+
+  @override
+  String achievementEarlyBirdTemplate(String volume) {
+    return 'Bebe $volume antes de las 9 AM';
+  }
+
+  @override
+  String get achievementNightOwl => 'Búho nocturno';
+
+  @override
+  String get achievementNightOwlDesc =>
+      'Completa la meta de hidratación antes de las 6 PM';
+
+  @override
+  String get achievementLiterLegend => 'Leyenda de litros';
+
+  @override
+  String get achievementLiterLegendDesc =>
+      'Alcanza tu hito total de hidratación';
+
+  @override
+  String achievementLiterLegendTemplate(String volume) {
+    return 'Bebe $volume en total';
+  }
+
+  @override
+  String get achievementSaltStarter => 'Iniciado en sal';
+
+  @override
+  String get achievementSaltStarterDesc => 'Añade tus primeros electrolitos';
+
+  @override
+  String get achievementElectrolyteBalance => 'Equilibrado';
+
+  @override
+  String get achievementElectrolyteBalanceDesc =>
+      'Alcanza todas las metas de electrolitos en un día';
+
+  @override
+  String get achievementSodiumMaster => 'Maestro del sodio';
+
+  @override
+  String get achievementSodiumMasterDesc =>
+      'Alcanza la meta de sodio 7 días seguidos';
+
+  @override
+  String get achievementPotassiumPro => 'Pro del potasio';
+
+  @override
+  String get achievementPotassiumProDesc =>
+      'Alcanza la meta de potasio 7 días seguidos';
+
+  @override
+  String get achievementMagnesiumMaven => 'Experto en magnesio';
+
+  @override
+  String get achievementMagnesiumMavenDesc =>
+      'Alcanza la meta de magnesio 7 días seguidos';
+
+  @override
+  String get achievementElectrolyteExpert => 'Experto en electrolitos';
+
+  @override
+  String get achievementElectrolyteExpertDesc =>
+      'Equilibrio perfecto de electrolitos por 30 días';
+
+  @override
+  String get achievementSugarAwareness => 'Conciencia del azúcar';
+
+  @override
+  String get achievementSugarAwarenessDesc => 'Rastrea azúcar por primera vez';
+
+  @override
+  String get achievementSugarUnder25 => 'Control dulce';
+
+  @override
+  String get achievementSugarUnder25Desc =>
+      'Mantén el consumo de azúcar bajo por un día';
+
+  @override
+  String achievementSugarUnder25Template(String weight) {
+    return 'Mantén el azúcar bajo $weight por un día';
+  }
+
+  @override
+  String get achievementSugarWeekControl => 'Disciplina azucarera';
+
+  @override
+  String get achievementSugarWeekControlDesc =>
+      'Mantén bajo consumo de azúcar por una semana';
+
+  @override
+  String achievementSugarWeekControlTemplate(String weight) {
+    return 'Mantén el azúcar bajo $weight por 7 días';
+  }
+
+  @override
+  String get achievementSugarFreeDay => 'Sin azúcar';
+
+  @override
+  String get achievementSugarFreeDayDesc =>
+      'Completa un día con 0g de azúcar añadida';
+
+  @override
+  String get achievementSugarDetective => 'Detective del azúcar';
+
+  @override
+  String get achievementSugarDetectiveDesc =>
+      'Rastrea azúcares ocultos 10 veces';
+
+  @override
+  String get achievementSugarMaster => 'Maestro del azúcar';
+
+  @override
+  String get achievementSugarMasterDesc =>
+      'Mantén consumo muy bajo de azúcar por un mes';
+
+  @override
+  String get achievementNoSodaWeek => 'Semana sin refresco';
+
+  @override
+  String get achievementNoSodaWeekDesc => 'Sin refrescos por 7 días';
+
+  @override
+  String get achievementNoSodaMonth => 'Mes sin refresco';
+
+  @override
+  String get achievementNoSodaMonthDesc => 'Sin refrescos por 30 días';
+
+  @override
+  String get achievementSweetToothTamed => 'Goloso domesticado';
+
+  @override
+  String get achievementSweetToothTamedDesc =>
+      'Reduce el azúcar diario 50% por una semana';
+
+  @override
+  String get achievementAlcoholTracker => 'Conciencia';
+
+  @override
+  String get achievementAlcoholTrackerDesc => 'Rastrea el consumo de alcohol';
+
+  @override
+  String get achievementModerateDay => 'Moderación';
+
+  @override
+  String get achievementModerateDayDesc => 'Mantente bajo 2 UD en un día';
+
+  @override
+  String get achievementSoberDay => 'Día sobrio';
+
+  @override
+  String get achievementSoberDayDesc => 'Completa un día sin alcohol';
+
+  @override
+  String get achievementSoberWeek => 'Semana sobria';
+
+  @override
+  String get achievementSoberWeekDesc => '7 días sin alcohol';
+
+  @override
+  String get achievementSoberMonth => 'Mes sobrio';
+
+  @override
+  String get achievementSoberMonthDesc => '30 días sin alcohol';
+
+  @override
+  String get achievementRecoveryProtocol => 'Pro de la recuperación';
+
+  @override
+  String get achievementRecoveryProtocolDesc =>
+      'Completa el protocolo de recuperación después de beber';
+
+  @override
+  String get achievementFirstWorkout => 'A moverse';
+
+  @override
+  String get achievementFirstWorkoutDesc => 'Registra tu primer entrenamiento';
+
+  @override
+  String get achievementWorkoutWeek => 'Semana activa';
+
+  @override
+  String get achievementWorkoutWeekDesc => 'Entrena 3 veces en una semana';
+
+  @override
+  String get achievementCenturySweat => 'Sudor del siglo';
+
+  @override
+  String get achievementCenturySweatDesc =>
+      'Pierde fluido significativo a través de entrenamientos';
+
+  @override
+  String achievementCenturySweatTemplate(String volume) {
+    return 'Pierde $volume a través de entrenamientos';
+  }
+
+  @override
+  String get achievementCardioKing => 'Rey del cardio';
+
+  @override
+  String get achievementCardioKingDesc => 'Completa 10 sesiones de cardio';
+
+  @override
+  String get achievementStrengthWarrior => 'Guerrero de fuerza';
+
+  @override
+  String get achievementStrengthWarriorDesc => 'Completa 10 sesiones de fuerza';
+
+  @override
+  String get achievementHRIGreen => 'Zona verde';
+
+  @override
+  String get achievementHRIGreenDesc => 'Mantén HRI en zona verde por un día';
+
+  @override
+  String get achievementHRIWeekGreen => 'Semana segura';
+
+  @override
+  String get achievementHRIWeekGreenDesc =>
+      'Mantén HRI en zona verde por 7 días';
+
+  @override
+  String get achievementHRIPerfect => 'Puntuación perfecta';
+
+  @override
+  String get achievementHRIPerfectDesc => 'Logra HRI bajo 20';
+
+  @override
+  String get achievementHRIRecovery => 'Recuperación rápida';
+
+  @override
+  String get achievementHRIRecoveryDesc =>
+      'Reduce HRI de rojo a verde en un día';
+
+  @override
+  String get achievementHRIMaster => 'Maestro HRI';
+
+  @override
+  String get achievementHRIMasterDesc => 'Mantén HRI bajo 30 por 30 días';
+
+  @override
+  String get achievementStreak3 => 'Empezando';
+
+  @override
+  String get achievementStreak3Desc => 'Racha de 3 días';
+
+  @override
+  String get achievementStreak7 => 'Guerrero semanal';
+
+  @override
+  String get achievementStreak7Desc => 'Racha de 7 días';
+
+  @override
+  String get achievementStreak30 => 'Rey de la consistencia';
+
+  @override
+  String get achievementStreak30Desc => 'Racha de 30 días';
+
+  @override
+  String get achievementStreak100 => 'Club del siglo';
+
+  @override
+  String get achievementStreak100Desc => 'Racha de 100 días';
+
+  @override
+  String get achievementFirstWeek => 'Primera semana';
+
+  @override
+  String get achievementFirstWeekDesc => 'Usa la app por 7 días';
+
+  @override
+  String get achievementProMember => 'Miembro PRO';
+
+  @override
+  String get achievementProMemberDesc => 'Conviértete en suscriptor PRO';
+
+  @override
+  String get achievementDataExport => 'Analista de datos';
+
+  @override
+  String get achievementDataExportDesc => 'Exporta tus datos a CSV';
+
+  @override
+  String get achievementAllCategories => 'Todoterreno';
+
+  @override
+  String get achievementAllCategoriesDesc =>
+      'Desbloquea al menos un logro en cada categoría';
+
+  @override
+  String get achievementHunter => 'Cazador de logros';
+
+  @override
+  String get achievementHunterDesc => 'Desbloquea el 50% de todos los logros';
+
+  @override
+  String get achievementDetailsUnlockedOn => 'Desbloqueado el';
+
+  @override
+  String get achievementNewUnlocked => '¡Nuevo logro desbloqueado!';
+
+  @override
+  String get achievementViewAll => 'Ver todos los logros';
+
+  @override
+  String get achievementCloseNotification => 'Cerrar';
+
+  @override
+  String get before => 'antes';
+
+  @override
+  String get after => 'después';
+
+  @override
+  String get lose => 'Pierde';
+
+  @override
+  String get through => 'a través';
+
+  @override
+  String get throughWorkouts => 'a través de entrenamientos';
+
+  @override
+  String get reach => 'Alcanza';
+
+  @override
+  String get daysInRow => 'días seguidos';
+
+  @override
+  String get completeHydrationGoal => 'Completa la meta de hidratación';
+
+  @override
+  String get stayUnder => 'Mantente bajo';
+
+  @override
+  String get inADay => 'en un día';
+
+  @override
+  String get alcoholFree => 'sin alcohol';
+
+  @override
+  String get complete => 'Completa';
+
+  @override
+  String get achieve => 'Logra';
+
+  @override
+  String get keep => 'Mantén';
+
+  @override
+  String get for30Days => 'por 30 días';
+
+  @override
+  String get liters => 'litros';
+
+  @override
+  String get completed => 'Completado';
+
+  @override
+  String get notCompleted => 'No completado';
+
+  @override
+  String get days => 'días';
+
+  @override
+  String get hours => 'horas';
+
+  @override
+  String get times => 'veces';
+
+  @override
+  String get row => 'seguidos';
+
+  @override
+  String get ofTotal => 'del total';
+
+  @override
+  String get perDay => 'por día';
+
+  @override
+  String get perWeek => 'por semana';
+
+  @override
+  String get streak => 'racha';
+
+  @override
+  String get tapToDismiss => 'Toca para cerrar';
 }

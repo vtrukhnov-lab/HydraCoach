@@ -28,7 +28,7 @@ import '../widgets/common/items_grid.dart';
 import '../widgets/common/status_cards.dart';
 
 class HotDrinksScreen extends StatefulWidget {
-  const HotDrinksScreen({Key? key}) : super(key: key);
+  const HotDrinksScreen({super.key});
 
   @override
   State<HotDrinksScreen> createState() => _HotDrinksScreenState();
@@ -88,7 +88,7 @@ class _HotDrinksScreenState extends State<HotDrinksScreen>
     
     // Get today's caffeine from HRIService
     final hriService = Provider.of<HRIService>(context, listen: false);
-    _todayCaffeine = await hriService.getTodaysCaffeine() ?? 0;
+    _todayCaffeine = hriService.getTodaysCaffeine() ?? 0;
     
     if (mounted) setState(() {});
   }
@@ -459,7 +459,7 @@ Future<void> _showHotDrinkDialog(CatalogItem item) async {
     final statusColor = _getStatusColor(intake['percent'] as double);
     
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         title: Text(l10n.hotDrinks),
         elevation: 0,
@@ -515,7 +515,7 @@ Future<void> _showHotDrinkDialog(CatalogItem item) async {
             children: [
               Expanded(
                 child: InfoCard(
-                  title: '${_cupsConsumed}',
+                  title: '$_cupsConsumed',
                   subtitle: l10n.cupsToday,
                   icon: Icons.coffee,
                   color: Colors.brown,

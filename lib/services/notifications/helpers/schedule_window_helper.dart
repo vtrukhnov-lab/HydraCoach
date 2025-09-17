@@ -2,7 +2,6 @@
 
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:hydracoach/services/notifications/notification_config.dart';
 
 /// Helper для управления скользящим окном уведомлений
 class ScheduleWindowHelper {

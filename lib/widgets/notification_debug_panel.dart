@@ -370,7 +370,7 @@ class _NotificationDebugPanelState extends State<NotificationDebugPanel> {
         const SizedBox(height: 8),
         _buildDebugButton(
           'Cancel All Notifications',
-          'Clear all scheduled (${_pendingCount} pending)',
+          'Clear all scheduled ($_pendingCount pending)',
           Icons.delete_forever,
           Colors.red,
           () => _showCancelAllDialog(),

@@ -40,7 +40,6 @@ class AchievementService {
     
     // Получаем локализацию
     final l10n = AppLocalizations.of(context);
-    if (l10n == null) return;
     
     String? message;
     Color? color;
@@ -129,10 +128,8 @@ class AchievementService {
     
     // Добавляем в оверлей
     final overlay = Overlay.of(context);
-    if (overlay != null) {
-      overlay.insert(_currentOverlay!);
-    }
-    
+    overlay.insert(_currentOverlay!);
+      
     // Планируем автоскрытие через 3 секунды
     _hideTimer?.cancel();
     _hideTimer = Timer(const Duration(seconds: 3), () {

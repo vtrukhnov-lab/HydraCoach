@@ -28,6 +28,9 @@ import '../models/intake.dart';
 import '../models/alcohol_intake.dart';
 import '../data/catalog_item.dart'; // Added for CatalogItem
 import '../widgets/home/sugar_intake_card.dart'; // Added for SugarIntakeData
+import '../services/achievement_tracker.dart';
+
+
 
 // Internal status enum for logic (not exposed to UI)
 enum _HydrationStatusInternal {
@@ -62,12 +65,15 @@ class HydrationProvider extends ChangeNotifier {
   // Store BuildContext for AchievementService
   BuildContext? _context;
   
+  final AchievementTracker _achievementTracker = AchievementTracker();
+
   late DailyGoals goals;
   
   final RemoteConfigService _remoteConfig = RemoteConfigService.instance;
   
   HydrationProvider() {
     _calculateGoals();
+    _achievementTracker.initialize();
     _loadData();
     _checkAndResetDaily();
     _subscribeFCMTopics();
@@ -518,25 +524,25 @@ class HydrationProvider extends ChangeNotifier {
   // 🔥 УПРОЩЕНО: Используем константы из ТЗ вместо Remote Config
   
   // Константы формул воды (мл на кг веса) - из ТЗ
-  const double WATER_MIN_PER_KG = 22.0;
-  const double WATER_OPT_PER_KG = 30.0; 
-  const double WATER_MAX_PER_KG = 36.0;
+  const double waterMinPerKg = 22.0;
+  const double waterOptPerKg = 30.0; 
+  const double waterMaxPerKg = 36.0;
   
   // Константы электролитов (мг в день) - из ТЗ
-  const int SODIUM_NORMAL = 2500;
-  const int SODIUM_KETO = 3500;
-  const int POTASSIUM_NORMAL = 3000;
-  const int POTASSIUM_KETO = 3500;
-  const int MAGNESIUM_NORMAL = 350;
-  const int MAGNESIUM_KETO = 400;
+  const int sodiumNormal = 2500;
+  const int sodiumKeto = 3500;
+  const int potassiumNormal = 3000;
+  const int potassiumKeto = 3500;
+  const int magnesiumNormal = 350;
+  const int magnesiumKeto = 400;
 
   // Безопасная проверка веса
   final double safeWeight = weight > 0 ? weight : 70.0;
   
   // Базовые цели воды
-  int baseWaterMin = (WATER_MIN_PER_KG * safeWeight).round();
-  int baseWaterOpt = (WATER_OPT_PER_KG * safeWeight).round();
-  int baseWaterMax = (WATER_MAX_PER_KG * safeWeight).round();
+  int baseWaterMin = (waterMinPerKg * safeWeight).round();
+  int baseWaterOpt = (waterOptPerKg * safeWeight).round();
+  int baseWaterMax = (waterMaxPerKg * safeWeight).round();
   
   // Отладочная информация
   print('=== GOALS CALCULATION DEBUG ===');
@@ -574,16 +580,16 @@ class HydrationProvider extends ChangeNotifier {
   
   // Базовые электролиты по режиму питания
   int baseSodium = (dietMode == 'keto' || dietMode == 'fasting') 
-      ? SODIUM_KETO 
-      : SODIUM_NORMAL;
+      ? sodiumKeto 
+      : sodiumNormal;
       
   int basePotassium = (dietMode == 'keto' || dietMode == 'fasting') 
-      ? POTASSIUM_KETO 
-      : POTASSIUM_NORMAL;
+      ? potassiumKeto 
+      : potassiumNormal;
       
   int baseMagnesium = (dietMode == 'keto' || dietMode == 'fasting') 
-      ? MAGNESIUM_KETO 
-      : MAGNESIUM_NORMAL;
+      ? magnesiumKeto 
+      : magnesiumNormal;
   
   // Start with base values
   int sodium = baseSodium;
@@ -842,6 +848,13 @@ class HydrationProvider extends ChangeNotifier {
         final unitsService = Provider.of<UnitsService>(_context!, listen: false);
         final formattedVolume = unitsService.formatVolume(volume);
         
+        // Track achievement progress - only once per day per achievement type
+        _achievementTracker.trackWaterIntake(
+          volumeMl: volume,
+          currentProgress: totalWaterToday,
+          goalProgress: newPercent,
+        );
+        
         AchievementService.checkAndShow(
           context: _context!,
           oldPercent: oldPercent,
@@ -851,7 +864,6 @@ class HydrationProvider extends ChangeNotifier {
         );
       }
     }
-    
     // First notify UI about changes
     notifyListeners();
     

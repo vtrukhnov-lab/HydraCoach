@@ -1,6 +1,5 @@
 // lib/data/items/hot_drink_items.dart
 import 'package:flutter/material.dart';
-import '../../l10n/app_localizations.dart';
 import '../catalog_item.dart';
 
 class HotDrinkItems {

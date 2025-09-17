@@ -13,14 +13,14 @@ class TypeSelector<T> extends StatelessWidget {
   final EdgeInsets? padding;
 
   const TypeSelector({
-    Key? key,
+    super.key,
     required this.selectedType,
     required this.types,
     required this.onTypeChanged,
     required this.getTypeName,
     this.activeColor,
     this.padding,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class TypeSelector<T> extends StatelessWidget {
     return Container(
       padding: padding ?? const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -84,10 +84,10 @@ class LiquidTypeSelector extends StatelessWidget {
   final Function(LiquidType) onTypeChanged;
 
   const LiquidTypeSelector({
-    Key? key,
+    super.key,
     required this.selectedType,
     required this.onTypeChanged,
-  }) : super(key: key);
+  });
 
   String _getName(LiquidType type, AppLocalizations l10n) {
     switch (type) {
@@ -122,10 +122,10 @@ class ElectrolyteTypeSelector extends StatelessWidget {
   final Function(ElectrolyteType) onTypeChanged;
 
   const ElectrolyteTypeSelector({
-    Key? key,
+    super.key,
     required this.selectedType,
     required this.onTypeChanged,
-  }) : super(key: key);
+  });
 
   String _getName(ElectrolyteType type, AppLocalizations l10n) {
     switch (type) {
@@ -158,10 +158,10 @@ class HotDrinkTypeSelector extends StatelessWidget {
   final Function(HotDrinkType) onTypeChanged;
 
   const HotDrinkTypeSelector({
-    Key? key,
+    super.key,
     required this.selectedType,
     required this.onTypeChanged,
-  }) : super(key: key);
+  });
 
   String _getName(HotDrinkType type, AppLocalizations l10n) {
     switch (type) {
@@ -194,10 +194,10 @@ class AlcoholTypeSelector extends StatelessWidget {
   final Function(AlcoholType) onTypeChanged;
 
   const AlcoholTypeSelector({
-    Key? key,
+    super.key,
     required this.selectedType,
     required this.onTypeChanged,
-  }) : super(key: key);
+  });
 
   String _getName(AlcoholType type, AppLocalizations l10n) {
     switch (type) {

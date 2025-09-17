@@ -30,7 +30,7 @@ import '../data/catalog_item.dart';
 enum SupplementType { minerals, vitamins, other }
 
 class SupplementsScreen extends StatefulWidget {
-  const SupplementsScreen({Key? key}) : super(key: key);
+  const SupplementsScreen({super.key});
 
   @override
   State<SupplementsScreen> createState() => _SupplementsScreenState();
@@ -409,7 +409,7 @@ class _SupplementsScreenState extends State<SupplementsScreen>
     final totals = _getTodayTotals();
     
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         title: Text(l10n.supplements),
         elevation: 0,
@@ -508,7 +508,7 @@ class _SupplementTypeSelector extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(

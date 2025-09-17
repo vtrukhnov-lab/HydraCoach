@@ -27,7 +27,7 @@ class MainProgressCard extends StatefulWidget {
 
 class _MainProgressCardState extends State<MainProgressCard> {
   // Настройки быстрого добавления
-  int _quickAddVolume = 250; // ml
+  final int _quickAddVolume = 250; // ml
   
   // Флаг для визуального отклика при нажатии
   bool _isPressed = false;

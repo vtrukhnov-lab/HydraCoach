@@ -813,7 +813,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               ],
             ),
           );
-        }).toList(),
+        }),
         
         // Легенда
         const SizedBox(height: 16),
@@ -901,7 +901,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
       if (d.hasWorkouts) daysWithWorkouts++;
     }
 
-    final daysCount = weeklyData.length > 0 ? weeklyData.length : 1;
+    final daysCount = weeklyData.isNotEmpty ? weeklyData.length : 1;
 
     return Column(
       children: [

@@ -10,6 +10,7 @@ import 'dart:math';
 import 'remote_config_service.dart';
 import 'history_service.dart';
 import '../data/catalog_item.dart';
+import 'achievement_tracker.dart';
 
 // ============================================================================
 // DATA MODELS
@@ -144,6 +145,9 @@ class WorkoutLossResult {
 // ============================================================================
 
 class HRIService extends ChangeNotifier {
+  // Achievement tracker
+  final AchievementTracker _achievementTracker = AchievementTracker();
+  
   // Storage keys
   static const String _hriKey = 'current_hri';
   static const String _componentsKey = 'hri_components';
@@ -549,6 +553,14 @@ class HRIService extends ChangeNotifier {
     _totalPotassiumLossMg += workout.potassiumLossMg;
     _totalMagnesiumLossMg += workout.magnesiumLossMg;
     
+    // Track workout achievement
+    _achievementTracker.trackWorkout(
+      type: type,
+      durationMinutes: durationMinutes,
+      waterLossMl: workout.waterLossMl,
+      category: _getWorkoutCategory(type),
+    );
+    
     // NEW: Save to Firestore via HistoryService
     await _saveWorkoutToFirestore(workout);
     
@@ -808,6 +820,12 @@ class HRIService extends ChangeNotifier {
       print('==============================');
     }
     
+    // Track HRI achievements
+    _achievementTracker.trackHRI(
+      hriValue: _currentHRI,
+      status: hriStatus,
+    );
+    
     await _saveData();
     notifyListeners();
   }
@@ -965,4 +983,16 @@ class HRIService extends ChangeNotifier {
     await _saveData();
     notifyListeners();
   }
+
+  // Helper method to categorize workouts for achievements
+  String _getWorkoutCategory(String type) {
+    // Map workout types to categories
+    if (type.contains('cardio') || type.contains('run') || type.contains('bike')) {
+      return 'cardio';
+    } else if (type.contains('strength') || type.contains('weight') || type.contains('gym')) {
+      return 'strength';
+    }
+    return 'general';
+  }
+
 }

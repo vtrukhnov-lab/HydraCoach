@@ -11,10 +11,10 @@ class FavoriteSlotSelector extends StatelessWidget {
   final bool isPro;
 
   const FavoriteSlotSelector({
-    Key? key,
+    super.key,
     required this.favoritesManager,
     required this.isPro,
-  }) : super(key: key);
+  });
 
   static Future<int?> show({
     required BuildContext context,

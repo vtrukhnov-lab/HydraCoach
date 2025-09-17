@@ -17,7 +17,7 @@ class WaterRingWithWave extends StatelessWidget {
   final bool showPercentBadge;
 
   const WaterRingWithWave({
-    Key? key,
+    super.key,
     required this.consumed,
     required this.goal,
     required this.statusColor,
@@ -26,7 +26,7 @@ class WaterRingWithWave extends StatelessWidget {
     this.size = 90.0,
     this.showTarget = true,
     this.showPercentBadge = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -132,14 +132,14 @@ class WaterRingBare extends StatefulWidget {
   final Color waterColor;
 
   const WaterRingBare({
-    Key? key,
+    super.key,
     required this.consumedMl,
     required this.goalMl,
     required this.size,
     required this.ringColor,
     required this.ringBgColor,
     required this.waterColor,
-  }) : super(key: key);
+  });
 
   @override
   State<WaterRingBare> createState() => _WaterRingBareState();

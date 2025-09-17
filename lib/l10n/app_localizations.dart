@@ -4243,7 +4243,7 @@ abstract class AppLocalizations {
   /// No description provided for @gallons.
   ///
   /// In en, this message translates to:
-  /// **'gal'**
+  /// **'gallons'**
   String get gallons;
 
   /// No description provided for @lb.
@@ -5209,7 +5209,7 @@ abstract class AppLocalizations {
   /// No description provided for @total.
   ///
   /// In en, this message translates to:
-  /// **'Total'**
+  /// **'total'**
   String get total;
 
   /// No description provided for @cupsToday.
@@ -5275,7 +5275,7 @@ abstract class AppLocalizations {
   /// No description provided for @remaining.
   ///
   /// In en, this message translates to:
-  /// **'Remaining'**
+  /// **'remaining'**
   String get remaining;
 
   /// No description provided for @todaysCaffeine.
@@ -5527,7 +5527,7 @@ abstract class AppLocalizations {
   /// No description provided for @sessions.
   ///
   /// In en, this message translates to:
-  /// **'Sessions'**
+  /// **'sessions'**
   String get sessions;
 
   /// No description provided for @totalTime.
@@ -5913,6 +5913,960 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'SUN'**
   String get sundayShort;
+
+  /// No description provided for @achievements.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get achievements;
+
+  /// No description provided for @achievementsTabAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get achievementsTabAll;
+
+  /// No description provided for @achievementsTabHydration.
+  ///
+  /// In en, this message translates to:
+  /// **'Hydration'**
+  String get achievementsTabHydration;
+
+  /// No description provided for @achievementsTabElectrolytes.
+  ///
+  /// In en, this message translates to:
+  /// **'Electrolytes'**
+  String get achievementsTabElectrolytes;
+
+  /// No description provided for @achievementsTabSugar.
+  ///
+  /// In en, this message translates to:
+  /// **'Sugar Control'**
+  String get achievementsTabSugar;
+
+  /// No description provided for @achievementsTabAlcohol.
+  ///
+  /// In en, this message translates to:
+  /// **'Alcohol'**
+  String get achievementsTabAlcohol;
+
+  /// No description provided for @achievementsTabWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Fitness'**
+  String get achievementsTabWorkout;
+
+  /// No description provided for @achievementsTabHRI.
+  ///
+  /// In en, this message translates to:
+  /// **'HRI'**
+  String get achievementsTabHRI;
+
+  /// No description provided for @achievementsTabStreaks.
+  ///
+  /// In en, this message translates to:
+  /// **'Streaks'**
+  String get achievementsTabStreaks;
+
+  /// No description provided for @achievementsTabSpecial.
+  ///
+  /// In en, this message translates to:
+  /// **'Special'**
+  String get achievementsTabSpecial;
+
+  /// No description provided for @achievementUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievement Unlocked!'**
+  String get achievementUnlocked;
+
+  /// No description provided for @achievementProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get achievementProgress;
+
+  /// No description provided for @achievementPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'points'**
+  String get achievementPoints;
+
+  /// No description provided for @achievementRarityCommon.
+  ///
+  /// In en, this message translates to:
+  /// **'Common'**
+  String get achievementRarityCommon;
+
+  /// No description provided for @achievementRarityUncommon.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncommon'**
+  String get achievementRarityUncommon;
+
+  /// No description provided for @achievementRarityRare.
+  ///
+  /// In en, this message translates to:
+  /// **'Rare'**
+  String get achievementRarityRare;
+
+  /// No description provided for @achievementRarityEpic.
+  ///
+  /// In en, this message translates to:
+  /// **'Epic'**
+  String get achievementRarityEpic;
+
+  /// No description provided for @achievementRarityLegendary.
+  ///
+  /// In en, this message translates to:
+  /// **'Legendary'**
+  String get achievementRarityLegendary;
+
+  /// No description provided for @achievementStatsUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocked'**
+  String get achievementStatsUnlocked;
+
+  /// No description provided for @achievementStatsTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Points'**
+  String get achievementStatsTotal;
+
+  /// No description provided for @achievementFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get achievementFilterAll;
+
+  /// No description provided for @achievementFilterUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocked'**
+  String get achievementFilterUnlocked;
+
+  /// No description provided for @achievementSortProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get achievementSortProgress;
+
+  /// No description provided for @achievementSortName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get achievementSortName;
+
+  /// No description provided for @achievementSortRarity.
+  ///
+  /// In en, this message translates to:
+  /// **'Rarity'**
+  String get achievementSortRarity;
+
+  /// No description provided for @achievementNoAchievements.
+  ///
+  /// In en, this message translates to:
+  /// **'No achievements yet'**
+  String get achievementNoAchievements;
+
+  /// No description provided for @achievementKeepUsing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep using the app to unlock achievements!'**
+  String get achievementKeepUsing;
+
+  /// No description provided for @achievementFirstGlass.
+  ///
+  /// In en, this message translates to:
+  /// **'First Drop'**
+  String get achievementFirstGlass;
+
+  /// No description provided for @achievementFirstGlassDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink your first glass of water'**
+  String get achievementFirstGlassDesc;
+
+  /// No description provided for @achievementHydrationGoal1.
+  ///
+  /// In en, this message translates to:
+  /// **'Hydrated'**
+  String get achievementHydrationGoal1;
+
+  /// No description provided for @achievementHydrationGoal1Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach your daily water goal'**
+  String get achievementHydrationGoal1Desc;
+
+  /// No description provided for @achievementHydrationGoal7.
+  ///
+  /// In en, this message translates to:
+  /// **'Week of Hydration'**
+  String get achievementHydrationGoal7;
+
+  /// No description provided for @achievementHydrationGoal7Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach water goal for 7 days in a row'**
+  String get achievementHydrationGoal7Desc;
+
+  /// No description provided for @achievementHydrationGoal30.
+  ///
+  /// In en, this message translates to:
+  /// **'Hydration Master'**
+  String get achievementHydrationGoal30;
+
+  /// No description provided for @achievementHydrationGoal30Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach water goal for 30 days in a row'**
+  String get achievementHydrationGoal30Desc;
+
+  /// No description provided for @achievementPerfectHydration.
+  ///
+  /// In en, this message translates to:
+  /// **'Perfect Balance'**
+  String get achievementPerfectHydration;
+
+  /// No description provided for @achievementPerfectHydrationDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Achieve 90-110% of water goal'**
+  String get achievementPerfectHydrationDesc;
+
+  /// No description provided for @achievementEarlyBird.
+  ///
+  /// In en, this message translates to:
+  /// **'Early Bird'**
+  String get achievementEarlyBird;
+
+  /// No description provided for @achievementEarlyBirdDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink your first water before 9 AM'**
+  String get achievementEarlyBirdDesc;
+
+  /// No description provided for @achievementEarlyBirdTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink {volume} before 9 AM'**
+  String achievementEarlyBirdTemplate(String volume);
+
+  /// No description provided for @achievementNightOwl.
+  ///
+  /// In en, this message translates to:
+  /// **'Night Owl'**
+  String get achievementNightOwl;
+
+  /// No description provided for @achievementNightOwlDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete hydration goal before 6 PM'**
+  String get achievementNightOwlDesc;
+
+  /// No description provided for @achievementLiterLegend.
+  ///
+  /// In en, this message translates to:
+  /// **'Liter Legend'**
+  String get achievementLiterLegend;
+
+  /// No description provided for @achievementLiterLegendDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach your total hydration milestone'**
+  String get achievementLiterLegendDesc;
+
+  /// No description provided for @achievementLiterLegendTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink {volume} total'**
+  String achievementLiterLegendTemplate(String volume);
+
+  /// No description provided for @achievementSaltStarter.
+  ///
+  /// In en, this message translates to:
+  /// **'Salt Starter'**
+  String get achievementSaltStarter;
+
+  /// No description provided for @achievementSaltStarterDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first electrolytes'**
+  String get achievementSaltStarterDesc;
+
+  /// No description provided for @achievementElectrolyteBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get achievementElectrolyteBalance;
+
+  /// No description provided for @achievementElectrolyteBalanceDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach all electrolyte goals in one day'**
+  String get achievementElectrolyteBalanceDesc;
+
+  /// No description provided for @achievementSodiumMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Sodium Master'**
+  String get achievementSodiumMaster;
+
+  /// No description provided for @achievementSodiumMasterDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach sodium goal 7 days in a row'**
+  String get achievementSodiumMasterDesc;
+
+  /// No description provided for @achievementPotassiumPro.
+  ///
+  /// In en, this message translates to:
+  /// **'Potassium Pro'**
+  String get achievementPotassiumPro;
+
+  /// No description provided for @achievementPotassiumProDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach potassium goal 7 days in a row'**
+  String get achievementPotassiumProDesc;
+
+  /// No description provided for @achievementMagnesiumMaven.
+  ///
+  /// In en, this message translates to:
+  /// **'Magnesium Maven'**
+  String get achievementMagnesiumMaven;
+
+  /// No description provided for @achievementMagnesiumMavenDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach magnesium goal 7 days in a row'**
+  String get achievementMagnesiumMavenDesc;
+
+  /// No description provided for @achievementElectrolyteExpert.
+  ///
+  /// In en, this message translates to:
+  /// **'Electrolyte Expert'**
+  String get achievementElectrolyteExpert;
+
+  /// No description provided for @achievementElectrolyteExpertDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Perfect electrolyte balance for 30 days'**
+  String get achievementElectrolyteExpertDesc;
+
+  /// No description provided for @achievementSugarAwareness.
+  ///
+  /// In en, this message translates to:
+  /// **'Sugar Awareness'**
+  String get achievementSugarAwareness;
+
+  /// No description provided for @achievementSugarAwarenessDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Track sugar for the first time'**
+  String get achievementSugarAwarenessDesc;
+
+  /// No description provided for @achievementSugarUnder25.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweet Control'**
+  String get achievementSugarUnder25;
+
+  /// No description provided for @achievementSugarUnder25Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep sugar intake low for a day'**
+  String get achievementSugarUnder25Desc;
+
+  /// No description provided for @achievementSugarUnder25Template.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep sugar under {weight} for a day'**
+  String achievementSugarUnder25Template(String weight);
+
+  /// No description provided for @achievementSugarWeekControl.
+  ///
+  /// In en, this message translates to:
+  /// **'Sugar Discipline'**
+  String get achievementSugarWeekControl;
+
+  /// No description provided for @achievementSugarWeekControlDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintain low sugar intake for a week'**
+  String get achievementSugarWeekControlDesc;
+
+  /// No description provided for @achievementSugarWeekControlTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep sugar under {weight} for 7 days'**
+  String achievementSugarWeekControlTemplate(String weight);
+
+  /// No description provided for @achievementSugarFreeDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Sugar Free'**
+  String get achievementSugarFreeDay;
+
+  /// No description provided for @achievementSugarFreeDayDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete a day with 0g added sugar'**
+  String get achievementSugarFreeDayDesc;
+
+  /// No description provided for @achievementSugarDetective.
+  ///
+  /// In en, this message translates to:
+  /// **'Sugar Detective'**
+  String get achievementSugarDetective;
+
+  /// No description provided for @achievementSugarDetectiveDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Track hidden sugars 10 times'**
+  String get achievementSugarDetectiveDesc;
+
+  /// No description provided for @achievementSugarMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Sugar Master'**
+  String get achievementSugarMaster;
+
+  /// No description provided for @achievementSugarMasterDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintain very low sugar intake for a month'**
+  String get achievementSugarMasterDesc;
+
+  /// No description provided for @achievementNoSodaWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Soda Free Week'**
+  String get achievementNoSodaWeek;
+
+  /// No description provided for @achievementNoSodaWeekDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'No sodas for 7 days'**
+  String get achievementNoSodaWeekDesc;
+
+  /// No description provided for @achievementNoSodaMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Soda Free Month'**
+  String get achievementNoSodaMonth;
+
+  /// No description provided for @achievementNoSodaMonthDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'No sodas for 30 days'**
+  String get achievementNoSodaMonthDesc;
+
+  /// No description provided for @achievementSweetToothTamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweet Tooth Tamed'**
+  String get achievementSweetToothTamed;
+
+  /// No description provided for @achievementSweetToothTamedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduce daily sugar by 50% for a week'**
+  String get achievementSweetToothTamedDesc;
+
+  /// No description provided for @achievementAlcoholTracker.
+  ///
+  /// In en, this message translates to:
+  /// **'Awareness'**
+  String get achievementAlcoholTracker;
+
+  /// No description provided for @achievementAlcoholTrackerDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Track alcohol consumption'**
+  String get achievementAlcoholTrackerDesc;
+
+  /// No description provided for @achievementModerateDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderation'**
+  String get achievementModerateDay;
+
+  /// No description provided for @achievementModerateDayDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay under 2 SD in a day'**
+  String get achievementModerateDayDesc;
+
+  /// No description provided for @achievementSoberDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Sober Day'**
+  String get achievementSoberDay;
+
+  /// No description provided for @achievementSoberDayDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete an alcohol-free day'**
+  String get achievementSoberDayDesc;
+
+  /// No description provided for @achievementSoberWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Sober Week'**
+  String get achievementSoberWeek;
+
+  /// No description provided for @achievementSoberWeekDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days alcohol-free'**
+  String get achievementSoberWeekDesc;
+
+  /// No description provided for @achievementSoberMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Sober Month'**
+  String get achievementSoberMonth;
+
+  /// No description provided for @achievementSoberMonthDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'30 days alcohol-free'**
+  String get achievementSoberMonthDesc;
+
+  /// No description provided for @achievementRecoveryProtocol.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery Pro'**
+  String get achievementRecoveryProtocol;
+
+  /// No description provided for @achievementRecoveryProtocolDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete recovery protocol after drinking'**
+  String get achievementRecoveryProtocolDesc;
+
+  /// No description provided for @achievementFirstWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Moving'**
+  String get achievementFirstWorkout;
+
+  /// No description provided for @achievementFirstWorkoutDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Log your first workout'**
+  String get achievementFirstWorkoutDesc;
+
+  /// No description provided for @achievementWorkoutWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Week'**
+  String get achievementWorkoutWeek;
+
+  /// No description provided for @achievementWorkoutWeekDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Work out 3 times in a week'**
+  String get achievementWorkoutWeekDesc;
+
+  /// No description provided for @achievementCenturySweat.
+  ///
+  /// In en, this message translates to:
+  /// **'Century Sweat'**
+  String get achievementCenturySweat;
+
+  /// No description provided for @achievementCenturySweatDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Lose significant fluid through workouts'**
+  String get achievementCenturySweatDesc;
+
+  /// No description provided for @achievementCenturySweatTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Lose {volume} through workouts'**
+  String achievementCenturySweatTemplate(String volume);
+
+  /// No description provided for @achievementCardioKing.
+  ///
+  /// In en, this message translates to:
+  /// **'Cardio King'**
+  String get achievementCardioKing;
+
+  /// No description provided for @achievementCardioKingDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete 10 cardio sessions'**
+  String get achievementCardioKingDesc;
+
+  /// No description provided for @achievementStrengthWarrior.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength Warrior'**
+  String get achievementStrengthWarrior;
+
+  /// No description provided for @achievementStrengthWarriorDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete 10 strength sessions'**
+  String get achievementStrengthWarriorDesc;
+
+  /// No description provided for @achievementHRIGreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Green Zone'**
+  String get achievementHRIGreen;
+
+  /// No description provided for @achievementHRIGreenDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep HRI in green zone for a day'**
+  String get achievementHRIGreenDesc;
+
+  /// No description provided for @achievementHRIWeekGreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe Week'**
+  String get achievementHRIWeekGreen;
+
+  /// No description provided for @achievementHRIWeekGreenDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep HRI in green zone for 7 days'**
+  String get achievementHRIWeekGreenDesc;
+
+  /// No description provided for @achievementHRIPerfect.
+  ///
+  /// In en, this message translates to:
+  /// **'Perfect Score'**
+  String get achievementHRIPerfect;
+
+  /// No description provided for @achievementHRIPerfectDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Achieve HRI under 20'**
+  String get achievementHRIPerfectDesc;
+
+  /// No description provided for @achievementHRIRecovery.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Recovery'**
+  String get achievementHRIRecovery;
+
+  /// No description provided for @achievementHRIRecoveryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduce HRI from red to green in one day'**
+  String get achievementHRIRecoveryDesc;
+
+  /// No description provided for @achievementHRIMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'HRI Master'**
+  String get achievementHRIMaster;
+
+  /// No description provided for @achievementHRIMasterDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep HRI under 30 for 30 days'**
+  String get achievementHRIMasterDesc;
+
+  /// No description provided for @achievementStreak3.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting Started'**
+  String get achievementStreak3;
+
+  /// No description provided for @achievementStreak3Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'3-day streak'**
+  String get achievementStreak3Desc;
+
+  /// No description provided for @achievementStreak7.
+  ///
+  /// In en, this message translates to:
+  /// **'Week Warrior'**
+  String get achievementStreak7;
+
+  /// No description provided for @achievementStreak7Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'7-day streak'**
+  String get achievementStreak7Desc;
+
+  /// No description provided for @achievementStreak30.
+  ///
+  /// In en, this message translates to:
+  /// **'Consistency King'**
+  String get achievementStreak30;
+
+  /// No description provided for @achievementStreak30Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'30-day streak'**
+  String get achievementStreak30Desc;
+
+  /// No description provided for @achievementStreak100.
+  ///
+  /// In en, this message translates to:
+  /// **'Century Club'**
+  String get achievementStreak100;
+
+  /// No description provided for @achievementStreak100Desc.
+  ///
+  /// In en, this message translates to:
+  /// **'100-day streak'**
+  String get achievementStreak100Desc;
+
+  /// No description provided for @achievementFirstWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'First Week'**
+  String get achievementFirstWeek;
+
+  /// No description provided for @achievementFirstWeekDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the app for 7 days'**
+  String get achievementFirstWeekDesc;
+
+  /// No description provided for @achievementProMember.
+  ///
+  /// In en, this message translates to:
+  /// **'PRO Member'**
+  String get achievementProMember;
+
+  /// No description provided for @achievementProMemberDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Become a PRO subscriber'**
+  String get achievementProMemberDesc;
+
+  /// No description provided for @achievementDataExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Data Analyst'**
+  String get achievementDataExport;
+
+  /// No description provided for @achievementDataExportDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Export your data to CSV'**
+  String get achievementDataExportDesc;
+
+  /// No description provided for @achievementAllCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Jack of All Trades'**
+  String get achievementAllCategories;
+
+  /// No description provided for @achievementAllCategoriesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock at least one achievement in each category'**
+  String get achievementAllCategoriesDesc;
+
+  /// No description provided for @achievementHunter.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievement Hunter'**
+  String get achievementHunter;
+
+  /// No description provided for @achievementHunterDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock 50% of all achievements'**
+  String get achievementHunterDesc;
+
+  /// No description provided for @achievementDetailsUnlockedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocked on'**
+  String get achievementDetailsUnlockedOn;
+
+  /// No description provided for @achievementNewUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'New achievement unlocked!'**
+  String get achievementNewUnlocked;
+
+  /// No description provided for @achievementViewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all achievements'**
+  String get achievementViewAll;
+
+  /// No description provided for @achievementCloseNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get achievementCloseNotification;
+
+  /// No description provided for @before.
+  ///
+  /// In en, this message translates to:
+  /// **'before'**
+  String get before;
+
+  /// No description provided for @after.
+  ///
+  /// In en, this message translates to:
+  /// **'after'**
+  String get after;
+
+  /// No description provided for @lose.
+  ///
+  /// In en, this message translates to:
+  /// **'Lose'**
+  String get lose;
+
+  /// No description provided for @through.
+  ///
+  /// In en, this message translates to:
+  /// **'through'**
+  String get through;
+
+  /// No description provided for @throughWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'through workouts'**
+  String get throughWorkouts;
+
+  /// No description provided for @reach.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach'**
+  String get reach;
+
+  /// No description provided for @daysInRow.
+  ///
+  /// In en, this message translates to:
+  /// **'days in a row'**
+  String get daysInRow;
+
+  /// No description provided for @completeHydrationGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete hydration goal'**
+  String get completeHydrationGoal;
+
+  /// No description provided for @stayUnder.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay under'**
+  String get stayUnder;
+
+  /// No description provided for @inADay.
+  ///
+  /// In en, this message translates to:
+  /// **'in a day'**
+  String get inADay;
+
+  /// No description provided for @alcoholFree.
+  ///
+  /// In en, this message translates to:
+  /// **'alcohol-free'**
+  String get alcoholFree;
+
+  /// No description provided for @complete.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete'**
+  String get complete;
+
+  /// No description provided for @achieve.
+  ///
+  /// In en, this message translates to:
+  /// **'Achieve'**
+  String get achieve;
+
+  /// No description provided for @keep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get keep;
+
+  /// No description provided for @for30Days.
+  ///
+  /// In en, this message translates to:
+  /// **'for 30 days'**
+  String get for30Days;
+
+  /// No description provided for @liters.
+  ///
+  /// In en, this message translates to:
+  /// **'liters'**
+  String get liters;
+
+  /// No description provided for @completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completed;
+
+  /// No description provided for @notCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Not completed'**
+  String get notCompleted;
+
+  /// No description provided for @days.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get days;
+
+  /// No description provided for @hours.
+  ///
+  /// In en, this message translates to:
+  /// **'hours'**
+  String get hours;
+
+  /// No description provided for @times.
+  ///
+  /// In en, this message translates to:
+  /// **'times'**
+  String get times;
+
+  /// No description provided for @row.
+  ///
+  /// In en, this message translates to:
+  /// **'row'**
+  String get row;
+
+  /// No description provided for @ofTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'of total'**
+  String get ofTotal;
+
+  /// No description provided for @perDay.
+  ///
+  /// In en, this message translates to:
+  /// **'per day'**
+  String get perDay;
+
+  /// No description provided for @perWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'per week'**
+  String get perWeek;
+
+  /// No description provided for @streak.
+  ///
+  /// In en, this message translates to:
+  /// **'streak'**
+  String get streak;
+
+  /// No description provided for @tapToDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to dismiss'**
+  String get tapToDismiss;
 }
 
 class _AppLocalizationsDelegate

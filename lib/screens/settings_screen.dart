@@ -30,7 +30,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _reminderFrequency = 4;
   
   Map<String, dynamic> _notificationStats = {};
-  bool _testNotificationScheduled = false;
+  final bool _testNotificationScheduled = false;
   
   @override
   void initState() {

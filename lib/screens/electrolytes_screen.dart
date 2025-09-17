@@ -22,7 +22,7 @@ import '../data/items_catalog.dart';
 import '../data/catalog_item.dart';
 
 class ElectrolytesScreen extends StatefulWidget {
-  const ElectrolytesScreen({Key? key}) : super(key: key);
+  const ElectrolytesScreen({super.key});
 
   @override
   State<ElectrolytesScreen> createState() => _ElectrolytesScreenState();
@@ -225,12 +225,12 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
     final items = _getCurrentItems();
     
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         title: Text(l10n.electrolyte),
         elevation: 0,
         backgroundColor: Colors.transparent,
-        foregroundColor: theme.colorScheme.onBackground,
+        foregroundColor: theme.colorScheme.onSurface,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -247,7 +247,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+              color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(

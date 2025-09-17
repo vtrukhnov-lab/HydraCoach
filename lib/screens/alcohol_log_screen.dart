@@ -26,7 +26,7 @@ import '../data/items_catalog.dart';
 import '../data/catalog_item.dart';
 
 class AlcoholLogScreen extends StatefulWidget {
-  const AlcoholLogScreen({Key? key}) : super(key: key);
+  const AlcoholLogScreen({super.key});
 
   @override
   State<AlcoholLogScreen> createState() => _AlcoholLogScreenState();
@@ -333,7 +333,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
     final statusColor = _getStatusColor(todaySD);
     
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         title: Text(l10n.addAlcohol),
         elevation: 0,
@@ -361,7 +361,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+              color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -470,14 +470,14 @@ class EnhancedAlcoholStatusCard extends StatelessWidget {
   final VoidCallback onInfoTap;
   
   const EnhancedAlcoholStatusCard({
-    Key? key,
+    super.key,
     required this.todaySD,
     required this.waterCorrection,
     required this.sodiumCorrection,
     required this.hriModifier,
     required this.l10n,
     required this.onInfoTap,
-  }) : super(key: key);
+  });
   
   Color _getStatusColor(double sd) {
     if (sd == 0) return Colors.green;
@@ -754,11 +754,11 @@ class HarmReductionCard extends StatelessWidget {
   final bool isPro;
   
   const HarmReductionCard({
-    Key? key,
+    super.key,
     required this.onDismiss,
     required this.l10n,
     required this.isPro,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {

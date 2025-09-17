@@ -18,7 +18,7 @@ class ItemsGrid extends StatelessWidget {
   final bool showAlcoholIndicators;
 
   const ItemsGrid({
-    Key? key,
+    super.key,
     required this.items,
     required this.isPro,
     required this.onItemSelected,
@@ -29,7 +29,7 @@ class ItemsGrid extends StatelessWidget {
     this.showSugarIndicators = false,
     this.showCaffeineIndicators = false,
     this.showAlcoholIndicators = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +92,7 @@ class ItemGridTile extends StatelessWidget {
   final bool showAlcoholIndicators;
 
   const ItemGridTile({
-    Key? key,
+    super.key,
     required this.item,
     required this.isLocked,
     required this.onTap,
@@ -101,7 +101,7 @@ class ItemGridTile extends StatelessWidget {
     this.showSugarIndicators = false,
     this.showCaffeineIndicators = false,
     this.showAlcoholIndicators = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -35,9 +35,7 @@ class NotificationTexts {
     final prefs = await SharedPreferences.getInstance();
     // Try multiple keys for compatibility
     String? savedLocale = prefs.getString('locale');
-    if (savedLocale == null) {
-      savedLocale = prefs.getString('app_locale');
-    }
+    savedLocale ??= prefs.getString('app_locale');
     _locale = savedLocale ?? 'en';
     print('[NotificationTexts] loadLocale: found "$_locale" in SharedPreferences');
   }

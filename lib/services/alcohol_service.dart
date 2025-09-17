@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/alcohol_intake.dart';
 import '../services/remote_config_service.dart';
 import '../services/history_service.dart';
+import '../services/achievement_tracker.dart';
 
 class AlcoholService extends ChangeNotifier {
   static const String _intakesKey = 'alcohol_intakes';
@@ -13,6 +14,8 @@ class AlcoholService extends ChangeNotifier {
   List<AlcoholIntake> _todayIntakes = [];
   AlcoholCheckin? _todayCheckin;
   bool _soberModeEnabled = false;
+  
+  final AchievementTracker _achievementTracker = AchievementTracker();
 
   // Геттеры
   List<AlcoholIntake> get todayIntakes => _todayIntakes;
@@ -141,6 +144,13 @@ class AlcoholService extends ChangeNotifier {
     // Обновляем сегодняшние записи
     if (_isSameDay(intake.timestamp, DateTime.now())) {
       _todayIntakes.add(intake);
+      
+      // Track achievements for alcohol intake
+      _achievementTracker.trackAlcoholIntake(
+        standardDrinks: intake.standardDrinks,
+        completedRecovery: false, // Could be enhanced to track recovery completion
+      );
+      
       notifyListeners();
     }
   }

@@ -36,7 +36,7 @@ class _MainShellState extends State<MainShell> {
   void _onTabTapped(int index) {
     // Если это неработающая вкладка (только 3), показываем сообщение
     if (index == 3) {
-      final l10n = AppLocalizations.of(context)!;
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(l10n.dailyReportComingSoon),
@@ -63,7 +63,7 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     
     return Scaffold(
       extendBody: true, // ВАЖНО: позволяет контенту идти под навигацию
@@ -179,7 +179,7 @@ class _AddMenuSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     
     return Container(

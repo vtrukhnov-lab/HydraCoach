@@ -2269,7 +2269,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fl_oz => 'fl oz';
 
   @override
-  String get gallons => 'gal';
+  String get gallons => 'gallons';
 
   @override
   String get lb => 'lb';
@@ -2771,7 +2771,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get caffeineTipSleep => 'May affect your sleep quality';
 
   @override
-  String get total => 'Total';
+  String get total => 'total';
 
   @override
   String get cupsToday => 'Cups today';
@@ -2807,7 +2807,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get consumed => 'Consumed';
 
   @override
-  String get remaining => 'Remaining';
+  String get remaining => 'remaining';
 
   @override
   String get todaysCaffeine => 'Today\'s Caffeine';
@@ -2940,7 +2940,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectSportsActivity => 'Select Sport';
 
   @override
-  String get sessions => 'Sessions';
+  String get sessions => 'sessions';
 
   @override
   String get totalTime => 'Total Time';
@@ -3140,4 +3140,507 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sundayShort => 'SUN';
+
+  @override
+  String get achievements => 'Achievements';
+
+  @override
+  String get achievementsTabAll => 'All';
+
+  @override
+  String get achievementsTabHydration => 'Hydration';
+
+  @override
+  String get achievementsTabElectrolytes => 'Electrolytes';
+
+  @override
+  String get achievementsTabSugar => 'Sugar Control';
+
+  @override
+  String get achievementsTabAlcohol => 'Alcohol';
+
+  @override
+  String get achievementsTabWorkout => 'Fitness';
+
+  @override
+  String get achievementsTabHRI => 'HRI';
+
+  @override
+  String get achievementsTabStreaks => 'Streaks';
+
+  @override
+  String get achievementsTabSpecial => 'Special';
+
+  @override
+  String get achievementUnlocked => 'Achievement Unlocked!';
+
+  @override
+  String get achievementProgress => 'Progress';
+
+  @override
+  String get achievementPoints => 'points';
+
+  @override
+  String get achievementRarityCommon => 'Common';
+
+  @override
+  String get achievementRarityUncommon => 'Uncommon';
+
+  @override
+  String get achievementRarityRare => 'Rare';
+
+  @override
+  String get achievementRarityEpic => 'Epic';
+
+  @override
+  String get achievementRarityLegendary => 'Legendary';
+
+  @override
+  String get achievementStatsUnlocked => 'Unlocked';
+
+  @override
+  String get achievementStatsTotal => 'Total Points';
+
+  @override
+  String get achievementFilterAll => 'All';
+
+  @override
+  String get achievementFilterUnlocked => 'Unlocked';
+
+  @override
+  String get achievementSortProgress => 'Progress';
+
+  @override
+  String get achievementSortName => 'Name';
+
+  @override
+  String get achievementSortRarity => 'Rarity';
+
+  @override
+  String get achievementNoAchievements => 'No achievements yet';
+
+  @override
+  String get achievementKeepUsing =>
+      'Keep using the app to unlock achievements!';
+
+  @override
+  String get achievementFirstGlass => 'First Drop';
+
+  @override
+  String get achievementFirstGlassDesc => 'Drink your first glass of water';
+
+  @override
+  String get achievementHydrationGoal1 => 'Hydrated';
+
+  @override
+  String get achievementHydrationGoal1Desc => 'Reach your daily water goal';
+
+  @override
+  String get achievementHydrationGoal7 => 'Week of Hydration';
+
+  @override
+  String get achievementHydrationGoal7Desc =>
+      'Reach water goal for 7 days in a row';
+
+  @override
+  String get achievementHydrationGoal30 => 'Hydration Master';
+
+  @override
+  String get achievementHydrationGoal30Desc =>
+      'Reach water goal for 30 days in a row';
+
+  @override
+  String get achievementPerfectHydration => 'Perfect Balance';
+
+  @override
+  String get achievementPerfectHydrationDesc => 'Achieve 90-110% of water goal';
+
+  @override
+  String get achievementEarlyBird => 'Early Bird';
+
+  @override
+  String get achievementEarlyBirdDesc => 'Drink your first water before 9 AM';
+
+  @override
+  String achievementEarlyBirdTemplate(String volume) {
+    return 'Drink $volume before 9 AM';
+  }
+
+  @override
+  String get achievementNightOwl => 'Night Owl';
+
+  @override
+  String get achievementNightOwlDesc => 'Complete hydration goal before 6 PM';
+
+  @override
+  String get achievementLiterLegend => 'Liter Legend';
+
+  @override
+  String get achievementLiterLegendDesc =>
+      'Reach your total hydration milestone';
+
+  @override
+  String achievementLiterLegendTemplate(String volume) {
+    return 'Drink $volume total';
+  }
+
+  @override
+  String get achievementSaltStarter => 'Salt Starter';
+
+  @override
+  String get achievementSaltStarterDesc => 'Add your first electrolytes';
+
+  @override
+  String get achievementElectrolyteBalance => 'Balanced';
+
+  @override
+  String get achievementElectrolyteBalanceDesc =>
+      'Reach all electrolyte goals in one day';
+
+  @override
+  String get achievementSodiumMaster => 'Sodium Master';
+
+  @override
+  String get achievementSodiumMasterDesc => 'Reach sodium goal 7 days in a row';
+
+  @override
+  String get achievementPotassiumPro => 'Potassium Pro';
+
+  @override
+  String get achievementPotassiumProDesc =>
+      'Reach potassium goal 7 days in a row';
+
+  @override
+  String get achievementMagnesiumMaven => 'Magnesium Maven';
+
+  @override
+  String get achievementMagnesiumMavenDesc =>
+      'Reach magnesium goal 7 days in a row';
+
+  @override
+  String get achievementElectrolyteExpert => 'Electrolyte Expert';
+
+  @override
+  String get achievementElectrolyteExpertDesc =>
+      'Perfect electrolyte balance for 30 days';
+
+  @override
+  String get achievementSugarAwareness => 'Sugar Awareness';
+
+  @override
+  String get achievementSugarAwarenessDesc => 'Track sugar for the first time';
+
+  @override
+  String get achievementSugarUnder25 => 'Sweet Control';
+
+  @override
+  String get achievementSugarUnder25Desc => 'Keep sugar intake low for a day';
+
+  @override
+  String achievementSugarUnder25Template(String weight) {
+    return 'Keep sugar under $weight for a day';
+  }
+
+  @override
+  String get achievementSugarWeekControl => 'Sugar Discipline';
+
+  @override
+  String get achievementSugarWeekControlDesc =>
+      'Maintain low sugar intake for a week';
+
+  @override
+  String achievementSugarWeekControlTemplate(String weight) {
+    return 'Keep sugar under $weight for 7 days';
+  }
+
+  @override
+  String get achievementSugarFreeDay => 'Sugar Free';
+
+  @override
+  String get achievementSugarFreeDayDesc =>
+      'Complete a day with 0g added sugar';
+
+  @override
+  String get achievementSugarDetective => 'Sugar Detective';
+
+  @override
+  String get achievementSugarDetectiveDesc => 'Track hidden sugars 10 times';
+
+  @override
+  String get achievementSugarMaster => 'Sugar Master';
+
+  @override
+  String get achievementSugarMasterDesc =>
+      'Maintain very low sugar intake for a month';
+
+  @override
+  String get achievementNoSodaWeek => 'Soda Free Week';
+
+  @override
+  String get achievementNoSodaWeekDesc => 'No sodas for 7 days';
+
+  @override
+  String get achievementNoSodaMonth => 'Soda Free Month';
+
+  @override
+  String get achievementNoSodaMonthDesc => 'No sodas for 30 days';
+
+  @override
+  String get achievementSweetToothTamed => 'Sweet Tooth Tamed';
+
+  @override
+  String get achievementSweetToothTamedDesc =>
+      'Reduce daily sugar by 50% for a week';
+
+  @override
+  String get achievementAlcoholTracker => 'Awareness';
+
+  @override
+  String get achievementAlcoholTrackerDesc => 'Track alcohol consumption';
+
+  @override
+  String get achievementModerateDay => 'Moderation';
+
+  @override
+  String get achievementModerateDayDesc => 'Stay under 2 SD in a day';
+
+  @override
+  String get achievementSoberDay => 'Sober Day';
+
+  @override
+  String get achievementSoberDayDesc => 'Complete an alcohol-free day';
+
+  @override
+  String get achievementSoberWeek => 'Sober Week';
+
+  @override
+  String get achievementSoberWeekDesc => '7 days alcohol-free';
+
+  @override
+  String get achievementSoberMonth => 'Sober Month';
+
+  @override
+  String get achievementSoberMonthDesc => '30 days alcohol-free';
+
+  @override
+  String get achievementRecoveryProtocol => 'Recovery Pro';
+
+  @override
+  String get achievementRecoveryProtocolDesc =>
+      'Complete recovery protocol after drinking';
+
+  @override
+  String get achievementFirstWorkout => 'Get Moving';
+
+  @override
+  String get achievementFirstWorkoutDesc => 'Log your first workout';
+
+  @override
+  String get achievementWorkoutWeek => 'Active Week';
+
+  @override
+  String get achievementWorkoutWeekDesc => 'Work out 3 times in a week';
+
+  @override
+  String get achievementCenturySweat => 'Century Sweat';
+
+  @override
+  String get achievementCenturySweatDesc =>
+      'Lose significant fluid through workouts';
+
+  @override
+  String achievementCenturySweatTemplate(String volume) {
+    return 'Lose $volume through workouts';
+  }
+
+  @override
+  String get achievementCardioKing => 'Cardio King';
+
+  @override
+  String get achievementCardioKingDesc => 'Complete 10 cardio sessions';
+
+  @override
+  String get achievementStrengthWarrior => 'Strength Warrior';
+
+  @override
+  String get achievementStrengthWarriorDesc => 'Complete 10 strength sessions';
+
+  @override
+  String get achievementHRIGreen => 'Green Zone';
+
+  @override
+  String get achievementHRIGreenDesc => 'Keep HRI in green zone for a day';
+
+  @override
+  String get achievementHRIWeekGreen => 'Safe Week';
+
+  @override
+  String get achievementHRIWeekGreenDesc => 'Keep HRI in green zone for 7 days';
+
+  @override
+  String get achievementHRIPerfect => 'Perfect Score';
+
+  @override
+  String get achievementHRIPerfectDesc => 'Achieve HRI under 20';
+
+  @override
+  String get achievementHRIRecovery => 'Quick Recovery';
+
+  @override
+  String get achievementHRIRecoveryDesc =>
+      'Reduce HRI from red to green in one day';
+
+  @override
+  String get achievementHRIMaster => 'HRI Master';
+
+  @override
+  String get achievementHRIMasterDesc => 'Keep HRI under 30 for 30 days';
+
+  @override
+  String get achievementStreak3 => 'Getting Started';
+
+  @override
+  String get achievementStreak3Desc => '3-day streak';
+
+  @override
+  String get achievementStreak7 => 'Week Warrior';
+
+  @override
+  String get achievementStreak7Desc => '7-day streak';
+
+  @override
+  String get achievementStreak30 => 'Consistency King';
+
+  @override
+  String get achievementStreak30Desc => '30-day streak';
+
+  @override
+  String get achievementStreak100 => 'Century Club';
+
+  @override
+  String get achievementStreak100Desc => '100-day streak';
+
+  @override
+  String get achievementFirstWeek => 'First Week';
+
+  @override
+  String get achievementFirstWeekDesc => 'Use the app for 7 days';
+
+  @override
+  String get achievementProMember => 'PRO Member';
+
+  @override
+  String get achievementProMemberDesc => 'Become a PRO subscriber';
+
+  @override
+  String get achievementDataExport => 'Data Analyst';
+
+  @override
+  String get achievementDataExportDesc => 'Export your data to CSV';
+
+  @override
+  String get achievementAllCategories => 'Jack of All Trades';
+
+  @override
+  String get achievementAllCategoriesDesc =>
+      'Unlock at least one achievement in each category';
+
+  @override
+  String get achievementHunter => 'Achievement Hunter';
+
+  @override
+  String get achievementHunterDesc => 'Unlock 50% of all achievements';
+
+  @override
+  String get achievementDetailsUnlockedOn => 'Unlocked on';
+
+  @override
+  String get achievementNewUnlocked => 'New achievement unlocked!';
+
+  @override
+  String get achievementViewAll => 'View all achievements';
+
+  @override
+  String get achievementCloseNotification => 'Close';
+
+  @override
+  String get before => 'before';
+
+  @override
+  String get after => 'after';
+
+  @override
+  String get lose => 'Lose';
+
+  @override
+  String get through => 'through';
+
+  @override
+  String get throughWorkouts => 'through workouts';
+
+  @override
+  String get reach => 'Reach';
+
+  @override
+  String get daysInRow => 'days in a row';
+
+  @override
+  String get completeHydrationGoal => 'Complete hydration goal';
+
+  @override
+  String get stayUnder => 'Stay under';
+
+  @override
+  String get inADay => 'in a day';
+
+  @override
+  String get alcoholFree => 'alcohol-free';
+
+  @override
+  String get complete => 'Complete';
+
+  @override
+  String get achieve => 'Achieve';
+
+  @override
+  String get keep => 'Keep';
+
+  @override
+  String get for30Days => 'for 30 days';
+
+  @override
+  String get liters => 'liters';
+
+  @override
+  String get completed => 'Completed';
+
+  @override
+  String get notCompleted => 'Not completed';
+
+  @override
+  String get days => 'days';
+
+  @override
+  String get hours => 'hours';
+
+  @override
+  String get times => 'times';
+
+  @override
+  String get row => 'row';
+
+  @override
+  String get ofTotal => 'of total';
+
+  @override
+  String get perDay => 'per day';
+
+  @override
+  String get perWeek => 'per week';
+
+  @override
+  String get streak => 'streak';
+
+  @override
+  String get tapToDismiss => 'Tap to dismiss';
 }

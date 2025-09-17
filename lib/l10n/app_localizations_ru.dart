@@ -2275,7 +2275,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get fl_oz => 'жид. унц';
 
   @override
-  String get gallons => 'гал';
+  String get gallons => 'галлонов';
 
   @override
   String get lb => 'фунт';
@@ -2777,7 +2777,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get caffeineTipSleep => 'Может повлиять на качество сна';
 
   @override
-  String get total => 'Всего';
+  String get total => 'всего';
 
   @override
   String get cupsToday => 'Чашек сегодня';
@@ -2813,7 +2813,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get consumed => 'Выпито';
 
   @override
-  String get remaining => 'Осталось';
+  String get remaining => 'осталось';
 
   @override
   String get todaysCaffeine => 'Кофеин сегодня';
@@ -2946,7 +2946,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get selectSportsActivity => 'Выберите вид спорта';
 
   @override
-  String get sessions => 'Сессий';
+  String get sessions => 'сессий';
 
   @override
   String get totalTime => 'Общее время';
@@ -3146,4 +3146,510 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get sundayShort => 'ВС';
+
+  @override
+  String get achievements => 'Достижения';
+
+  @override
+  String get achievementsTabAll => 'Все';
+
+  @override
+  String get achievementsTabHydration => 'Гидратация';
+
+  @override
+  String get achievementsTabElectrolytes => 'Электролиты';
+
+  @override
+  String get achievementsTabSugar => 'Контроль сахара';
+
+  @override
+  String get achievementsTabAlcohol => 'Алкоголь';
+
+  @override
+  String get achievementsTabWorkout => 'Фитнес';
+
+  @override
+  String get achievementsTabHRI => 'HRI';
+
+  @override
+  String get achievementsTabStreaks => 'Серии';
+
+  @override
+  String get achievementsTabSpecial => 'Особые';
+
+  @override
+  String get achievementUnlocked => 'Достижение разблокировано!';
+
+  @override
+  String get achievementProgress => 'Прогресс';
+
+  @override
+  String get achievementPoints => 'очков';
+
+  @override
+  String get achievementRarityCommon => 'Обычное';
+
+  @override
+  String get achievementRarityUncommon => 'Необычное';
+
+  @override
+  String get achievementRarityRare => 'Редкое';
+
+  @override
+  String get achievementRarityEpic => 'Эпичное';
+
+  @override
+  String get achievementRarityLegendary => 'Легендарное';
+
+  @override
+  String get achievementStatsUnlocked => 'Открыто';
+
+  @override
+  String get achievementStatsTotal => 'Всего очков';
+
+  @override
+  String get achievementFilterAll => 'Все';
+
+  @override
+  String get achievementFilterUnlocked => 'Открытые';
+
+  @override
+  String get achievementSortProgress => 'Прогресс';
+
+  @override
+  String get achievementSortName => 'Название';
+
+  @override
+  String get achievementSortRarity => 'Редкость';
+
+  @override
+  String get achievementNoAchievements => 'Достижений пока нет';
+
+  @override
+  String get achievementKeepUsing =>
+      'Продолжайте использовать приложение для разблокировки достижений!';
+
+  @override
+  String get achievementFirstGlass => 'Первая капля';
+
+  @override
+  String get achievementFirstGlassDesc => 'Выпейте свой первый стакан воды';
+
+  @override
+  String get achievementHydrationGoal1 => 'Увлажнен';
+
+  @override
+  String get achievementHydrationGoal1Desc => 'Достигните дневной цели по воде';
+
+  @override
+  String get achievementHydrationGoal7 => 'Неделя гидратации';
+
+  @override
+  String get achievementHydrationGoal7Desc =>
+      'Достигайте цели по воде 7 дней подряд';
+
+  @override
+  String get achievementHydrationGoal30 => 'Мастер гидратации';
+
+  @override
+  String get achievementHydrationGoal30Desc =>
+      'Достигайте цели по воде 30 дней подряд';
+
+  @override
+  String get achievementPerfectHydration => 'Идеальный баланс';
+
+  @override
+  String get achievementPerfectHydrationDesc =>
+      'Достигните 90-110% от цели по воде';
+
+  @override
+  String get achievementEarlyBird => 'Ранняя пташка';
+
+  @override
+  String get achievementEarlyBirdDesc => 'Выпейте первую воду до 9 утра';
+
+  @override
+  String achievementEarlyBirdTemplate(String volume) {
+    return 'Выпейте $volume до 9 утра';
+  }
+
+  @override
+  String get achievementNightOwl => 'Ночная сова';
+
+  @override
+  String get achievementNightOwlDesc => 'Выполните цель гидратации до 18:00';
+
+  @override
+  String get achievementLiterLegend => 'Легенда литров';
+
+  @override
+  String get achievementLiterLegendDesc => 'Достигните общей цели гидратации';
+
+  @override
+  String achievementLiterLegendTemplate(String volume) {
+    return 'Выпейте $volume всего';
+  }
+
+  @override
+  String get achievementSaltStarter => 'Новичок в соли';
+
+  @override
+  String get achievementSaltStarterDesc => 'Добавьте первые электролиты';
+
+  @override
+  String get achievementElectrolyteBalance => 'Сбалансированный';
+
+  @override
+  String get achievementElectrolyteBalanceDesc =>
+      'Достигните всех целей по электролитам за день';
+
+  @override
+  String get achievementSodiumMaster => 'Мастер натрия';
+
+  @override
+  String get achievementSodiumMasterDesc =>
+      'Достигайте цели по натрию 7 дней подряд';
+
+  @override
+  String get achievementPotassiumPro => 'Про калий';
+
+  @override
+  String get achievementPotassiumProDesc =>
+      'Достигайте цели по калию 7 дней подряд';
+
+  @override
+  String get achievementMagnesiumMaven => 'Эксперт магния';
+
+  @override
+  String get achievementMagnesiumMavenDesc =>
+      'Достигайте цели по магнию 7 дней подряд';
+
+  @override
+  String get achievementElectrolyteExpert => 'Эксперт электролитов';
+
+  @override
+  String get achievementElectrolyteExpertDesc =>
+      'Идеальный баланс электролитов 30 дней';
+
+  @override
+  String get achievementSugarAwareness => 'Осознание сахара';
+
+  @override
+  String get achievementSugarAwarenessDesc => 'Впервые отследите сахар';
+
+  @override
+  String get achievementSugarUnder25 => 'Сладкий контроль';
+
+  @override
+  String get achievementSugarUnder25Desc =>
+      'Держите потребление сахара низким в течение дня';
+
+  @override
+  String achievementSugarUnder25Template(String weight) {
+    return 'Держите сахар под $weight в день';
+  }
+
+  @override
+  String get achievementSugarWeekControl => 'Сахарная дисциплина';
+
+  @override
+  String get achievementSugarWeekControlDesc =>
+      'Поддерживайте низкое потребление сахара неделю';
+
+  @override
+  String achievementSugarWeekControlTemplate(String weight) {
+    return 'Держите сахар под $weight 7 дней';
+  }
+
+  @override
+  String get achievementSugarFreeDay => 'Без сахара';
+
+  @override
+  String get achievementSugarFreeDayDesc =>
+      'Проведите день с 0г добавленного сахара';
+
+  @override
+  String get achievementSugarDetective => 'Детектив сахара';
+
+  @override
+  String get achievementSugarDetectiveDesc => 'Отследите скрытые сахара 10 раз';
+
+  @override
+  String get achievementSugarMaster => 'Мастер сахара';
+
+  @override
+  String get achievementSugarMasterDesc =>
+      'Поддерживайте очень низкое потребление сахара месяц';
+
+  @override
+  String get achievementNoSodaWeek => 'Неделя без газировки';
+
+  @override
+  String get achievementNoSodaWeekDesc => '7 дней без газированных напитков';
+
+  @override
+  String get achievementNoSodaMonth => 'Месяц без газировки';
+
+  @override
+  String get achievementNoSodaMonthDesc => '30 дней без газированных напитков';
+
+  @override
+  String get achievementSweetToothTamed => 'Приручен сладкоежка';
+
+  @override
+  String get achievementSweetToothTamedDesc =>
+      'Уменьшите дневной сахар на 50% в течение недели';
+
+  @override
+  String get achievementAlcoholTracker => 'Осознанность';
+
+  @override
+  String get achievementAlcoholTrackerDesc => 'Отследите потребление алкоголя';
+
+  @override
+  String get achievementModerateDay => 'Умеренность';
+
+  @override
+  String get achievementModerateDayDesc => 'Оставайтесь под 2 СД в день';
+
+  @override
+  String get achievementSoberDay => 'Трезвый день';
+
+  @override
+  String get achievementSoberDayDesc => 'Проведите день без алкоголя';
+
+  @override
+  String get achievementSoberWeek => 'Трезвая неделя';
+
+  @override
+  String get achievementSoberWeekDesc => '7 дней без алкоголя';
+
+  @override
+  String get achievementSoberMonth => 'Трезвый месяц';
+
+  @override
+  String get achievementSoberMonthDesc => '30 дней без алкоголя';
+
+  @override
+  String get achievementRecoveryProtocol => 'Мастер восстановления';
+
+  @override
+  String get achievementRecoveryProtocolDesc =>
+      'Выполните протокол восстановления после питья';
+
+  @override
+  String get achievementFirstWorkout => 'Начни движение';
+
+  @override
+  String get achievementFirstWorkoutDesc => 'Запишите свою первую тренировку';
+
+  @override
+  String get achievementWorkoutWeek => 'Активная неделя';
+
+  @override
+  String get achievementWorkoutWeekDesc => 'Тренируйтесь 3 раза в неделю';
+
+  @override
+  String get achievementCenturySweat => 'Столетний пот';
+
+  @override
+  String get achievementCenturySweatDesc =>
+      'Потеряйте значительное количество жидкости через тренировки';
+
+  @override
+  String achievementCenturySweatTemplate(String volume) {
+    return 'Потеряйте $volume через тренировки';
+  }
+
+  @override
+  String get achievementCardioKing => 'Король кардио';
+
+  @override
+  String get achievementCardioKingDesc => 'Выполните 10 кардио-сессий';
+
+  @override
+  String get achievementStrengthWarrior => 'Воин силы';
+
+  @override
+  String get achievementStrengthWarriorDesc => 'Выполните 10 силовых сессий';
+
+  @override
+  String get achievementHRIGreen => 'Зеленая зона';
+
+  @override
+  String get achievementHRIGreenDesc => 'Держите HRI в зеленой зоне день';
+
+  @override
+  String get achievementHRIWeekGreen => 'Безопасная неделя';
+
+  @override
+  String get achievementHRIWeekGreenDesc => 'Держите HRI в зеленой зоне 7 дней';
+
+  @override
+  String get achievementHRIPerfect => 'Идеальный счет';
+
+  @override
+  String get achievementHRIPerfectDesc => 'Достигните HRI ниже 20';
+
+  @override
+  String get achievementHRIRecovery => 'Быстрое восстановление';
+
+  @override
+  String get achievementHRIRecoveryDesc =>
+      'Снизьте HRI с красного до зеленого за день';
+
+  @override
+  String get achievementHRIMaster => 'Мастер HRI';
+
+  @override
+  String get achievementHRIMasterDesc =>
+      'Держите HRI ниже 30 в течение 30 дней';
+
+  @override
+  String get achievementStreak3 => 'Начинающий';
+
+  @override
+  String get achievementStreak3Desc => '3-дневная серия';
+
+  @override
+  String get achievementStreak7 => 'Воин недели';
+
+  @override
+  String get achievementStreak7Desc => '7-дневная серия';
+
+  @override
+  String get achievementStreak30 => 'Король постоянства';
+
+  @override
+  String get achievementStreak30Desc => '30-дневная серия';
+
+  @override
+  String get achievementStreak100 => 'Клуб столетия';
+
+  @override
+  String get achievementStreak100Desc => '100-дневная серия';
+
+  @override
+  String get achievementFirstWeek => 'Первая неделя';
+
+  @override
+  String get achievementFirstWeekDesc => 'Используйте приложение 7 дней';
+
+  @override
+  String get achievementProMember => 'PRO участник';
+
+  @override
+  String get achievementProMemberDesc => 'Станьте PRO подписчиком';
+
+  @override
+  String get achievementDataExport => 'Аналитик данных';
+
+  @override
+  String get achievementDataExportDesc => 'Экспортируйте данные в CSV';
+
+  @override
+  String get achievementAllCategories => 'Мастер на все руки';
+
+  @override
+  String get achievementAllCategoriesDesc =>
+      'Разблокируйте хотя бы одно достижение в каждой категории';
+
+  @override
+  String get achievementHunter => 'Охотник за достижениями';
+
+  @override
+  String get achievementHunterDesc => 'Разблокируйте 50% всех достижений';
+
+  @override
+  String get achievementDetailsUnlockedOn => 'Разблокировано';
+
+  @override
+  String get achievementNewUnlocked => 'Новое достижение разблокировано!';
+
+  @override
+  String get achievementViewAll => 'Показать все достижения';
+
+  @override
+  String get achievementCloseNotification => 'Закрыть';
+
+  @override
+  String get before => 'до';
+
+  @override
+  String get after => 'после';
+
+  @override
+  String get lose => 'Потеряйте';
+
+  @override
+  String get through => 'через';
+
+  @override
+  String get throughWorkouts => 'через тренировки';
+
+  @override
+  String get reach => 'Достигните';
+
+  @override
+  String get daysInRow => 'дней подряд';
+
+  @override
+  String get completeHydrationGoal => 'Выполните цель гидратации';
+
+  @override
+  String get stayUnder => 'Оставайтесь под';
+
+  @override
+  String get inADay => 'в день';
+
+  @override
+  String get alcoholFree => 'без алкоголя';
+
+  @override
+  String get complete => 'Выполните';
+
+  @override
+  String get achieve => 'Достигните';
+
+  @override
+  String get keep => 'Держите';
+
+  @override
+  String get for30Days => '30 дней';
+
+  @override
+  String get liters => 'литров';
+
+  @override
+  String get completed => 'Выполнено';
+
+  @override
+  String get notCompleted => 'Не выполнено';
+
+  @override
+  String get days => 'дней';
+
+  @override
+  String get hours => 'часов';
+
+  @override
+  String get times => 'раз';
+
+  @override
+  String get row => 'подряд';
+
+  @override
+  String get ofTotal => 'из всего';
+
+  @override
+  String get perDay => 'в день';
+
+  @override
+  String get perWeek => 'в неделю';
+
+  @override
+  String get streak => 'серия';
+
+  @override
+  String get tapToDismiss => 'Нажмите чтобы закрыть';
 }

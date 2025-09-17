@@ -25,7 +25,7 @@ import '../data/items_catalog.dart';
 import '../data/catalog_item.dart';
 
 class SportsScreen extends StatefulWidget {
-  const SportsScreen({Key? key}) : super(key: key);
+  const SportsScreen({super.key});
 
   @override
   State<SportsScreen> createState() => _SportsScreenState();
@@ -272,7 +272,7 @@ class _SportsScreenState extends State<SportsScreen> {
     );
     
     final favorite = QuickFavorite(
-      id: 'sport_${item.id}_${duration}',
+      id: 'sport_${item.id}_$duration',
       type: 'sport',
       label: '${item.getName(l10n)}: $duration min',
       emoji: item.icon as String,
@@ -317,12 +317,12 @@ class _SportsScreenState extends State<SportsScreen> {
     final items = _getCurrentItems();
     
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         title: Text(l10n.sports),
         elevation: 0,
         backgroundColor: Colors.transparent,
-        foregroundColor: theme.colorScheme.onBackground,
+        foregroundColor: theme.colorScheme.onSurface,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -412,7 +412,7 @@ class _SportsScreenState extends State<SportsScreen> {
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+              color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(

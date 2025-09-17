@@ -1,6 +1,5 @@
 // lib/services/notifications/notification_initializer.dart
 
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -10,7 +9,6 @@ import 'dart:io';
 import 'notification_config.dart';
 import '../notification_texts.dart';
 import 'helpers/timezone_helper.dart';
-import 'helpers/notification_limits_helper.dart';
 
 /// Класс для инициализации всех компонентов системы уведомлений
 class NotificationInitializer {

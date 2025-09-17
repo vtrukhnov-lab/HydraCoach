@@ -22,7 +22,7 @@ import '../widgets/common/items_grid.dart';
 import '../widgets/common/status_cards.dart';
 
 class LiquidsCatalogScreen extends StatefulWidget {
-  const LiquidsCatalogScreen({Key? key}) : super(key: key);
+  const LiquidsCatalogScreen({super.key});
 
   @override
   State<LiquidsCatalogScreen> createState() => _LiquidsCatalogScreenState();
@@ -279,12 +279,12 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen>
     final currentItems = _getCurrentItems();
     
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
         title: Text(l10n.selectDrinkType),
         elevation: 0,
         backgroundColor: Colors.transparent,
-        foregroundColor: theme.colorScheme.onBackground,
+        foregroundColor: theme.colorScheme.onSurface,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

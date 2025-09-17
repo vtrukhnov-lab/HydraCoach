@@ -19,14 +19,14 @@ class AnimatedStatusCard extends StatelessWidget {
   final bool expanded;
 
   const AnimatedStatusCard({
-    Key? key,
+    super.key,
     required this.intake,
     required this.statusColor,
     required this.l10n,
     required this.units,
     this.showWaterRing = true,
     this.expanded = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +152,7 @@ class AlcoholStatusCard extends StatelessWidget {
   final String units;
   
   const AlcoholStatusCard({
-    Key? key,
+    super.key,
     required this.todaySD,
     required this.statusColor,
     required this.statusMessage,
@@ -161,7 +161,7 @@ class AlcoholStatusCard extends StatelessWidget {
     required this.hriModifier,
     required this.l10n,
     required this.units,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -294,11 +294,11 @@ class HarmReductionCard extends StatelessWidget {
   final bool isPro;
   
   const HarmReductionCard({
-    Key? key,
+    super.key,
     required this.onDismiss,
     required this.l10n,
     required this.isPro,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -392,12 +392,12 @@ class CaffeineStatusCard extends StatelessWidget {
   final VoidCallback? onInfoTap;
   
   const CaffeineStatusCard({
-    Key? key,
+    super.key,
     required this.todayCaffeine,
     required this.l10n,
     this.maxCaffeine = 400,
     this.onInfoTap,
-  }) : super(key: key);
+  });
   
   Color get statusColor {
     final percent = (todayCaffeine / maxCaffeine) * 100;
@@ -538,12 +538,12 @@ class CaffeineRingWidget extends StatefulWidget {
   final double size;
   
   const CaffeineRingWidget({
-    Key? key,
+    super.key,
     required this.consumed,
     required this.max,
     required this.statusColor,
     this.size = 90,
-  }) : super(key: key);
+  });
   
   @override
   State<CaffeineRingWidget> createState() => _CaffeineRingWidgetState();
@@ -743,11 +743,11 @@ class ElectrolyteStatusCard extends StatelessWidget {
   final VoidCallback? onInfoTap;
   
   const ElectrolyteStatusCard({
-    Key? key,
+    super.key,
     required this.totals,
     required this.l10n,
     this.onInfoTap,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -1049,12 +1049,12 @@ class ElectrolyteBar extends StatelessWidget {
   final Color color;
   
   const ElectrolyteBar({
-    Key? key,
+    super.key,
     required this.label,
     required this.current,
     required this.goal,
     required this.color,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -1106,12 +1106,12 @@ class StatItem extends StatelessWidget {
   final Color color;
   
   const StatItem({
-    Key? key,
+    super.key,
     required this.icon,
     required this.value,
     required this.label,
     required this.color,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -1145,11 +1145,11 @@ class HydrationTipsCard extends StatelessWidget {
   final List<TipItem>? customTips;
   
   const HydrationTipsCard({
-    Key? key,
+    super.key,
     this.onDismiss,
     required this.l10n,
     this.customTips,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {
@@ -1250,13 +1250,13 @@ class InfoCard extends StatelessWidget {
   final VoidCallback? onTap;
   
   const InfoCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.subtitle,
     required this.icon,
     required this.color,
     this.onTap,
-  }) : super(key: key);
+  });
   
   @override
   Widget build(BuildContext context) {

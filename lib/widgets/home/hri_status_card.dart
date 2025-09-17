@@ -258,7 +258,9 @@ class HRIStatusCard extends StatelessWidget {
   Color _getStatusColor(String status) {
     if (status.contains('Normal') || status.contains('Норма')) return Colors.green;
     if (status.contains('Low salt') || status.contains('Мало соли') || 
-        status.contains('Diluting') || status.contains('Разбавляешь')) return Colors.orange;
+        status.contains('Diluting') || status.contains('Разбавляешь')) {
+      return Colors.orange;
+    }
     if (status.contains('Under-hydrated') || status.contains('Недобор воды')) return Colors.red;
     return Colors.grey;
   }

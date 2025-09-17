@@ -1,15 +1,21 @@
 // lib/screens/home_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../l10n/app_localizations.dart';
 
 // Services
 import '../services/hri_service.dart';
 import '../services/weather_service.dart';
 import '../services/alcohol_service.dart';
+import '../services/achievement_tracker.dart';
 
 // Providers
 import '../providers/hydration_provider.dart';
+
+// Screens
+import '../screens/achievements_screen.dart';
 
 // Widgets
 import '../widgets/home/home_header.dart';
@@ -32,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool _isInitialized = false;
   int _currentIndex = 0;
   late PageController _pageController;
+  final AchievementTracker _achievementTracker = AchievementTracker();
 
   @override
   void initState() {
@@ -68,6 +75,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Future<void> _initialize() async {
     await _loadPreferences();
     
+    // Initialize achievement tracker
+    await _achievementTracker.initialize();
+    
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
     alcohol.addListener(_onAlcoholChanged);
     
@@ -77,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     
     final hydrationProvider = Provider.of<HydrationProvider>(context, listen: false);
     
-    // НОВОЕ: Передаем контекст в HydrationProvider для AchievementService
+    // Pass context to HydrationProvider for AchievementService
     hydrationProvider.setContext(context);
     
     hydrationProvider.addListener(() {
@@ -208,9 +218,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       );
     }
 
-    // ИСПРАВЛЕНО: убрали listen: false для получения обновлений целей
     final provider = Provider.of<HydrationProvider>(context);
     final screenWidth = MediaQuery.of(context).size.width;
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     
     final List<Widget> cards = [
       MainProgressCard(onUpdate: _onIntakeUpdated),
@@ -221,21 +232,125 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'HydraCoach',
+              style: TextStyle(
+                color: theme.colorScheme.onSurface,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              _formatDate(DateTime.now(), l10n),
+              style: TextStyle(
+                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          // Achievement button
+          AnimatedBuilder(
+            animation: _achievementTracker,
+            builder: (context, child) {
+              final hasNewAchievements = _achievementTracker.hasUnlockedAchievements;
+              
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: Text(
+                      '🏆',
+                      style: TextStyle(
+                        fontSize: 26,
+                        shadows: hasNewAchievements ? [
+                          Shadow(
+                            color: Colors.amber.withOpacity(0.8),
+                            blurRadius: 8,
+                            offset: const Offset(0, 0),
+                          ),
+                        ] : null,
+                      ),
+                    ),
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AchievementsScreen(),
+                        ),
+                      );
+                    },
+                    tooltip: l10n.achievements,
+                  ),
+                  if (hasNewAchievements)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.red.withOpacity(0.3),
+                              blurRadius: 4,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+          
+          // PRO button
+          Container(
+            margin: const EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.star,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                // Navigate to PRO screen
+                Navigator.pushNamed(context, '/pro');
+              },
+              tooltip: l10n.getPro,
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         bottom: false,
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
-          slivers: [
-            const SliverToBoxAdapter(
-              child: HomeHeader(),
-            ),
-            
+          slivers: [            
             SliverToBoxAdapter(
               child: Column(
                 children: [
                   const SizedBox(height: 16),
                   
-                  // КАРУСЕЛЬ С PAGEVIEW ДЛЯ ЦЕНТРИРОВАНИЯ
+                  // Card carousel
                   SizedBox(
                     height: 520,
                     child: PageView.builder(
@@ -249,7 +364,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: EdgeInsets.symmetric(
-                            horizontal: screenWidth * 0.02, // 2% от ширины экрана с каждой стороны = 4% между карточками
+                            horizontal: screenWidth * 0.02,
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(20),
@@ -262,7 +377,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   
                   const SizedBox(height: 20),
                   
-                  // ТОЧКИ-ИНДИКАТОРЫ
+                  // Page indicators
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(cards.length, (index) {
@@ -283,8 +398,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(4),
                             color: isActive
-                                ? Theme.of(context).primaryColor
-                                : Theme.of(context).primaryColor.withOpacity(0.3),
+                                ? theme.primaryColor
+                                : theme.primaryColor.withOpacity(0.3),
                           ),
                         ),
                       );
@@ -315,5 +430,37 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ),
       ),
     );
+  }
+
+  String _formatDate(DateTime date, AppLocalizations l10n) {
+    final weekdays = [
+      l10n.sunday,
+      l10n.monday,
+      l10n.tuesday,
+      l10n.wednesday,
+      l10n.thursday,
+      l10n.friday,
+      l10n.saturday,
+    ];
+    
+    final months = [
+      l10n.january,
+      l10n.february,
+      l10n.march,
+      l10n.april,
+      l10n.may,
+      l10n.june,
+      l10n.july,
+      l10n.august,
+      l10n.september,
+      l10n.october,
+      l10n.november,
+      l10n.december,
+    ];
+    
+    final weekday = weekdays[date.weekday % 7];
+    final month = months[date.month - 1];
+    
+    return l10n.dateFormat(weekday, date.day, month);
   }
 }

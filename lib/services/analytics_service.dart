@@ -60,6 +60,46 @@ class AnalyticsService {
     await _analytics.setUserProperty(name: 'country', value: countryCode);
   }
 
+  // ==================== SCREEN VIEW EVENTS ====================
+  
+  /// Универсальный метод для логирования просмотра экрана
+  Future<void> logScreenView({
+    required String screenName,
+    String? screenClass,
+  }) async {
+    await _analytics.logScreenView(
+      screenName: screenName,
+      screenClass: screenClass ?? screenName,
+    );
+    
+    if (kDebugMode) {
+      print('📊 Screen view: $screenName');
+    }
+  }
+
+  /// Общий метод для логирования событий
+  Future<void> logEvent({
+    required String name,
+    Map<String, dynamic>? parameters,
+  }) async {
+    // Конвертируем параметры в правильный тип для Firebase
+    final Map<String, Object>? firebaseParams = parameters?.map(
+      (key, value) => MapEntry(key, value as Object),
+    );
+    
+    await _analytics.logEvent(
+      name: name,
+      parameters: firebaseParams,
+    );
+    
+    if (kDebugMode) {
+      print('📊 Event: $name');
+      if (parameters != null) {
+        print('   Parameters: $parameters');
+      }
+    }
+  }
+
   // ==================== NOTIFICATION EVENTS ====================
   
   /// Уведомление запланировано
@@ -426,4 +466,78 @@ class AnalyticsService {
   Future<void> setAnalyticsCollectionEnabled(bool enabled) async {
     await _analytics.setAnalyticsCollectionEnabled(enabled);
   }
-}
+  
+  // ==================== ACHIEVEMENT EVENTS ====================
+
+  /// Достижение разблокировано
+  Future<void> logAchievementUnlocked({
+    required String achievementId,
+    required String achievementName,
+    required String category,
+    required int rewardPoints,
+  }) async {
+    await _analytics.logEvent(
+      name: 'achievement_unlocked',
+      parameters: {
+        'achievement_id': achievementId,
+        'achievement_name': achievementName,
+        'category': category,
+        'reward_points': rewardPoints,
+      },
+    );
+    
+    if (kDebugMode) {
+      print('📊 Achievement unlocked: $achievementName');
+    }
+  }
+
+  /// Просмотр экрана достижений
+  Future<void> logAchievementsScreenView() async {
+    await _analytics.logScreenView(
+      screenName: 'achievements',
+      screenClass: 'AchievementsScreen',
+    );
+    
+    if (kDebugMode) {
+      print('📊 Achievements screen viewed');
+    }
+  }
+
+  /// Просмотр деталей достижения (упрощенная версия для achievements_screen.dart)
+  Future<void> logAchievementViewed({
+    required String achievementId,
+    required String achievementName,
+    required String category,
+    required bool isUnlocked,
+  }) async {
+    await _analytics.logEvent(
+      name: 'achievement_details_viewed',
+      parameters: {
+        'achievement_id': achievementId,
+        'achievement_name': achievementName,
+        'category': category,
+        'is_unlocked': isUnlocked,
+      },
+    );
+    
+    if (kDebugMode) {
+      print('📊 Achievement viewed: $achievementName');
+    }
+  }
+
+  /// Просмотр деталей достижения (полная версия)
+  Future<void> logAchievementDetailsViewed({
+    required String achievementId,
+    required String achievementName,
+    required bool isUnlocked,
+  }) async {
+    await _analytics.logEvent(
+      name: 'achievement_details_viewed',
+      parameters: {
+        'achievement_id': achievementId,
+        'achievement_name': achievementName,
+        'is_unlocked': isUnlocked,
+      },
+    );
+  }
+} // закрывающая скобка класса AnalyticsService
