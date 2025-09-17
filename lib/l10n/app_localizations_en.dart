@@ -3079,4 +3079,65 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noWorkoutsThisDay => 'No workouts recorded this day';
+
+  @override
+  String get weeklyReport => 'Weekly Report';
+
+  @override
+  String get weeklyReportSubtitle => 'Deep insights and trends analysis';
+
+  @override
+  String get workouts => 'Workouts';
+
+  @override
+  String get workoutHydration => 'Workout Hydration';
+
+  @override
+  String workoutHydrationMessage(Object percent) {
+    return 'In workout days you drink $percent% more water';
+  }
+
+  @override
+  String get weeklyActivity => 'Weekly Activity';
+
+  @override
+  String weeklyActivityMessage(Object days, Object minutes) {
+    return 'You trained $minutes minutes across $days days';
+  }
+
+  @override
+  String get workoutMinutesPerDay => 'Workout minutes per day';
+
+  @override
+  String get daysWithWorkouts => 'days with workouts';
+
+  @override
+  String get noWorkoutsThisWeek => 'No workouts this week';
+
+  @override
+  String get noAlcoholThisWeek => 'No alcohol this week';
+
+  @override
+  String get csvExported => 'Data exported to CSV';
+
+  @override
+  String get mondayShort => 'MON';
+
+  @override
+  String get tuesdayShort => 'TUE';
+
+  @override
+  String get wednesdayShort => 'WED';
+
+  @override
+  String get thursdayShort => 'THU';
+
+  @override
+  String get fridayShort => 'FRI';
+
+  @override
+  String get saturdayShort => 'SAT';
+
+  @override
+  String get sundayShort => 'SUN';
 }

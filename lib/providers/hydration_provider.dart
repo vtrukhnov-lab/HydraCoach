@@ -515,77 +515,113 @@ class HydrationProvider extends ChangeNotifier {
   }
   
   void _calculateGoals() {
-    // Always start with BASE values
-    int baseWaterMin = (_remoteConfig.waterMinPerKg * weight).round();
-    int baseWaterOpt = (_remoteConfig.waterOptPerKg * weight).round();
-    int baseWaterMax = (_remoteConfig.waterMaxPerKg * weight).round();
-    
-    // Start with base values
-    int waterMin = baseWaterMin;
-    int waterOpt = baseWaterOpt;
-    int waterMax = baseWaterMax;
-    
-    // Apply weather correction (percentage increase from BASE)
-    if (weatherWaterAdjustment > 0) {
-      waterMin = (baseWaterMin * (1 + weatherWaterAdjustment)).round();
-      waterOpt = (baseWaterOpt * (1 + weatherWaterAdjustment)).round();
-      waterMax = (baseWaterMax * (1 + weatherWaterAdjustment)).round();
-    }
-    
-    // Apply alcohol correction (addition to already corrected values)
-    if (alcoholWaterAdjustment > 0) {
-      waterMin += alcoholWaterAdjustment.round();
-      waterOpt += alcoholWaterAdjustment.round();
-      waterMax += alcoholWaterAdjustment.round();
-    }
+  // 🔥 УПРОЩЕНО: Используем константы из ТЗ вместо Remote Config
+  
+  // Константы формул воды (мл на кг веса) - из ТЗ
+  const double WATER_MIN_PER_KG = 22.0;
+  const double WATER_OPT_PER_KG = 30.0; 
+  const double WATER_MAX_PER_KG = 36.0;
+  
+  // Константы электролитов (мг в день) - из ТЗ
+  const int SODIUM_NORMAL = 2500;
+  const int SODIUM_KETO = 3500;
+  const int POTASSIUM_NORMAL = 3000;
+  const int POTASSIUM_KETO = 3500;
+  const int MAGNESIUM_NORMAL = 350;
+  const int MAGNESIUM_KETO = 400;
 
-    // NEW: Apply workout correction (addition to already corrected values)
-    if (workoutWaterAdjustment > 0) {
-      waterMin += workoutWaterAdjustment.round();
-      waterOpt += workoutWaterAdjustment.round();
-      waterMax += workoutWaterAdjustment.round();
-    }
-    
-    // BASE electrolyte values
-    int baseSodium = dietMode == 'keto' || dietMode == 'fasting' 
-        ? _remoteConfig.sodiumKeto 
-        : _remoteConfig.sodiumNormal;
-    int basePotassium = dietMode == 'keto' || dietMode == 'fasting' 
-        ? _remoteConfig.potassiumKeto 
-        : _remoteConfig.potassiumNormal;
-    int baseMagnesium = dietMode == 'keto' || dietMode == 'fasting' 
-        ? _remoteConfig.magnesiumKeto 
-        : _remoteConfig.magnesiumNormal;
-    
-    // Start with base values
-    int sodium = baseSodium;
-    int potassium = basePotassium;
-    int magnesium = baseMagnesium;
-    
-    // Add weather salt correction
-    sodium += weatherSodiumAdjustment;
-    
-    // Add alcohol salt correction
-    sodium += alcoholSodiumAdjustment;
-
-    // NEW: Add workout corrections
-    sodium += workoutSodiumAdjustment;
-    potassium += workoutPotassiumAdjustment;
-    magnesium += workoutMagnesiumAdjustment;
-    
-    // Create final goals
-    goals = DailyGoals(
-      waterMin: waterMin,
-      waterOpt: waterOpt,
-      waterMax: waterMax,
-      sodium: sodium,
-      potassium: potassium,
-      magnesium: magnesium,
-    );
-    
-    // Update water progress cache whenever goals change
-    _updateWaterProgressCache();
+  // Безопасная проверка веса
+  final double safeWeight = weight > 0 ? weight : 70.0;
+  
+  // Базовые цели воды
+  int baseWaterMin = (WATER_MIN_PER_KG * safeWeight).round();
+  int baseWaterOpt = (WATER_OPT_PER_KG * safeWeight).round();
+  int baseWaterMax = (WATER_MAX_PER_KG * safeWeight).round();
+  
+  // Отладочная информация
+  print('=== GOALS CALCULATION DEBUG ===');
+  print('Weight: $safeWeight kg');
+  print('Base goals: min=$baseWaterMin, opt=$baseWaterOpt, max=$baseWaterMax ml');
+  
+  // Start with base values
+  int waterMin = baseWaterMin;
+  int waterOpt = baseWaterOpt;
+  int waterMax = baseWaterMax;
+  
+  // Apply weather correction (percentage increase from BASE)
+  if (weatherWaterAdjustment > 0) {
+    waterMin = (baseWaterMin * (1 + weatherWaterAdjustment)).round();
+    waterOpt = (baseWaterOpt * (1 + weatherWaterAdjustment)).round();
+    waterMax = (baseWaterMax * (1 + weatherWaterAdjustment)).round();
+    print('After weather adjustment (+${(weatherWaterAdjustment*100).toInt()}%): opt=$waterOpt ml');
   }
+  
+  // Apply alcohol correction (addition to already corrected values)
+  if (alcoholWaterAdjustment > 0) {
+    waterMin += alcoholWaterAdjustment.round();
+    waterOpt += alcoholWaterAdjustment.round();
+    waterMax += alcoholWaterAdjustment.round();
+    print('After alcohol adjustment (+${alcoholWaterAdjustment.round()} ml): opt=$waterOpt ml');
+  }
+
+  // Apply workout correction (addition to already corrected values)
+  if (workoutWaterAdjustment > 0) {
+    waterMin += workoutWaterAdjustment.round();
+    waterOpt += workoutWaterAdjustment.round();
+    waterMax += workoutWaterAdjustment.round();
+    print('After workout adjustment (+${workoutWaterAdjustment.round()} ml): opt=$waterOpt ml');
+  }
+  
+  // Базовые электролиты по режиму питания
+  int baseSodium = (dietMode == 'keto' || dietMode == 'fasting') 
+      ? SODIUM_KETO 
+      : SODIUM_NORMAL;
+      
+  int basePotassium = (dietMode == 'keto' || dietMode == 'fasting') 
+      ? POTASSIUM_KETO 
+      : POTASSIUM_NORMAL;
+      
+  int baseMagnesium = (dietMode == 'keto' || dietMode == 'fasting') 
+      ? MAGNESIUM_KETO 
+      : MAGNESIUM_NORMAL;
+  
+  // Start with base values
+  int sodium = baseSodium;
+  int potassium = basePotassium;
+  int magnesium = baseMagnesium;
+  
+  // Add weather salt correction
+  sodium += weatherSodiumAdjustment;
+  
+  // Add alcohol salt correction
+  sodium += alcoholSodiumAdjustment;
+
+  // Add workout corrections
+  sodium += workoutSodiumAdjustment;
+  potassium += workoutPotassiumAdjustment;
+  magnesium += workoutMagnesiumAdjustment;
+  
+  print('Electrolytes: Na=$sodium, K=$potassium, Mg=$magnesium mg');
+  
+  // Create final goals
+  goals = DailyGoals(
+    waterMin: waterMin,
+    waterOpt: waterOpt,
+    waterMax: waterMax,
+    sodium: sodium,
+    potassium: potassium,
+    magnesium: magnesium,
+  );
+  
+  print('Final water goal: ${goals.waterOpt} ml');
+  print('==============================');
+  
+  // Update water progress cache whenever goals change
+  _updateWaterProgressCache();
+  
+  // Сохраняем цели дня в Firestore для истории
+  _saveDailyGoals();
+}
   
   void updateAlcoholAdjustments(double waterAdjustment, int sodiumAdjustment) {
     alcoholWaterAdjustment = waterAdjustment;
@@ -629,6 +665,25 @@ class HydrationProvider extends ChangeNotifier {
     await _updateWaterProgressCache();
     
     notifyListeners();
+  }
+  
+  // Сохранение целей дня в Firestore
+  Future<void> _saveDailyGoals() async {
+    try {
+      final historyService = HistoryService();
+      await historyService.saveDailyGoals(
+        date: DateTime.now(),
+        waterMin: goals.waterMin,
+        waterOpt: goals.waterOpt,
+        waterMax: goals.waterMax,
+        sodium: goals.sodium,
+        potassium: goals.potassium,
+        magnesium: goals.magnesium,
+      );
+    } catch (e) {
+      print('Error saving daily goals: $e');
+      // Не блокируем работу приложения при ошибке
+    }
   }
   
   // NEW: Update water progress cache for notifications

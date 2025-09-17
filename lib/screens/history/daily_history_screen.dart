@@ -40,43 +40,100 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
   late final UnitsService _unitsService;
   late final FeatureGateService _featureGateService;
 
-  @override
+ @override
   void initState() {
     super.initState();
+    
+    // Инициализация сервисов
     _historyService = HistoryService();
     _unitsService = UnitsService.instance;
     _featureGateService = FeatureGateService.instance;
     
+    // Загрузка начальных данных
+    _loadDayData();
+    
+    // Подписка на изменения провайдера
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadDayData();
+      if (mounted) {
+        final provider = Provider.of<HydrationProvider>(context, listen: false);
+        provider.addListener(_onProviderChanged);
+      }
     });
   }
+  
+   void _onProviderChanged() {
+    if (_isToday() && mounted) {
+      print('Provider changed, reloading today data');
+      _loadDayData();
+    }
+  }
+  
+  @override
+  void dispose() {
+    final provider = Provider.of<HydrationProvider>(context, listen: false);
+    provider.removeListener(_onProviderChanged);
+    super.dispose();
+  }
 
-  Future<void> _loadDayData() async {
+ Future<void> _loadDayData() async {
     if (_isLoading) return;
+    
+    print('=== LOADING DAY DATA ===');
+    print('Date: $_selectedDate');
+    print('Is today: ${_isToday()}');
     
     setState(() => _isLoading = true);
 
     try {
-      final results = await Future.wait([
-        _historyService.getIntakesForDate(_selectedDate),
-        _historyService.getAlcoholForDate(_selectedDate),
-        _historyService.getCaffeineForDate(_selectedDate),
-        _historyService.getWorkoutsForDate(_selectedDate),
-        _historyService.getDaySummary(_selectedDate),
-      ]);
-
-      if (mounted) {
+      if (_isToday()) {
+        // Для сегодняшнего дня берем данные из провайдера
+        final provider = Provider.of<HydrationProvider>(context, listen: false);
+        final alcoholService = Provider.of<AlcoholService>(context, listen: false);
+        final hriService = Provider.of<HRIService>(context, listen: false);
+        
         setState(() {
-          _intakes = results[0] as List<Intake>;
-          _alcoholIntakes = results[1] as List<AlcoholIntake>;
-          _caffeineIntakes = results[2] as List<Map<String, dynamic>>;
-          _workouts = results[3] as List<Workout>;
-          _daySummary = results[4] as Map<String, dynamic>;
+          _intakes = provider.todayIntakes;
+          _alcoholIntakes = alcoholService.todayIntakes;
+          _caffeineIntakes = hriService.todayCaffeineIntakes.map((c) => {
+            'timestamp': c.timestamp.millisecondsSinceEpoch,
+            'amount': c.caffeineMg,
+            'source': c.source,
+          }).toList();
+          _workouts = hriService.todayWorkouts;
+          _daySummary = {}; // Для сегодня не нужно
           _isLoading = false;
         });
+        
+        print('Today data from providers:');
+        print('Intakes: ${_intakes.length}');
+        print('Caffeine: ${_caffeineIntakes.length}');
+      } else {
+        // Для прошлых дней загружаем из истории
+        final results = await Future.wait([
+          _historyService.getIntakesForDate(_selectedDate),
+          _historyService.getAlcoholForDate(_selectedDate),
+          _historyService.getCaffeineForDate(_selectedDate),
+          _historyService.getWorkoutsForDate(_selectedDate),
+          _historyService.getDaySummary(_selectedDate),
+        ]);
+        
+        print('Historical data loaded:');
+        print('Intakes: ${(results[0] as List).length}');
+        
+        if (mounted) {
+          setState(() {
+            _intakes = results[0] as List<Intake>;
+            _alcoholIntakes = results[1] as List<AlcoholIntake>;
+            _caffeineIntakes = results[2] as List<Map<String, dynamic>>;
+            _workouts = results[3] as List<Workout>;
+            _daySummary = results[4] as Map<String, dynamic>;
+            _isLoading = false;
+          });
+        }
       }
+      print('========================');
     } catch (e) {
+      print('ERROR loading day data: $e');
       if (mounted) {
         setState(() => _isLoading = false);
         _showErrorSnackBar('Failed to load day data: $e');
@@ -107,7 +164,12 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     return !_isSameDay(_selectedDate, now);
   }
 
-  bool _isToday() => _isSameDay(_selectedDate, DateTime.now());
+  bool _isToday() {
+    final now = DateTime.now();
+    return _selectedDate.year == now.year &&
+           _selectedDate.month == now.month &&
+           _selectedDate.day == now.day;
+  }
 
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -812,8 +874,8 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
             ),
           ),
 
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 intake.formattedTime,
@@ -822,13 +884,16 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                   fontSize: 14,
                 ),
               ),
-              
-              if (_isToday())
+              if (_isToday()) ...[
+                const SizedBox(width: 8),
                 IconButton(
                   icon: const Icon(Icons.delete_outline, size: 18),
                   color: Colors.red.shade400,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                   onPressed: () => _deleteIntake(intake, provider, l10n),
                 ),
+              ],
             ],
           ),
         ],
@@ -889,8 +954,8 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
             ),
           ),
 
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 intake.formattedTime,
@@ -899,13 +964,16 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                   fontSize: 14,
                 ),
               ),
-              
-              if (_isToday())
+              if (_isToday()) ...[
+                const SizedBox(width: 8),
                 IconButton(
                   icon: const Icon(Icons.delete_outline, size: 18),
                   color: Colors.red.shade400,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
                   onPressed: () => _deleteAlcohol(intake, alcoholService, l10n),
                 ),
+              ],
             ],
           ),
         ],
@@ -962,12 +1030,21 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
             ),
           ),
 
-          Text(
-            DateFormat('HH:mm').format(timestamp),
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                DateFormat('HH:mm').format(timestamp),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+              
+              // Кнопка удаления для кофеина пока не реализована
+              if (_isToday())
+                const SizedBox(height: 48), // Пустое место вместо кнопки для выравнивания
+            ],
           ),
         ],
       ),
@@ -1148,15 +1225,6 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
       }
     }
 
-    if (_selectedFilter == 'all' || _selectedFilter == 'coffee') {
-      for (final caffeine in _caffeineIntakes) {
-        events.add({
-          'type': 'caffeine',
-          'timestamp': DateTime.fromMillisecondsSinceEpoch(caffeine['timestamp']),
-          'data': caffeine,
-        });
-      }
-    }
 
     if (!alcoholService.soberModeEnabled && (_selectedFilter == 'all' || _selectedFilter == 'alcohol')) {
       for (final alcohol in _alcoholIntakes) {
@@ -1211,34 +1279,79 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
   }
 
   Color _getIntakeTypeColor(String type) {
-    switch (type) {
-      case 'water': return Colors.blue;
-      case 'electrolyte': return Colors.orange;
-      case 'broth': return Colors.amber;
-      case 'coffee': return Colors.brown;
-      default: return Colors.grey;
-    }
+  switch (type) {
+    case 'water': 
+      return Colors.blue;
+    case 'electrolyte': 
+      return Colors.orange;
+    case 'broth': 
+      return Colors.amber;
+    case 'coffee': 
+      return Colors.brown;
+    case 'supplement':
+    case 'supplement_minerals':
+    case 'supplement_vitamins':
+    case 'supplement_other':
+      return Colors.purple;
+    case 'vitamin':
+      return Colors.green;
+    default:
+      if (type.startsWith('supplement_')) {
+        return Colors.purple;
+      }
+      return Colors.grey;
   }
+}
 
   IconData _getIntakeTypeIcon(String type) {
-    switch (type) {
-      case 'water': return Icons.water_drop;
-      case 'electrolyte': return Icons.bolt;
-      case 'broth': return Icons.soup_kitchen;
-      case 'coffee': return Icons.coffee;
-      default: return Icons.local_drink;
-    }
+  switch (type) {
+    case 'water': 
+      return Icons.water_drop;
+    case 'electrolyte': 
+      return Icons.bolt;
+    case 'broth': 
+      return Icons.soup_kitchen;
+    case 'coffee': 
+      return Icons.coffee;
+    case 'supplement':
+    case 'supplement_minerals':
+    case 'supplement_vitamins':
+    case 'supplement_other':
+      return Icons.medication;
+    case 'vitamin':
+      return Icons.medication_liquid;
+    default:
+      if (type.startsWith('supplement_')) {
+        return Icons.medication;
+      }
+      return Icons.local_drink;
   }
+}
 
   String _getIntakeTypeName(String type, AppLocalizations l10n) {
-    switch (type) {
-      case 'water': return l10n.water;
-      case 'electrolyte': return l10n.electrolyte;
-      case 'broth': return l10n.broth;
-      case 'coffee': return l10n.coffee;
-      default: return l10n.drink;
-    }
+  switch (type) {
+    case 'water': 
+      return l10n.water;
+    case 'electrolyte': 
+      return l10n.electrolyte;
+    case 'broth': 
+      return l10n.broth;
+    case 'coffee': 
+      return l10n.coffee;
+    case 'supplement':
+    case 'supplement_minerals':
+    case 'supplement_vitamins':
+    case 'supplement_other':
+      return l10n.supplements;
+    case 'vitamin':
+      return l10n.vitamins;
+    default:
+      if (type.startsWith('supplement_')) {
+        return l10n.supplements;
+      }
+      return l10n.drink;
   }
+}
 
   String _getWorkoutTypeName(String type, AppLocalizations l10n) {
     switch (type) {

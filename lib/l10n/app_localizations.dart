@@ -5799,6 +5799,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No workouts recorded this day'**
   String get noWorkoutsThisDay;
+
+  /// No description provided for @weeklyReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Report'**
+  String get weeklyReport;
+
+  /// No description provided for @weeklyReportSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep insights and trends analysis'**
+  String get weeklyReportSubtitle;
+
+  /// No description provided for @workouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts'**
+  String get workouts;
+
+  /// No description provided for @workoutHydration.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout Hydration'**
+  String get workoutHydration;
+
+  /// No description provided for @workoutHydrationMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'In workout days you drink {percent}% more water'**
+  String workoutHydrationMessage(Object percent);
+
+  /// No description provided for @weeklyActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Activity'**
+  String get weeklyActivity;
+
+  /// No description provided for @weeklyActivityMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You trained {minutes} minutes across {days} days'**
+  String weeklyActivityMessage(Object days, Object minutes);
+
+  /// No description provided for @workoutMinutesPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout minutes per day'**
+  String get workoutMinutesPerDay;
+
+  /// No description provided for @daysWithWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'days with workouts'**
+  String get daysWithWorkouts;
+
+  /// No description provided for @noWorkoutsThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'No workouts this week'**
+  String get noWorkoutsThisWeek;
+
+  /// No description provided for @noAlcoholThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'No alcohol this week'**
+  String get noAlcoholThisWeek;
+
+  /// No description provided for @csvExported.
+  ///
+  /// In en, this message translates to:
+  /// **'Data exported to CSV'**
+  String get csvExported;
+
+  /// No description provided for @mondayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'MON'**
+  String get mondayShort;
+
+  /// No description provided for @tuesdayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'TUE'**
+  String get tuesdayShort;
+
+  /// No description provided for @wednesdayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'WED'**
+  String get wednesdayShort;
+
+  /// No description provided for @thursdayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'THU'**
+  String get thursdayShort;
+
+  /// No description provided for @fridayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'FRI'**
+  String get fridayShort;
+
+  /// No description provided for @saturdayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'SAT'**
+  String get saturdayShort;
+
+  /// No description provided for @sundayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'SUN'**
+  String get sundayShort;
 }
 
 class _AppLocalizationsDelegate

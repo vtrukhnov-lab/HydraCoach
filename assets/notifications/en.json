@@ -49,5 +49,8 @@
   "channel_desc_urgent": "Heat warnings and critical hydration alerts",
   
   "channel_name_report": "Reports",
-  "channel_desc_report": "Daily and weekly reports"
+  "channel_desc_report": "Daily and weekly reports",
+
+  "channel_name_silent": "Silent notifications", 
+  "channel_desc_silent": "Quiet reminders without sound or vibration"
 }

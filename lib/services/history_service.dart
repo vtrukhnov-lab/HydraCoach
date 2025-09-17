@@ -281,9 +281,30 @@ class HistoryService {
       totalWorkoutMinutes += workout.durationMinutes;
     }
     
+    // Получаем сохраненные цели дня из Firestore или рассчитываем базовые
+    Map<String, dynamic>? dayGoals;
+    if (_isAuthenticated) {
+      try {
+        final dateKey = _formatDateKey(date);
+        final goalsDoc = await _firestore
+            .collection('users')
+            .doc(_userId)
+            .collection('daily_goals')
+            .doc(dateKey)
+            .get();
+        
+        if (goalsDoc.exists) {
+          dayGoals = goalsDoc.data();
+        }
+      } catch (e) {
+        print('Error loading goals for $date: $e');
+      }
+    }
+    
     return {
       'date': date,
       'water': totalWater,
+      'waterGoal': dayGoals?['waterOpt'], // Добавлено: цель воды того дня
       'sodium': totalSodium,
       'potassium': totalPotassium, 
       'magnesium': totalMagnesium,
@@ -297,6 +318,7 @@ class HistoryService {
       'hriStatus': hriData?['status'],
       'hasAlcohol': alcohol.isNotEmpty,
       'hasWorkouts': workouts.isNotEmpty,
+      'goals': dayGoals, // Добавлено: все цели дня
     };
   }
   
@@ -404,6 +426,43 @@ class HistoryService {
       });
     } catch (e) {
       print('Error saving workout to Firestore: $e');
+    }
+  }
+
+  /// Save daily goals snapshot (call when goals are calculated)
+  Future<void> saveDailyGoals({
+    required DateTime date,
+    required int waterMin,
+    required int waterOpt,
+    required int waterMax,
+    required int sodium,
+    required int potassium,
+    required int magnesium,
+  }) async {
+    if (!_isAuthenticated) return;
+    
+    try {
+      final dateKey = _formatDateKey(date);
+      
+      await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('daily_goals')
+          .doc(dateKey)
+          .set({
+        'date': dateKey,
+        'waterMin': waterMin,
+        'waterOpt': waterOpt,
+        'waterMax': waterMax,
+        'sodium': sodium,
+        'potassium': potassium,
+        'magnesium': magnesium,
+        'timestamp': Timestamp.fromDate(DateTime.now()),
+      });
+      
+      print('Daily goals saved for $dateKey');
+    } catch (e) {
+      print('Error saving daily goals: $e');
     }
   }
   

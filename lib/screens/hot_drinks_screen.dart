@@ -182,9 +182,13 @@ class _HotDrinksScreenState extends State<HotDrinksScreen>
       // CRITICAL: Set context for AchievementService to work
       provider.setContext(context);
       
-      // Add water to hydration system
+      // Determine intake type based on item type and caffeine content
+      final itemType = item.properties['type'] as String? ?? '';
+      final intakeType = (itemType.contains('coffee') && caffeine > 0) ? 'coffee' : 'water';
+      
+      // Add to hydration system with correct type
       provider.addIntake(
-        'water',
+        intakeType,  // Now 'coffee' for coffee drinks with caffeine
         volumeMl.round(),
         sodium: 0,
         potassium: 0,

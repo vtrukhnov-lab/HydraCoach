@@ -1,4 +1,4 @@
-// lib/screens/sports_screen.dart
+// lib/screens/sports_screen.dart - ИСПРАВЛЕННАЯ ВЕРСИЯ
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -140,11 +140,23 @@ class _SportsScreenState extends State<SportsScreen> {
       return;
     }
     
+    // ИСПРАВЛЕНО: Сохраняем ссылки на провайдеры ДО открытия диалога
+    final provider = Provider.of<HydrationProvider>(context, listen: false);
+    final hriService = Provider.of<HRIService>(context, listen: false);
+    
     // Use universal VolumeSelectionDialog with duration mode
     await VolumeSelectionDialog.show(
       context: context,
       item: item,
-      onConfirm: (duration) => _logWorkout(item, duration.round()),
+      onConfirm: (duration) async {
+        // ИСПРАВЛЕНО: Используем сохраненные ссылки, а не context
+        await _logWorkoutWithProviders(
+          item: item,
+          durationMinutes: duration.round(),
+          provider: provider,
+          hriService: hriService,
+        );
+      },
       onSaveToFavorites: (duration) => _saveToFavorites(item, duration.round()),
       units: _units,
       showDuration: true,
@@ -153,75 +165,93 @@ class _SportsScreenState extends State<SportsScreen> {
     );
   }
   
- // В файле sports_screen.dart замените метод _logWorkout полностью:
-
-// Log workout
-Future<void> _logWorkout(CatalogItem item, int durationMinutes) async {
-  try {
-    final l10n = AppLocalizations.of(context);
-    final provider = Provider.of<HydrationProvider>(context, listen: false);
-    
-    // ИСПРАВЛЕНО: логируем workout через HydrationProvider (который синхронизируется с HRIService)
-    await provider.logWorkout(
-      type: item.id,
-      intensity: item.properties['intensityValue'] as int? ?? 3,
-      durationMinutes: durationMinutes,
-      item: item, // Передаём CatalogItem для расчёта потерь
-    );
-    
-    // Рассчитываем потери для отображения пользователю
-    final losses = HRIService.calculateWorkoutLosses(
-      item: item,
-      durationMinutes: durationMinutes,
-      userWeight: _userWeight,
-    );
-    
-    // Schedule post-workout reminder (PRO only)
-    if (_isPro) {
-      try {
-        final notificationService = NotificationService();
-        final workoutEndTime = DateTime.now().add(Duration(minutes: durationMinutes));
-        await notificationService.sendWorkoutReminder(
-          workoutEndTime: workoutEndTime,
-        );
-      } catch (e) {
-        print('Failed to schedule workout reminder: $e');
-      }
-    }
-    
-    // Show success message
-    if (mounted) {
-      final waterStr = UnitsService.instance.formatVolume(losses.waterLossMl);
+  // НОВЫЙ МЕТОД: Логирование тренировки с передачей провайдеров
+  Future<void> _logWorkoutWithProviders({
+    required CatalogItem item,
+    required int durationMinutes,
+    required HydrationProvider provider,
+    required HRIService hriService,
+  }) async {
+    try {
+      final l10n = AppLocalizations.of(context);
       
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '${item.getName(l10n)} ${l10n.activityLogged}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 4),
-              Text('${l10n.waterLoss}: $waterStr'),
-              Text('Na ${losses.sodiumLossMg}mg, K ${losses.potassiumLossMg}mg'),
-            ],
-          ),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 3),
-        ),
+      // Сначала добавляем тренировку в HRIService напрямую
+      await hriService.addWorkout(
+        type: item.id,
+        intensity: item.properties['intensityValue'] as int? ?? 3,
+        durationMinutes: durationMinutes,
+        item: item,
+        userWeight: _userWeight,
       );
       
-      // Show tips card
-      setState(() {
-        _showTipsCard = true;
-      });
+      // Затем синхронизируем с HydrationProvider
+      await provider.syncWithHRIService(hriService);
+      
+      // Рассчитываем потери для отображения
+      final losses = HRIService.calculateWorkoutLosses(
+        item: item,
+        durationMinutes: durationMinutes,
+        userWeight: _userWeight,
+      );
+      
+      // Schedule post-workout reminder (PRO only)
+      if (_isPro) {
+        try {
+          final notificationService = NotificationService();
+          final workoutEndTime = DateTime.now().add(Duration(minutes: durationMinutes));
+          await notificationService.sendWorkoutReminder(
+            workoutEndTime: workoutEndTime,
+          );
+        } catch (e) {
+          print('Failed to schedule workout reminder: $e');
+        }
+      }
+      
+      // Show success message
+      if (mounted) {
+        final waterStr = UnitsService.instance.formatVolume(losses.waterLossMl);
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${item.getName(l10n)} ${l10n.activityLogged}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Text('${l10n.waterLoss}: $waterStr'),
+                Text('Na ${losses.sodiumLossMg}mg, K ${losses.potassiumLossMg}mg'),
+                Text('${l10n.target}: +${UnitsService.instance.formatVolume(losses.waterLossMl)}'),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+        
+        // Show tips card
+        setState(() {
+          _showTipsCard = true;
+        });
+        
+        // Force refresh the stats
+        setState(() {});
+      }
+    } catch (e) {
+      print('Error logging workout: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
-  } catch (e) {
-    print('Error logging workout: $e');
   }
-}
   
   // Save to favorites
   Future<void> _saveToFavorites(CatalogItem item, int duration) async {
@@ -276,6 +306,9 @@ Future<void> _logWorkout(CatalogItem item, int durationMinutes) async {
     // Update PRO status
     final subscription = Provider.of<SubscriptionProvider>(context);
     _isPro = subscription.isPro;
+    
+    // Listen to HRIService changes to update stats
+    final hriService = Provider.of<HRIService>(context);
     
     // Get stats
     final stats = _getTodayStats();
@@ -341,6 +374,31 @@ Future<void> _logWorkout(CatalogItem item, int durationMinutes) async {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 8),
+                  // Добавляем информацию об электролитах
+                  if (stats['sodiumLoss'] > 0 || stats['potassiumLoss'] > 0)
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.7),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.warning_amber_rounded, size: 16, color: Colors.orange[700]),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${l10n.needsToReplenish}: Na ${stats['sodiumLoss']}mg, K ${stats['potassiumLoss']}mg',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.orange[700],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ).animate()

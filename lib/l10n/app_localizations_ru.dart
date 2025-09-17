@@ -3085,4 +3085,65 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get noWorkoutsThisDay => 'Тренировки не записаны в этот день';
+
+  @override
+  String get weeklyReport => 'Недельный отчет';
+
+  @override
+  String get weeklyReportSubtitle => 'Глубокая аналитика и анализ трендов';
+
+  @override
+  String get workouts => 'Тренировки';
+
+  @override
+  String get workoutHydration => 'Гидратация в тренировки';
+
+  @override
+  String workoutHydrationMessage(Object percent) {
+    return 'В дни тренировок вы пьете на $percent% больше воды';
+  }
+
+  @override
+  String get weeklyActivity => 'Недельная активность';
+
+  @override
+  String weeklyActivityMessage(Object days, Object minutes) {
+    return 'Вы тренировались $minutes минут за $days дней';
+  }
+
+  @override
+  String get workoutMinutesPerDay => 'Минут тренировок в день';
+
+  @override
+  String get daysWithWorkouts => 'дней с тренировками';
+
+  @override
+  String get noWorkoutsThisWeek => 'Нет тренировок на этой неделе';
+
+  @override
+  String get noAlcoholThisWeek => 'Нет алкоголя на этой неделе';
+
+  @override
+  String get csvExported => 'Данные экспортированы в CSV';
+
+  @override
+  String get mondayShort => 'ПН';
+
+  @override
+  String get tuesdayShort => 'ВТ';
+
+  @override
+  String get wednesdayShort => 'СР';
+
+  @override
+  String get thursdayShort => 'ЧТ';
+
+  @override
+  String get fridayShort => 'ПТ';
+
+  @override
+  String get saturdayShort => 'СБ';
+
+  @override
+  String get sundayShort => 'ВС';
 }

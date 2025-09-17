@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:hydracoach/providers/hydration_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
+
 import '../../l10n/app_localizations.dart';
+import '../../providers/hydration_provider.dart';
 import '../../services/alcohol_service.dart';
+import '../../services/history_service.dart';
+import '../../services/remote_config_service.dart';
+import '../../services/units_service.dart';
+import '../../services/hri_service.dart';
 
 // Класс для хранения данных за день
 class DailyData {
@@ -17,7 +23,11 @@ class DailyData {
   final double waterPercent;
   final int coffeeCount;
   final int intakeCount;
-  final double alcoholSD; // SD алкоголя
+  final double alcoholSD;
+  final int workoutMinutes;
+  final int workoutCount;
+  final bool hasWorkouts;
+  final int waterGoal;
 
   DailyData({
     required this.date,
@@ -29,6 +39,10 @@ class DailyData {
     required this.coffeeCount,
     required this.intakeCount,
     this.alcoholSD = 0,
+    this.workoutMinutes = 0,
+    this.workoutCount = 0,
+    this.hasWorkouts = false,
+    required this.waterGoal,
   });
 }
 
@@ -42,10 +56,17 @@ class WeeklyHistoryScreen extends StatefulWidget {
 class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
   Map<String, DailyData> weeklyData = {};
   bool isLoadingWeekData = false;
+  
+  late final HistoryService _historyService;
+  late final RemoteConfigService _remoteConfig;
+  late final UnitsService _unitsService;
 
   @override
   void initState() {
     super.initState();
+    _historyService = HistoryService();
+    _remoteConfig = RemoteConfigService.instance;
+    _unitsService = UnitsService.instance;
     _loadWeeklyData();
   }
 
@@ -55,637 +76,211 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
     setState(() => isLoadingWeekData = true);
 
     try {
-      final prefs = await SharedPreferences.getInstance();
       final provider = Provider.of<HydrationProvider>(context, listen: false);
-      final alcoholService =
-          Provider.of<AlcoholService>(context, listen: false);
-
       final Map<String, DailyData> tempData = {};
 
-      // За 7 дней
+      // Получаем понедельник текущей недели
+      final now = DateTime.now();
+      final monday = now.subtract(Duration(days: now.weekday - 1));
+      
+      // Загружаем данные за 7 дней начиная с понедельника
       for (int i = 0; i < 7; i++) {
-        final date = DateTime.now().subtract(Duration(days: i));
+        final date = monday.add(Duration(days: i));
         final dateKey = date.toIso8601String().split('T')[0];
-        final intakesKey = 'intakes_$dateKey';
-        final intakesJson = prefs.getStringList(intakesKey) ?? [];
+        final isToday = _isSameDay(date, DateTime.now());
+        final isFuture = date.isAfter(DateTime.now());
+        
+        // Пропускаем будущие дни
+        if (isFuture && !isToday) continue;
 
-        int totalWater = 0;
-        int totalSodium = 0;
-        int totalPotassium = 0;
-        int totalMagnesium = 0;
-        int coffeeCount = 0;
+        int waterGoal;
+        if (isToday) {
+          waterGoal = provider.goals.waterOpt;
+        } else {
+          waterGoal = (_remoteConfig.waterOptPerKg * provider.weight).round();
+        }
 
-        for (final json in intakesJson) {
-          final parts = json.split('|');
-          if (parts.length >= 7) {
-            final type = parts[2];
-            final volume = int.tryParse(parts[3]) ?? 0;
-            final sodium = int.tryParse(parts[4]) ?? 0;
-            final potassium = int.tryParse(parts[5]) ?? 0;
-            final magnesium = int.tryParse(parts[6]) ?? 0;
+        if (isToday) {
+          // Данные текущего дня из provider
+          final waterCurrent = provider.totalWaterToday.round();
+          final waterPercent = waterGoal > 0 
+              ? (waterCurrent / waterGoal * 100).clamp(0.0, 200.0) 
+              : 0.0;
 
-            if (type == 'water' || type == 'electrolyte' || type == 'broth') {
-              totalWater += volume;
-            }
-            if (type == 'coffee') coffeeCount++;
+          final hriService = Provider.of<HRIService>(context, listen: false);
+          final workoutMinutes = hriService.todayWorkouts.fold(0, (sum, w) => sum + w.durationMinutes);
+          
+          tempData[dateKey] = DailyData(
+            date: date,
+            water: waterCurrent,
+            sodium: provider.totalSodiumToday,
+            potassium: provider.totalPotassiumToday,
+            magnesium: provider.totalMagnesiumToday,
+            waterPercent: waterPercent,
+            coffeeCount: provider.coffeeCupsToday,
+            intakeCount: provider.todayIntakes.length,
+            alcoholSD: hriService.todayAlcoholSD,
+            workoutMinutes: workoutMinutes,
+            workoutCount: hriService.todayWorkouts.length,
+            hasWorkouts: hriService.todayWorkouts.isNotEmpty,
+            waterGoal: waterGoal,
+          );
+        } else {
+          // Исторические данные из HistoryService
+          final daySummary = await _historyService.getDaySummary(date);
+          
+          if (daySummary.isNotEmpty) {
+            final waterCurrent = daySummary['water'] ?? 0;
+            final waterPercent = waterGoal > 0 
+                ? (waterCurrent / waterGoal * 100).clamp(0.0, 200.0) 
+                : 0.0;
 
-            totalSodium += sodium;
-            totalPotassium += potassium;
-            totalMagnesium += magnesium;
+            tempData[dateKey] = DailyData(
+              date: date,
+              water: waterCurrent,
+              sodium: daySummary['sodium'] ?? 0,
+              potassium: daySummary['potassium'] ?? 0,
+              magnesium: daySummary['magnesium'] ?? 0,
+              waterPercent: waterPercent,
+              coffeeCount: daySummary['coffeeCount'] ?? 0,
+              intakeCount: daySummary['intakeEvents'] ?? 0,
+              alcoholSD: daySummary['alcoholSD'] ?? 0.0,
+              workoutMinutes: daySummary['workoutMinutes'] ?? 0,
+              workoutCount: daySummary['workoutCount'] ?? 0,
+              hasWorkouts: daySummary['hasWorkouts'] ?? false,
+              waterGoal: waterGoal,
+            );
           }
         }
-
-        // Алкоголь
-        final alcoholIntakes = await alcoholService.getIntakesForDate(date);
-        double totalSD = 0;
-        for (final intake in alcoholIntakes) {
-          totalSD += intake.standardDrinks;
-        }
-
-        // % цели по воде
-        final waterPercent = provider.goals.waterOpt > 0
-            ? ((totalWater / provider.goals.waterOpt) * 100)
-                .clamp(0.0, 150.0)
-                .toDouble()
-            : 0.0;
-
-        tempData[dateKey] = DailyData(
-          date: date,
-          water: totalWater,
-          sodium: totalSodium,
-          potassium: totalPotassium,
-          magnesium: totalMagnesium,
-          waterPercent: waterPercent,
-          coffeeCount: coffeeCount,
-          intakeCount: intakesJson.length,
-          alcoholSD: totalSD,
-        );
       }
 
-      setState(() {
-        weeklyData = tempData;
-        isLoadingWeekData = false;
-      });
+      if (mounted) {
+        setState(() {
+          weeklyData = tempData;
+          isLoadingWeekData = false;
+        });
+      }
     } catch (e) {
-      // ignore: avoid_print
       print('Error loading weekly data: $e');
-      setState(() => isLoadingWeekData = false);
+      if (mounted) {
+        setState(() => isLoadingWeekData = false);
+      }
     }
+  }
+
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+           date1.month == date2.month &&
+           date1.day == date2.day;
+  }
+
+  // Сортировка данных начиная с понедельника
+  List<DailyData> _getSortedWeekData() {
+    final sorted = weeklyData.values.toList()
+      ..sort((a, b) {
+        // Сортируем по дням недели, начиная с понедельника
+        int dayA = a.date.weekday;
+        int dayB = b.date.weekday;
+        return dayA.compareTo(dayB);
+      });
+    return sorted;
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    
     if (isLoadingWeekData) {
-      return const Center(child: CircularProgressIndicator());
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
     final alcoholService = Provider.of<AlcoholService>(context);
 
-    return SingleChildScrollView(
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [              
+              // График воды
+              _buildWaterChart(l10n).animate().fadeIn(),
+              const SizedBox(height: 20),
+
+              // График электролитов
+              _buildElectrolytesChart(l10n).animate().fadeIn(delay: 50.ms),
+              const SizedBox(height: 20),
+
+              // График тренировок (если есть данные)
+              if (_hasWorkoutData())
+                _buildWorkoutsChart(l10n).animate().fadeIn(delay: 100.ms),
+              
+              if (_hasWorkoutData())
+                const SizedBox(height: 20),
+
+              // График алкоголя (если есть данные и не sober mode)
+              if (!alcoholService.soberModeEnabled && _hasAlcoholData())
+                _buildAlcoholChart(l10n).animate().fadeIn(delay: 150.ms),
+
+              if (!alcoholService.soberModeEnabled && _hasAlcoholData())
+                const SizedBox(height: 20),
+
+              // Средние показатели
+              _buildAverageStats(l10n).animate().slideY(delay: 200.ms),
+              const SizedBox(height: 20),
+
+              // Статистика алкоголя (если есть данные)
+              if (!alcoholService.soberModeEnabled && _hasAlcoholData())
+                _buildAlcoholStats(l10n).animate().fadeIn(delay: 250.ms),
+
+              if (!alcoholService.soberModeEnabled && _hasAlcoholData())
+                const SizedBox(height: 20),
+
+              // Инсайты недели
+              _buildWeeklyInsights(l10n).animate().scale(delay: 300.ms),
+              
+              const SizedBox(height: 120),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWaterChart(AppLocalizations l10n) {
+    return Container(
+      height: 280,
       padding: const EdgeInsets.all(20),
+      decoration: _cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Вода
-          Container(
-            height: 250,
-            padding: const EdgeInsets.all(20),
-            decoration: _cardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.waterConsumption,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                Expanded(child: _buildWaterChart(l10n)),
-              ],
-            ),
-          ).animate().fadeIn(),
-
-          const SizedBox(height: 20),
-
-          // Алкоголь
-          if (!alcoholService.soberModeEnabled && _hasAlcoholData())
-            Container(
-              height: 250,
-              padding: const EdgeInsets.all(20),
-              decoration: _cardDecoration(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.alcoholWeek,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(child: _buildAlcoholChart(l10n)),
-                ],
-              ),
-            ).animate().fadeIn(delay: 50.ms),
-
-          if (!alcoholService.soberModeEnabled && _hasAlcoholData())
-            const SizedBox(height: 20),
-
-          // Электролиты
-          Container(
-            height: 250,
-            padding: const EdgeInsets.all(20),
-            decoration: _cardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.electrolytes,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                Expanded(child: _buildElectrolytesChart(l10n)),
-              ],
-            ),
-          ).animate().fadeIn(delay: 100.ms),
-
-          const SizedBox(height: 20),
-
-          // Средние показатели
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: _cardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.weeklyAverages,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-                _buildAverageStats(l10n),
-              ],
-            ),
-          ).animate().slideY(delay: 200.ms),
-
-          const SizedBox(height: 20),
-
-          // Статистика алкоголя
-          if (!alcoholService.soberModeEnabled && _hasAlcoholData())
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.orange.shade50,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.orange.shade200),
-              ),
-              child: _buildAlcoholStats(l10n),
-            ).animate().fadeIn(delay: 250.ms),
-
-          if (!alcoholService.soberModeEnabled && _hasAlcoholData())
-            const SizedBox(height: 20),
-
-          // Инсайты
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.purple.shade400, Colors.purple.shade600],
-              ),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.weeklyInsights,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ..._buildWeeklyInsights(l10n),
-              ],
-            ),
-          ).animate().scale(delay: 300.ms),
-        ],
-      ),
-    );
-  }
-
-  BoxDecoration _cardDecoration() => BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      );
-
-  // ===== Инсайты =====
-  List<Widget> _buildWeeklyInsights(AppLocalizations l10n) {
-    final insights = <Widget>[];
-
-    if (weeklyData.isEmpty) {
-      return [
-        Text(l10n.insufficientDataForAnalysis,
-            style: const TextStyle(color: Colors.white70))
-      ];
-    }
-
-    final sorted = weeklyData.values.toList()
-      ..sort((a, b) => a.date.compareTo(b.date));
-
-    DailyData? bestDay;
-    DailyData? worstDay;
-    for (var d in sorted) {
-      if (bestDay == null || d.waterPercent > bestDay.waterPercent) {
-        bestDay = d;
-      }
-      if (worstDay == null || d.waterPercent < worstDay.waterPercent) {
-        worstDay = d;
-      }
-    }
-    if (bestDay != null) {
-      insights.add(_buildInsight(
-        l10n.bestDay,
-        l10n.bestDayMessage(_getWeekdayFull(bestDay.date, l10n), bestDay.waterPercent.toInt()),
-      ));
-    }
-
-    final weekend = sorted.where(
-        (d) => d.date.weekday == 6 || d.date.weekday == 7);
-    final weekdays = sorted.where((d) => d.date.weekday < 6);
-
-    if (weekend.isNotEmpty && weekdays.isNotEmpty) {
-      final avgWeekend =
-          weekend.map((d) => d.waterPercent).reduce((a, b) => a + b) /
-              weekend.length;
-      final avgWeekdays =
-          weekdays.map((d) => d.waterPercent).reduce((a, b) => a + b) /
-              weekdays.length;
-
-      if ((avgWeekdays - avgWeekend).abs() > 15) {
-        if (avgWeekdays > avgWeekend) {
-          insights.add(_buildInsight(
-            l10n.weekends,
-            l10n.drinkLessOnWeekends((avgWeekdays - avgWeekend).toInt()),
-          ));
-        } else {
-          insights.add(_buildInsight(
-            l10n.weekdays,
-            l10n.drinkLessOnWeekdays((avgWeekend - avgWeekdays).toInt()),
-          ));
-        }
-      }
-    }
-
-    if (sorted.length >= 3) {
-      final firstHalf =
-          sorted.take(3).map((d) => d.waterPercent).reduce((a, b) => a + b) /
-              3;
-      final secondHalf = sorted
-              .skip(sorted.length - 3)
-              .map((d) => d.waterPercent)
-              .reduce((a, b) => a + b) /
-          3;
-
-      if (secondHalf > firstHalf + 10) {
-        insights.add(_buildInsight(
-          l10n.positiveTrend,
-          l10n.positiveTrendMessage,
-        ));
-      } else if (firstHalf > secondHalf + 10) {
-        insights.add(_buildInsight(
-          l10n.decliningActivity,
-          l10n.decliningActivityMessage,
-        ));
-      }
-    }
-
-    int daysWithGoodSodium = 0;
-    final provider = Provider.of<HydrationProvider>(context, listen: false);
-    for (var d in sorted) {
-      if (d.sodium >= provider.goals.sodium * 0.7) {
-        daysWithGoodSodium++;
-      }
-    }
-    if (daysWithGoodSodium < 3) {
-      insights.add(_buildInsight(
-        l10n.lowSalt,
-        l10n.lowSaltMessage(daysWithGoodSodium),
-      ));
-    }
-
-    if (_hasAlcoholData()) {
-      int daysWithAlcohol = 0;
-      for (var d in sorted) {
-        if (d.alcoholSD > 0) daysWithAlcohol++;
-      }
-      if (daysWithAlcohol > 3) {
-        insights.add(_buildInsight(
-          l10n.frequentAlcohol,
-          l10n.frequentAlcoholMessage(daysWithAlcohol),
-        ));
-      }
-    }
-
-    return insights.isNotEmpty
-        ? insights
-        : [_buildInsight(l10n.excellentWeek, l10n.continueMessage)];
-  }
-
-  Widget _buildInsight(String title, String description) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                title.split(' ').first,
-                style: const TextStyle(fontSize: 18),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title.substring(title.indexOf(' ') + 1),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  description,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _getWeekdayShort(DateTime date, AppLocalizations l10n) {
-    switch (date.weekday) {
-      case 1: return l10n.monday.substring(0, 2);
-      case 2: return l10n.tuesday.substring(0, 2);
-      case 3: return l10n.wednesday.substring(0, 2);
-      case 4: return l10n.thursday.substring(0, 2);
-      case 5: return l10n.friday.substring(0, 2);
-      case 6: return l10n.saturday.substring(0, 2);
-      case 7: return l10n.sunday.substring(0, 2);
-      default: return '';
-    }
-  }
-
-  String _getWeekdayFull(DateTime date, AppLocalizations l10n) {
-    switch (date.weekday) {
-      case 1: return l10n.monday;
-      case 2: return l10n.tuesday;
-      case 3: return l10n.wednesday;
-      case 4: return l10n.thursday;
-      case 5: return l10n.friday;
-      case 6: return l10n.saturday;
-      case 7: return l10n.sunday;
-      default: return '';
-    }
-  }
-
-  // ===== Алкоголь: график =====
-  Widget _buildAlcoholChart(AppLocalizations l10n) {
-    final List<BarChartGroupData> barGroups = [];
-    final sortedEntries = weeklyData.entries.toList()
-      ..sort((a, b) => a.value.date.compareTo(b.value.date));
-
-    for (int i = 0; i < sortedEntries.length; i++) {
-      final data = sortedEntries[i].value;
-      if (data.alcoholSD > 0) {
-        barGroups.add(
-          BarChartGroupData(
-            x: i,
-            barRods: [
-              BarChartRodData(
-                toY: data.alcoholSD,
-                color: data.alcoholSD > 2 ? Colors.red : Colors.orange,
-                width: 16,
-                borderRadius: BorderRadius.circular(4),
+          Row(
+            children: [
+              const SizedBox(width: 8),
+              Text(
+                l10n.waterConsumption,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ],
           ),
-        );
-      }
-    }
-
-    if (barGroups.isEmpty) {
-      return Center(child: Text(l10n.noData));
-    }
-
-    return BarChart(
-      BarChartData(
-        alignment: BarChartAlignment.spaceAround,
-        maxY: (_getMaxAlcoholValue() * 1.2),
-        barTouchData: BarTouchData(
-          touchTooltipData: BarTouchTooltipData(
-            getTooltipColor: (_) => Colors.blueGrey.shade800,
-            getTooltipItem: (group, groupIndex, rod, rodIndex) {
-              final sortedData = weeklyData.values.toList()
-                ..sort((a, b) => a.date.compareTo(b.date));
-              if (groupIndex < sortedData.length) {
-                final d = sortedData[groupIndex];
-                return BarTooltipItem(
-                  '${rod.toY.toStringAsFixed(1)} SD\n${_getWeekdayShort(d.date, l10n)}',
-                  const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                );
-              }
-              return null;
-            },
-          ),
-        ),
-        titlesData: FlTitlesData(
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) => Text(
-                value.toStringAsFixed(1),
-                style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
-              ),
-              reservedSize: 35,
-            ),
-          ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                final list = weeklyData.values.toList()
-                  ..sort((a, b) => a.date.compareTo(b.date));
-                final idx = value.toInt();
-                if (idx >= 0 && idx < list.length) {
-                  return Text(
-                    _getWeekdayShort(list[idx].date, l10n),
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-              reservedSize: 25,
-            ),
-          ),
-          rightTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        ),
-        borderData: FlBorderData(show: false),
-        barGroups: barGroups,
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          horizontalInterval: 1.0,
-          getDrawingHorizontalLine: (value) =>
-              FlLine(color: Colors.grey.shade200, strokeWidth: 1),
-        ),
-      ),
-    );
-  }
-
-  // ===== Алкоголь: статблок =====
-  Widget _buildAlcoholStats(AppLocalizations l10n) {
-    double totalSD = 0;
-    int daysWithAlcohol = 0;
-    int soberDays = 0;
-
-    for (var d in weeklyData.values) {
-      if (d.alcoholSD > 0) {
-        totalSD += d.alcoholSD;
-        daysWithAlcohol++;
-      } else {
-        soberDays++;
-      }
-    }
-
-    final avgSD = daysWithAlcohol > 0 ? totalSD / daysWithAlcohol : 0;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Icon(Icons.local_bar, color: Colors.orange),
-            const SizedBox(width: 8),
-            Text(
-              l10n.alcoholStatisticsTitle,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child:
-                  _buildAlcoholStatCard(l10n.totalSD, totalSD.toStringAsFixed(1),
-                      Icons.assessment),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildAlcoholStatCard(
-                  l10n.daysWithAlcohol, '$daysWithAlcohol', Icons.calendar_today),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildAlcoholStatCard(
-                  l10n.soberDays, '$soberDays', Icons.check_circle),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildAlcoholStatCard(
-                  l10n.averageSD, avgSD.toStringAsFixed(1),
-                  Icons.trending_flat),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAlcoholStatCard(String label, String value, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [
-            Icon(icon, size: 16, color: Colors.orange),
-            const SizedBox(width: 4),
-            Expanded(
-              child: Text(label,
-                  style: TextStyle(color: Colors.grey.shade700, fontSize: 12)),
-            ),
-          ]),
-          const SizedBox(height: 4),
-          Text(value,
-              style:
-                  const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          Expanded(child: _buildWaterLineChart(l10n)),
         ],
       ),
     );
   }
 
-  bool _hasAlcoholData() =>
-      weeklyData.values.any((d) => d.alcoholSD > 0);
-
-  double _getMaxAlcoholValue() {
-    double maxV = 0;
-    for (var d in weeklyData.values) {
-      if (d.alcoholSD > maxV) maxV = d.alcoholSD;
-    }
-    return maxV > 0 ? maxV : 5.0;
-  }
-
-  // ===== Вода: график =====
-  Widget _buildWaterChart(AppLocalizations l10n) {
+  Widget _buildWaterLineChart(AppLocalizations l10n) {
     final List<FlSpot> spots = [];
     final List<String> bottomTitles = [];
+    
+    final sortedData = _getSortedWeekData();
 
-    final sortedEntries = weeklyData.entries.toList()
-      ..sort((a, b) => a.value.date.compareTo(b.value.date));
-
-    for (int i = 0; i < sortedEntries.length; i++) {
-      final d = sortedEntries[i].value;
+    for (int i = 0; i < sortedData.length; i++) {
+      final d = sortedData[i];
       spots.add(FlSpot(i.toDouble(), d.waterPercent));
       bottomTitles.add(_getWeekdayShort(d.date, l10n));
     }
@@ -734,16 +329,14 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               reservedSize: 25,
             ),
           ),
-          rightTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
         borderData: FlBorderData(show: false),
         minX: 0.0,
         maxX: (spots.length - 1).toDouble(),
         minY: 0.0,
-        maxY: 125.0,
+        maxY: 150.0,
         lineBarsData: [
           // Линия цели 100%
           LineChartBarData(
@@ -792,18 +385,17 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
           touchTooltipData: LineTouchTooltipData(
             getTooltipColor: (_) => Colors.blueGrey.shade800,
             getTooltipItems: (touchedBarSpots) {
-              final sortedData = weeklyData.values.toList()
-                ..sort((a, b) => a.date.compareTo(b.date));
               return touchedBarSpots
                   .map<LineTooltipItem?>((barSpot) {
                     if (barSpot.barIndex == 1 &&
                         barSpot.x.toInt() < sortedData.length) {
                       final d = sortedData[barSpot.x.toInt()];
                       return LineTooltipItem(
-                        '${d.water} ${l10n.ml}\n${barSpot.y.toStringAsFixed(0)}%',
+                        '${_unitsService.formatVolume(d.water)}\n${barSpot.y.toStringAsFixed(0)}%\nЦель: ${_unitsService.formatVolume(d.waterGoal)}',
                         const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
+                          fontSize: 12,
                         ),
                       );
                     }
@@ -818,37 +410,59 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
     );
   }
 
-  // ===== Электролиты: график =====
   Widget _buildElectrolytesChart(AppLocalizations l10n) {
+    return Container(
+      height: 320,
+      padding: const EdgeInsets.all(20),
+      decoration: _cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const SizedBox(width: 8),
+              Text(
+                l10n.electrolytes,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Expanded(child: _buildElectrolytesBarChart(l10n)),
+          const SizedBox(height: 12),
+          // Цветовая легенда электролитов
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildElectrolyteLegendItem('Na', Colors.orange, l10n.sodium),
+              const SizedBox(width: 16),
+              _buildElectrolyteLegendItem('K', Colors.purple, l10n.potassium),
+              const SizedBox(width: 16),
+              _buildElectrolyteLegendItem('Mg', Colors.pink, l10n.magnesium),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildElectrolytesBarChart(AppLocalizations l10n) {
     final List<BarChartGroupData> barGroups = [];
-    final sortedEntries = weeklyData.entries.toList()
-      ..sort((a, b) => a.value.date.compareTo(b.value.date));
+    final sortedData = _getSortedWeekData();
 
     final provider = Provider.of<HydrationProvider>(context, listen: false);
 
-    for (int i = 0; i < sortedEntries.length; i++) {
-      final d = sortedEntries[i].value;
+    for (int i = 0; i < sortedData.length; i++) {
+      final d = sortedData[i];
 
-      final naPct = ((d.sodium / (provider.goals.sodium == 0
-                      ? 1
-                      : provider.goals.sodium)) *
-              100)
-          .clamp(0.0, 150.0)
-          .toDouble();
+      final naPct = ((d.sodium / (provider.goals.sodium == 0 ? 1 : provider.goals.sodium)) * 100)
+          .clamp(0.0, 150.0).toDouble();
 
-      final kPct = ((d.potassium / (provider.goals.potassium == 0
-                      ? 1
-                      : provider.goals.potassium)) *
-              100)
-          .clamp(0.0, 150.0)
-          .toDouble();
+      final kPct = ((d.potassium / (provider.goals.potassium == 0 ? 1 : provider.goals.potassium)) * 100)
+          .clamp(0.0, 150.0).toDouble();
 
-      final mgPct = ((d.magnesium / (provider.goals.magnesium == 0
-                      ? 1
-                      : provider.goals.magnesium)) *
-              100)
-          .clamp(0.0, 150.0)
-          .toDouble();
+      final mgPct = ((d.magnesium / (provider.goals.magnesium == 0 ? 1 : provider.goals.magnesium)) * 100)
+          .clamp(0.0, 150.0).toDouble();
 
       barGroups.add(
         BarChartGroupData(
@@ -889,10 +503,8 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
           touchTooltipData: BarTouchTooltipData(
             getTooltipColor: (_) => Colors.blueGrey.shade800,
             getTooltipItem: (group, groupIndex, rod, rodIndex) {
-              final list = weeklyData.values.toList()
-                ..sort((a, b) => a.date.compareTo(b.date));
-              if (groupIndex < list.length) {
-                final d = list[groupIndex];
+              if (groupIndex < sortedData.length) {
+                final d = sortedData[groupIndex];
                 String label;
                 int raw;
                 switch (rodIndex) {
@@ -921,7 +533,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
                 );
               }
               return null;
-            }
+            },
           ),
         ),
         titlesData: FlTitlesData(
@@ -940,12 +552,10 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
             sideTitles: SideTitles(
               showTitles: true,
               getTitlesWidget: (value, meta) {
-                final list = weeklyData.values.toList()
-                  ..sort((a, b) => a.date.compareTo(b.date));
                 final idx = value.toInt();
-                if (idx >= 0 && idx < list.length) {
+                if (idx >= 0 && idx < sortedData.length) {
                   return Text(
-                    _getWeekdayShort(list[idx].date, l10n),
+                    _getWeekdayShort(sortedData[idx].date, l10n),
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                   );
                 }
@@ -954,10 +564,8 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               reservedSize: 25,
             ),
           ),
-          rightTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
         borderData: FlBorderData(show: false),
         barGroups: barGroups,
@@ -972,13 +580,306 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
     );
   }
 
-  // ===== Средние показатели =====
-  Widget _buildAverageStats(AppLocalizations l10n) {
-    if (weeklyData.isEmpty) {
-      return Text(l10n.loadingData);
+  Widget _buildElectrolyteLegendItem(String symbol, Color color, String name) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          '$symbol ($name)',
+          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWorkoutsChart(AppLocalizations l10n) {
+    return Container(
+      height: 280,
+      padding: const EdgeInsets.all(20),
+      decoration: _cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const SizedBox(width: 8),
+              Text(
+                l10n.workouts,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Expanded(child: _buildWorkoutsBarChart(l10n)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWorkoutsBarChart(AppLocalizations l10n) {
+    final List<BarChartGroupData> barGroups = [];
+    final sortedData = _getSortedWeekData();
+
+    for (int i = 0; i < sortedData.length; i++) {
+      final d = sortedData[i];
+      barGroups.add(
+        BarChartGroupData(
+          x: i,
+          barRods: [
+            BarChartRodData(
+              toY: d.workoutMinutes.toDouble(),
+              color: d.workoutMinutes > 0 ? Colors.green : Colors.grey.shade300,
+              width: 16,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ],
+        ),
+      );
     }
 
-    final provider = Provider.of<HydrationProvider>(context);
+    if (!_hasWorkoutData()) {
+      return Center(child: Text(l10n.noWorkoutsThisWeek));
+    }
+
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceAround,
+        maxY: (_getMaxWorkoutMinutes() * 1.2),
+        barTouchData: BarTouchData(
+          touchTooltipData: BarTouchTooltipData(
+            getTooltipColor: (_) => Colors.blueGrey.shade800,
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              if (groupIndex < sortedData.length) {
+                final d = sortedData[groupIndex];
+                if (d.workoutMinutes > 0) {
+                  return BarTooltipItem(
+                    '${rod.toY.toStringAsFixed(0)} ${l10n.minutes}\n${d.workoutCount} ${l10n.workouts}',
+                    const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  );
+                }
+              }
+              return null;
+            },
+          ),
+        ),
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) => Text(
+                '${value.toStringAsFixed(0)}m',
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
+              ),
+              reservedSize: 35,
+            ),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                final idx = value.toInt();
+                if (idx >= 0 && idx < sortedData.length) {
+                  return Text(
+                    _getWeekdayShort(sortedData[idx].date, l10n),
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+              reservedSize: 25,
+            ),
+          ),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        ),
+        borderData: FlBorderData(show: false),
+        barGroups: barGroups,
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          getDrawingHorizontalLine: (value) =>
+              FlLine(color: Colors.grey.shade200, strokeWidth: 1),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAlcoholChart(AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: _cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const SizedBox(width: 8),
+              Text(
+                l10n.alcoholWeek,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _buildAlcoholBarChart(l10n),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAlcoholBarChart(AppLocalizations l10n) {
+    final sortedData = _getSortedWeekData();
+
+    if (!_hasAlcoholData()) {
+      return Padding(
+        padding: const EdgeInsets.all(20),
+        child: Center(child: Text(l10n.noAlcoholThisWeek)),
+      );
+    }
+
+    return Column(
+      children: [
+        // График-полосы для каждого дня
+        ...sortedData.map((data) {
+          final dayName = _getWeekdayShort(data.date, l10n);
+          final sdValue = data.alcoholSD;
+          
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 35,
+                  child: Text(
+                    dayName,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Container(
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Stack(
+                      children: [
+                        if (sdValue > 0)
+                          FractionallySizedBox(
+                            widthFactor: (sdValue / _getMaxAlcoholValue()).clamp(0.0, 1.0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: sdValue > 2 
+                                    ? [Colors.red.shade400, Colors.red.shade500]
+                                    : [Colors.orange.shade400, Colors.orange.shade500],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        Center(
+                          child: Text(
+                            sdValue > 0 ? '${sdValue.toStringAsFixed(1)} SD' : '0 SD',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: sdValue > 0 ? Colors.white : Colors.grey.shade600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+        
+        // Легенда
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                color: Colors.orange.shade400,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 4),
+            const Text('1-2 SD', style: TextStyle(fontSize: 11)),
+            const SizedBox(width: 16),
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                color: Colors.red.shade400,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 4),
+            const Text('>2 SD', style: TextStyle(fontSize: 11)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAverageStats(AppLocalizations l10n) {
+    if (weeklyData.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: _cardDecoration(),
+        child: Text(l10n.loadingData),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: _cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const SizedBox(width: 8),
+              Text(
+                l10n.weeklyAverages,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _buildStatsContent(l10n),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatsContent(AppLocalizations l10n) {
+    final provider = Provider.of<HydrationProvider>(context, listen: false);
 
     double totalWater = 0;
     double totalSodium = 0;
@@ -986,6 +887,8 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
     double totalMagnesium = 0;
     int daysWithGoal = 0;
     double totalIntakes = 0;
+    int totalWorkoutMinutes = 0;
+    int daysWithWorkouts = 0;
 
     for (var d in weeklyData.values) {
       totalWater += d.water;
@@ -993,18 +896,20 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
       totalPotassium += d.potassium;
       totalMagnesium += d.magnesium;
       totalIntakes += d.intakeCount;
+      totalWorkoutMinutes += d.workoutMinutes;
       if (d.waterPercent >= 90) daysWithGoal++;
+      if (d.hasWorkouts) daysWithWorkouts++;
     }
 
-    final daysCount = weeklyData.length;
+    final daysCount = weeklyData.length > 0 ? weeklyData.length : 1;
 
     return Column(
       children: [
         _buildStatRow(
           icon: '💧',
           label: l10n.waterPerDay,
-          value: '${(totalWater / daysCount).round()} ${l10n.ml}',
-          target: '${provider.goals.waterOpt} ${l10n.ml}',
+          value: _unitsService.formatVolume((totalWater / daysCount).round()),
+          target: _unitsService.formatVolume((_remoteConfig.waterOptPerKg * provider.weight).round()),
           color: Colors.blue,
         ),
         const SizedBox(height: 12),
@@ -1031,15 +936,26 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
           target: '${provider.goals.magnesium} ${l10n.mg}',
           color: Colors.pink,
         ),
-        const Divider(height: 24),
+        
+        if (_hasWorkoutData()) ...[
+          const SizedBox(height: 12),
+          _buildStatRow(
+            icon: '💪',
+            label: l10n.workoutMinutesPerDay,
+            value: '${(totalWorkoutMinutes / daysCount).round()} ${l10n.minutes}',
+            target: '$daysWithWorkouts ${l10n.daysWithWorkouts}',
+            color: Colors.green,
+          ),
+        ],
+        
+        const Divider(height: 32),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(l10n.daysWithGoalAchieved,
                 style: const TextStyle(fontWeight: FontWeight.w500)),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
                 color: daysWithGoal >= 5
                     ? Colors.green.shade100
@@ -1098,21 +1014,18 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(label,
-                  style:
-                      TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
               const SizedBox(height: 2),
               Text(value,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16)),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             ],
           ),
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text('Goal',
-                style:
-                    TextStyle(color: Colors.grey.shade500, fontSize: 11)),
+            Text('Target',
+                style: TextStyle(color: Colors.grey.shade500, fontSize: 11)),
             Text(
               target,
               style: TextStyle(
@@ -1125,5 +1038,400 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
         ),
       ],
     );
+  }
+
+  Widget _buildAlcoholStats(AppLocalizations l10n) {
+    double totalSD = 0;
+    int daysWithAlcohol = 0;
+    int soberDays = 0;
+
+    for (var d in weeklyData.values) {
+      if (d.alcoholSD > 0) {
+        totalSD += d.alcoholSD;
+        daysWithAlcohol++;
+      } else {
+        soberDays++;
+      }
+    }
+
+    final avgSD = daysWithAlcohol > 0 ? totalSD / daysWithAlcohol : 0;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.orange.shade50,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.orange.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.local_bar, color: Colors.orange),
+              const SizedBox(width: 8),
+              Text(
+                l10n.alcoholStatisticsTitle,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildAlcoholStatCard(l10n.totalSD, totalSD.toStringAsFixed(1), Icons.assessment),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildAlcoholStatCard(l10n.daysWithAlcohol, '$daysWithAlcohol', Icons.calendar_today),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildAlcoholStatCard(l10n.soberDays, '$soberDays', Icons.check_circle),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildAlcoholStatCard(l10n.averageSD, avgSD.toStringAsFixed(1), Icons.trending_flat),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAlcoholStatCard(String label, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Icon(icon, size: 16, color: Colors.orange),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(label,
+                  style: TextStyle(color: Colors.grey.shade700, fontSize: 12)),
+            ),
+          ]),
+          const SizedBox(height: 4),
+          Text(value,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWeeklyInsights(AppLocalizations l10n) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.purple.shade400, Colors.purple.shade600],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.purple.withOpacity(0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.lightbulb,
+                  color: Colors.white,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                l10n.weeklyInsights,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ..._buildInsightsList(l10n),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildInsightsList(AppLocalizations l10n) {
+    final insights = <Widget>[];
+
+    if (weeklyData.isEmpty) {
+      return [
+        Text(l10n.insufficientDataForAnalysis,
+            style: const TextStyle(color: Colors.white70))
+      ];
+    }
+
+    final sorted = _getSortedWeekData();
+
+    // Найти лучший день
+    DailyData? bestDay;
+    for (var d in sorted) {
+      if (bestDay == null || d.waterPercent > bestDay.waterPercent) {
+        bestDay = d;
+      }
+    }
+
+    if (bestDay != null) {
+      insights.add(_buildInsight(
+        '🏆',
+        l10n.bestDay,
+        l10n.bestDayMessage(_getWeekdayFull(bestDay.date, l10n), bestDay.waterPercent.toInt()),
+      ));
+    }
+
+    // Анализ выходных vs будни
+    final weekend = sorted.where((d) => d.date.weekday == 6 || d.date.weekday == 7);
+    final weekdays = sorted.where((d) => d.date.weekday < 6);
+
+    if (weekend.isNotEmpty && weekdays.isNotEmpty) {
+      final avgWeekend = weekend.map((d) => d.waterPercent).reduce((a, b) => a + b) / weekend.length;
+      final avgWeekdays = weekdays.map((d) => d.waterPercent).reduce((a, b) => a + b) / weekdays.length;
+
+      if ((avgWeekdays - avgWeekend).abs() > 15) {
+        if (avgWeekdays > avgWeekend) {
+          insights.add(_buildInsight(
+            '📅',
+            l10n.weekends,
+            l10n.drinkLessOnWeekends((avgWeekdays - avgWeekend).toInt()),
+          ));
+        } else {
+          insights.add(_buildInsight(
+            '💼',
+            l10n.weekdays,
+            l10n.drinkLessOnWeekdays((avgWeekend - avgWeekdays).toInt()),
+          ));
+        }
+      }
+    }
+
+    // Анализ тренировок
+    if (_hasWorkoutData()) {
+      final daysWithWorkouts = sorted.where((d) => d.hasWorkouts).toList();
+      final daysWithoutWorkouts = sorted.where((d) => !d.hasWorkouts).toList();
+
+      if (daysWithWorkouts.isNotEmpty && daysWithoutWorkouts.isNotEmpty) {
+        final avgWithWorkouts = daysWithWorkouts.map((d) => d.waterPercent).reduce((a, b) => a + b) / daysWithWorkouts.length;
+        final avgWithoutWorkouts = daysWithoutWorkouts.map((d) => d.waterPercent).reduce((a, b) => a + b) / daysWithoutWorkouts.length;
+
+        if (avgWithWorkouts > avgWithoutWorkouts + 10) {
+          insights.add(_buildInsight(
+            '💪',
+            l10n.workoutHydration,
+            l10n.workoutHydrationMessage((avgWithWorkouts - avgWithoutWorkouts).toInt()),
+          ));
+        }
+      }
+
+      final totalWorkoutMinutes = sorted.fold(0, (sum, d) => sum + d.workoutMinutes);
+      if (totalWorkoutMinutes > 0) {
+        insights.add(_buildInsight(
+          '🏃',
+          l10n.weeklyActivity,
+          l10n.weeklyActivityMessage(totalWorkoutMinutes, sorted.where((d) => d.hasWorkouts).length),
+        ));
+      }
+    }
+
+    // Анализ трендов
+    if (sorted.length >= 3) {
+      final firstHalf = sorted.take(3).map((d) => d.waterPercent).reduce((a, b) => a + b) / 3;
+      final secondHalf = sorted.skip(sorted.length - 3).map((d) => d.waterPercent).reduce((a, b) => a + b) / 3;
+
+      if (secondHalf > firstHalf + 10) {
+        insights.add(_buildInsight(
+          '📈',
+          l10n.positiveTrend,
+          l10n.positiveTrendMessage,
+        ));
+      } else if (firstHalf > secondHalf + 10) {
+        insights.add(_buildInsight(
+          '📉',
+          l10n.decliningActivity,
+          l10n.decliningActivityMessage,
+        ));
+      }
+    }
+
+    // Анализ электролитов
+    int daysWithGoodSodium = 0;
+    final provider = Provider.of<HydrationProvider>(context, listen: false);
+    for (var d in sorted) {
+      if (d.sodium >= provider.goals.sodium * 0.7) {
+        daysWithGoodSodium++;
+      }
+    }
+    if (daysWithGoodSodium < 3) {
+      insights.add(_buildInsight(
+        '🧂',
+        l10n.lowSalt,
+        l10n.lowSaltMessage(daysWithGoodSodium),
+      ));
+    }
+
+    // Анализ алкоголя
+    if (_hasAlcoholData()) {
+      int daysWithAlcohol = 0;
+      for (var d in sorted) {
+        if (d.alcoholSD > 0) daysWithAlcohol++;
+      }
+      if (daysWithAlcohol > 3) {
+        insights.add(_buildInsight(
+          '🍺',
+          l10n.frequentAlcohol,
+          l10n.frequentAlcoholMessage(daysWithAlcohol),
+        ));
+      }
+    }
+
+    return insights.isNotEmpty
+        ? insights
+        : [_buildInsight('✨', l10n.excellentWeek, l10n.continueMessage)];
+  }
+
+  Widget _buildInsight(String emoji, String title, String description) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                emoji,
+                style: const TextStyle(fontSize: 18),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  description,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  BoxDecoration _cardDecoration() => BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      );
+
+  String _getWeekdayShort(DateTime date, AppLocalizations l10n) {
+    // Используем короткие названия из локализации если есть
+    switch (date.weekday) {
+      case 1: return l10n.mondayShort ?? 'ПН';
+      case 2: return l10n.tuesdayShort ?? 'ВТ';
+      case 3: return l10n.wednesdayShort ?? 'СР';
+      case 4: return l10n.thursdayShort ?? 'ЧТ';
+      case 5: return l10n.fridayShort ?? 'ПТ';
+      case 6: return l10n.saturdayShort ?? 'СБ';
+      case 7: return l10n.sundayShort ?? 'ВС';
+      default: return '';
+    }
+  }
+
+  String _getWeekdayFull(DateTime date, AppLocalizations l10n) {
+    switch (date.weekday) {
+      case 1: return l10n.monday;
+      case 2: return l10n.tuesday;
+      case 3: return l10n.wednesday;
+      case 4: return l10n.thursday;
+      case 5: return l10n.friday;
+      case 6: return l10n.saturday;
+      case 7: return l10n.sunday;
+      default: return '';
+    }
+  }
+
+  bool _hasAlcoholData() => weeklyData.values.any((d) => d.alcoholSD > 0);
+
+  bool _hasWorkoutData() => weeklyData.values.any((d) => d.hasWorkouts);
+
+  double _getMaxAlcoholValue() {
+    double maxV = 0;
+    for (var d in weeklyData.values) {
+      if (d.alcoholSD > maxV) maxV = d.alcoholSD;
+    }
+    return maxV > 0 ? maxV : 5.0;
+  }
+
+  double _getMaxWorkoutMinutes() {
+    double maxV = 0;
+    for (var d in weeklyData.values) {
+      if (d.workoutMinutes > maxV) maxV = d.workoutMinutes.toDouble();
+    }
+    return maxV > 0 ? maxV : 60.0;
   }
 }

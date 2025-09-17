@@ -49,5 +49,8 @@
   "channel_desc_urgent": "Предупреждения о жаре и критических состояниях",
   
   "channel_name_report": "Отчеты",
-  "channel_desc_report": "Дневные и недельные отчеты"
+  "channel_desc_report": "Дневные и недельные отчеты",
+
+  "channel_name_silent": "Тихие уведомления",
+"channel_desc_silent": "Тихие напоминания без звука и вибрации"
 }

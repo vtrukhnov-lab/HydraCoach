@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart'; // Для kDebugMode
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hydracoach/providers/hydration_provider.dart';
 import '../l10n/app_localizations.dart';
 import '../services/notification_service.dart' as notif;
 import '../services/subscription_service.dart';
-import '../services/locale_service.dart';
 import '../services/units_service.dart';
 import '../screens/paywall_screen.dart';
+import '../widgets/notification_debug_panel.dart';
+
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -28,8 +30,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _reminderFrequency = 4;
   
   Map<String, dynamic> _notificationStats = {};
-  
-  // Debug: для отслеживания статуса тестовых уведомлений
   bool _testNotificationScheduled = false;
   
   @override
@@ -53,7 +53,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
   
   Future<void> _loadNotificationStats() async {
-    // Получаем статистику напрямую из SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     final isPro = prefs.getBool('is_pro') ?? false;
     final todayCount = prefs.getInt('notification_count_today') ?? 0;
@@ -78,13 +77,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.setString('eveningTime', _eveningTime);
     await prefs.setInt('reminderFrequency', _reminderFrequency);
     
-    // Сохраняем настройки для использования новым сервисом
     await prefs.setBool('remindersEnabled', _notificationsEnabled);
     await prefs.setString('quiet_hours_start', _eveningTime);
     await prefs.setString('quiet_hours_end', _morningTime);
     await prefs.setBool('quiet_hours_enabled', _notificationsEnabled);
     
-    // Перепланируем уведомления если включены
     if (_notificationsEnabled) {
       await notif.NotificationService().scheduleSmartReminders();
     } else {
@@ -100,364 +97,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
         builder: (context) => const PaywallScreen(showCloseButton: true),
         fullscreenDialog: true,
       ),
-    ).then((_) {
-      _loadNotificationStats();
+    ).then((_) async {
+      // Перезагружаем настройки и статистику уведомлений после возврата
+      await _loadSettings();
+      await _loadNotificationStats();
+      
+      // Принудительно обновляем UI чтобы отразить новый статус подписки
+      if (mounted) {
+        setState(() {});
+      }
     });
   }
 
-  // DEBUG: Методы для тестирования
-  Future<void> _sendTestNotification() async {
-    try {
-      await notif.NotificationService().sendTestNotification();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Test notification sent!'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Error: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _scheduleTestNotification() async {
-    try {
-      await notif.NotificationService().scheduleTestIn1Minute();
-      setState(() {
-        _testNotificationScheduled = true;
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('⏰ Notification scheduled for 1 minute from now'),
-            backgroundColor: Colors.blue,
-            duration: Duration(seconds: 3),
-          ),
-        );
-      }
-      // Reset flag after 2 minutes
-      Future.delayed(const Duration(minutes: 2), () {
-        if (mounted) {
-          setState(() {
-            _testNotificationScheduled = false;
-          });
-        }
-      });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Error: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _showNotificationStatus() async {
-    await notif.NotificationService().printNotificationStatus();
-    
-    final pending = await notif.NotificationService().getPendingNotifications();
-    
-    if (mounted) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('📋 Notification Status'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Pending: ${pending.length} notifications'),
-                const SizedBox(height: 8),
-                Text('PRO Status: ${_notificationStats['is_pro'] ? 'Yes' : 'No'}'),
-                Text('Sent Today: ${_notificationStats['today_count']}'),
-                if (!_notificationStats['is_pro'])
-                  Text('Daily Limit: 4'),
-                const Divider(),
-                const Text('Scheduled:', style: TextStyle(fontWeight: FontWeight.bold)),
-                if (pending.isEmpty)
-                  const Text('No pending notifications')
-                else
-                  ...pending.take(5).map((n) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('• ${n.title}', style: const TextStyle(fontWeight: FontWeight.w500)),
-                        Text('  ${n.body}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                      ],
-                    ),
-                  )),
-                if (pending.length > 5)
-                  Text('\n...and ${pending.length - 5} more'),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close'),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
-  Future<void> _cancelAllNotifications() async {
-    await notif.NotificationService().cancelAllNotifications();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('🗑️ All notifications cancelled'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-    }
-  }
-
-  Future<void> _toggleProStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final currentStatus = _notificationStats['is_pro'] == true;
-    final newStatus = !currentStatus;
-    
-    await prefs.setBool('is_pro', newStatus);
-    await _loadNotificationStats();
-    
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(newStatus ? '⭐ PRO status enabled' : '🆓 FREE status set'),
-          backgroundColor: newStatus ? Colors.green : Colors.orange,
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-
-  // DEBUG: Widget для тестового раздела
-  Widget _buildDebugSection() {
-    if (!kDebugMode) return const SizedBox.shrink();
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionTitle('🧪 DEBUG TESTING'),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.purple.shade50,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.purple.shade200, width: 2),
-          ),
-          child: Column(
-            children: [
-              const Row(
-                children: [
-                  Icon(Icons.bug_report, color: Colors.purple, size: 24),
-                  SizedBox(width: 8),
-                  Text(
-                    'Testing Features',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.purple,
-                    ),
-                  ),
-                ],
-              ),
-              const Divider(height: 16),
-              
-              // Test Notification Button
-              ListTile(
-                leading: const Icon(Icons.notifications_active, color: Colors.purple),
-                title: const Text('Send Test Notification'),
-                subtitle: const Text('Sends immediately'),
-                trailing: const Icon(Icons.send),
-                onTap: _sendTestNotification,
-              ),
-              
-              const Divider(height: 1),
-              
-              // Schedule Test Button
-              ListTile(
-                leading: const Icon(Icons.schedule, color: Colors.purple),
-                title: const Text('Schedule Test (1 min)'),
-                subtitle: Text(_testNotificationScheduled 
-                  ? 'Scheduled ⏰' 
-                  : 'Will arrive in 1 minute'),
-                trailing: Icon(
-                  _testNotificationScheduled ? Icons.check_circle : Icons.timer,
-                  color: _testNotificationScheduled ? Colors.green : null,
-                ),
-                onTap: _testNotificationScheduled ? null : _scheduleTestNotification,
-              ),
-              
-              const Divider(height: 1),
-              
-              // Show Status Button
-              ListTile(
-                leading: const Icon(Icons.info_outline, color: Colors.purple),
-                title: const Text('Show Notification Status'),
-                subtitle: const Text('View pending & stats'),
-                trailing: const Icon(Icons.visibility),
-                onTap: _showNotificationStatus,
-              ),
-              
-              const Divider(height: 1),
-              
-              // Cancel All Button
-              ListTile(
-                leading: const Icon(Icons.cancel, color: Colors.red),
-                title: const Text('Cancel All Notifications'),
-                subtitle: const Text('Clear all scheduled'),
-                trailing: const Icon(Icons.delete_forever),
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Cancel All?'),
-                      content: const Text('This will cancel all scheduled notifications.'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('No'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            _cancelAllNotifications();
-                          },
-                          style: TextButton.styleFrom(foregroundColor: Colors.red),
-                          child: const Text('Yes, Cancel All'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-              
-              const Divider(height: 1),
-              
-              // Toggle PRO Status Button
-              ListTile(
-                leading: Icon(
-                  _notificationStats['is_pro'] == true ? Icons.star : Icons.star_outline,
-                  color: Colors.purple,
-                ),
-                title: const Text('Toggle PRO Status'),
-                subtitle: Text(
-                  'Current: ${_notificationStats['is_pro'] == true ? "PRO" : "FREE"}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: _notificationStats['is_pro'] == true ? Colors.green : Colors.grey,
-                  ),
-                ),
-                trailing: const Icon(Icons.swap_horiz),
-                onTap: _toggleProStatus,
-              ),
-              
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.yellow.shade100,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.warning, size: 16, color: Colors.orange),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Debug features are only visible in development builds',
-                        style: TextStyle(fontSize: 11, color: Colors.brown),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ).animate().fadeIn(delay: 250.ms).slideY(begin: 0.1),
-      ],
-    );
-  }
-  
-  void _showLanguageDialog() {
-    final l10n = AppLocalizations.of(context);
-    final localeService = Provider.of<LocaleService>(context, listen: false);
-    
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.selectLanguage),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: LocaleService.supportedLocales.map((localeInfo) {
-            return RadioListTile<String>(
-              title: Row(
-                children: [
-                  Text(localeInfo.flag, style: const TextStyle(fontSize: 24)),
-                  const SizedBox(width: 12),
-                  Text(localeInfo.name),
-                ],
-              ),
-              value: localeInfo.code,
-              groupValue: localeService.currentLocale.languageCode,
-              onChanged: (value) {
-                if (value != null) {
-                  localeService.setLocale(value);
-                  Navigator.pop(context);
-                }
-              },
-            );
-          }).toList(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-        ],
-      ),
-    );
-  }
-  
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      // УБРАЛИ AppBar полностью
       body: SafeArea(
-        child: Consumer4<HydrationProvider, SubscriptionProvider, LocaleService, UnitsService>(
-          builder: (context, hydrationProvider, subscriptionProvider, localeService, unitsService, child) {
+        child: Consumer3<HydrationProvider, SubscriptionProvider, UnitsService>(
+          builder: (context, hydrationProvider, subscriptionProvider, unitsService, child) {
             final isPro = subscriptionProvider.isPro;
-            
-            // Используем UnitsService для форматирования веса
             final displayWeight = unitsService.formatWeight(hydrationProvider.weight);
             
             return SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Заголовок без AppBar
+                  // Header
                   Container(
                     padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                     child: Text(
@@ -468,38 +136,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ).animate().fadeIn(duration: 350.ms),
                   ),
-                  
-                  // DEBUG SECTION - показывается только в debug режиме
-                  _buildDebugSection(),
-                  
-                  // Language Selector
-                  _buildSectionTitle(l10n.languageSection),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: ListTile(
-                      leading: const Icon(Icons.language, color: Colors.blue),
-                      title: Text(l10n.languageSettings),
-                      subtitle: Text(localeService.getCurrentLocaleInfo().name),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            localeService.getCurrentLocaleInfo().flag,
-                            style: const TextStyle(fontSize: 24),
-                          ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.chevron_right),
-                        ],
-                      ),
-                      onTap: _showLanguageDialog,
-                    ),
-                  ).animate().fadeIn(),
-                  
-                  // Profile Section with Units Display
+                
+                // ВСТАВИТЬ СЮДА <<<<<<<<<<<<<<<<<<<
+                if (kDebugMode) const NotificationDebugPanel(),
+                
+                  // Profile Section
                   _buildSectionTitle(l10n.profileSection),
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -511,7 +152,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       children: [
                         _buildProfileTile(
                           l10n.weight,
-                          displayWeight, // Используем форматированный вес от UnitsService
+                          displayWeight,
                           Icons.monitor_weight_outlined,
                           () => _showWeightDialog(hydrationProvider, unitsService, l10n),
                         ),
@@ -530,7 +171,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           () => _showActivityDialog(hydrationProvider, l10n),
                         ),
                         _buildDivider(),
-                        // Отображаем текущую систему единиц (только для информации)
                         ListTile(
                           leading: const Icon(Icons.straighten, color: Colors.blue),
                           title: Text(l10n.unitsSection),
@@ -558,7 +198,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ).animate().fadeIn(),
                   
-                  // Notifications
+                  // Notifications Section
                   _buildSectionTitle(l10n.notificationsSection),
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -702,7 +342,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ).animate().fadeIn(delay: 100.ms),
                   
-                  // PRO features (if user is FREE)
+                  // PRO Features Section
                   if (!isPro) ...[
                     _buildSectionTitle(l10n.proFeaturesSection),
                     Container(
@@ -791,7 +431,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ).animate().fadeIn(delay: 150.ms),
                   ],
                   
-                  // About
+                  // About Section
                   _buildSectionTitle(l10n.aboutSection),
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -838,7 +478,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ).animate().fadeIn(delay: 300.ms),
                   
-                  // Reset button
+                  // Reset Button
                   Container(
                     margin: const EdgeInsets.all(20),
                     child: OutlinedButton(
@@ -864,7 +504,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-  
+
+  // Helper Methods
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
@@ -878,7 +519,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-  
+
   Widget _buildProfileTile(String title, String value, IconData icon, VoidCallback onTap) {
     return ListTile(
       leading: Icon(icon, color: Colors.blue),
@@ -888,7 +529,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       onTap: onTap,
     );
   }
-  
+
   Widget _buildListTile(String title, String subtitle, IconData icon, VoidCallback? onTap, {bool isPro = false}) {
     return Consumer<SubscriptionProvider>(
       builder: (context, subscriptionProvider, _) {
@@ -931,7 +572,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       },
     );
   }
-  
+
   Widget _buildSwitchTile(String title, String subtitle, bool value, Function(bool) onChanged, {bool isPro = false}) {
     return Consumer<SubscriptionProvider>(
       builder: (context, subscriptionProvider, _) {
@@ -971,11 +612,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       },
     );
   }
-  
+
   Widget _buildDivider() {
     return const Divider(height: 1, indent: 16, endIndent: 16);
   }
-  
+
   String _getDietModeText(String mode, AppLocalizations l10n) {
     switch (mode) {
       case 'normal': return l10n.dietModeNormal;
@@ -984,7 +625,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       default: return mode;
     }
   }
-  
+
   String _getActivityText(String level, AppLocalizations l10n) {
     switch (level) {
       case 'low': return l10n.activityLow;
@@ -993,13 +634,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       default: return level;
     }
   }
-  
+
+  // Dialog Methods
   void _showWeightDialog(HydrationProvider provider, UnitsService units, AppLocalizations l10n) {
     double tempWeight = provider.weight;
     double displayWeight = units.toDisplayWeight(tempWeight);
     final weightUnit = units.weightUnit;
-    final minWeight = units.isImperial ? 88.0 : 40.0; // 40 kg = 88 lb
-    final maxWeight = units.isImperial ? 330.0 : 150.0; // 150 kg = 330 lb
+    final minWeight = units.isImperial ? 88.0 : 40.0;
+    final maxWeight = units.isImperial ? 330.0 : 150.0;
     
     showDialog(
       context: context,
@@ -1043,7 +685,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             TextButton(
               onPressed: () {
                 provider.updateProfile(
-                  weight: tempWeight, // Сохраняем всегда в кг
+                  weight: tempWeight,
                   dietMode: provider.dietMode,
                   activityLevel: provider.activityLevel,
                 );
@@ -1056,7 +698,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-  
+
   void _showDietDialog(HydrationProvider provider, AppLocalizations l10n) {
     showDialog(
       context: context,
@@ -1109,7 +751,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-  
+
   void _showActivityDialog(HydrationProvider provider, AppLocalizations l10n) {
     showDialog(
       context: context,
@@ -1165,7 +807,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-  
+
   void _showFrequencyDialog(AppLocalizations l10n) {
     final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
     final isPro = subscriptionProvider.isPro;
@@ -1195,7 +837,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-  
+
   void _showTimePicker(bool isMorning) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
@@ -1218,7 +860,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _saveSettings();
     }
   }
-  
+
   void _showResetDialog(AppLocalizations l10n) {
     showDialog(
       context: context,
@@ -1275,4 +917,693 @@ class _ProFeatureItem extends StatelessWidget {
       ),
     );
   }
+}
+
+// Notification Status Screen
+class _NotificationStatusScreen extends StatefulWidget {
+  final Map<String, dynamic> notificationStats;
+  final List<PendingNotificationRequest> pendingNotifications;
+
+  const _NotificationStatusScreen({
+    required this.notificationStats,
+    required this.pendingNotifications,
+  });
+
+  @override
+  State<_NotificationStatusScreen> createState() => _NotificationStatusScreenState();
+}
+
+class _NotificationStatusScreenState extends State<_NotificationStatusScreen> {
+  bool _showExpiredToo = false;
+  String _filterType = 'all';
+  String _sortBy = 'time';
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredNotifications = _getFilteredNotifications();
+    
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
+      appBar: AppBar(
+        title: const Text('Notification Status'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'refresh') {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => FutureBuilder(
+                      future: notif.NotificationService().getPendingNotifications(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        return _NotificationStatusScreen(
+                          notificationStats: widget.notificationStats,
+                          pendingNotifications: snapshot.data ?? [],
+                        );
+                      },
+                    ),
+                    fullscreenDialog: true,
+                  ),
+                );
+              } else if (value == 'cancel_all') {
+                _showCancelAllDialog();
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'refresh',
+                child: Row(
+                  children: [
+                    Icon(Icons.refresh, size: 20),
+                    SizedBox(width: 8),
+                    Text('Refresh'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'cancel_all',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete_forever, size: 20, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text('Cancel All', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Statistics
+          Container(
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.analytics, color: Colors.blue.shade600, size: 24),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Statistics',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _StatCard(
+                        title: 'PRO Status',
+                        value: widget.notificationStats['is_pro'] == true ? 'PRO' : 'FREE',
+                        color: widget.notificationStats['is_pro'] == true ? Colors.green : Colors.orange,
+                        icon: Icons.star,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _StatCard(
+                        title: 'Sent Today',
+                        value: '${widget.notificationStats['today_count'] ?? 0}',
+                        color: Colors.blue,
+                        icon: Icons.send,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _StatCard(
+                        title: 'Scheduled',
+                        value: '${filteredNotifications.length}',
+                        color: Colors.purple,
+                        icon: Icons.schedule,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _StatCard(
+                        title: 'Daily Limit',
+                        value: widget.notificationStats['is_pro'] == true ? 'Unlimited' : '4',
+                        color: Colors.grey,
+                        icon: Icons.timer,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // Filters
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Filters & Sort',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    _FilterChip('All', 'all', _filterType),
+                    _FilterChip('Water', 'water', _filterType),
+                    _FilterChip('Coffee', 'coffee', _filterType),
+                    _FilterChip('Alcohol', 'alcohol', _filterType),
+                    _FilterChip('Heat', 'heat', _filterType),
+                  ].map((chip) => FilterChip(
+                    label: Text(chip.label),
+                    selected: chip.value == _filterType,
+                    onSelected: (selected) {
+                      if (selected) {
+                        setState(() {
+                          _filterType = chip.value;
+                        });
+                      }
+                    },
+                  )).toList(),
+                ),
+                
+                const SizedBox(height: 8),
+                
+                Row(
+                  children: [
+                    const Text('Sort by: ', style: TextStyle(fontWeight: FontWeight.w500)),
+                    DropdownButton<String>(
+                      value: _sortBy,
+                      underline: const SizedBox(),
+                      items: const [
+                        DropdownMenuItem(value: 'time', child: Text('Time')),
+                        DropdownMenuItem(value: 'type', child: Text('Type')),
+                        DropdownMenuItem(value: 'id', child: Text('ID')),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() {
+                            _sortBy = value;
+                          });
+                        }
+                      },
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: _showExpiredToo,
+                          onChanged: (value) {
+                            setState(() {
+                              _showExpiredToo = value ?? false;
+                            });
+                          },
+                        ),
+                        const Text('Show Past', style: TextStyle(fontSize: 14)),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Notifications List
+          Expanded(
+            child: filteredNotifications.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.notifications_off, size: 64, color: Colors.grey.shade400),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No notifications scheduled',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _filterType == 'all' 
+                              ? 'Try adding some water or coffee to trigger reminders'
+                              : 'No notifications of this type found',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade500,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: filteredNotifications.length,
+                    itemBuilder: (context, index) {
+                      final notification = filteredNotifications[index];
+                      return _NotificationCard(
+                        notification: notification,
+                        onCancel: () => _cancelNotification(notification.id),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<PendingNotificationRequest> _getFilteredNotifications() {
+    var notifications = List<PendingNotificationRequest>.from(widget.pendingNotifications);
+    
+    if (!_showExpiredToo) {
+      final now = DateTime.now();
+      notifications = notifications.where((n) {
+        try {
+          final timeStr = n.payload;
+          if (timeStr != null && timeStr.isNotEmpty) {
+            final scheduleTime = DateTime.parse(timeStr);
+            return scheduleTime.isAfter(now);
+          }
+        } catch (e) {
+          // If parsing fails, show notification
+        }
+        return true;
+      }).toList();
+    }
+    
+    if (_filterType != 'all') {
+      notifications = notifications.where((n) {
+        final title = n.title?.toLowerCase() ?? '';
+        final body = n.body?.toLowerCase() ?? '';
+        
+        switch (_filterType) {
+          case 'water':
+            return title.contains('water') || body.contains('water') || 
+                   title.contains('hydrat') || body.contains('drink');
+          case 'coffee':
+            return title.contains('coffee') || body.contains('coffee') ||
+                   title.contains('caffeine');
+          case 'alcohol':
+            return title.contains('alcohol') || body.contains('alcohol') ||
+                   title.contains('recovery') || body.contains('hangover');
+          case 'heat':
+            return title.contains('heat') || body.contains('hot') ||
+                   title.contains('temperature') || body.contains('weather');
+          default:
+            return true;
+        }
+      }).toList();
+    }
+    
+    notifications.sort((a, b) {
+      switch (_sortBy) {
+        case 'time':
+          try {
+            final timeA = DateTime.parse(a.payload ?? '');
+            final timeB = DateTime.parse(b.payload ?? '');
+            return timeA.compareTo(timeB);
+          } catch (e) {
+            return a.id.compareTo(b.id);
+          }
+        case 'type':
+          return (a.title ?? '').compareTo(b.title ?? '');
+        case 'id':
+        default:
+          return a.id.compareTo(b.id);
+      }
+    });
+    
+    return notifications;
+  }
+
+  void _cancelNotification(int id) async {
+    await notif.NotificationService().cancelNotification(id);
+    
+    final updatedList = await notif.NotificationService().getPendingNotifications();
+    setState(() {
+      widget.pendingNotifications.clear();
+      widget.pendingNotifications.addAll(updatedList);
+    });
+    
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Notification $id cancelled'),
+          backgroundColor: Colors.orange,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  void _showCancelAllDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cancel All Notifications?'),
+        content: Text('This will cancel all ${widget.pendingNotifications.length} scheduled notifications.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await notif.NotificationService().cancelAllNotifications();
+              Navigator.pop(context);
+              
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('All notifications cancelled'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Yes, Cancel All'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Supporting Classes
+class _NotificationCard extends StatelessWidget {
+  final PendingNotificationRequest notification;
+  final VoidCallback onCancel;
+
+  const _NotificationCard({
+    required this.notification,
+    required this.onCancel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheduleTime = _parseScheduleTime();
+    final isPast = scheduleTime != null && scheduleTime.isBefore(DateTime.now());
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isPast ? Colors.red.shade200 : Colors.grey.shade200,
+          width: isPast ? 2 : 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: _getTypeColor().withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'ID: ${notification.id}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: _getTypeColor(),
+                  ),
+                ),
+              ),
+              if (isPast) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'EXPIRED',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+              ],
+              const Spacer(),
+              IconButton(
+                onPressed: onCancel,
+                icon: const Icon(Icons.cancel, color: Colors.red, size: 20),
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                padding: EdgeInsets.zero,
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 12),
+          
+          if (notification.title != null && notification.title!.isNotEmpty) ...[
+            Text(
+              notification.title!,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+          ],
+          
+          if (notification.body != null && notification.body!.isNotEmpty) ...[
+            Text(
+              notification.body!,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade700,
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+          
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  isPast ? Icons.history : Icons.schedule,
+                  size: 16,
+                  color: isPast ? Colors.red : Colors.blue,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        scheduleTime != null
+                            ? _formatDateTime(scheduleTime)
+                            : 'Time not available',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: isPast ? Colors.red.shade700 : Colors.blue.shade700,
+                        ),
+                      ),
+                      if (scheduleTime != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          _getTimeFromNow(scheduleTime),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  DateTime? _parseScheduleTime() {
+    try {
+      if (notification.payload != null && notification.payload!.isNotEmpty) {
+        return DateTime.parse(notification.payload!);
+      }
+    } catch (e) {
+      // Parsing failed
+    }
+    return null;
+  }
+
+  Color _getTypeColor() {
+    final title = notification.title?.toLowerCase() ?? '';
+    final body = notification.body?.toLowerCase() ?? '';
+    
+    if (title.contains('coffee') || body.contains('coffee')) {
+      return Colors.brown;
+    } else if (title.contains('alcohol') || body.contains('recovery')) {
+      return Colors.purple;
+    } else if (title.contains('heat') || body.contains('hot')) {
+      return Colors.orange;
+    } else {
+      return Colors.blue;
+    }
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+    final notificationDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    
+    String dateStr;
+    if (notificationDate == today) {
+      dateStr = 'Today';
+    } else if (notificationDate == tomorrow) {
+      dateStr = 'Tomorrow';
+    } else {
+      dateStr = '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+    }
+    
+    final timeStr = '${dateTime.hour.toString().padLeft(2, '0')}:'
+                   '${dateTime.minute.toString().padLeft(2, '0')}';
+    
+    return '$dateStr at $timeStr';
+  }
+
+  String _getTimeFromNow(DateTime scheduleTime) {
+    final now = DateTime.now();
+    final difference = scheduleTime.difference(now);
+    
+    if (difference.isNegative) {
+      final pastDifference = now.difference(scheduleTime);
+      if (pastDifference.inMinutes < 60) {
+        return '${pastDifference.inMinutes}m ago';
+      } else if (pastDifference.inHours < 24) {
+        return '${pastDifference.inHours}h ago';
+      } else {
+        return '${pastDifference.inDays}d ago';
+      }
+    } else {
+      if (difference.inMinutes < 60) {
+        return 'in ${difference.inMinutes}m';
+      } else if (difference.inHours < 24) {
+        return 'in ${difference.inHours}h ${difference.inMinutes % 60}m';
+      } else {
+        return 'in ${difference.inDays}d ${difference.inHours % 24}h';
+      }
+    }
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final Color color;
+  final IconData icon;
+
+  const _StatCard({
+    required this.title,
+    required this.value,
+    required this.color,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 16),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: color.withOpacity(0.8),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FilterChip {
+  final String label;
+  final String value;
+  final String currentValue;
+
+  _FilterChip(this.label, this.value, this.currentValue);
 }

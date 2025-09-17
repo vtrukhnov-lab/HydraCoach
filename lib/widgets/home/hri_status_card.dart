@@ -137,12 +137,16 @@ class HRIStatusCard extends StatelessWidget {
     ).animate().fadeIn(delay: 500.ms);
   }
 
+  // ИСПРАВЛЕНО: добавлена проверка workouts
   bool _hasActiveFactors(Map<String, double> components, AlcoholService alcohol, WeatherService weather, double sugarGrams) {
-    return components['workouts']! > 0 ||
-           components['caffeine']! > 0 ||
-           alcohol.totalStandardDrinks > 0 ||
-           weather.heatIndex != null ||
-           sugarGrams > 50;
+    // Добавляем проверку компонента workouts
+    final hasWorkouts = (components['workouts'] ?? 0) > 0;
+    final hasCaffeine = (components['caffeine'] ?? 0) > 0;
+    final hasAlcohol = alcohol.totalStandardDrinks > 0;
+    final hasWeather = weather.heatIndex != null && (components['heat'] ?? 0) > 0;
+    final hasSugar = sugarGrams > 50;
+    
+    return hasWorkouts || hasCaffeine || hasAlcohol || hasWeather || hasSugar;
   }
 
   List<Widget> _buildActiveFactorChips(
@@ -155,32 +159,58 @@ class HRIStatusCard extends StatelessWidget {
   ) {
     final chips = <Widget>[];
     
-    if (components['workouts']! > 0) {
-      chips.add(_buildFactorChip('${l10n.hriComponentWorkout} +${components['workouts']!.toInt()}', Icons.fitness_center, Colors.teal));
+    // ИСПРАВЛЕНО: показываем спорт первым если есть активность
+    final workoutImpact = components['workouts'] ?? 0;
+    if (workoutImpact > 0) {
+      chips.add(_buildFactorChip(
+        '${l10n.hriComponentWorkout} +${workoutImpact.toInt()}', 
+        Icons.fitness_center, 
+        Colors.teal
+      ));
     }
     
+    // Показываем погоду/жару
     if (weather.heatIndex != null) {
       final heatImpact = components['heat'] ?? 0;
-      if (weather.heatIndex! < 27) {
-        chips.add(_buildFactorChip('${l10n.hriComponentHeat} OK', Icons.thermostat, Colors.green));
-      } else if (weather.heatIndex! < 32) {
-        chips.add(_buildFactorChip('${l10n.hriComponentHeat} +${heatImpact.toInt()}', Icons.wb_sunny, Colors.orange));
-      } else {
-        chips.add(_buildFactorChip('${l10n.hriComponentHeat} +${heatImpact.toInt()}', Icons.local_fire_department, Colors.red));
+      if (heatImpact > 0) {
+        if (weather.heatIndex! < 32) {
+          chips.add(_buildFactorChip(
+            '${l10n.hriComponentHeat} +${heatImpact.toInt()}', 
+            Icons.wb_sunny, 
+            Colors.orange
+          ));
+        } else {
+          chips.add(_buildFactorChip(
+            '${l10n.hriComponentHeat} +${heatImpact.toInt()}', 
+            Icons.local_fire_department, 
+            Colors.red
+          ));
+        }
       }
     }
     
-    if (components['caffeine']! > 0) {
-      chips.add(_buildFactorChip('${l10n.hriComponentCaffeine} +${components['caffeine']!.toInt()}', Icons.coffee, Colors.brown));
+    // Показываем кофеин
+    final caffeineImpact = components['caffeine'] ?? 0;
+    if (caffeineImpact > 0) {
+      chips.add(_buildFactorChip(
+        '${l10n.hriComponentCaffeine} +${caffeineImpact.toInt()}', 
+        Icons.coffee, 
+        Colors.brown
+      ));
     }
     
+    // Показываем алкоголь
     if (alcohol.totalStandardDrinks > 0) {
       final sd = alcohol.totalStandardDrinks;
       final alcoholImpact = components['alcohol'] ?? 0;
-      chips.add(_buildFactorChip('${l10n.alcohol} ${sd.toStringAsFixed(1)} SD +${alcoholImpact.toInt()}', Icons.local_bar, Colors.red));
+      chips.add(_buildFactorChip(
+        '${l10n.alcohol} ${sd.toStringAsFixed(1)} SD +${alcoholImpact.toInt()}', 
+        Icons.local_bar, 
+        Colors.red
+      ));
     }
     
-    // Добавляем чип для сахара
+    // Показываем сахар
     if (sugarGrams > 50) {
       Color sugarColor = Colors.amber;
       if (sugarGrams > 75) {
@@ -227,7 +257,8 @@ class HRIStatusCard extends StatelessWidget {
 
   Color _getStatusColor(String status) {
     if (status.contains('Normal') || status.contains('Норма')) return Colors.green;
-    if (status.contains('Low salt') || status.contains('Мало соли') || status.contains('Diluting') || status.contains('Разбавляешь')) return Colors.orange;
+    if (status.contains('Low salt') || status.contains('Мало соли') || 
+        status.contains('Diluting') || status.contains('Разбавляешь')) return Colors.orange;
     if (status.contains('Under-hydrated') || status.contains('Недобор воды')) return Colors.red;
     return Colors.grey;
   }

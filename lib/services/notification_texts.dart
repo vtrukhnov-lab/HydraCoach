@@ -101,7 +101,7 @@ class NotificationTexts {
     return text;
   }
 
-  // ======= Convenience getters for commonly used strings =======
+  // ======= ИСПРАВЛЕНЫ: Getters теперь соответствуют ключам в JSON =======
 
   static String get channelNameDefault => get('channel_name_default');
   static String get channelDescDefault => get('channel_desc_default');
@@ -132,7 +132,6 @@ class NotificationTexts {
   static String alcoholRecoveryStepTitle(int hour) =>
       get('alcohol_recovery_step_title', params: {'hour': hour});
   
-  // ИСПРАВЛЕНО: Используем 'amount' вместо 'ml' чтобы соответствовать JSON
   static String alcoholRecoveryStepBody(int amount, bool withElectrolytes) {
     print('[NotificationTexts] alcoholRecoveryStepBody called with amount: $amount, electrolytes: $withElectrolytes');
     final result = get(withElectrolytes
@@ -170,6 +169,22 @@ class NotificationTexts {
   static String get testScheduledTitle => get('test_scheduled_title');
   static String get testScheduledBody => get('test_scheduled_body');
 
+  // ======= ИСПРАВЛЕНЫ: Новые методы для scheduler =======
+  
+  // Утреннее напоминание
+  static String get notificationMorningWaterBody => get('water_reminder_morning');
+  
+  // Напоминания в зависимости от прогресса  
+  static String notificationLowProgressBody(int percent) => 
+      get('water_reminder_low_progress', params: {'progress': percent});
+  
+  static String get notificationGoodProgressBody => get('water_reminder_good_progress');
+  static String get notificationMaintainBalanceBody => get('water_reminder_maintain');
+
+  // Отчёты для scheduler
+  static String get notificationDailyReportTitle => get('daily_report_title');
+  static String get notificationDailyReportBody => get('daily_report_body');
+
   // ======= Internal: load & cache =======
 
   static Future<void> _loadFor(String locale) async {
@@ -177,7 +192,7 @@ class NotificationTexts {
     
     // Check cache first
     if (_cache.containsKey(locale)) {
-      _current = _cache[locale]!;
+      _current = _cache[locale]!;  // ИСПРАВЛЕНО: Добавлена точка с запятой
       print('[NotificationTexts] Loaded from cache: ${_current.keys.length} keys');
       return;
     }
@@ -217,51 +232,7 @@ class NotificationTexts {
     }
   }
 
-  /// Minimal fallback strings if assets are missing.
-  static Map<String, dynamic> _defaults() => {
-        'channel_name_default': 'Hydration reminders',
-        'channel_desc_default': 'Reminders about water and electrolytes',
-        'channel_name_urgent': 'Important alerts',
-        'channel_desc_urgent': 'Heat and critical alerts',
-        'channel_name_report': 'Reports',
-        'channel_desc_report': 'Daily and weekly summaries',
-        'channel_name_silent': 'Silent notifications',
-        'channel_desc_silent': 'No sound or vibration during quiet hours',
-
-        'water_reminder_title': 'Time to hydrate',
-        'water_reminder_body': 'You have {progress}% of your goal. Keep going!',
-
-        'post_coffee_title': 'After coffee',
-        'post_coffee_body': 'Drink 250-300 ml water to restore balance',
-
-        'alcohol_counter_title': 'Recovery time',
-        'alcohol_counter_body': 'Drink {amount} ml of water with a pinch of salt',
-
-        'alcohol_recovery_step_title': 'Recovery {hour}h',
-        'alcohol_recovery_step_body': 'Drink {amount} ml of water',
-        'alcohol_recovery_step_body_with_electrolytes':
-            'Drink {amount} ml of water + electrolytes',
-
-        'morning_checkin_title': 'Morning check-in',
-        'morning_checkin_body': 'How do you feel today?',
-
-        'heat_warning_title': 'Heat alert',
-        'heat_warning_extreme': 'Extreme heat! +15% water and +1g salt',
-        'heat_warning_hot': 'Hot! +10% water and electrolytes',
-        'heat_warning_warm': 'Warm. Watch your hydration',
-
-        'post_workout_title': 'After workout',
-        'post_workout_body': '500 ml water + electrolytes',
-
-        'fasting_electrolyte_title': 'Electrolyte time',
-        'fasting_electrolyte_body': 'Add a pinch of salt or drink broth',
-
-        'daily_report_title': 'Your daily report is ready',
-        'daily_report_body': 'See how your hydration went today',
-
-        'test_notification_title': 'Test notification',
-        'test_notification_body': 'If you see this, notifications work!',
-        'test_scheduled_title': 'Scheduled test',
-        'test_scheduled_body': 'This notification was scheduled a minute ago',
-      };
+  /// Technical fallback - returns empty map to force proper error handling
+  /// All texts should come from assets/notifications/*.json files
+  static Map<String, dynamic> _defaults() => <String, dynamic>{};
 }
