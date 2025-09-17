@@ -60,8 +60,8 @@ class NotificationScheduler {
     
     final now = DateTime.now();
     
-    // Отменяем существующие уведомления на сегодня чтобы избежать дублей
-    await _cancelTodayNotifications();
+    // ИСПРАВЛЕНИЕ: Отменяем ТОЛЬКО базовые уведомления на сегодня, НЕ событийные
+    await _cancelTodayBaselineNotifications();
     
     // Проверяем режим поста
     final isInFasting = await _limitsHelper.isInFastingWindow();
@@ -531,19 +531,43 @@ class NotificationScheduler {
     }
   }
 
-  /// Отмена уведомлений на сегодня
-  Future<void> _cancelTodayNotifications() async {
+  /// ИСПРАВЛЕНИЕ: Отмена ТОЛЬКО базовых уведомлений на сегодня
+  Future<void> _cancelTodayBaselineNotifications() async {
     final pending = await _notificationSender.localNotifications.pendingNotificationRequests();
     final now = DateTime.now();
     final todayDay = TimezoneHelper.dayOfYear(now);
     
+    // Базовые типы, которые можно отменять
+    final baselineTypes = {
+      NotificationType.waterReminder.index,
+      NotificationType.dailyReport.index,
+      NotificationType.smartReminder.index,
+      NotificationType.fastingElectrolyte.index,
+      NotificationType.heatWarning.index,
+    };
+    
+    // Событийные типы, которые НЕЛЬЗЯ отменять
+    final eventTypes = {
+      NotificationType.postCoffee.index,
+      NotificationType.alcoholCounter.index,
+      NotificationType.alcoholRecovery.index,
+      NotificationType.workoutReminder.index,
+      NotificationType.morningCheckIn.index,
+    };
+    
     for (final notification in pending) {
       final decoded = NotificationSender.decodeNotificationId(notification.id);
-      if (decoded.dayFromId == todayDay) {
+      
+      // Отменяем только если это сегодня И это базовый тип И НЕ событийный
+      if (decoded.dayFromId == todayDay && 
+          baselineTypes.contains(decoded.typeIdx) && 
+          !eventTypes.contains(decoded.typeIdx)) {
         await _notificationSender.localNotifications.cancel(notification.id);
         _notificationSender.pendingNotificationIds.remove(notification.id);
       }
     }
+    
+    print('Cancelled baseline notifications for today (preserved event notifications)');
   }
 
   /// Отмена уведомлений по типам
@@ -564,19 +588,20 @@ class NotificationScheduler {
 
   // ==================== УМНЫЕ НАПОМИНАНИЯ (PRO) ====================
 
-  /// Планирование умных напоминаний на основе контекста
+  /// ИСПРАВЛЕНИЕ: Планирование умных напоминаний БЕЗ отмены событийных
   Future<void> scheduleSmartReminders() async {
     print('Scheduling smart reminders...');
 
     await NotificationTexts.ensureLoaded();
 
-    // Сначала гарантируем сегодняшние
+    // ИСПРАВЛЕНИЕ: НЕ отменяем все подряд, а только обновляем базовые
+    // Сначала гарантируем сегодняшние БАЗОВЫЕ напоминания
     await _ensureTodayNotifications();
     
     // Затем будущие
     await _scheduleFutureDays();
     
-    print('Smart reminders scheduled');
+    print('Smart reminders scheduled (event notifications preserved)');
   }
 
   /// Адаптивное планирование на основе поведения пользователя
@@ -638,8 +663,8 @@ class NotificationScheduler {
     
     final now = DateTime.now();
     
-    // Отменяем существующие на сегодня
-    await _cancelTodayNotifications();
+    // Отменяем существующие базовые на сегодня
+    await _cancelTodayBaselineNotifications();
     
     // Принудительно планируем
     await _ensureTodayNotifications();
