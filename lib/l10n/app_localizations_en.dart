@@ -1133,7 +1133,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eveningHydration => '💧 Evening hydration';
 
   @override
-  String get dailyReportTitle => '📊 Daily report ready';
+  String get dailyReportTitle => ' Daily report ready';
 
   @override
   String get dailyReportBody => 'See how your hydration day went';
@@ -1156,13 +1156,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Excellent progress! A bit more to reach the goal';
 
   @override
-  String get postCoffeeTitle => '☕ After coffee';
+  String get postCoffeeTitle => ' After coffee';
 
   @override
   String get postCoffeeBody => 'Drink 250-300 ml water to restore balance';
 
   @override
-  String get postWorkoutTitle => '💪 After workout';
+  String get postWorkoutTitle => ' After workout';
 
   @override
   String get postWorkoutBody =>
@@ -3643,4 +3643,41 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tapToDismiss => 'Tap to dismiss';
+
+  @override
+  String tutorialStep1(String volume) {
+    return 'Hi! I\'ll help you start your optimal hydration journey. Let\'s take the first sip of $volume!';
+  }
+
+  @override
+  String tutorialStep2(String volume) {
+    return 'Excellent! Now let\'s add another $volume to feel how it works.';
+  }
+
+  @override
+  String get tutorialStep3 =>
+      'Outstanding! You\'re ready to use HydraCoach independently. I\'ll be here to help you achieve perfect hydration!';
+
+  @override
+  String get tutorialComplete => 'Start using';
+
+  @override
+  String get onboardingNotificationExamplesTitle => 'Smart Reminders';
+
+  @override
+  String get onboardingNotificationExamplesSubtitle =>
+      'HydraCoach knows when you need water';
+
+  @override
+  String get onboardingLocationExamplesTitle => 'Personal Advice';
+
+  @override
+  String get onboardingLocationExamplesSubtitle =>
+      'We consider weather for accurate recommendations';
+
+  @override
+  String get onboardingAllowNotifications => 'Allow Notifications';
+
+  @override
+  String get onboardingAllowLocation => 'Allow Location';
 }

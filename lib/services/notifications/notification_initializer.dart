@@ -22,7 +22,7 @@ class NotificationInitializer {
     this._remoteConfig,
   );
 
-  /// Полная инициализация системы уведомлений
+  /// Полная инициализация системы уведомлений БЕЗ запроса разрешений
   Future<void> initialize() async {
     print('🚀 Initializing notification system...');
 
@@ -33,19 +33,18 @@ class NotificationInitializer {
       // 2. Загрузка текстов уведомлений
       await _initializeTexts();
 
-      // 3. Настройка локальных уведомлений
+      // 3. Настройка локальных уведомлений БЕЗ запроса разрешений
       await _initializeLocalNotifications();
 
-      // 4. Настройка Firebase Messaging
+      // 4. Настройка Firebase Messaging БЕЗ запроса разрешений
       await _initializeFirebaseMessaging();
 
       // 5. Загрузка Remote Config
       await _initializeRemoteConfig();
 
-      // 6. Запрос разрешений
-      await _requestPermissions();
-
-      print('✅ Notification system initialized successfully');
+      // 6. НЕ ЗАПРАШИВАЕМ разрешения автоматически!
+      // Разрешения будут запрошены только когда пользователь нажмёт кнопку
+      print('✅ Notification system initialized (permissions not requested)');
 
     } catch (e) {
       print('❌ Critical error during initialization: $e');
@@ -66,16 +65,17 @@ class NotificationInitializer {
     await NotificationTexts.loadLocale();
   }
 
-  /// Инициализация локальных уведомлений
+  /// Инициализация локальных уведомлений БЕЗ запроса разрешений
   Future<void> _initializeLocalNotifications() async {
-    print('📱 Initializing local notifications...');
+    print('📱 Initializing local notifications (without permission request)...');
 
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
 
+    // КРИТИЧНО: Отключаем автоматический запрос разрешений на iOS
     const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
+      requestAlertPermission: false,  // НЕ запрашиваем автоматически
+      requestBadgePermission: false,  // НЕ запрашиваем автоматически
+      requestSoundPermission: false,  // НЕ запрашиваем автоматически
       defaultPresentAlert: true,
       defaultPresentBadge: true,
       defaultPresentSound: true,
@@ -96,6 +96,8 @@ class NotificationInitializer {
     if (Platform.isAndroid) {
       await _createAndroidChannels();
     }
+    
+    print('✅ Local notifications initialized without permission request');
   }
 
   /// Создание каналов Android с локализованными названиями
@@ -173,11 +175,11 @@ class NotificationInitializer {
     print('✅ Created Android channels for locale: $currentLocale');
   }
 
-  /// Инициализация Firebase Messaging
+  /// Инициализация Firebase Messaging БЕЗ запроса разрешений
   Future<void> _initializeFirebaseMessaging() async {
-    print('🔥 Initializing Firebase Messaging...');
+    print('🔥 Initializing Firebase Messaging (without permission request)...');
 
-    // Получение и сохранение FCM токена
+    // Получение и сохранение FCM токена (работает без разрешений)
     final token = await _messaging.getToken();
     if (token != null) {
       await _saveFCMTokenToPrefs(token);
@@ -190,7 +192,14 @@ class NotificationInitializer {
       _saveFCMTokenToPrefs(newToken);
     });
 
-    print('✅ Firebase Messaging initialized');
+    // ВАЖНО: НЕ запрашиваем разрешения здесь!
+    // Только проверяем текущий статус без показа диалога
+    if (Platform.isIOS) {
+      final settings = await _messaging.getNotificationSettings();
+      print('📱 iOS current permission status: ${settings.authorizationStatus}');
+    }
+
+    print('✅ Firebase Messaging initialized without permission request');
   }
 
   /// Сохранение FCM токена в SharedPreferences
@@ -242,9 +251,10 @@ class NotificationInitializer {
     }
   }
 
-  /// Запрос разрешений на уведомления
-  Future<void> _requestPermissions() async {
-    print('🔐 Requesting notification permissions...');
+  /// НОВЫЙ МЕТОД: Явный запрос разрешений на уведомления
+  /// Вызывается ТОЛЬКО когда пользователь нажимает кнопку
+  Future<void> requestSystemNotificationPermissions({bool requestExactAlarms = false}) async {
+    print('🔐 Explicitly requesting notification permissions...');
 
     // iOS разрешения
     if (Platform.isIOS) {
@@ -258,7 +268,7 @@ class NotificationInitializer {
         provisional: false,
       );
 
-      print('📱 iOS permissions: ${settings.authorizationStatus}');
+      print('📱 iOS permissions (prompted): ${settings.authorizationStatus}');
     }
 
     // Android разрешения
@@ -267,13 +277,17 @@ class NotificationInitializer {
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidPlugin != null) {
-        // Базовые уведомления
-        await androidPlugin.requestNotificationsPermission();
+        // Базовые уведомления (Android 13+)
+        final granted = await androidPlugin.requestNotificationsPermission();
+        print('🤖 Android notifications permission: ${granted == true ? "granted" : "denied"}');
         
         // Точные будильники (Android 12+)
-        await androidPlugin.requestExactAlarmsPermission();
+        if (requestExactAlarms) {
+          final exactGranted = await androidPlugin.requestExactAlarmsPermission();
+          print('🤖 Android exact alarms permission: ${exactGranted == true ? "granted" : "denied"}');
+        }
         
-        print('🤖 Android permissions requested');
+        print('🤖 Android permissions requested (prompted)');
       }
     }
   }
@@ -337,7 +351,7 @@ class NotificationInitializer {
     await _createAndroidChannels();
   }
 
-  /// Проверка доступности разрешений
+  /// Проверка доступности разрешений БЕЗ запроса
   Future<Map<String, bool>> checkPermissionStatus() async {
     final result = <String, bool>{};
 
@@ -347,6 +361,10 @@ class NotificationInitializer {
       
       if (androidPlugin != null) {
         result['notifications'] = await androidPlugin.areNotificationsEnabled() ?? false;
+        // Проверяем поддержку exact alarms на Android 12+
+        if (await androidPlugin.canScheduleExactNotifications() != null) {
+          result['exactAlarms'] = await androidPlugin.canScheduleExactNotifications() ?? false;
+        }
       }
     }
 

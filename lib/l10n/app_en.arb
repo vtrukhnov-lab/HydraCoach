@@ -660,7 +660,7 @@
   "timeToHydrate": "💧 Time to hydrate",
   "dontForgetElectrolytesReminder": "⚡ Don't forget electrolytes",
   "eveningHydration": "💧 Evening hydration",
-  "dailyReportTitle": "📊 Daily report ready",
+  "dailyReportTitle": " Daily report ready",
   "dailyReportBody": "See how your hydration day went",
   "maintainWaterBalance": "Maintain water balance throughout the day",
   "electrolytesTime": "Time for electrolytes: add a pinch of salt to water",
@@ -673,9 +673,9 @@
     }
   },
   "excellentProgress": "Excellent progress! A bit more to reach the goal",
-  "postCoffeeTitle": "☕ After coffee",
+  "postCoffeeTitle": " After coffee",
   "postCoffeeBody": "Drink 250-300 ml water to restore balance",
-  "postWorkoutTitle": "💪 After workout",
+  "postWorkoutTitle": " After workout",
   "postWorkoutBody": "Restore electrolytes: 500 ml water + pinch of salt",
   "heatWarningPro": "🌡️ PRO Heat warning",
   "extremeHeatWarning": "Extreme heat! Increase water consumption by 15% and add 1g salt",
@@ -1903,5 +1903,30 @@
 "perDay": "per day",
 "perWeek": "per week",
 "streak": "streak",
-"tapToDismiss": "Tap to dismiss"
+"tapToDismiss": "Tap to dismiss",
+"tutorialStep1": "Hi! I'll help you start your optimal hydration journey. Let's take the first sip of {volume}!",
+"@tutorialStep1": {
+  "placeholders": {
+    "volume": {
+      "type": "String"
+    }
+  }
+},
+"tutorialStep2": "Excellent! Now let's add another {volume} to feel how it works.",
+"@tutorialStep2": {
+  "placeholders": {
+    "volume": {
+      "type": "String"
+    }
+  }
+},
+"tutorialStep3": "Outstanding! You're ready to use HydraCoach independently. I'll be here to help you achieve perfect hydration!",
+"tutorialComplete": "Start using",
+
+"onboardingNotificationExamplesTitle": "Smart Reminders",
+"onboardingNotificationExamplesSubtitle": "HydraCoach knows when you need water",
+"onboardingLocationExamplesTitle": "Personal Advice",
+"onboardingLocationExamplesSubtitle": "We consider weather for accurate recommendations",
+"onboardingAllowNotifications": "Allow Notifications",
+"onboardingAllowLocation": "Allow Location"
 }

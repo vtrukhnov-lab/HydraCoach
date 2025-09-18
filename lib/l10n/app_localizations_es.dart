@@ -1140,7 +1140,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get eveningHydration => '💧 Hidratación nocturna';
 
   @override
-  String get dailyReportTitle => '📊 Informe diario listo';
+  String get dailyReportTitle => ' Informe diario listo';
 
   @override
   String get dailyReportBody => 'Ve cómo fue tu día de hidratación';
@@ -1163,14 +1163,14 @@ class AppLocalizationsEs extends AppLocalizations {
       '¡Excelente progreso! Un poco más para alcanzar la meta';
 
   @override
-  String get postCoffeeTitle => '☕ Después del café';
+  String get postCoffeeTitle => ' Después del café';
 
   @override
   String get postCoffeeBody =>
       'Bebe 250-300 ml de agua para restaurar el equilibrio';
 
   @override
-  String get postWorkoutTitle => '💪 Después del entrenamiento';
+  String get postWorkoutTitle => ' Después del entrenamiento';
 
   @override
   String get postWorkoutBody =>
@@ -3675,4 +3675,42 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get tapToDismiss => 'Toca para cerrar';
+
+  @override
+  String tutorialStep1(String volume) {
+    return '¡Hola! Te ayudaré a comenzar tu viaje hacia la hidratación óptima. ¡Tomemos el primer trago de $volume!';
+  }
+
+  @override
+  String tutorialStep2(String volume) {
+    return '¡Excelente! Ahora agreguemos otros $volume para sentir cómo funciona.';
+  }
+
+  @override
+  String get tutorialStep3 =>
+      '¡Sobresaliente! Estás listo para usar HydraCoach de forma independiente. ¡Estaré aquí para ayudarte a lograr la hidratación perfecta!';
+
+  @override
+  String get tutorialComplete => 'Comenzar a usar';
+
+  @override
+  String get onboardingNotificationExamplesTitle =>
+      'Recordatorios Inteligentes';
+
+  @override
+  String get onboardingNotificationExamplesSubtitle =>
+      'HydraCoach sabe cuándo necesitas agua';
+
+  @override
+  String get onboardingLocationExamplesTitle => 'Consejos Personales';
+
+  @override
+  String get onboardingLocationExamplesSubtitle =>
+      'Consideramos el clima para recomendaciones precisas';
+
+  @override
+  String get onboardingAllowNotifications => 'Permitir Notificaciones';
+
+  @override
+  String get onboardingAllowLocation => 'Permitir Ubicación';
 }

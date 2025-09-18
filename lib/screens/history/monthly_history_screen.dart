@@ -210,6 +210,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final alcoholService = Provider.of<AlcoholService>(context);
+   
 
     if (isLoadingMonthData) {
       return const Scaffold(
@@ -1954,6 +1955,49 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
   }
 
   bool _hasAlcoholData() => monthlyData.values.any((d) => d.alcoholSD > 0);
+
+  Future<void> _reloadTodayData() async {
+    final now = DateTime.now();
+    final isCurrentMonth = _selectedMonth.year == now.year && _selectedMonth.month == now.month;
+    
+    if (!isCurrentMonth) return;
+    
+    final dateKey = now.toIso8601String().split('T')[0];
+    
+    try {
+      final provider = Provider.of<HydrationProvider>(context, listen: false);
+      final alcoholService = Provider.of<AlcoholService>(context, listen: false);
+      final hriService = Provider.of<HRIService>(context, listen: false);
+      
+      final waterCurrent = provider.totalWaterToday.round();
+      final waterGoal = provider.goals.waterOpt;
+      final waterPercent = waterGoal > 0 
+          ? (waterCurrent / waterGoal * 100).clamp(0.0, 200.0) 
+          : 0.0;
+      
+      monthlyData[dateKey] = DailyData(
+        date: now,
+        water: waterCurrent,
+        sodium: provider.totalSodiumToday,
+        potassium: provider.totalPotassiumToday,
+        magnesium: provider.totalMagnesiumToday,
+        waterPercent: waterPercent,
+        coffeeCount: provider.coffeeCupsToday,
+        intakeCount: provider.todayIntakes.length,
+        alcoholSD: alcoholService.totalStandardDrinks,
+        workoutMinutes: hriService.todayWorkouts.fold(0, (sum, w) => sum + w.durationMinutes),
+        workoutCount: hriService.todayWorkouts.length,
+        hasWorkouts: hriService.todayWorkouts.isNotEmpty,
+        waterGoal: waterGoal,
+        caffeineTotal: hriService.getTodaysCaffeine(),
+        sugarTotal: provider.getSugarIntakeData(context).totalGrams,
+      );
+      
+      if (mounted) setState(() {});
+    } catch (e) {
+      print('Error reloading today data: $e');
+    }
+  }
 
   bool _hasWorkoutData() => monthlyData.values.any((d) => d.hasWorkouts);
   

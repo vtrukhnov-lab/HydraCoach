@@ -418,7 +418,10 @@ class _AchievementsScreenState extends State<AchievementsScreen>
                       padding: const EdgeInsets.only(bottom: 12),
                       child: AchievementCard(
                         achievement: achievement,
-                        onTap: () => _showAchievementDetails(achievement),
+                        onTap: () {
+                          // УБРАНО: Модальное окно больше не показывается
+                          HapticFeedback.lightImpact();
+                        },
                       ),
                     );
                   },

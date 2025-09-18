@@ -9,6 +9,7 @@ import '../models/alcohol_intake.dart';
 import '../models/quick_favorites.dart';
 import '../providers/hydration_provider.dart';
 import '../services/alcohol_service.dart';
+import '../services/hri_service.dart';
 import '../services/remote_config_service.dart';
 import '../services/subscription_service.dart';
 import '../services/notification_service.dart';
@@ -115,14 +116,35 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
     );
     
     try {
-      final alcoholService = Provider.of<AlcoholService>(context, listen: false);
-      await alcoholService.addIntake(intake);
-      
-      // Schedule notification
-      await NotificationService().scheduleAlcoholCounterReminder(intake.standardDrinks.toInt());
-      
-      // Show harm reduction card
-      setState(() => _showHarmReduction = true);
+  final alcoholService = Provider.of<AlcoholService>(context, listen: false);
+  await alcoholService.addIntake(intake);
+  
+  // ДОБАВИТЬ: Синхронизируем с HRIService
+  try {
+    final hriService = Provider.of<HRIService>(context, listen: false);
+    await hriService.addAlcoholIntake(intake.standardDrinks);
+    print('Alcohol synced: ${intake.standardDrinks} SD to HRIService');
+  } catch (e) {
+    print('Error syncing with HRIService: $e');
+  }
+  
+  // ДОБАВИТЬ: Обновляем корректировки в HydrationProvider
+  try {
+    final hydrationProvider = Provider.of<HydrationProvider>(context, listen: false);
+    hydrationProvider.updateAlcoholAdjustments(
+      alcoholService.totalWaterCorrection,
+      alcoholService.totalSodiumCorrection.round(),
+    );
+    print('Alcohol adjustments updated in HydrationProvider');
+  } catch (e) {
+    print('Error updating alcohol adjustments: $e');
+  }
+  
+  // Schedule notification
+  await NotificationService().scheduleAlcoholCounterReminder(intake.standardDrinks.toInt());
+  
+  // Show harm reduction card
+  setState(() => _showHarmReduction = true);
       
       // Haptic feedback
       HapticFeedback.mediumImpact();

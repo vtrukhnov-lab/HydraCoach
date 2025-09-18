@@ -25,6 +25,8 @@ import '../widgets/home/electrolytes_card.dart';
 import '../widgets/home/smart_advice_card.dart';
 import '../widgets/home/hri_status_card.dart';
 import '../widgets/home/sugar_intake_card.dart';
+import '../widgets/achievement_overlay.dart';
+import '../models/achievement.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -78,6 +80,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     // Initialize achievement tracker
     await _achievementTracker.initialize();
     
+    // ✅ ИСПРАВЛЕНО: Слушаем изменения в AchievementTracker только для обновления UI
+    _achievementTracker.addListener(_onAchievementTrackerChanged);
+    
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
     alcohol.addListener(_onAlcoholChanged);
     
@@ -118,9 +123,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       alcohol.removeListener(_onAlcoholChanged);
       final weather = Provider.of<WeatherService>(context, listen: false);
       weather.removeListener(_onWeatherChanged);
+      _achievementTracker.removeListener(_onAchievementTrackerChanged);
     } catch (e) {
       debugPrint("Error removing listeners: $e");
     }
+  }
+
+  // ✅ ИСПРАВЛЕНО: Только обновляем UI, НЕ удаляем достижения из очереди
+  void _onAchievementTrackerChanged() {
+    if (!mounted) return;
+    
+    // Просто обновляем UI для показа красной точки
+    setState(() {});
   }
 
   void _onIntakeUpdated() {
@@ -256,11 +270,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           ],
         ),
         actions: [
-          // Achievement button
+          // ✅ ИСПРАВЛЕНО: Achievement button с правильной логикой показа красной точки
           AnimatedBuilder(
             animation: _achievementTracker,
             builder: (context, child) {
-              final hasNewAchievements = _achievementTracker.hasUnlockedAchievements;
+              // ✅ Проверяем есть ли новые достижения через AchievementTracker
+              final hasNewAchievements = _achievementTracker.hasUnlockedAchievements || 
+                                       _achievementTracker.unlockedQueue.isNotEmpty;
               
               return Stack(
                 children: [

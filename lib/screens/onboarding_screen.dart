@@ -1,3 +1,4 @@
+// lib/screens/onboarding_screen.dart (REFACTORED VERSION)
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -7,9 +8,16 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../l10n/app_localizations.dart';
-import '../widgets/ion_character.dart';
 import '../services/units_service.dart';
-import 'main_shell.dart'; // ИСПРАВЛЕНО: импортируем MainShell вместо HomeScreen
+import 'onboarding/pages/welcome_page.dart';
+import 'onboarding/pages/units_page.dart';
+import 'onboarding/pages/weight_page.dart';
+import 'onboarding/pages/diet_page.dart';
+import 'onboarding/pages/complete_page.dart';
+import 'onboarding/pages/notification_examples_page.dart';
+import 'onboarding/pages/location_examples_page.dart';
+import 'onboarding/widgets/first_intake_tutorial.dart';
+import 'main_shell.dart';
 import 'paywall_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -24,8 +32,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _currentPage = 0;
   
   // User data
-  double _weight = 70; // Всегда храним в кг
-  String _units = 'metric'; // Выбор единиц измерения
+  double _weight = 70;
+  String _units = 'metric';
   String _dietMode = 'normal';
   String _fastingSchedule = 'none';
   bool _isPracticingFasting = false;
@@ -33,7 +41,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   void initState() {
     super.initState();
-    // Загружаем текущие единицы измерения из UnitsService
     _units = UnitsService.instance.units;
   }
   
@@ -67,21 +74,114 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 },
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  _buildWelcomePage(l10n),
-                  _buildUnitsPage(l10n),      // 1. Единицы (сначала)
-                  _buildWeightPage(l10n),      // 2. Вес
-                  _buildDietPage(l10n),        // 3. Диета
-                  _buildCompletePage(l10n),    // 4. Завершение
-                  _buildLocationPermissionPage(l10n),
+                  // 0 - Welcome Page
+                  WelcomePage(
+                    onStart: _goToNextPage,
+                  ),
+                  
+                  // 1 - Units Page
+                  UnitsPage(
+                    selectedUnits: _units,
+                    onUnitsChanged: (units) {
+                      setState(() {
+                        _units = units;
+                      });
+                    },
+                    onNext: _goToNextPage,
+                  ),
+                  
+                  // 2 - Weight Page
+                  WeightPage(
+                    weight: _weight,
+                    units: _units,
+                    onWeightChanged: (weight) {
+                      setState(() {
+                        _weight = weight;
+                      });
+                    },
+                  ),
+                  
+                  // 3 - Diet Page
+                  DietPage(
+                    isPracticingFasting: _isPracticingFasting,
+                    fastingSchedule: _fastingSchedule,
+                    dietMode: _dietMode,
+                    onFastingChanged: (isFasting) {
+                      setState(() {
+                        _isPracticingFasting = isFasting;
+                        if (!isFasting) {
+                          _dietMode = 'normal';
+                          _fastingSchedule = 'none';
+                        } else {
+                          _dietMode = 'fasting';
+                        }
+                      });
+                    },
+                    onFastingScheduleChanged: (schedule) {
+                      setState(() {
+                        _fastingSchedule = schedule;
+                      });
+                    },
+                    onDietModeChanged: (mode) {
+                      setState(() {
+                        _dietMode = mode;
+                        _fastingSchedule = 'none';
+                      });
+                    },
+                  ),
+                  
+                  // 4 - Complete Page
+                  CompletePage(
+                    weight: _weight,
+                    units: _units,
+                    dietMode: _dietMode,
+                    fastingSchedule: _fastingSchedule,
+                    isPracticingFasting: _isPracticingFasting,
+                    onContinue: _completeBasicOnboarding,
+                    onBack: _goToPreviousPage,
+                  ),
+                  
+                  // 5 - Notification Examples
+                  NotificationExamplesPage(
+                    onSkip: _skipPermission,
+                    onBack: () {
+                      // Возвращаемся на Complete Page (индекс 4)
+                      _pageController.animateToPage(
+                        4,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                  ),
+                  
+                  // 6 - Notification Permission (старая страница - можно удалить)
                   _buildNotificationPermissionPage(l10n),
+                  
+                  // 7 - Location Examples
+                  LocationExamplesPage(
+                    onSkip: _skipPermission,
+                    onBack: () {
+                      // Возвращаемся на NotificationExamplesPage (индекс 5)
+                      _pageController.animateToPage(
+                        5,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                  ),
+                  
+                  // 8 - Location Permission (старая страница - можно удалить)
+                  _buildLocationPermissionPage(l10n),
                 ],
               ),
             ),
             
             // Navigation buttons
-            Container(
-              padding: const EdgeInsets.all(20),
-              child: _buildNavigationButtons(l10n),
+            SafeArea(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                child: _buildNavigationButtons(l10n),
+              ),
             ),
           ],
         ),
@@ -119,61 +219,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   
   Widget _buildNavigationButtons(AppLocalizations l10n) {
     switch (_currentPage) {
-      case 0: // Welcome
+      case 0: // Welcome - кнопка встроена в страницу
+      case 1: // Units - кнопка встроена в страницу  
+      case 4: // Complete - кнопки встроены в страницу
+      case 5: // Notification examples - кнопки встроены в страницу
+      case 7: // Location examples - кнопки встроены в страницу
+        return const SizedBox.shrink();
+        
+      case 6: // Notification permission - старая страница (можно удалить)
         return Column(
           children: [
             ElevatedButton(
-              onPressed: _goToNextPage,
+              onPressed: _skipNotificationPermission,
               style: _primaryButtonStyle(),
-              child: Text(l10n.onboardingStartButton, style: _buttonTextStyle()),
-            ),
-          ],
-        );
-        
-      case 4: // Complete
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            TextButton(
-              onPressed: _goToPreviousPage,
               child: Text(
-                l10n.back,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                ),
+                l10n.onboardingAllowNotifications, 
+                style: _buttonTextStyle(),
               ),
-            ),
-            ElevatedButton(
-              onPressed: _completeBasicOnboarding,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2EC5FF),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                elevation: 0,
-              ),
-              child: Text(l10n.onboardingContinue, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-            ),
-          ],
-        );
-        
-      case 5: // Location
-      case 6: // Notifications
-        return Column(
-          children: [
-            ElevatedButton(
-              onPressed: _currentPage == 5 
-                ? _requestLocationPermission 
-                : _requestNotificationPermission,
-              style: _primaryButtonStyle(),
-              child: Text(l10n.onboardingEnablePermission, style: _buttonTextStyle()),
             ),
             const SizedBox(height: 12),
             TextButton(
-              onPressed: _skipPermission,
+              onPressed: _skipNotificationPermission,
               child: Text(
                 l10n.onboardingEnableLater,
                 style: TextStyle(color: Colors.grey[600], fontSize: 16),
@@ -182,7 +248,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ],
         );
         
-      default: // Steps 1-3
+      case 8: // Location permission - старая страница
+        return Column(
+          children: [
+            ElevatedButton(
+              onPressed: _requestLocationPermission,
+              style: _primaryButtonStyle(),
+              child: Text(l10n.onboardingAllowLocation, style: _buttonTextStyle()),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: _skipLocationPermission,
+              child: Text(
+                l10n.onboardingEnableLater,
+                style: TextStyle(color: Colors.grey[600], fontSize: 16),
+              ),
+            ),
+          ],
+        );
+        
+      default: // Steps 2-3 (weight, diet)
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -225,784 +310,43 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   TextStyle _buttonTextStyle() {
     return const TextStyle(fontSize: 18, fontWeight: FontWeight.w600);
   }
-  
-  Widget _buildWelcomePage(AppLocalizations l10n) {
+
+  // Permission pages that still need to be here (старые страницы - можно удалить позже)
+  Widget _buildNotificationPermissionPage(AppLocalizations l10n) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 30),
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: 20),
-          const IonCharacter(
-            size: 120,
-            mood: IonMood.happy,
-            showGlow: true,
-          ).animate()
-            .scale(duration: 600.ms, curve: Curves.elasticOut)
-            .then()
-            .shimmer(duration: 2000.ms, color: const Color(0xFF8AF5A3).withOpacity(0.2)),
+          Container(
+            width: 90,
+            height: 90,
+            decoration: BoxDecoration(
+              color: const Color(0xFF2EC5FF).withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Center(
+              child: Icon(Icons.notifications_rounded, size: 45, color: Color(0xFF2EC5FF)),
+            ),
+          ).animate().scale(duration: 400.ms),
           
-          const SizedBox(height: 24),
+          const SizedBox(height: 30),
           
           Text(
-            l10n.onboardingWelcomeTitle,
+            l10n.onboardingNotificationTitle,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, height: 1.2),
-          ).animate().fadeIn(delay: 300.ms),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
           
           const SizedBox(height: 12),
           
           Text(
-            l10n.onboardingWelcomeSubtitle,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, color: Colors.grey[700], height: 1.3),
-          ).animate().fadeIn(delay: 500.ms),
-          
-          const SizedBox(height: 24),
-          
-          ..._buildBenefitBullets(l10n),
-          const SizedBox(height: 20),
-        ],
-      ),
-    );
-  }
-  
-  List<Widget> _buildBenefitBullets(AppLocalizations l10n) {
-    final bullets = [
-      l10n.onboardingBullet1,
-      l10n.onboardingBullet2,
-      l10n.onboardingBullet3,
-      l10n.onboardingBullet4,
-    ];
-    
-    return bullets.asMap().entries.map((entry) {
-      final index = entry.key;
-      final text = entry.value;
-      
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                color: const Color(0xFF2EC5FF).withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: const Center(
-                child: Icon(Icons.check, size: 14, color: Color(0xFF2EC5FF)),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(text, style: const TextStyle(fontSize: 14, height: 1.3)),
-            ),
-          ],
-        ),
-      ).animate()
-        .slideX(begin: -0.2, end: 0, delay: (700 + index * 100).ms)
-        .fadeIn(delay: (700 + index * 100).ms);
-    }).toList();
-  }
-  
-  // СТРАНИЦА 1: Единицы измерения
-  Widget _buildUnitsPage(AppLocalizations l10n) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-          const IonCharacter(size: 100, mood: IonMood.happy, showGlow: false)
-            .animate().fadeIn(),
-          
-          const SizedBox(height: 24),
-          
-          Text(
-            l10n.onboardingUnitsTitle,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          
-          const SizedBox(height: 8),
-          
-          Text(
-            l10n.onboardingUnitsSubtitle,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, color: Colors.grey[600]),
-          ),
-          
-          const SizedBox(height: 30),
-          
-          // Metric option
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _units = 'metric';
-              });
-              HapticFeedback.lightImpact();
-            },
-            child: Container(
-              padding: const EdgeInsets.all(18),
-              margin: const EdgeInsets.only(bottom: 14),
-              decoration: BoxDecoration(
-                color: _units == 'metric' 
-                  ? const Color(0xFF2EC5FF).withOpacity(0.1)
-                  : Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: _units == 'metric' 
-                    ? const Color(0xFF2EC5FF)
-                    : Colors.grey[300]!,
-                  width: _units == 'metric' ? 2 : 1,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2EC5FF).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Center(
-                      child: Text('🌍', style: TextStyle(fontSize: 22)),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.metricSystem,
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                            color: _units == 'metric' 
-                              ? const Color(0xFF2EC5FF)
-                              : Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          l10n.metricUnits,
-                          style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (_units == 'metric')
-                    const Icon(Icons.check_circle, color: Color(0xFF2EC5FF), size: 26),
-                ],
-              ),
-            ),
-          ).animate().scale(delay: 100.ms),
-          
-          // Imperial option
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _units = 'imperial';
-              });
-              HapticFeedback.lightImpact();
-            },
-            child: Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: _units == 'imperial' 
-                  ? const Color(0xFF2EC5FF).withOpacity(0.1)
-                  : Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: _units == 'imperial' 
-                    ? const Color(0xFF2EC5FF)
-                    : Colors.grey[300]!,
-                  width: _units == 'imperial' ? 2 : 1,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2EC5FF).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Center(
-                      child: Text('🇺🇸', style: TextStyle(fontSize: 22)),
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.imperialSystem,
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                            color: _units == 'imperial' 
-                              ? const Color(0xFF2EC5FF)
-                              : Colors.black,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          l10n.imperialUnits,
-                          style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (_units == 'imperial')
-                    const Icon(Icons.check_circle, color: Color(0xFF2EC5FF), size: 26),
-                ],
-              ),
-            ),
-          ).animate().scale(delay: 200.ms),
-        ],
-      ),
-    );
-  }
-  
-  // СТРАНИЦА 2: Вес
-  Widget _buildWeightPage(AppLocalizations l10n) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: constraints.maxHeight,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(height: 10),
-                const IonCharacter(size: 100, mood: IonMood.happy, showGlow: false)
-                  .animate().fadeIn(),
-                
-                const SizedBox(height: 20),
-                
-                Text(
-                  l10n.weightPageTitle,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                
-                const SizedBox(height: 8),
-                
-                Text(
-                  l10n.weightPageSubtitle,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15, color: Colors.grey[600]),
-                ),
-                
-                const SizedBox(height: 24),
-                
-                _buildWeightSelector(l10n),
-                
-                const SizedBox(height: 16),
-                
-                _buildWaterNormInfo(l10n),
-                
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-  
-  Widget _buildWeightSelector(AppLocalizations l10n) {
-    // Отображаем вес в выбранных единицах, но храним всегда в кг
-    final bool isImperial = _units == 'imperial';
-    final int displayWeight = isImperial ? (_weight * 2.20462).round() : _weight.toInt();
-    final String weightUnit = isImperial ? 'lb' : l10n.kg;
-    const int minWeightKg = 50;
-    const int maxWeightKg = 200;
-    final int minDisplay = isImperial ? (minWeightKg * 2.20462).round() : minWeightKg;
-    final int maxDisplay = isImperial ? (maxWeightKg * 2.20462).round() : maxWeightKg;
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF2EC5FF).withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                displayWeight.toString(),
-                style: const TextStyle(
-                  fontSize: 48,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2EC5FF),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                weightUnit,
-                style: TextStyle(
-                  fontSize: 22,
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: const Color(0xFF2EC5FF),
-              inactiveTrackColor: const Color(0xFF2EC5FF).withOpacity(0.1),
-              thumbColor: const Color(0xFF2EC5FF),
-              overlayColor: const Color(0xFF2EC5FF).withOpacity(0.2),
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
-              trackHeight: 8,
-            ),
-            child: Slider(
-              value: _weight,
-              min: minWeightKg.toDouble(),
-              max: maxWeightKg.toDouble(),
-              divisions: maxWeightKg - minWeightKg,
-              onChanged: (value) {
-                setState(() {
-                  _weight = value;
-                });
-                HapticFeedback.selectionClick();
-              },
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('$minDisplay $weightUnit', style: TextStyle(color: Colors.grey[500], fontSize: 13)),
-              Text('$maxDisplay $weightUnit', style: TextStyle(color: Colors.grey[500], fontSize: 13)),
-            ],
-          ),
-        ],
-      ),
-    ).animate().slideY(begin: 0.2, end: 0, duration: 400.ms);
-  }
-  
-  Widget _buildWaterNormInfo(AppLocalizations l10n) {
-    // Показываем норму воды в выбранных единицах
-    final bool isImperial = _units == 'imperial';
-    final minWater = isImperial 
-      ? ((22 * _weight) / 29.5735).toInt() 
-      : (22 * _weight).toInt();
-    final maxWater = isImperial 
-      ? ((36 * _weight) / 29.5735).toInt() 
-      : (36 * _weight).toInt();
-    final waterUnit = isImperial ? 'oz' : l10n.ml;
-    
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFF8AF5A3).withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFF8AF5A3).withOpacity(0.3),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.water_drop_outlined, color: Color(0xFF2EC5FF), size: 22),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              '${l10n.recommendedNorm(minWater, maxWater).split(':')[0]}: $minWater-$maxWater $waterUnit',
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF2EC5FF),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 500.ms);
-  }
-  
-  // СТРАНИЦА 3: Диета
-  Widget _buildDietPage(AppLocalizations l10n) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-      child: Column(
-        children: [
-          const SizedBox(height: 10),
-          const IonCharacter(size: 100, mood: IonMood.happy, showGlow: false)
-            .animate().fadeIn(),
-          
-          const SizedBox(height: 20),
-          
-          Text(
-            l10n.dietPageTitle,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          
-          const SizedBox(height: 8),
-          
-          Text(
-            l10n.dietPageSubtitle,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, color: Colors.grey[600]),
-          ),
-          
-          const SizedBox(height: 24),
-          
-          _buildFastingOption(l10n),
-          
-          if (_isPracticingFasting) ...[
-            const SizedBox(height: 16),
-            _buildFastingSchedules(l10n),
-          ],
-          
-          const SizedBox(height: 16),
-          
-          _buildDietOption('normal', '🍽️', l10n.normalDiet, l10n.normalDietDesc, l10n),
-          
-          const SizedBox(height: 10),
-          
-          _buildDietOption('keto', '🥑', l10n.ketoDiet, l10n.ketoDietDesc, l10n),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildFastingOption(AppLocalizations l10n) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _isPracticingFasting = !_isPracticingFasting;
-          if (!_isPracticingFasting) {
-            _dietMode = 'normal';
-            _fastingSchedule = 'none';
-          } else {
-            _dietMode = 'fasting';
-          }
-        });
-        HapticFeedback.lightImpact();
-      },
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: _isPracticingFasting 
-            ? const Color(0xFF2EC5FF).withOpacity(0.1)
-            : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: _isPracticingFasting 
-              ? const Color(0xFF2EC5FF)
-              : Colors.grey[300]!,
-            width: _isPracticingFasting ? 2 : 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: _isPracticingFasting 
-                    ? const Color(0xFF2EC5FF)
-                    : Colors.grey[400]!,
-                  width: 2,
-                ),
-                color: _isPracticingFasting 
-                  ? const Color(0xFF2EC5FF)
-                  : Colors.transparent,
-              ),
-              child: _isPracticingFasting
-                ? const Icon(Icons.check, size: 14, color: Colors.white)
-                : null,
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.onboardingPracticeFasting,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: _isPracticingFasting 
-                        ? const Color(0xFF2EC5FF)
-                        : Colors.black,
-                    ),
-                  ),
-                  Text(
-                    l10n.onboardingPracticeFastingDesc,
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    ).animate().scale(delay: 100.ms);
-  }
-  
-  Widget _buildFastingSchedules(AppLocalizations l10n) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2EC5FF).withOpacity(0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l10n.fastingSchedule,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          _buildFastingScheduleOption('16:8', l10n.fasting16_8, l10n.fasting16_8Desc),
-          _buildFastingScheduleOption('OMAD', l10n.fastingOMAD, l10n.fastingOMADDesc),
-          _buildFastingScheduleOption('ADF', l10n.fastingADF, l10n.fastingADFDesc),
-        ],
-      ),
-    ).animate().slideY(begin: 0.1, end: 0, duration: 300.ms);
-  }
-  
-  Widget _buildFastingScheduleOption(String value, String title, String subtitle) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _fastingSchedule = value;
-        });
-        HapticFeedback.selectionClick();
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Radio<String>(
-              value: value,
-              groupValue: _fastingSchedule,
-              onChanged: (val) {
-                setState(() {
-                  _fastingSchedule = val!;
-                });
-              },
-              activeColor: const Color(0xFF2EC5FF),
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
-                  Text(subtitle, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildDietOption(String value, String icon, String title, 
-      String subtitle, AppLocalizations l10n) {
-    final isSelected = _dietMode == value && !_isPracticingFasting;
-    
-    return GestureDetector(
-      onTap: () {
-        if (!_isPracticingFasting) {
-          setState(() {
-            _dietMode = value;
-            _fastingSchedule = 'none';
-          });
-          HapticFeedback.lightImpact();
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: isSelected 
-            ? const Color(0xFF2EC5FF).withOpacity(0.1)
-            : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected 
-              ? const Color(0xFF2EC5FF)
-              : Colors.grey[300]!,
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Text(icon, style: const TextStyle(fontSize: 28)),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: isSelected ? const Color(0xFF2EC5FF) : Colors.black,
-                    ),
-                  ),
-                  Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-                ],
-              ),
-            ),
-            if (isSelected)
-              const Icon(Icons.check_circle, color: Color(0xFF2EC5FF), size: 22),
-          ],
-        ),
-      ),
-    ).animate().scale(delay: (value == 'normal' ? 200 : 300).ms);
-  }
-  
-  // СТРАНИЦА 4: Завершение
-  Widget _buildCompletePage(AppLocalizations l10n) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-      child: Column(
-        children: [
-          const SizedBox(height: 30),
-          const IonCharacter(
-            size: 120,
-            mood: IonMood.proud,
-            showGlow: true,
-          ).animate()
-            .scale(duration: 500.ms, curve: Curves.elasticOut)
-            .then()
-            .shake(duration: 300.ms),
-          
-          const SizedBox(height: 30),
-          
-          Text(
-            l10n.onboardingProfileReady,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-          ).animate().fadeIn(delay: 300.ms),
-          
-          const SizedBox(height: 16),
-          
-          _buildSummaryCard(l10n),
-          
-          const SizedBox(height: 24),
-          
-          Text(
-            l10n.onboardingIonWillHelp,
+            l10n.onboardingNotificationSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 15, color: Colors.grey[600], height: 1.4),
-          ).animate().fadeIn(delay: 700.ms),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildSummaryCard(AppLocalizations l10n) {
-    // Показываем в выбранных единицах
-    final bool isImperial = _units == 'imperial';
-    final waterNorm = isImperial
-      ? ((30 * _weight) / 29.5735).toInt()
-      : (30 * _weight).toInt();
-    final waterUnit = isImperial ? 'oz' : l10n.ml;
-    
-    final displayWeight = isImperial
-      ? '${(_weight * 2.20462).round()} lb'
-      : '${_weight.round()} ${l10n.kg}';
-    
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF2EC5FF).withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Column(
-        children: [
-          _buildSummaryRow(
-            Icons.water_drop,
-            l10n.onboardingWaterNorm,
-            '$waterNorm $waterUnit',
-          ),
-          const SizedBox(height: 10),
-          _buildSummaryRow(
-            Icons.monitor_weight,
-            l10n.weight,
-            displayWeight,
-          ),
-          const SizedBox(height: 10),
-          _buildSummaryRow(
-            Icons.straighten,
-            l10n.unitsSection,
-            _units == 'metric' ? l10n.metricSystem : l10n.imperialSystem,
-          ),
-          const SizedBox(height: 10),
-          _buildSummaryRow(
-            Icons.restaurant,
-            l10n.dietMode,
-            _getDietModeText(l10n),
-          ),
-          if (_isPracticingFasting && _fastingSchedule != 'none') ...[
-            const SizedBox(height: 10),
-            _buildSummaryRow(
-              Icons.schedule,
-              l10n.fastingSchedule,
-              _fastingSchedule,
-            ),
-          ],
-        ],
-      ),
-    ).animate().slideY(begin: 0.2, end: 0, delay: 500.ms);
-  }
-  
-  Widget _buildSummaryRow(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Icon(icon, color: const Color(0xFF2EC5FF), size: 22),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(label, style: TextStyle(fontSize: 13, color: Colors.grey[600])),
-        ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF2EC5FF),
-          ),
-        ),
-      ],
     );
   }
   
@@ -1039,182 +383,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 15, color: Colors.grey[600], height: 1.4),
           ),
-          
-          const SizedBox(height: 30),
-          
-          _buildWeatherExample(l10n),
         ],
       ),
     );
   }
   
-  Widget _buildWeatherExample(AppLocalizations l10n) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Center(
-              child: Text('☀️', style: TextStyle(fontSize: 22)),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.onboardingWeatherExample,
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  l10n.onboardingWeatherExampleDesc,
-                  style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ).animate().slideX(begin: -0.2, end: 0, delay: 600.ms);
-  }
-  
-  Widget _buildNotificationPermissionPage(AppLocalizations l10n) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-          Container(
-            width: 90,
-            height: 90,
-            decoration: BoxDecoration(
-              color: const Color(0xFF2EC5FF).withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Center(
-              child: Icon(Icons.notifications_rounded, size: 45, color: Color(0xFF2EC5FF)),
-            ),
-          ).animate().scale(duration: 400.ms),
-          
-          const SizedBox(height: 30),
-          
-          Text(
-            l10n.onboardingNotificationTitle,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          
-          const SizedBox(height: 12),
-          
-          Text(
-            l10n.onboardingNotificationSubtitle,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, color: Colors.grey[600], height: 1.4),
-          ),
-          
-          const SizedBox(height: 20),
-          
-          ..._buildNotificationExamples(l10n),
-          const SizedBox(height: 10),
-        ],
-      ),
-    );
-  }
-  
-  List<Widget> _buildNotificationExamples(AppLocalizations l10n) {
-    final examples = [
-      (Icons.water_drop, l10n.onboardingNotifExample1, const Color(0xFF2EC5FF)),
-      (Icons.bolt, l10n.onboardingNotifExample2, const Color(0xFFFFA726)),
-      (Icons.wb_sunny, l10n.onboardingNotifExample3, const Color(0xFFFF7043)),
-      (Icons.coffee, '☕ ${l10n.postCoffeeTitle}', const Color(0xFF795548)),
-     (Icons.fitness_center, '💪 ${l10n.postWorkoutTitle}', const Color(0xFF9C27B0)),
-     (Icons.assessment, '📊 ${l10n.dailyReportTitle}', const Color(0xFF4CAF50)),
-    ];
-    
-    return examples.asMap().entries.map((entry) {
-      final index = entry.key;
-      final icon = entry.value.$1;
-      final text = entry.value.$2;
-      final color = entry.value.$3;
-      
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Container(
-          padding: const EdgeInsets.all(11),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 34,
-                height: 34,
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: color, size: 18),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  text, 
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ).animate()
-        .slideX(begin: 0.2, end: 0, delay: (600 + index * 100).ms)
-        .fadeIn(delay: (600 + index * 100).ms);
-    }).toList();
-  }
-  
-  String _getDietModeText(AppLocalizations l10n) {
-    if (_isPracticingFasting) {
-      return l10n.fastingDiet;
-    }
-    switch (_dietMode) {
-      case 'keto':
-        return l10n.ketoDiet;
-      case 'normal':
-      default:
-        return l10n.normalDiet;
-    }
-  }
-  
+  // Navigation methods
   void _goToNextPage() {
-    if (_currentPage < 6) {
+    if (_currentPage < 8) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -1232,7 +408,60 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void _completeBasicOnboarding() {
     _saveBasicData();
     _pageController.animateToPage(
-      5,
+      5, // Переход к примерам уведомлений
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+  
+  void _skipPermission() {
+    if (_currentPage == 5) { // После примеров уведомлений
+      _pageController.animateToPage(
+        7, // Переход к примерам геолокации
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    } else if (_currentPage == 7) { // После примеров геолокации
+      _completeOnboarding(); // Завершаем онбординг
+    }
+  }
+  
+  void _skipNotificationPermission() {
+    // Переходим к примерам геолокации
+    _pageController.animateToPage(
+      7, // Примеры геолокации
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+  
+  void _skipLocationPermission() {
+    _completeOnboarding();
+  }
+  
+  // Permission methods (старые - не используются)
+  Future<void> _requestNotificationPermission() async {
+    try {
+      // Запрашиваем разрешение на уведомления
+      final status = await Permission.notification.request();
+      debugPrint('Notification permission status: $status');
+      HapticFeedback.lightImpact();
+      
+      // Показываем результат в debug
+      if (status == PermissionStatus.granted) {
+        debugPrint('✅ Уведомления разрешены');
+      } else if (status == PermissionStatus.denied) {
+        debugPrint('❌ Уведомления отклонены');  
+      } else {
+        debugPrint('⚠️ Статус разрешений: $status');
+      }
+    } catch (e) {
+      debugPrint('❌ Ошибка запроса разрешений: $e');
+    }
+    
+    // Переходим к геолокации независимо от результата
+    _pageController.animateToPage(
+      7, // Примеры геолокации
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
@@ -1242,7 +471,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
-        print('Location services are disabled');
+        debugPrint('Location services are disabled');
       }
       
       var permission = await Geolocator.checkPermission();
@@ -1250,45 +479,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         permission = await Geolocator.requestPermission();
       }
       
-      print('Location permission: $permission');
+      HapticFeedback.lightImpact();
+      debugPrint('Location permission: $permission');
     } catch (e) {
-      print('Location permission error: $e');
+      debugPrint('Location permission error: $e');
     }
     
-    _pageController.animateToPage(
-      6,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+    _completeOnboarding();
   }
   
-  Future<void> _requestNotificationPermission() async {
-    try {
-      final status = await Permission.notification.request();
-      print('Notification permission: $status');
-      
-      if (status.isGranted) {
-        // Уведомления будут инициализированы после перезапуска
-      }
-    } catch (e) {
-      print('Notification permission error: $e');
-    }
-    
-    await _completeOnboarding();
-  }
-  
-  void _skipPermission() {
-    if (_currentPage == 5) {
-      _pageController.animateToPage(
-        6,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    } else {
-      _completeOnboarding();
-    }
-  }
-  
+  // Data management methods
   Future<void> _saveBasicData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble('weight', _weight);
@@ -1312,11 +512,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
   
   Future<void> _completeOnboarding() async {
+    // Сохраняем данные перед завершением
+    await _saveBasicData();
+    
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboardingCompleted', true);
     
     if (mounted) {
-      // Показываем экран paywall
+      // Показываем paywall
       final bool? purchased = await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => const PaywallScreen(showCloseButton: true),
@@ -1325,12 +528,55 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       );
       
       if (mounted) {
-        // ИСПРАВЛЕНО: Переходим в MainShell вместо HomeScreen
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const MainShell()),
-          (route) => false,
-        );
+        // Показываем туториал первого глотка
+        final shouldShowTutorial = prefs.getBool('tutorialCompleted') != true;
+        
+        if (shouldShowTutorial) {
+          // Переходим в MainShell с туториалом
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const _MainShellWithTutorial()),
+            (route) => false,
+          );
+        } else {
+          // Обычный переход без туториала
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const MainShell()),
+            (route) => false,
+          );
+        }
       }
     }
+  }
+}
+
+// Обёртка для MainShell с туториалом
+class _MainShellWithTutorial extends StatefulWidget {
+  const _MainShellWithTutorial();
+
+  @override
+  State<_MainShellWithTutorial> createState() => _MainShellWithTutorialState();
+}
+
+class _MainShellWithTutorialState extends State<_MainShellWithTutorial> {
+  bool _showTutorial = true;
+  
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // Основной экран
+        const MainShell(),
+        
+        // Туториальный оверлей
+        if (_showTutorial)
+          FirstIntakeTutorial(
+            onComplete: () {
+              setState(() {
+                _showTutorial = false;
+              });
+            },
+          ),
+      ],
+    );
   }
 }

@@ -1135,7 +1135,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get eveningHydration => '💧 Вечерняя гидратация';
 
   @override
-  String get dailyReportTitle => '📊 Дневной отчёт готов';
+  String get dailyReportTitle => ' Дневной отчёт готов';
 
   @override
   String get dailyReportBody => 'Посмотрите, как прошёл ваш день гидратации';
@@ -1157,14 +1157,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get excellentProgress => 'Отличный прогресс! Ещё немного до цели';
 
   @override
-  String get postCoffeeTitle => '☕ После кофе';
+  String get postCoffeeTitle => 'После кофе';
 
   @override
   String get postCoffeeBody =>
       'Выпейте 250-300 мл воды для восстановления баланса';
 
   @override
-  String get postWorkoutTitle => '💪 После тренировки';
+  String get postWorkoutTitle => ' После тренировки';
 
   @override
   String get postWorkoutBody =>
@@ -3652,4 +3652,41 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tapToDismiss => 'Нажмите чтобы закрыть';
+
+  @override
+  String tutorialStep1(String volume) {
+    return 'Привет! Я помогу тебе начать путь к оптимальной гидратации. Давай сделаем первый глоток $volume!';
+  }
+
+  @override
+  String tutorialStep2(String volume) {
+    return 'Отлично! Теперь добавим ещё $volume чтобы почувствовать, как это работает.';
+  }
+
+  @override
+  String get tutorialStep3 =>
+      'Превосходно! Ты готов к самостоятельному использованию HydraCoach. Я буду рядом, чтобы помочь тебе достичь идеальной гидратации!';
+
+  @override
+  String get tutorialComplete => 'Начать пользоваться';
+
+  @override
+  String get onboardingNotificationExamplesTitle => 'Умные напоминания';
+
+  @override
+  String get onboardingNotificationExamplesSubtitle =>
+      'HydraCoach знает, когда вам нужна вода';
+
+  @override
+  String get onboardingLocationExamplesTitle => 'Персональные советы';
+
+  @override
+  String get onboardingLocationExamplesSubtitle =>
+      'Учитываем погоду для точных рекомендаций';
+
+  @override
+  String get onboardingAllowNotifications => 'Разрешить уведомления';
+
+  @override
+  String get onboardingAllowLocation => 'Разрешить геолокацию';
 }

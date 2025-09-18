@@ -422,6 +422,53 @@ class NotificationService {
     print('✅ [NotificationService] Rescheduling complete');
   }
 
+  // ==================== УПРАВЛЕНИЕ РАЗРЕШЕНИЯМИ ====================
+
+  /// Явный запрос разрешений на уведомления
+  /// Вызывается ТОЛЬКО когда пользователь нажимает кнопку
+  Future<void> requestPermissions({bool exactAlarms = false}) async {
+    await _ensureInitialized();
+    
+    print('🔐 [NotificationService] Requesting notification permissions...');
+    
+    try {
+      // Вызываем новый метод из инициализатора
+      await _initializer.requestSystemNotificationPermissions(
+        requestExactAlarms: exactAlarms,
+      );
+      
+      // Логируем в аналитику
+      await _analytics.logEvent(
+        name: 'notification_permission_request',
+        parameters: {'exact_alarms': exactAlarms},
+      );
+      
+      // Проверяем итоговый статус
+      final status = await _initializer.checkPermissionStatus();
+      print('✅ [NotificationService] Permission status: $status');
+      
+      // Если разрешения получены, планируем уведомления
+      if (status['notifications'] == true) {
+        print('📅 [NotificationService] Permissions granted, scheduling notifications...');
+        await rescheduleAllNotifications();
+      }
+      
+    } catch (e) {
+      print('❌ [NotificationService] Error requesting permissions: $e');
+      await _analytics.logNotificationError(
+        type: 'permission_request',
+        error: e.toString(),
+      );
+      rethrow;
+    }
+  }
+
+  /// Проверка статуса разрешений без запроса
+  Future<Map<String, bool>> checkPermissionStatus() async {
+    await _ensureInitialized();
+    return await _initializer.checkPermissionStatus();
+  }
+  
   // ==================== УПРАВЛЕНИЕ УВЕДОМЛЕНИЯМИ ====================
 
   /// Отмена конкретного уведомления

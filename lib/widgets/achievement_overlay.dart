@@ -68,6 +68,248 @@ class _AchievementOverlayState extends State<AchievementOverlay>
     });
   }
 
+  String _getLocalizedTitle(AppLocalizations l10n) {
+    // Проверяем name напрямую - он должен содержать ключ локализации
+    print('DEBUG: achievement.name = "${widget.achievement.name}"');
+    
+    switch (widget.achievement.name) {
+      case 'achievementFirstGlass':
+        return l10n.achievementFirstGlass;
+      case 'achievementSaltStarter':
+        return l10n.achievementSaltStarter;
+      case 'achievementHydrationGoal1':
+        return l10n.achievementHydrationGoal1;
+      case 'achievementHydrationGoal7':
+        return l10n.achievementHydrationGoal7;
+      case 'achievementHydrationGoal30':
+        return l10n.achievementHydrationGoal30;
+      case 'achievementPerfectHydration':
+        return l10n.achievementPerfectHydration;
+      case 'achievementEarlyBird':
+        return l10n.achievementEarlyBird;
+      case 'achievementNightOwl':
+        return l10n.achievementNightOwl;
+      case 'achievementLiterLegend':
+        return l10n.achievementLiterLegend;
+      case 'achievementElectrolyteBalance':
+        return l10n.achievementElectrolyteBalance;
+      case 'achievementSodiumMaster':
+        return l10n.achievementSodiumMaster;
+      case 'achievementPotassiumPro':
+        return l10n.achievementPotassiumPro;
+      case 'achievementMagnesiumMaven':
+        return l10n.achievementMagnesiumMaven;
+      case 'achievementElectrolyteExpert':
+        return l10n.achievementElectrolyteExpert;
+      case 'achievementSugarAwareness':
+        return l10n.achievementSugarAwareness;
+      case 'achievementSugarUnder25':
+        return l10n.achievementSugarUnder25;
+      case 'achievementSugarWeekControl':
+        return l10n.achievementSugarWeekControl;
+      case 'achievementSugarFreeDay':
+        return l10n.achievementSugarFreeDay;
+      case 'achievementSugarDetective':
+        return l10n.achievementSugarDetective;
+      case 'achievementSugarMaster':
+        return l10n.achievementSugarMaster;
+      case 'achievementNoSodaWeek':
+        return l10n.achievementNoSodaWeek;
+      case 'achievementNoSodaMonth':
+        return l10n.achievementNoSodaMonth;
+      case 'achievementSweetToothTamed':
+        return l10n.achievementSweetToothTamed;
+      case 'achievementAlcoholTracker':
+        return l10n.achievementAlcoholTracker;
+      case 'achievementModerateDay':
+        return l10n.achievementModerateDay;
+      case 'achievementSoberDay':
+        return l10n.achievementSoberDay;
+      case 'achievementSoberWeek':
+        return l10n.achievementSoberWeek;
+      case 'achievementSoberMonth':
+        return l10n.achievementSoberMonth;
+      case 'achievementRecoveryProtocol':
+        return l10n.achievementRecoveryProtocol;
+      case 'achievementFirstWorkout':
+        return l10n.achievementFirstWorkout;
+      case 'achievementWorkoutWeek':
+        return l10n.achievementWorkoutWeek;
+      case 'achievementCenturySweat':
+        return l10n.achievementCenturySweat;
+      case 'achievementCardioKing':
+        return l10n.achievementCardioKing;
+      case 'achievementStrengthWarrior':
+        return l10n.achievementStrengthWarrior;
+      case 'achievementHRIGreen':
+        return l10n.achievementHRIGreen;
+      case 'achievementHRIWeekGreen':
+        return l10n.achievementHRIWeekGreen;
+      case 'achievementHRIPerfect':
+        return l10n.achievementHRIPerfect;
+      case 'achievementHRIRecovery':
+        return l10n.achievementHRIRecovery;
+      case 'achievementHRIMaster':
+        return l10n.achievementHRIMaster;
+      case 'achievementStreak3':
+        return l10n.achievementStreak3;
+      case 'achievementStreak7':
+        return l10n.achievementStreak7;
+      case 'achievementStreak30':
+        return l10n.achievementStreak30;
+      case 'achievementStreak100':
+        return l10n.achievementStreak100;
+      case 'achievementFirstWeek':
+        return l10n.achievementFirstWeek;
+      case 'achievementProMember':
+        return l10n.achievementProMember;
+      case 'achievementDataExport':
+        return l10n.achievementDataExport;
+      case 'achievementAllCategories':
+        return l10n.achievementAllCategories;
+      case 'achievementHunter':
+        return l10n.achievementHunter;
+      default:
+        // Fallback на оригинальное название
+        return widget.achievement.name;
+    }
+  }
+
+  String _getLocalizedDescription(AppLocalizations l10n) {
+    // Проверяем description напрямую - он должен содержать ключ локализации
+    switch (widget.achievement.description) {
+      case 'achievementFirstGlassDesc':
+        return l10n.achievementFirstGlassDesc;
+      case 'achievementSaltStarterDesc':
+        return l10n.achievementSaltStarterDesc;
+      case 'achievementHydrationGoal1Desc':
+        return l10n.achievementHydrationGoal1Desc;
+      case 'achievementHydrationGoal7Desc':
+        return l10n.achievementHydrationGoal7Desc;
+      case 'achievementHydrationGoal30Desc':
+        return l10n.achievementHydrationGoal30Desc;
+      case 'achievementPerfectHydrationDesc':
+        return l10n.achievementPerfectHydrationDesc;
+      case 'achievementEarlyBirdDesc':
+        return l10n.achievementEarlyBirdDesc;
+      case 'achievementNightOwlDesc':
+        return l10n.achievementNightOwlDesc;
+      case 'achievementLiterLegendDesc':
+        return l10n.achievementLiterLegendDesc;
+      case 'achievementElectrolyteBalanceDesc':
+        return l10n.achievementElectrolyteBalanceDesc;
+      case 'achievementSodiumMasterDesc':
+        return l10n.achievementSodiumMasterDesc;
+      case 'achievementPotassiumProDesc':
+        return l10n.achievementPotassiumProDesc;
+      case 'achievementMagnesiumMavenDesc':
+        return l10n.achievementMagnesiumMavenDesc;
+      case 'achievementElectrolyteExpertDesc':
+        return l10n.achievementElectrolyteExpertDesc;
+      case 'achievementSugarAwarenessDesc':
+        return l10n.achievementSugarAwarenessDesc;
+      case 'achievementSugarUnder25Desc':
+        return l10n.achievementSugarUnder25Desc;
+      case 'achievementSugarWeekControlDesc':
+        return l10n.achievementSugarWeekControlDesc;
+      case 'achievementSugarFreeDayDesc':
+        return l10n.achievementSugarFreeDayDesc;
+      case 'achievementSugarDetectiveDesc':
+        return l10n.achievementSugarDetectiveDesc;
+      case 'achievementSugarMasterDesc':
+        return l10n.achievementSugarMasterDesc;
+      case 'achievementNoSodaWeekDesc':
+        return l10n.achievementNoSodaWeekDesc;
+      case 'achievementNoSodaMonthDesc':
+        return l10n.achievementNoSodaMonthDesc;
+      case 'achievementSweetToothTamedDesc':
+        return l10n.achievementSweetToothTamedDesc;
+      case 'achievementAlcoholTrackerDesc':
+        return l10n.achievementAlcoholTrackerDesc;
+      case 'achievementModerateDayDesc':
+        return l10n.achievementModerateDayDesc;
+      case 'achievementSoberDayDesc':
+        return l10n.achievementSoberDayDesc;
+      case 'achievementSoberWeekDesc':
+        return l10n.achievementSoberWeekDesc;
+      case 'achievementSoberMonthDesc':
+        return l10n.achievementSoberMonthDesc;
+      case 'achievementRecoveryProtocolDesc':
+        return l10n.achievementRecoveryProtocolDesc;
+      case 'achievementFirstWorkoutDesc':
+        return l10n.achievementFirstWorkoutDesc;
+      case 'achievementWorkoutWeekDesc':
+        return l10n.achievementWorkoutWeekDesc;
+      case 'achievementCenturySweatDesc':
+        return l10n.achievementCenturySweatDesc;
+      case 'achievementCardioKingDesc':
+        return l10n.achievementCardioKingDesc;
+      case 'achievementStrengthWarriorDesc':
+        return l10n.achievementStrengthWarriorDesc;
+      case 'achievementHRIGreenDesc':
+        return l10n.achievementHRIGreenDesc;
+      case 'achievementHRIWeekGreenDesc':
+        return l10n.achievementHRIWeekGreenDesc;
+      case 'achievementHRIPerfectDesc':
+        return l10n.achievementHRIPerfectDesc;
+      case 'achievementHRIRecoveryDesc':
+        return l10n.achievementHRIRecoveryDesc;
+      case 'achievementHRIMasterDesc':
+        return l10n.achievementHRIMasterDesc;
+      case 'achievementStreak3Desc':
+        return l10n.achievementStreak3Desc;
+      case 'achievementStreak7Desc':
+        return l10n.achievementStreak7Desc;
+      case 'achievementStreak30Desc':
+        return l10n.achievementStreak30Desc;
+      case 'achievementStreak100Desc':
+        return l10n.achievementStreak100Desc;
+      case 'achievementFirstWeekDesc':
+        return l10n.achievementFirstWeekDesc;
+      case 'achievementProMemberDesc':
+        return l10n.achievementProMemberDesc;
+      case 'achievementDataExportDesc':
+        return l10n.achievementDataExportDesc;
+      case 'achievementAllCategoriesDesc':
+        return l10n.achievementAllCategoriesDesc;
+      case 'achievementHunterDesc':
+        return l10n.achievementHunterDesc;
+      default:
+        // Fallback на оригинальное описание
+        return widget.achievement.description;
+    }
+  }
+
+  Color _getRarityColor(AchievementRarity rarity) {
+    switch (rarity) {
+      case AchievementRarity.common:
+        return Colors.grey.shade600;
+      case AchievementRarity.uncommon:
+        return Colors.green.shade600;
+      case AchievementRarity.rare:
+        return Colors.blue.shade600;
+      case AchievementRarity.epic:
+        return Colors.purple.shade600;
+      case AchievementRarity.legendary:
+        return Colors.amber.shade600;
+    }
+  }
+
+  String _getRarityText(AppLocalizations l10n, AchievementRarity rarity) {
+    switch (rarity) {
+      case AchievementRarity.common:
+        return l10n.achievementRarityCommon;
+      case AchievementRarity.uncommon:
+        return l10n.achievementRarityUncommon;
+      case AchievementRarity.rare:
+        return l10n.achievementRarityRare;
+      case AchievementRarity.epic:
+        return l10n.achievementRarityEpic;
+      case AchievementRarity.legendary:
+        return l10n.achievementRarityLegendary;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -240,69 +482,5 @@ class _AchievementOverlayState extends State<AchievementOverlay>
         ),
       ),
     );
-  }
-
-  String _getLocalizedTitle(AppLocalizations l10n) {
-    // For now, return the name as is
-    // In production, you would use l10n with achievement IDs
-    return widget.achievement.name;
-  }
-
-  String _getLocalizedDescription(AppLocalizations l10n) {
-    // For now, return the description as is
-    // In production, you would use l10n with achievement IDs
-    return widget.achievement.description;
-  }
-
-  Color _getRarityColor(AchievementRarity rarity) {
-    switch (rarity) {
-      case AchievementRarity.common:
-        return Colors.grey.shade600;
-      case AchievementRarity.uncommon:
-        return Colors.green.shade600;
-      case AchievementRarity.rare:
-        return Colors.blue.shade600;
-      case AchievementRarity.epic:
-        return Colors.purple.shade600;
-      case AchievementRarity.legendary:
-        return Colors.amber.shade600;
-    }
-  }
-
-  String _getRarityText(AppLocalizations l10n, AchievementRarity rarity) {
-    switch (rarity) {
-      case AchievementRarity.common:
-        return l10n.achievementRarityCommon;
-      case AchievementRarity.uncommon:
-        return l10n.achievementRarityUncommon;
-      case AchievementRarity.rare:
-        return l10n.achievementRarityRare;
-      case AchievementRarity.epic:
-        return l10n.achievementRarityEpic;
-      case AchievementRarity.legendary:
-        return l10n.achievementRarityLegendary;
-    }
-  }
-
-  // Static method to show overlay
-  static void show({
-    required BuildContext context,
-    required Achievement achievement,
-    Duration displayDuration = const Duration(seconds: 4),
-  }) {
-    final overlay = Overlay.of(context);
-    late OverlayEntry entry;
-
-    entry = OverlayEntry(
-      builder: (context) => AchievementOverlay(
-        achievement: achievement,
-        displayDuration: displayDuration,
-        onDismiss: () {
-          entry.remove();
-        },
-      ),
-    );
-
-    overlay.insert(entry);
   }
 }

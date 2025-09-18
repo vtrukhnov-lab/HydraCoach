@@ -660,7 +660,7 @@
   "timeToHydrate": "💧 Hora de hidratarse",
   "dontForgetElectrolytesReminder": "⚡ No olvides los electrolitos",
   "eveningHydration": "💧 Hidratación nocturna",
-  "dailyReportTitle": "📊 Informe diario listo",
+  "dailyReportTitle": " Informe diario listo",
   "dailyReportBody": "Ve cómo fue tu día de hidratación",
   "maintainWaterBalance": "Mantén el equilibrio hídrico durante el día",
   "electrolytesTime": "Hora de electrolitos: agrega una pizca de sal al agua",
@@ -673,9 +673,9 @@
     }
   },
   "excellentProgress": "¡Excelente progreso! Un poco más para alcanzar la meta",
-  "postCoffeeTitle": "☕ Después del café",
+  "postCoffeeTitle": " Después del café",
   "postCoffeeBody": "Bebe 250-300 ml de agua para restaurar el equilibrio",
-  "postWorkoutTitle": "💪 Después del entrenamiento",
+  "postWorkoutTitle": " Después del entrenamiento",
   "postWorkoutBody": "Restaura electrolitos: 500 ml agua + pizca de sal",
   "heatWarningPro": "🌡️ PRO Alerta de calor",
   "extremeHeatWarning": "¡Calor extremo! Aumenta el consumo de agua en 15% y agrega 1g de sal",
@@ -1681,5 +1681,30 @@
 "perDay": "por día",
 "perWeek": "por semana",
 "streak": "racha",
-"tapToDismiss": "Toca para cerrar"
+"tapToDismiss": "Toca para cerrar",
+"tutorialStep1": "¡Hola! Te ayudaré a comenzar tu viaje hacia la hidratación óptima. ¡Tomemos el primer trago de {volume}!",
+"@tutorialStep1": {
+  "placeholders": {
+    "volume": {
+      "type": "String"
+    }
+  }
+},
+"tutorialStep2": "¡Excelente! Ahora agreguemos otros {volume} para sentir cómo funciona.",
+"@tutorialStep2": {
+  "placeholders": {
+    "volume": {
+      "type": "String"
+    }
+  }
+},
+"tutorialStep3": "¡Sobresaliente! Estás listo para usar HydraCoach de forma independiente. ¡Estaré aquí para ayudarte a lograr la hidratación perfecta!",
+"tutorialComplete": "Comenzar a usar",
+
+"onboardingNotificationExamplesTitle": "Recordatorios Inteligentes",
+"onboardingNotificationExamplesSubtitle": "HydraCoach sabe cuándo necesitas agua",
+"onboardingLocationExamplesTitle": "Consejos Personales",
+"onboardingLocationExamplesSubtitle": "Consideramos el clima para recomendaciones precisas",
+"onboardingAllowNotifications": "Permitir Notificaciones",
+"onboardingAllowLocation": "Permitir Ubicación"
 }

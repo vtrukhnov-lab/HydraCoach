@@ -864,6 +864,31 @@ class HydrationProvider extends ChangeNotifier {
         );
       }
     }
+
+    // ИСПРАВЛЕНИЕ: Добавляем отслеживание электролитов для достижений
+    if (type == 'electrolyte' && showAchievement) {
+      // Проверяем достижение целей электролитов
+      final currentSodium = totalSodiumToday;
+      final currentPotassium = totalPotassiumToday;
+      final currentMagnesium = totalMagnesiumToday;
+      
+      final reachedSodiumGoal = currentSodium >= goals.sodium;
+      final reachedPotassiumGoal = currentPotassium >= goals.potassium;
+      final reachedMagnesiumGoal = currentMagnesium >= goals.magnesium;
+      
+      // Вызываем отслеживание электролитов для достижений
+      _achievementTracker.trackElectrolyteIntake(
+        sodiumMg: sodium,
+        potassiumMg: potassium,
+        magnesiumMg: magnesium,
+        reachedSodiumGoal: reachedSodiumGoal,
+        reachedPotassiumGoal: reachedPotassiumGoal,
+        reachedMagnesiumGoal: reachedMagnesiumGoal,
+      );
+      
+      print('Electrolyte tracking called: Na=$sodium, K=$potassium, Mg=$magnesium');
+    }
+    
     // First notify UI about changes
     notifyListeners();
     

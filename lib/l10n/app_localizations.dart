@@ -2161,7 +2161,7 @@ abstract class AppLocalizations {
   /// No description provided for @dailyReportTitle.
   ///
   /// In en, this message translates to:
-  /// **'📊 Daily report ready'**
+  /// **' Daily report ready'**
   String get dailyReportTitle;
 
   /// No description provided for @dailyReportBody.
@@ -2197,7 +2197,7 @@ abstract class AppLocalizations {
   /// No description provided for @postCoffeeTitle.
   ///
   /// In en, this message translates to:
-  /// **'☕ After coffee'**
+  /// **' After coffee'**
   String get postCoffeeTitle;
 
   /// No description provided for @postCoffeeBody.
@@ -2209,7 +2209,7 @@ abstract class AppLocalizations {
   /// No description provided for @postWorkoutTitle.
   ///
   /// In en, this message translates to:
-  /// **'💪 After workout'**
+  /// **' After workout'**
   String get postWorkoutTitle;
 
   /// No description provided for @postWorkoutBody.
@@ -6867,6 +6867,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap to dismiss'**
   String get tapToDismiss;
+
+  /// No description provided for @tutorialStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi! I\'ll help you start your optimal hydration journey. Let\'s take the first sip of {volume}!'**
+  String tutorialStep1(String volume);
+
+  /// No description provided for @tutorialStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent! Now let\'s add another {volume} to feel how it works.'**
+  String tutorialStep2(String volume);
+
+  /// No description provided for @tutorialStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Outstanding! You\'re ready to use HydraCoach independently. I\'ll be here to help you achieve perfect hydration!'**
+  String get tutorialStep3;
+
+  /// No description provided for @tutorialComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Start using'**
+  String get tutorialComplete;
+
+  /// No description provided for @onboardingNotificationExamplesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Reminders'**
+  String get onboardingNotificationExamplesTitle;
+
+  /// No description provided for @onboardingNotificationExamplesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'HydraCoach knows when you need water'**
+  String get onboardingNotificationExamplesSubtitle;
+
+  /// No description provided for @onboardingLocationExamplesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Advice'**
+  String get onboardingLocationExamplesTitle;
+
+  /// No description provided for @onboardingLocationExamplesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We consider weather for accurate recommendations'**
+  String get onboardingLocationExamplesSubtitle;
+
+  /// No description provided for @onboardingAllowNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Notifications'**
+  String get onboardingAllowNotifications;
+
+  /// No description provided for @onboardingAllowLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Location'**
+  String get onboardingAllowLocation;
 }
 
 class _AppLocalizationsDelegate
