@@ -103,7 +103,7 @@ abstract class AppLocalizations {
   /// The application name
   ///
   /// In en, this message translates to:
-  /// **'HydraCoach'**
+  /// **'HydroMate'**
   String get appTitle;
 
   /// Get PRO tooltip
@@ -937,7 +937,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Welcome to\nHydraCoach'**
+  /// **'Welcome to\nHydroMate'**
   String get welcomeTitle;
 
   /// No description provided for @welcomeSubtitle.
@@ -2119,7 +2119,7 @@ abstract class AppLocalizations {
   /// Name of the notification channel
   ///
   /// In en, this message translates to:
-  /// **'HydraCoach Reminders'**
+  /// **'HydroMate Reminders'**
   String get notificationChannelName;
 
   /// Description of the notification channel
@@ -3823,7 +3823,7 @@ abstract class AppLocalizations {
   /// Main welcome title with ION
   ///
   /// In en, this message translates to:
-  /// **'HydraCoach — smart hydration every day'**
+  /// **'HydroMate — smart hydration every day'**
   String get onboardingWelcomeTitle;
 
   /// Welcome subtitle
@@ -6883,7 +6883,7 @@ abstract class AppLocalizations {
   /// No description provided for @tutorialStep3.
   ///
   /// In en, this message translates to:
-  /// **'Outstanding! You\'re ready to use HydraCoach independently. I\'ll be here to help you achieve perfect hydration!'**
+  /// **'Outstanding! You\'re ready to use HydroMate independently. I\'ll be here to help you achieve perfect hydration!'**
   String get tutorialStep3;
 
   /// No description provided for @tutorialComplete.
@@ -6901,7 +6901,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingNotificationExamplesSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'HydraCoach knows when you need water'**
+  /// **'HydroMate knows when you need water'**
   String get onboardingNotificationExamplesSubtitle;
 
   /// No description provided for @onboardingLocationExamplesTitle.

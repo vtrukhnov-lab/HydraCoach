@@ -1,4 +1,4 @@
-// lib/screens/onboarding_screen.dart (REFACTORED VERSION)
+// lib/screens/onboarding_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -32,17 +32,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _currentPage = 0;
   
   // User data
-  double _weight = 70;
-  String _units = 'metric';
+  double _weight = 176;  // Дефолтный вес в фунтах для США
+  String _units = '';  // Пустое значение - логика выбора в UnitsPage
   String _dietMode = 'normal';
   String _fastingSchedule = 'none';
   bool _isPracticingFasting = false;
-  
-  @override
-  void initState() {
-    super.initState();
-    _units = UnitsService.instance.units;
-  }
   
   @override
   void dispose() {
@@ -85,6 +79,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onUnitsChanged: (units) {
                       setState(() {
                         _units = units;
+                        // Автоматически корректируем вес при смене единиц
+                        if (units == 'metric' && _weight > 150) {
+                          _weight = 80; // Конвертируем в кг
+                        } else if (units == 'imperial' && _weight < 100) {
+                          _weight = 176; // Конвертируем в фунты
+                        }
                       });
                     },
                     onNext: _goToNextPage,
@@ -93,7 +93,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   // 2 - Weight Page
                   WeightPage(
                     weight: _weight,
-                    units: _units,
+                    units: _units.isEmpty ? 'imperial' : _units,
                     onWeightChanged: (weight) {
                       setState(() {
                         _weight = weight;
@@ -133,7 +133,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   // 4 - Complete Page
                   CompletePage(
                     weight: _weight,
-                    units: _units,
+                    units: _units.isEmpty ? 'imperial' : _units,
                     dietMode: _dietMode,
                     fastingSchedule: _fastingSchedule,
                     isPracticingFasting: _isPracticingFasting,
@@ -143,9 +143,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   
                   // 5 - Notification Examples
                   NotificationExamplesPage(
-                    onSkip: _skipPermission,
+                    onSkip: _skipToLocationExamples,
                     onBack: () {
-                      // Возвращаемся на Complete Page (индекс 4)
                       _pageController.animateToPage(
                         4,
                         duration: const Duration(milliseconds: 300),
@@ -154,14 +153,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     },
                   ),
                   
-                  // 6 - Notification Permission (старая страница - можно удалить)
-                  _buildNotificationPermissionPage(l10n),
-                  
-                  // 7 - Location Examples
+                  // 6 - Location Examples
                   LocationExamplesPage(
-                    onSkip: _skipPermission,
+                    onSkip: _completeOnboarding,
                     onBack: () {
-                      // Возвращаемся на NotificationExamplesPage (индекс 5)
                       _pageController.animateToPage(
                         5,
                         duration: const Duration(milliseconds: 300),
@@ -169,20 +164,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       );
                     },
                   ),
-                  
-                  // 8 - Location Permission (старая страница - можно удалить)
-                  _buildLocationPermissionPage(l10n),
                 ],
               ),
             ),
             
             // Navigation buttons
-            SafeArea(
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                child: _buildNavigationButtons(l10n),
+            if (_shouldShowNavigationButtons())
+              SafeArea(
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  child: _buildNavigationButtons(l10n),
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -190,7 +183,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
   
   Widget _buildProgressIndicator() {
-    // 4 шага: units, weight, diet, complete
     final totalSteps = 4;
     final currentStep = _currentPage > 4 ? 4 : _currentPage;
     
@@ -217,180 +209,43 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
   
+  bool _shouldShowNavigationButtons() {
+    // Показываем кнопки только для Weight и Diet страниц
+    return _currentPage == 2 || _currentPage == 3;
+  }
+  
   Widget _buildNavigationButtons(AppLocalizations l10n) {
-    switch (_currentPage) {
-      case 0: // Welcome - кнопка встроена в страницу
-      case 1: // Units - кнопка встроена в страницу  
-      case 4: // Complete - кнопки встроены в страницу
-      case 5: // Notification examples - кнопки встроены в страницу
-      case 7: // Location examples - кнопки встроены в страницу
-        return const SizedBox.shrink();
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        if (_currentPage > 1)
+          TextButton(
+            onPressed: _goToPreviousPage,
+            child: Text(l10n.back, style: const TextStyle(fontSize: 16)),
+          )
+        else
+          const SizedBox(width: 80),
         
-      case 6: // Notification permission - старая страница (можно удалить)
-        return Column(
-          children: [
-            ElevatedButton(
-              onPressed: _skipNotificationPermission,
-              style: _primaryButtonStyle(),
-              child: Text(
-                l10n.onboardingAllowNotifications, 
-                style: _buttonTextStyle(),
-              ),
+        ElevatedButton(
+          onPressed: _goToNextPage,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF2EC5FF),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
             ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: _skipNotificationPermission,
-              child: Text(
-                l10n.onboardingEnableLater,
-                style: TextStyle(color: Colors.grey[600], fontSize: 16),
-              ),
-            ),
-          ],
-        );
-        
-      case 8: // Location permission - старая страница
-        return Column(
-          children: [
-            ElevatedButton(
-              onPressed: _requestLocationPermission,
-              style: _primaryButtonStyle(),
-              child: Text(l10n.onboardingAllowLocation, style: _buttonTextStyle()),
-            ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: _skipLocationPermission,
-              child: Text(
-                l10n.onboardingEnableLater,
-                style: TextStyle(color: Colors.grey[600], fontSize: 16),
-              ),
-            ),
-          ],
-        );
-        
-      default: // Steps 2-3 (weight, diet)
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            if (_currentPage > 1)
-              TextButton(
-                onPressed: _goToPreviousPage,
-                child: Text(l10n.back, style: const TextStyle(fontSize: 16)),
-              )
-            else
-              const SizedBox(width: 80),
-            
-            ElevatedButton(
-              onPressed: _goToNextPage,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2EC5FF),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                elevation: 0,
-              ),
-              child: Text(l10n.next, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-            ),
-          ],
-        );
-    }
-  }
-  
-  ButtonStyle _primaryButtonStyle() {
-    return ElevatedButton.styleFrom(
-      backgroundColor: const Color(0xFF2EC5FF),
-      foregroundColor: Colors.white,
-      minimumSize: const Size.fromHeight(56),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-      elevation: 0,
-    );
-  }
-  
-  TextStyle _buttonTextStyle() {
-    return const TextStyle(fontSize: 18, fontWeight: FontWeight.w600);
-  }
-
-  // Permission pages that still need to be here (старые страницы - можно удалить позже)
-  Widget _buildNotificationPermissionPage(AppLocalizations l10n) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-          Container(
-            width: 90,
-            height: 90,
-            decoration: BoxDecoration(
-              color: const Color(0xFF2EC5FF).withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Center(
-              child: Icon(Icons.notifications_rounded, size: 45, color: Color(0xFF2EC5FF)),
-            ),
-          ).animate().scale(duration: 400.ms),
-          
-          const SizedBox(height: 30),
-          
-          Text(
-            l10n.onboardingNotificationTitle,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            elevation: 0,
           ),
-          
-          const SizedBox(height: 12),
-          
-          Text(
-            l10n.onboardingNotificationSubtitle,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, color: Colors.grey[600], height: 1.4),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  Widget _buildLocationPermissionPage(AppLocalizations l10n) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-      child: Column(
-        children: [
-          const SizedBox(height: 40),
-          Container(
-            width: 90,
-            height: 90,
-            decoration: BoxDecoration(
-              color: const Color(0xFF2EC5FF).withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Center(
-              child: Icon(Icons.location_on_rounded, size: 45, color: Color(0xFF2EC5FF)),
-            ),
-          ).animate().scale(duration: 400.ms),
-          
-          const SizedBox(height: 30),
-          
-          Text(
-            l10n.onboardingLocationTitle,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          
-          const SizedBox(height: 12),
-          
-          Text(
-            l10n.onboardingLocationSubtitle,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, color: Colors.grey[600], height: 1.4),
-          ),
-        ],
-      ),
+          child: Text(l10n.next, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+        ),
+      ],
     );
   }
   
   // Navigation methods
   void _goToNextPage() {
-    if (_currentPage < 8) {
+    if (_currentPage < 6) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -414,57 +269,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
   
-  void _skipPermission() {
-    if (_currentPage == 5) { // После примеров уведомлений
-      _pageController.animateToPage(
-        7, // Переход к примерам геолокации
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    } else if (_currentPage == 7) { // После примеров геолокации
-      _completeOnboarding(); // Завершаем онбординг
-    }
-  }
-  
-  void _skipNotificationPermission() {
-    // Переходим к примерам геолокации
+  void _skipToLocationExamples() {
+    _requestNotificationPermission();
     _pageController.animateToPage(
-      7, // Примеры геолокации
+      6, // Переход к примерам геолокации
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
   }
   
-  void _skipLocationPermission() {
-    _completeOnboarding();
-  }
-  
-  // Permission methods (старые - не используются)
+  // Permission methods
   Future<void> _requestNotificationPermission() async {
     try {
-      // Запрашиваем разрешение на уведомления
       final status = await Permission.notification.request();
       debugPrint('Notification permission status: $status');
       HapticFeedback.lightImpact();
-      
-      // Показываем результат в debug
-      if (status == PermissionStatus.granted) {
-        debugPrint('✅ Уведомления разрешены');
-      } else if (status == PermissionStatus.denied) {
-        debugPrint('❌ Уведомления отклонены');  
-      } else {
-        debugPrint('⚠️ Статус разрешений: $status');
-      }
     } catch (e) {
-      debugPrint('❌ Ошибка запроса разрешений: $e');
+      debugPrint('Notification permission error: $e');
     }
-    
-    // Переходим к геолокации независимо от результата
-    _pageController.animateToPage(
-      7, // Примеры геолокации
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
   }
   
   Future<void> _requestLocationPermission() async {
@@ -484,21 +306,23 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     } catch (e) {
       debugPrint('Location permission error: $e');
     }
-    
-    _completeOnboarding();
   }
   
   // Data management methods
   Future<void> _saveBasicData() async {
     final prefs = await SharedPreferences.getInstance();
+    
+    // Если units пустой, ставим imperial по умолчанию
+    final unitsToSave = _units.isEmpty ? 'imperial' : _units;
+    
     await prefs.setDouble('weight', _weight);
-    await prefs.setString('units', _units);
+    await prefs.setString('units', unitsToSave);
     await prefs.setString('dietMode', _dietMode);
     await prefs.setString('activityLevel', 'medium');
     await prefs.setString('fastingSchedule', _fastingSchedule);
     
     // Сохраняем выбранные единицы в UnitsService
-    await UnitsService.instance.setUnits(_units);
+    await UnitsService.instance.setUnits(unitsToSave);
     
     if (mounted) {
       final provider = Provider.of<HydrationProvider>(context, listen: false);
@@ -512,6 +336,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
   
   Future<void> _completeOnboarding() async {
+    // Запрашиваем разрешение на геолокацию
+    await _requestLocationPermission();
+    
     // Сохраняем данные перед завершением
     await _saveBasicData();
     
@@ -532,13 +359,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         final shouldShowTutorial = prefs.getBool('tutorialCompleted') != true;
         
         if (shouldShowTutorial) {
-          // Переходим в MainShell с туториалом
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (_) => const _MainShellWithTutorial()),
             (route) => false,
           );
         } else {
-          // Обычный переход без туториала
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (_) => const MainShell()),
             (route) => false,
@@ -564,16 +389,16 @@ class _MainShellWithTutorialState extends State<_MainShellWithTutorial> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Основной экран
         const MainShell(),
         
-        // Туториальный оверлей
         if (_showTutorial)
           FirstIntakeTutorial(
-            onComplete: () {
+            onComplete: () async {
               setState(() {
                 _showTutorial = false;
               });
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('tutorialCompleted', true);
             },
           ),
       ],

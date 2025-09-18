@@ -5,7 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../widgets/ion_character.dart';
 
-class UnitsPage extends StatelessWidget {
+class UnitsPage extends StatefulWidget {
   final String selectedUnits;
   final Function(String) onUnitsChanged;
   final VoidCallback onNext;
@@ -16,6 +16,27 @@ class UnitsPage extends StatelessWidget {
     required this.onUnitsChanged,
     required this.onNext,
   });
+
+  @override
+  State<UnitsPage> createState() => _UnitsPageState();
+}
+
+class _UnitsPageState extends State<UnitsPage> {
+  late String _selectedUnits;
+
+  @override
+  void initState() {
+    super.initState();
+    // Если ничего не выбрано, ставим imperial по умолчанию
+    _selectedUnits = widget.selectedUnits.isEmpty ? 'imperial' : widget.selectedUnits;
+    
+    // Уведомляем родительский компонент о выборе по умолчанию
+    if (widget.selectedUnits.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.onUnitsChanged('imperial');
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,25 +67,25 @@ class UnitsPage extends StatelessWidget {
           
           const SizedBox(height: 30),
           
-          // Metric option
-          _buildUnitOption(
-            context,
-            value: 'metric',
-            emoji: '🌍',
-            title: l10n.metricSystem,
-            subtitle: l10n.metricUnits,
-            delay: 100,
-          ),
-          
-          const SizedBox(height: 14),
-          
-          // Imperial option
+          // Imperial option - ПЕРВЫМ
           _buildUnitOption(
             context,
             value: 'imperial',
             emoji: '🇺🇸',
             title: l10n.imperialSystem,
             subtitle: l10n.imperialUnits,
+            delay: 100,
+          ),
+          
+          const SizedBox(height: 14),
+          
+          // Metric option - ВТОРЫМ
+          _buildUnitOption(
+            context,
+            value: 'metric',
+            emoji: '🌍',
+            title: l10n.metricSystem,
+            subtitle: l10n.metricUnits,
             delay: 200,
           ),
           
@@ -74,7 +95,7 @@ class UnitsPage extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               HapticFeedback.lightImpact();
-              onNext();
+              widget.onNext();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF2EC5FF),
@@ -101,12 +122,15 @@ class UnitsPage extends StatelessWidget {
     required String subtitle,
     required int delay,
   }) {
-    final isSelected = selectedUnits == value;
+    final isSelected = _selectedUnits == value;
 
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
-        onUnitsChanged(value);
+        setState(() {
+          _selectedUnits = value;
+        });
+        widget.onUnitsChanged(value);
       },
       child: Container(
         padding: const EdgeInsets.all(18),

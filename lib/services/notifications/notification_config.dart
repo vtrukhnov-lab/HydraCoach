@@ -2,7 +2,7 @@
 
 import 'notification_types.dart';
 
-/// Конфигурация уведомлений HydraCoach
+/// Конфигурация уведомлений HydroMate
 class NotificationConfig {
   // Не создаем экземпляры - только статические константы
   NotificationConfig._();

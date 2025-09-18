@@ -36,6 +36,7 @@ import 'services/hri_service.dart';
 import 'services/locale_service.dart';
 import 'services/analytics_service.dart';
 import 'services/units_service.dart';
+import 'services/consent_service.dart';
 
 // Providers
 import 'providers/hydration_provider.dart';
@@ -46,6 +47,18 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+}
+
+// Helper function to load or create userId
+Future<String> _loadOrCreateUserId() async {
+  final prefs = await SharedPreferences.getInstance();
+  var userId = prefs.getString('appsflyer_user_id');
+  if (userId == null) {
+    // Generate unique ID based on timestamp
+    userId = 'user_${DateTime.now().millisecondsSinceEpoch}';
+    await prefs.setString('appsflyer_user_id', userId);
+  }
+  return userId;
 }
 
 void main() async {
@@ -69,8 +82,23 @@ void main() async {
   await RemoteConfigService.instance.initialize();
   await SubscriptionService.instance.initialize();
 
-  // Initialize analytics (singleton)
-  await AnalyticsService().initialize();
+  // Initialize Consent Service (Usercentrics) BEFORE Analytics
+  final consentService = ConsentService();
+  await consentService.initialize();
+
+  // Get or create userId for AppsFlyer
+  final userId = await _loadOrCreateUserId();
+
+  // Initialize AppsFlyer analytics with customer userId
+  // ConsentService will be checked inside AnalyticsService
+  await AnalyticsService().init(
+    devKey: 'QEcQmWqRcQNEtyk6iqNKNX',  // Ваш реальный ключ AppsFlyer
+    appIdIOS: '',  // TODO: Добавьте iOS App ID когда будет (например: id123456789)
+    appIdAndroid: '',  // Android использует package name автоматически
+    customerUserId: userId,
+    delayStartUntilATT: true,
+    debug: true,  // Поставьте false в продакшене
+  );
 
   // Setup Firebase Messaging background handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -84,8 +112,14 @@ void main() async {
     await _initializeNotifications();
   }
 
-  // Log app open event
-  await AnalyticsService().logAppOpen();
+  // Log app open event with AppsFlyer
+  await AnalyticsService().log('app_open', {
+    'app_version': '2.0.0',
+    'locale': LocaleService.instance.currentLocale.toString(),
+    'tz': DateTime.now().timeZoneName,
+    'onboarding_completed': onboardingCompleted.toString(),  // преобразуем в строку
+    'consent_given': consentService.hasConsent.toString(),
+  });
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -125,11 +159,17 @@ Future<void> _initializeNotifications() async {
     // Static initialize()
     await NotificationService.initialize();
 
-    // Log notification status to analytics
-    await AnalyticsService().setNotificationStatus(true);
+    // Log notification status to AppsFlyer
+    await AnalyticsService().log('notification_status', {
+      'enabled': true,
+      'fcm_token_exists': fcmToken != null,
+    });
   } else {
     // Log that notifications are disabled
-    await AnalyticsService().setNotificationStatus(false);
+    await AnalyticsService().log('notification_status', {
+      'enabled': false,
+      'fcm_token_exists': false,
+    });
   }
 }
 
@@ -155,8 +195,20 @@ Future<bool> initializeNotificationsFromOnboarding() async {
     // Schedule smart reminders for the day
     await NotificationService().scheduleSmartReminders();
 
+    // Log successful notification permission
+    await AnalyticsService().log('notification_permission_granted', {
+      'source': 'onboarding',
+      'authorization_status': settings.authorizationStatus.name,
+    });
+
     return true;
   }
+
+  // Log denied notification permission
+  await AnalyticsService().log('notification_permission_denied', {
+    'source': 'onboarding',
+    'authorization_status': settings.authorizationStatus.name,
+  });
 
   return false;
 }
@@ -169,7 +221,7 @@ class MyApp extends StatelessWidget {
     return Consumer<LocaleService>(
       builder: (context, localeService, child) {
         return MaterialApp(
-          title: 'HydraCoach',
+          title: 'HydroMate',
           debugShowCheckedModeBanner: false,
 
           // Localization
@@ -186,11 +238,6 @@ class MyApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
           ],
 
-          // Navigator observer for analytics
-          navigatorObservers: [
-            AnalyticsService().observer,
-          ],
-
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(
               seedColor: Colors.blue,
@@ -200,7 +247,7 @@ class MyApp extends StatelessWidget {
             fontFamily: 'SF Pro Display',
             splashFactory: InkRipple.splashFactory,
             highlightColor: Colors.transparent,
-            splashColor: Colors.blue, // избегаем deprecated withOpacity
+            splashColor: Colors.blue,
           ),
 
           home: const SplashScreen(),
@@ -225,7 +272,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Splash screen
+// Обновленный класс SplashScreen для main.dart
+// Замените существующий класс SplashScreen этим кодом
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -235,6 +284,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   bool _isInitializing = false;
+  final ConsentService _consentService = ConsentService();
   
   @override
   void initState() {
@@ -268,34 +318,114 @@ class _SplashScreenState extends State<SplashScreen> {
 
       // Check onboarding
       final prefs = await SharedPreferences.getInstance();
+      
+      // ОТЛАДКА: Выводим текущее состояние онбординга
       final completed = prefs.getBool('onboardingCompleted') ?? false;
-
-      // Analytics user properties
-      await AnalyticsService().setProStatus(subscriptionProvider.isPro);
-
+      print('🔍 DEBUG: onboardingCompleted = $completed');
+      
+      // ВРЕМЕННО: Для тестирования - раскомментируйте эту строку чтобы сбросить онбординг
+      // await prefs.setBool('onboardingCompleted', false);
+      // print('⚠️ DEBUG: Onboarding reset to false for testing');
+      
+      // Log user properties to AppsFlyer
       final dietMode = prefs.getString('diet_mode') ?? 'normal';
-      await AnalyticsService().setDietMode(dietMode);
+      await AnalyticsService().log('user_properties', {
+        'pro_status': subscriptionProvider.isPro,
+        'diet_mode': dietMode,
+        'onboarding_completed': completed,
+      });
 
       if (!mounted) return;
 
-      // Используем pushAndRemoveUntil для полной очистки стека навигации
-      await Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (_) => completed ? const MainShell() : const OnboardingScreen(),
-        ),
-        (route) => false,
-      );
-    } catch (e) {
-      print('Error during initialization: $e');
-      // В случае ошибки всё равно переходим на главный экран
-      if (mounted) {
+      // Log splash screen completion
+      await AnalyticsService().log('splash_screen_completed', {
+        'destination': completed ? 'main_shell' : 'onboarding',
+      });
+      
+      print('🚀 DEBUG: Navigating to ${completed ? "MainShell" : "OnboardingScreen"}');
+
+      // Navigate to the appropriate screen
+      Widget targetScreen = completed ? const MainShell() : const OnboardingScreen();
+
+      // Check if we need to show consent banner
+      if (completed && await _consentService.shouldShowConsentBanner()) {
+        // Navigate first, then show consent banner after a small delay
         await Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (_) => const MainShell(),
-          ),
+          MaterialPageRoute(builder: (_) => targetScreen),
+          (route) => false,
+        );
+        
+        // Show consent banner after navigation
+        if (mounted) {
+          await Future.delayed(const Duration(milliseconds: 500));
+          if (mounted) {
+            await _showConsentBanner();
+          }
+        }
+      } else {
+        // Just navigate normally
+        await Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => targetScreen),
           (route) => false,
         );
       }
+    } catch (e) {
+      print('❌ ERROR during initialization: $e');
+      print('Stack trace: ${StackTrace.current}');
+      
+      // Log initialization error
+      await AnalyticsService().log('splash_screen_error', {
+        'error': e.toString(),
+      });
+      
+      // В случае ошибки проверяем онбординг еще раз
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final completed = prefs.getBool('onboardingCompleted') ?? false;
+        print('🔄 DEBUG: After error, onboardingCompleted = $completed');
+        
+        if (mounted) {
+          // Если онбординг не пройден - показываем его даже после ошибки
+          Widget fallbackScreen = completed ? const MainShell() : const OnboardingScreen();
+          
+          await Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => fallbackScreen),
+            (route) => false,
+          );
+        }
+      } catch (fallbackError) {
+        print('❌ CRITICAL: Fallback navigation failed: $fallbackError');
+        // В крайнем случае показываем MainShell
+        if (mounted) {
+          await Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const MainShell()),
+            (route) => false,
+          );
+        }
+      }
+    }
+  }
+
+  // Show consent banner
+  Future<void> _showConsentBanner() async {
+    try {
+      await _consentService.showConsentBanner(context);
+      
+      // Log consent banner shown
+      await AnalyticsService().log('consent_banner_shown', {
+        'location': 'app_start',
+      });
+      
+      // After consent is given/denied, check if AppsFlyer needs to be enabled
+      await AnalyticsService().checkAndEnableAppsFlyer();
+      
+    } catch (e) {
+      print('Error showing consent banner: $e');
+      
+      // Log consent banner error
+      await AnalyticsService().log('consent_banner_error', {
+        'error': e.toString(),
+      });
     }
   }
 
@@ -314,7 +444,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 .shake(delay: 500.ms),
             const SizedBox(height: 20),
             const Text(
-              'HydraCoach',
+              'HydroMate',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 32,

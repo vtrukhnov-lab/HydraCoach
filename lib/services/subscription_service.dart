@@ -1,9 +1,24 @@
 import 'package:flutter/foundation.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Временные заглушки для типов RevenueCat
+class StoreProduct {
+  final String identifier;
+  final String title;
+  final String description;
+  final double price;
+  final String priceString;
+  
+  StoreProduct({
+    required this.identifier,
+    required this.title,
+    required this.description,
+    required this.price,
+    required this.priceString,
+  });
+}
+
 class SubscriptionService {
-  static const String _apiKey = 'YOUR_REVENUECAT_API_KEY'; // Замените на реальный ключ
   static const String proEntitlementIdentifier = 'pro';
   
   static SubscriptionService? _instance;
@@ -17,95 +32,90 @@ class SubscriptionService {
   bool get isPro => _isPro;
   bool get isInitialized => _isInitialized;
   
-  /// Инициализация RevenueCat
+  /// Инициализация сервиса подписок (временная заглушка)
+  /// TODO: Интегрировать с AppsFlyer ROI360 когда будет готово
   Future<void> initialize() async {
     if (_isInitialized) return;
     
     try {
-      await Purchases.setLogLevel(kDebugMode ? LogLevel.debug : LogLevel.error);
+      // Загружаем сохраненный PRO статус из локального хранилища
+      final prefs = await SharedPreferences.getInstance();
+      _isPro = prefs.getBool('is_pro') ?? false;
       
-      // Конфигурируем RevenueCat
-      final configuration = PurchasesConfiguration(_apiKey);
-      await Purchases.configure(configuration);
-      
-      // Проверяем текущий статус подписки
-      await _checkSubscriptionStatus();
+      // Проверяем срок действия подписки если есть
+      final expiresAtStr = prefs.getString('pro_expires_at');
+      if (expiresAtStr != null) {
+        final expiresAt = DateTime.tryParse(expiresAtStr);
+        if (expiresAt != null && expiresAt.isBefore(DateTime.now())) {
+          // Подписка истекла
+          _isPro = false;
+          await prefs.setBool('is_pro', false);
+          await prefs.remove('pro_expires_at');
+        }
+      }
       
       _isInitialized = true;
       
       if (kDebugMode) {
-        print('✅ RevenueCat инициализирован');
+        print('✅ Subscription Service инициализирован (заглушка)');
         print('🔒 PRO статус: $_isPro');
+        print('⚠️ TODO: Интегрировать AppsFlyer ROI360 для реальных покупок');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Ошибка инициализации RevenueCat: $e');
+        print('❌ Ошибка инициализации Subscription Service: $e');
       }
     }
   }
   
-  /// Проверка статуса подписки
-  Future<void> _checkSubscriptionStatus() async {
-    try {
-      final customerInfo = await Purchases.getCustomerInfo();
-      _isPro = customerInfo.entitlements.active[proEntitlementIdentifier] != null;
-      
-      if (kDebugMode) {
-        print('📊 Проверка подписки завершена: $_isPro');
-        print('📅 Активные подписки: ${customerInfo.entitlements.active.keys.toList()}');
-      }
-    } catch (e) {
-      _isPro = false;
-      if (kDebugMode) {
-        print('❌ Ошибка проверки подписки: $e');
-      }
-    }
-  }
-  
-  /// Получение доступных продуктов
+  /// Получение доступных продуктов (заглушка)
   Future<List<StoreProduct>> getAvailableProducts() async {
-    try {
-      final offerings = await Purchases.getOfferings();
-      final currentOffering = offerings.current;
-      
-      if (currentOffering != null) {
-        final availablePackages = currentOffering.availablePackages;
-        return availablePackages.map((package) => package.storeProduct).toList();
-      }
-      
-      return [];
-    } catch (e) {
-      if (kDebugMode) {
-        print('❌ Ошибка получения продуктов: $e');
-      }
-      return [];
-    }
+    // Возвращаем тестовые продукты для разработки
+    return [
+      StoreProduct(
+        identifier: 'hydracoach_monthly',
+        title: 'HydraCoach PRO Monthly',
+        description: 'Unlimited reminders, CSV export, and more',
+        price: 4.99,
+        priceString: '\$4.99',
+      ),
+      StoreProduct(
+        identifier: 'hydracoach_annual',
+        title: 'HydraCoach PRO Annual',
+        description: 'Save 40% with annual subscription',
+        price: 35.99,
+        priceString: '\$35.99',
+      ),
+    ];
   }
   
-  /// Покупка подписки
+  /// Покупка подписки (заглушка)
   Future<bool> purchaseSubscription(String productId) async {
     try {
-      final offerings = await Purchases.getOfferings();
-      final currentOffering = offerings.current;
-      
-      if (currentOffering != null) {
-        // Ищем нужный пакет
-        final package = currentOffering.availablePackages.firstWhere(
-          (package) => package.storeProduct.identifier == productId,
-          orElse: () => throw Exception('Продукт не найден'),
-        );
-        
-        final result = await Purchases.purchasePackage(package);
-        _isPro = result.customerInfo.entitlements.active[proEntitlementIdentifier] != null;
-        
-        if (kDebugMode) {
-          print('✅ Покупка успешна! PRO: $_isPro');
-        }
-        
-        return _isPro;
+      if (kDebugMode) {
+        print('⚠️ Покупка подписки (заглушка): $productId');
+        print('TODO: Интегрировать с AppsFlyer ROI360');
       }
       
-      return false;
+      // Для тестирования активируем PRO
+      _isPro = true;
+      
+      // Сохраняем в SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('is_pro', true);
+      
+      // Устанавливаем срок действия в зависимости от продукта
+      final expiresAt = productId.contains('annual')
+          ? DateTime.now().add(const Duration(days: 365))
+          : DateTime.now().add(const Duration(days: 30));
+      
+      await prefs.setString('pro_expires_at', expiresAt.toIso8601String());
+      
+      if (kDebugMode) {
+        print('✅ Покупка успешна (заглушка)! PRO: $_isPro');
+      }
+      
+      return true;
     } catch (e) {
       if (kDebugMode) {
         print('❌ Ошибка покупки: $e');
@@ -114,14 +124,20 @@ class SubscriptionService {
     }
   }
   
-  /// Восстановление покупок
+  /// Восстановление покупок (заглушка)
   Future<bool> restorePurchases() async {
     try {
-      final customerInfo = await Purchases.restorePurchases();
-      _isPro = customerInfo.entitlements.active[proEntitlementIdentifier] != null;
+      if (kDebugMode) {
+        print('⚠️ Восстановление покупок (заглушка)');
+        print('TODO: Интегрировать с AppsFlyer ROI360');
+      }
+      
+      // Для тестирования просто возвращаем сохраненный статус
+      final prefs = await SharedPreferences.getInstance();
+      _isPro = prefs.getBool('is_pro') ?? false;
       
       if (kDebugMode) {
-        print('🔄 Покупки восстановлены! PRO: $_isPro');
+        print('🔄 Покупки восстановлены (заглушка)! PRO: $_isPro');
       }
       
       return _isPro;
@@ -130,18 +146,6 @@ class SubscriptionService {
         print('❌ Ошибка восстановления: $e');
       }
       return false;
-    }
-  }
-  
-  /// Получение информации о клиенте
-  Future<CustomerInfo?> getCustomerInfo() async {
-    try {
-      return await Purchases.getCustomerInfo();
-    } catch (e) {
-      if (kDebugMode) {
-        print('❌ Ошибка получения информации о клиенте: $e');
-      }
-      return null;
     }
   }
   
@@ -159,9 +163,9 @@ class SubscriptionService {
       'simple_reminders',
       'daily_report',
       'basic_history',
-      'alcohol_log',           // НОВОЕ: базовый лог алкоголя
-      'alcohol_harm_reduction', // НОВОЕ: карточка минимум вреда
-      'alcohol_morning_checkin', // НОВОЕ: утренний чек-ин
+      'alcohol_log',           
+      'alcohol_harm_reduction', 
+      'alcohol_morning_checkin',
     };
     
     if (freeFeatures.contains(featureName)) {
@@ -182,9 +186,9 @@ class SubscriptionService {
       'fasting_aware': false,
       'cloud_sync': false,
       'weekly_reports': false,
-      'alcohol_pre_drink': false,    // НОВОЕ
-      'alcohol_recovery_plan': false, // НОВОЕ
-      'alcohol_sober_calendar': false, // НОВОЕ
+      'alcohol_pre_drink': false,
+      'alcohol_recovery_plan': false,
+      'alcohol_sober_calendar': false,
     };
   }
   
@@ -201,10 +205,10 @@ class SubscriptionService {
       'contextual_reminders': true,
       'heat_protocols': true,
       'multi_device': true,
-      'alcohol_pre_drink_protocol': true,    // НОВОЕ
-      'alcohol_recovery_plan': true,         // НОВОЕ
-      'alcohol_sober_calendar': true,        // НОВОЕ
-      'alcohol_extended_checkin': true,      // НОВОЕ
+      'alcohol_pre_drink_protocol': true,
+      'alcohol_recovery_plan': true,
+      'alcohol_sober_calendar': true,
+      'alcohol_extended_checkin': true,
     };
   }
 }
@@ -282,7 +286,7 @@ class SubscriptionProvider extends ChangeNotifier {
   }
   
   /// ЗАГЛУШКА для тестирования покупки PRO версии
-  /// В продакшене будет заменено на реальную покупку через RevenueCat
+  /// TODO: Заменить на реальную интеграцию с AppsFlyer ROI360
   Future<void> mockPurchase() async {
     _isLoading = true;
     notifyListeners();
@@ -304,11 +308,7 @@ class SubscriptionProvider extends ChangeNotifier {
     
     if (kDebugMode) {
       print('✅ Mock purchase completed - PRO activated');
-      print('🎯 Алкогольные PRO функции разблокированы:');
-      print('   - Pre-drink протокол');
-      print('   - Recovery план на 6-12 часов');
-      print('   - Трезвый календарь');
-      print('   - Расширенный утренний чек-ин');
+      print('⚠️ TODO: Интегрировать с AppsFlyer ROI360 для реальных покупок');
     }
   }
   

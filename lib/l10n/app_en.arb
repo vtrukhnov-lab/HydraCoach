@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "HydraCoach",
+  "appTitle": "HydroMate",
   "@appTitle": {
     "description": "The application name"
   },
@@ -255,7 +255,7 @@
   "back": "Back",
   "next": "Next",
   "start": "Start",
-  "welcomeTitle": "Welcome to\nHydraCoach",
+  "welcomeTitle": "Welcome to\nHydroMate",
   "welcomeSubtitle": "Smart water and electrolyte tracking\nfor keto, fasting and active life",
   "weightPageTitle": "Your weight",
   "weightPageSubtitle": "To calculate optimal water amount",
@@ -639,7 +639,7 @@
     }
   },
   "heatWarningCold": "❄️ Cold! Warm up and drink warm fluids",
-  "notificationChannelName": "HydraCoach Reminders",
+  "notificationChannelName": "HydroMate Reminders",
   "@notificationChannelName": {
     "description": "Name of the notification channel"
   },
@@ -1161,7 +1161,7 @@
 "@hoursAgo": {
   "description": "Hours ago suffix"
 },
- "onboardingWelcomeTitle": "HydraCoach — smart hydration every day",
+ "onboardingWelcomeTitle": "HydroMate — smart hydration every day",
   "@onboardingWelcomeTitle": {
     "description": "Main welcome title with ION"
   },
@@ -1920,13 +1920,14 @@
     }
   }
 },
-"tutorialStep3": "Outstanding! You're ready to use HydraCoach independently. I'll be here to help you achieve perfect hydration!",
+"tutorialStep3": "Outstanding! You're ready to use HydroMate independently. I'll be here to help you achieve perfect hydration!",
 "tutorialComplete": "Start using",
 
 "onboardingNotificationExamplesTitle": "Smart Reminders",
-"onboardingNotificationExamplesSubtitle": "HydraCoach knows when you need water",
+"onboardingNotificationExamplesSubtitle": "HydroMate knows when you need water",
 "onboardingLocationExamplesTitle": "Personal Advice",
 "onboardingLocationExamplesSubtitle": "We consider weather for accurate recommendations",
 "onboardingAllowNotifications": "Allow Notifications",
 "onboardingAllowLocation": "Allow Location"
 }
+

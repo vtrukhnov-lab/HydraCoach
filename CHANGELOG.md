@@ -1,18 +1,151 @@
-# Changelog
+Changelog
 All notable changes to HydraCoach will be documented in this file.
+The format is based on Keep a Changelog,
+and this project adheres to Semantic Versioning.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-### Next Steps
-- Activate real purchases via RevenueCat
-- Implement restore purchases functionality
-- Add subscription management in settings
-- Cloud sync via Firestore
-- Export data to CSV/PDF
-- Dark theme support
-- Home screen widgets
+## [2.0.0] - 2025-09-18
+
+🎉 Major Release: Achievements, Enhanced Catalogs & Architecture Overhaul
+Added
+🏆 Achievement System
+
+Complete achievement system with 30+ unlockable achievements
+Achievement categories: Hydration streaks, electrolyte balance, special challenges
+Real-time achievement tracking with achievement_tracker.dart
+Beautiful achievement overlay animations when unlocked
+Achievement stats card showing progress and completion rate
+Dedicated achievements screen with detailed view of all achievements
+Achievement repository for persistent storage
+
+📚 Enhanced Drink Catalogs
+
+6 specialized drink catalogs (expanded from 4):
+
+💧 Liquids (Water & base fluids) - Blue theme
+🍺 Alcohol tracking - Red theme
+☕ Hot drinks - Brown theme
+💊 Supplements & vitamins - Purple theme
+⚡ Electrolytes - Green theme (NEW)
+🏃 Sports drinks - Orange theme (NEW)
+
+
+Structured data system with data/ directory:
+
+Centralized items_catalog.dart for all drink types
+Predefined items for each category
+catalog_item.dart base model for consistency
+
+
+
+🏠 Home Screen Enhancements
+
+11 new specialized widgets in widgets/home/:
+
+main_progress_card.dart - Primary hydration tracking
+electrolyte_bar_display.dart - Visual electrolyte levels
+compact_electrolyte_display.dart - Space-efficient view
+favorite_beverages_bar.dart - Quick access favorites
+hri_status_card.dart - Hydration Risk Index status
+smart_advice_card.dart - Contextual recommendations
+sugar_intake_card.dart - Daily sugar tracking
+today_history_section.dart - Today's intake timeline
+home_header.dart - Personalized greeting
+weather_card.dart - Enhanced weather display
+electrolytes_card.dart - Detailed electrolyte info
+
+
+
+🔔 Modular Notification System
+
+Complete notification architecture refactor:
+
+notification_manager.dart - Central coordination
+notification_scheduler.dart - Smart scheduling logic
+notification_sender.dart - Unified sending interface
+notification_types.dart - Type definitions
+specific_notifications.dart - Custom notification types
+fcm_handler.dart - Firebase Cloud Messaging
+
+
+Helper utilities:
+
+notification_limits_helper.dart - FREE/PRO limits
+schedule_window_helper.dart - Time window management
+timezone_helper.dart - Timezone handling
+
+
+Debug panel (notification_debug_panel.dart) for testing
+
+🎮 Gamification & Engagement
+
+Ion Character (ion_character.dart) - Mascot animations
+Achievement-based motivation system
+Progress celebrations and milestones
+Visual feedback for all actions with haptic responses
+
+⚙️ New Services
+
+analytics_service.dart - Firebase Analytics integration
+units_service.dart - Metric/Imperial conversions
+water_progress_cache.dart - Performance optimization
+history_service.dart - Centralized history management
+
+Changed
+🏗️ Architecture Improvements
+
+Navigation overhaul with main_shell.dart
+Migrated from 4 to 6 drink categories
+Centralized data management in data/ directory
+Improved separation of concerns with modular services
+Enhanced widget organization with common/ and home/ subdirectories
+
+📱 UI/UX Enhancements
+
+Completely redesigned home screen with card-based layout
+Improved onboarding flow with 7 steps
+Enhanced settings with dedicated notification settings screen
+Better visual hierarchy with consistent theming
+Smooth animations and transitions throughout
+
+🔧 Technical Improvements
+
+Better state management patterns
+Improved caching strategies
+Optimized performance with lazy loading
+Enhanced error handling and recovery
+Comprehensive localization support
+
+Fixed
+
+Water intake not registering in release builds
+Notification persistence across language changes
+Memory leaks in long-running sessions
+UI freezing during heavy calculations
+Incorrect HRI calculations in extreme conditions
+Duplicate weather card widgets issue
+
+Removed
+
+Legacy provider patterns (migrated to services)
+Old notification system (replaced with modular architecture)
+Redundant weather_card.dart duplicate
+
+Technical Details
+
+Total files: 90+ Dart files
+New widgets: 25+ custom widgets
+Services: 15+ specialized services
+Supported languages: EN, ES, RU
+Achievement types: 30+ unique achievements
+Drink categories: 6 specialized catalogs
+
+Migration Notes
+
+Users will see new achievement notifications on first launch
+Existing favorites will be migrated to new system
+Notification settings will be reset to defaults
+PRO features remain unchanged from v1.5.0
 
 ## [1.5.0] - 2025-09-09
 🎯 Major Update: Notification System Overhaul

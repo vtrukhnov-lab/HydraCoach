@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'HydraCoach';
+  String get appTitle => 'HydroMate';
 
   @override
   String get getPro => 'Get PRO';
@@ -460,7 +460,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get start => 'Start';
 
   @override
-  String get welcomeTitle => 'Welcome to\nHydraCoach';
+  String get welcomeTitle => 'Welcome to\nHydroMate';
 
   @override
   String get welcomeSubtitle =>
@@ -1110,7 +1110,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get heatWarningCold => '❄️ Cold! Warm up and drink warm fluids';
 
   @override
-  String get notificationChannelName => 'HydraCoach Reminders';
+  String get notificationChannelName => 'HydroMate Reminders';
 
   @override
   String get notificationChannelDescription =>
@@ -2032,7 +2032,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hoursAgo => 'h ago';
 
   @override
-  String get onboardingWelcomeTitle => 'HydraCoach — smart hydration every day';
+  String get onboardingWelcomeTitle => 'HydroMate — smart hydration every day';
 
   @override
   String get onboardingWelcomeSubtitle =>
@@ -3656,7 +3656,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tutorialStep3 =>
-      'Outstanding! You\'re ready to use HydraCoach independently. I\'ll be here to help you achieve perfect hydration!';
+      'Outstanding! You\'re ready to use HydroMate independently. I\'ll be here to help you achieve perfect hydration!';
 
   @override
   String get tutorialComplete => 'Start using';
@@ -3666,7 +3666,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingNotificationExamplesSubtitle =>
-      'HydraCoach knows when you need water';
+      'HydroMate knows when you need water';
 
   @override
   String get onboardingLocationExamplesTitle => 'Personal Advice';

@@ -253,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'HydraCoach',
+              'HydroMate',
               style: TextStyle(
                 color: theme.colorScheme.onSurface,
                 fontSize: 24,
