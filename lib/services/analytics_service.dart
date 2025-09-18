@@ -3,7 +3,9 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 
-/// Сервис для работы с аналитикой Firebase
+import 'devtodev_analytics_service.dart';
+
+/// Сервис для работы с аналитикой (Firebase + DevToDev).
 /// Централизует все события и параметры для отслеживания
 class AnalyticsService {
   static final AnalyticsService _instance = AnalyticsService._internal();
@@ -11,9 +13,83 @@ class AnalyticsService {
   AnalyticsService._internal();
 
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
-  
+  final DevToDevAnalyticsService _devToDev = DevToDevAnalyticsService();
+
+  Future<void> _setUserId(String? userId) async {
+    try {
+      await _analytics.setUserId(id: userId);
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Error setting Firebase userId: $error');
+      }
+    }
+
+    if (userId == null) {
+      await _devToDev.clearUserId();
+    } else {
+      await _devToDev.setUserId(userId);
+    }
+  }
+
+  Future<void> _setUserProperty(String name, String value) async {
+    try {
+      await _analytics.setUserProperty(name: name, value: value);
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Error setting Firebase user property $name: $error');
+      }
+    }
+
+    await _devToDev.setUserProperty(name, value);
+  }
+
+  Future<void> _logScreenViewInternal({
+    required String screenName,
+    String? screenClass,
+  }) async {
+    final resolvedScreenClass = screenClass ?? screenName;
+
+    try {
+      await _analytics.logScreenView(
+        screenName: screenName,
+        screenClass: resolvedScreenClass,
+      );
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Error logging Firebase screen: $screenName ($error)');
+      }
+    }
+
+    await _devToDev.logScreenView(
+      screenName: screenName,
+      screenClass: resolvedScreenClass,
+    );
+  }
+
+  Future<void> _logEventInternal({
+    required String name,
+    Map<String, dynamic>? parameters,
+  }) async {
+    final Map<String, Object>? firebaseParams = parameters?.map(
+      (key, value) => MapEntry(key, value as Object),
+    );
+
+    try {
+      await _analytics.logEvent(
+        name: name,
+        parameters: firebaseParams,
+      );
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Error logging Firebase event $name: $error');
+      }
+    }
+
+    await _devToDev.logEvent(name: name, parameters: parameters);
+  }
+
   /// Получить observer для навигации (если будете использовать)
-  FirebaseAnalyticsObserver get observer => 
+  FirebaseAnalyticsObserver get observer =>
       FirebaseAnalyticsObserver(analytics: _analytics);
 
   /// Инициализация сервиса
@@ -21,43 +97,39 @@ class AnalyticsService {
     if (kDebugMode) {
       print('📊 Analytics Service initialized');
     }
-    
+
+    await _devToDev.initialize();
+
     // Устанавливаем базовые свойства пользователя
     await setDefaultUserProperties();
   }
 
   /// Установка базовых свойств пользователя
   Future<void> setDefaultUserProperties() async {
-    try {
-      // Эти свойства помогут сегментировать пользователей
-      await _analytics.setUserId(id: null); // Пока не устанавливаем
-    } catch (e) {
-      if (kDebugMode) {
-        print('❌ Error setting user properties: $e');
-      }
-    }
+    // Эти свойства помогут сегментировать пользователей
+    await _setUserId(null); // Пока не устанавливаем
   }
 
   // ==================== USER PROPERTIES ====================
   
   /// Установить режим диеты
   Future<void> setDietMode(String mode) async {
-    await _analytics.setUserProperty(name: 'diet_mode', value: mode);
+    await _setUserProperty('diet_mode', mode);
   }
 
   /// Установить статус подписки
   Future<void> setProStatus(bool isPro) async {
-    await _analytics.setUserProperty(name: 'is_pro', value: isPro.toString());
+    await _setUserProperty('is_pro', isPro.toString());
   }
 
   /// Установить статус уведомлений
   Future<void> setNotificationStatus(bool enabled) async {
-    await _analytics.setUserProperty(name: 'notifications_enabled', value: enabled.toString());
+    await _setUserProperty('notifications_enabled', enabled.toString());
   }
 
   /// Установить страну пользователя
   Future<void> setUserCountry(String countryCode) async {
-    await _analytics.setUserProperty(name: 'country', value: countryCode);
+    await _setUserProperty('country', countryCode);
   }
 
   // ==================== SCREEN VIEW EVENTS ====================
@@ -67,11 +139,11 @@ class AnalyticsService {
     required String screenName,
     String? screenClass,
   }) async {
-    await _analytics.logScreenView(
+    await _logScreenViewInternal(
       screenName: screenName,
-      screenClass: screenClass ?? screenName,
+      screenClass: screenClass,
     );
-    
+
     if (kDebugMode) {
       print('📊 Screen view: $screenName');
     }
@@ -82,16 +154,8 @@ class AnalyticsService {
     required String name,
     Map<String, dynamic>? parameters,
   }) async {
-    // Конвертируем параметры в правильный тип для Firebase
-    final Map<String, Object>? firebaseParams = parameters?.map(
-      (key, value) => MapEntry(key, value as Object),
-    );
-    
-    await _analytics.logEvent(
-      name: name,
-      parameters: firebaseParams,
-    );
-    
+    await _logEventInternal(name: name, parameters: parameters);
+
     if (kDebugMode) {
       print('📊 Event: $name');
       if (parameters != null) {
@@ -108,7 +172,7 @@ class AnalyticsService {
     required DateTime scheduledTime,
     int? delayMinutes,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'notification_scheduled',
       parameters: {
         'notification_type': type,
@@ -128,7 +192,7 @@ class AnalyticsService {
     required String type,
     bool isScheduled = false,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'notification_sent',
       parameters: {
         'notification_type': type,
@@ -147,7 +211,7 @@ class AnalyticsService {
     required String type,
     String? action,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'notification_opened',
       parameters: {
         'notification_type': type,
@@ -161,7 +225,7 @@ class AnalyticsService {
     required String type,
     required String error,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'notification_error',
       parameters: {
         'notification_type': type,
@@ -175,7 +239,7 @@ class AnalyticsService {
     required String type,
     required int count,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'notification_duplicate',
       parameters: {
         'notification_type': type,
@@ -195,7 +259,7 @@ class AnalyticsService {
     required int amount,
     required String source,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'water_logged',
       parameters: {
         'amount_ml': amount,
@@ -210,7 +274,7 @@ class AnalyticsService {
     required String type,
     required int amount,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'electrolyte_logged',
       parameters: {
         'type': type, // 'sodium', 'potassium', 'magnesium'
@@ -223,7 +287,7 @@ class AnalyticsService {
   Future<void> logCoffeeIntake({
     required int cups,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'coffee_logged',
       parameters: {
         'cups': cups,
@@ -237,7 +301,7 @@ class AnalyticsService {
     required double standardDrinks,
     required String type,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'alcohol_logged',
       parameters: {
         'standard_drinks': standardDrinks,
@@ -254,7 +318,7 @@ class AnalyticsService {
     required String goalType,
     required double percentage,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'daily_goal_reached',
       parameters: {
         'goal_type': goalType, // 'water', 'sodium', 'potassium', 'magnesium'
@@ -269,7 +333,7 @@ class AnalyticsService {
     required int toValue,
     required String status,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'hri_status_changed',
       parameters: {
         'from_value': fromValue,
@@ -284,7 +348,7 @@ class AnalyticsService {
   Future<void> logHydrationStatus({
     required String status,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'hydration_status',
       parameters: {
         'status': status, // 'normal', 'dehydrated', 'diluted', 'low_salt'
@@ -300,7 +364,7 @@ class AnalyticsService {
     required String source,
     String? variant,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'paywall_shown',
       parameters: {
         'source': source, // 'onboarding', 'settings', 'feature_gate'
@@ -313,7 +377,7 @@ class AnalyticsService {
   Future<void> logPaywallDismissed({
     required String source,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'paywall_dismissed',
       parameters: {
         'source': source,
@@ -326,7 +390,7 @@ class AnalyticsService {
     required String product,
     required bool isTrial,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'subscription_started',
       parameters: {
         'product': product, // 'monthly', 'annual', 'lifetime'
@@ -339,7 +403,7 @@ class AnalyticsService {
   Future<void> logProFeatureGate({
     required String feature,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'pro_feature_gate_hit',
       parameters: {
         'feature': feature, // 'smart_reminders', 'csv_export', etc
@@ -353,7 +417,7 @@ class AnalyticsService {
   Future<void> logReportViewed({
     required String type,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'report_viewed',
       parameters: {
         'type': type, // 'daily', 'weekly'
@@ -363,7 +427,7 @@ class AnalyticsService {
 
   /// Экспорт CSV
   Future<void> logCSVExported() async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'csv_exported',
       parameters: {
         'date': DateTime.now().toIso8601String().split('T')[0],
@@ -376,7 +440,7 @@ class AnalyticsService {
     required String setting,
     required dynamic value,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'settings_changed',
       parameters: {
         'setting': setting,
@@ -390,7 +454,7 @@ class AnalyticsService {
     required String from,
     required String to,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'diet_mode_changed',
       parameters: {
         'from': from,
@@ -406,19 +470,19 @@ class AnalyticsService {
   
   /// Начало онбординга
   Future<void> logOnboardingStart() async {
-    await _analytics.logEvent(name: 'onboarding_start');
+    await logEvent(name: 'onboarding_start');
   }
 
   /// Завершение онбординга
   Future<void> logOnboardingComplete() async {
-    await _analytics.logEvent(name: 'onboarding_complete');
+    await logEvent(name: 'onboarding_complete');
   }
 
   /// Пропуск онбординга
   Future<void> logOnboardingSkip({
     required int step,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'onboarding_skip',
       parameters: {
         'step': step,
@@ -430,14 +494,14 @@ class AnalyticsService {
   
   /// Открытие приложения
   Future<void> logAppOpen() async {
-    await _analytics.logEvent(name: 'app_open');
+    await logEvent(name: 'app_open');
   }
 
   /// Сессия приложения
   Future<void> logSession({
     required int durationSeconds,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'session',
       parameters: {
         'duration_seconds': durationSeconds,
@@ -449,7 +513,7 @@ class AnalyticsService {
   
   /// Тестовое событие для проверки
   Future<void> logTestEvent() async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'test_event',
       parameters: {
         'timestamp': DateTime.now().toIso8601String(),
@@ -465,6 +529,7 @@ class AnalyticsService {
   /// Включить/выключить сбор аналитики
   Future<void> setAnalyticsCollectionEnabled(bool enabled) async {
     await _analytics.setAnalyticsCollectionEnabled(enabled);
+    await _devToDev.setTrackingEnabled(enabled);
   }
   
   // ==================== ACHIEVEMENT EVENTS ====================
@@ -476,7 +541,7 @@ class AnalyticsService {
     required String category,
     required int rewardPoints,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'achievement_unlocked',
       parameters: {
         'achievement_id': achievementId,
@@ -493,11 +558,11 @@ class AnalyticsService {
 
   /// Просмотр экрана достижений
   Future<void> logAchievementsScreenView() async {
-    await _analytics.logScreenView(
+    await _logScreenViewInternal(
       screenName: 'achievements',
       screenClass: 'AchievementsScreen',
     );
-    
+
     if (kDebugMode) {
       print('📊 Achievements screen viewed');
     }
@@ -510,7 +575,7 @@ class AnalyticsService {
     required String category,
     required bool isUnlocked,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'achievement_details_viewed',
       parameters: {
         'achievement_id': achievementId,
@@ -531,7 +596,7 @@ class AnalyticsService {
     required String achievementName,
     required bool isUnlocked,
   }) async {
-    await _analytics.logEvent(
+    await logEvent(
       name: 'achievement_details_viewed',
       parameters: {
         'achievement_id': achievementId,
