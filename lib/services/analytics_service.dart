@@ -12,35 +12,26 @@ class AnalyticsService {
   factory AnalyticsService() => _instance;
   AnalyticsService._internal();
 
-  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+  final FirebaseAnalytics _firebase = FirebaseAnalytics.instance;
   final DevToDevAnalyticsService _devToDev = DevToDevAnalyticsService();
 
-  Future<void> _setUserId(String? userId) async {
-    try {
-      await _analytics.setUserId(id: userId);
-    } catch (error) {
-      if (kDebugMode) {
-        print('❌ Error setting Firebase userId: $error');
-      }
-    }
+  late final List<_AnalyticsBackend> _backends = <_AnalyticsBackend>[
+    _FirebaseAnalyticsBackend(_firebase),
+    _DevToDevAnalyticsBackend(_devToDev),
+  ];
 
-    if (userId == null) {
-      await _devToDev.clearUserId();
-    } else {
-      await _devToDev.setUserId(userId);
-    }
+  bool _isInitialized = false;
+
+  Future<void> _setUserId(String? userId) async {
+    await _broadcast(
+      (backend) => backend.setUserId(userId),
+    );
   }
 
   Future<void> _setUserProperty(String name, String value) async {
-    try {
-      await _analytics.setUserProperty(name: name, value: value);
-    } catch (error) {
-      if (kDebugMode) {
-        print('❌ Error setting Firebase user property $name: $error');
-      }
-    }
-
-    await _devToDev.setUserProperty(name, value);
+    await _broadcast(
+      (backend) => backend.setUserProperty(name, value),
+    );
   }
 
   Future<void> _logScreenViewInternal({
@@ -49,20 +40,11 @@ class AnalyticsService {
   }) async {
     final resolvedScreenClass = screenClass ?? screenName;
 
-    try {
-      await _analytics.logScreenView(
+    await _broadcast(
+      (backend) => backend.logScreenView(
         screenName: screenName,
         screenClass: resolvedScreenClass,
-      );
-    } catch (error) {
-      if (kDebugMode) {
-        print('❌ Error logging Firebase screen: $screenName ($error)');
-      }
-    }
-
-    await _devToDev.logScreenView(
-      screenName: screenName,
-      screenClass: resolvedScreenClass,
+      ),
     );
   }
 
@@ -70,38 +52,41 @@ class AnalyticsService {
     required String name,
     Map<String, dynamic>? parameters,
   }) async {
-    final Map<String, Object>? firebaseParams = parameters?.map(
-      (key, value) => MapEntry(key, value as Object),
-    );
-
-    try {
-      await _analytics.logEvent(
+    await _broadcast(
+      (backend) => backend.logEvent(
         name: name,
-        parameters: firebaseParams,
-      );
-    } catch (error) {
-      if (kDebugMode) {
-        print('❌ Error logging Firebase event $name: $error');
-      }
-    }
+        parameters: parameters,
+      ),
+    );
+  }
 
-    await _devToDev.logEvent(name: name, parameters: parameters);
+  Future<void> _broadcast(
+    Future<void> Function(_AnalyticsBackend backend) action,
+  ) async {
+    await Future.wait(_backends.map(action));
   }
 
   /// Получить observer для навигации (если будете использовать)
   FirebaseAnalyticsObserver get observer =>
-      FirebaseAnalyticsObserver(analytics: _analytics);
+      FirebaseAnalyticsObserver(analytics: _firebase);
 
   /// Инициализация сервиса
   Future<void> initialize() async {
-    if (kDebugMode) {
-      print('📊 Analytics Service initialized');
+    if (_isInitialized) {
+      return;
     }
+    _isInitialized = true;
 
-    await _devToDev.initialize();
+    for (final backend in _backends) {
+      await backend.initialize();
+    }
 
     // Устанавливаем базовые свойства пользователя
     await setDefaultUserProperties();
+
+    if (kDebugMode) {
+      print('📊 Analytics Service initialized');
+    }
   }
 
   /// Установка базовых свойств пользователя
@@ -528,8 +513,9 @@ class AnalyticsService {
 
   /// Включить/выключить сбор аналитики
   Future<void> setAnalyticsCollectionEnabled(bool enabled) async {
-    await _analytics.setAnalyticsCollectionEnabled(enabled);
-    await _devToDev.setTrackingEnabled(enabled);
+    await _broadcast(
+      (backend) => backend.setAnalyticsCollectionEnabled(enabled),
+    );
   }
   
   // ==================== ACHIEVEMENT EVENTS ====================
@@ -606,3 +592,152 @@ class AnalyticsService {
     );
   }
 } // закрывающая скобка класса AnalyticsService
+
+abstract class _AnalyticsBackend {
+  Future<void> initialize();
+
+  Future<void> setUserId(String? userId);
+
+  Future<void> setUserProperty(String name, String value);
+
+  Future<void> logScreenView({
+    required String screenName,
+    required String screenClass,
+  });
+
+  Future<void> logEvent({
+    required String name,
+    Map<String, dynamic>? parameters,
+  });
+
+  Future<void> setAnalyticsCollectionEnabled(bool enabled);
+}
+
+class _FirebaseAnalyticsBackend implements _AnalyticsBackend {
+  _FirebaseAnalyticsBackend(this._analytics);
+
+  final FirebaseAnalytics _analytics;
+
+  @override
+  Future<void> initialize() async {
+    // Firebase не требует дополнительной инициализации здесь
+  }
+
+  @override
+  Future<void> setUserId(String? userId) async {
+    try {
+      await _analytics.setUserId(id: userId);
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Error setting Firebase userId: $error');
+      }
+    }
+  }
+
+  @override
+  Future<void> setUserProperty(String name, String value) async {
+    try {
+      await _analytics.setUserProperty(name: name, value: value);
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Error setting Firebase user property $name: $error');
+      }
+    }
+  }
+
+  @override
+  Future<void> logScreenView({
+    required String screenName,
+    required String screenClass,
+  }) async {
+    try {
+      await _analytics.logScreenView(
+        screenName: screenName,
+        screenClass: screenClass,
+      );
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Error logging Firebase screen: $screenName ($error)');
+      }
+    }
+  }
+
+  @override
+  Future<void> logEvent({
+    required String name,
+    Map<String, dynamic>? parameters,
+  }) async {
+    final Map<String, Object>? firebaseParams = parameters?.map(
+      (key, value) => MapEntry(key, value as Object),
+    );
+
+    try {
+      await _analytics.logEvent(
+        name: name,
+        parameters: firebaseParams,
+      );
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Error logging Firebase event $name: $error');
+      }
+    }
+  }
+
+  @override
+  Future<void> setAnalyticsCollectionEnabled(bool enabled) async {
+    try {
+      await _analytics.setAnalyticsCollectionEnabled(enabled);
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Error toggling Firebase analytics collection: $error');
+      }
+    }
+  }
+}
+
+class _DevToDevAnalyticsBackend implements _AnalyticsBackend {
+  _DevToDevAnalyticsBackend(this._devToDev);
+
+  final DevToDevAnalyticsService _devToDev;
+
+  @override
+  Future<void> initialize() => _devToDev.initialize();
+
+  @override
+  Future<void> setUserId(String? userId) async {
+    if (userId == null) {
+      await _devToDev.clearUserId();
+    } else {
+      await _devToDev.setUserId(userId);
+    }
+  }
+
+  @override
+  Future<void> setUserProperty(String name, String value) async {
+    await _devToDev.setUserProperty(name, value);
+  }
+
+  @override
+  Future<void> logScreenView({
+    required String screenName,
+    required String screenClass,
+  }) async {
+    await _devToDev.logScreenView(
+      screenName: screenName,
+      screenClass: screenClass,
+    );
+  }
+
+  @override
+  Future<void> logEvent({
+    required String name,
+    Map<String, dynamic>? parameters,
+  }) async {
+    await _devToDev.logEvent(name: name, parameters: parameters);
+  }
+
+  @override
+  Future<void> setAnalyticsCollectionEnabled(bool enabled) async {
+    await _devToDev.setTrackingEnabled(enabled);
+  }
+}
