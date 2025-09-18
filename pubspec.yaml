@@ -52,9 +52,6 @@ dependencies:
   # 📊 Аналитика DevToDev
   devtodev: ^2.0.0
   
-  # 💰 REVENUECAT - система подписок
-  purchases_flutter: ^9.4.0
-  
   # 📁 ФАЙЛЫ - экспорт данных
   path_provider: ^2.1.5
   csv: ^6.0.0
