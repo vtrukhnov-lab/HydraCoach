@@ -263,7 +263,7 @@ class MyApp extends StatelessWidget {
             '/hot_drinks': (context) => const HotDrinksScreen(),
             '/sports': (context) => const SportsScreen(),
             '/main': (context) => const MainShell(), 
-            '/paywall': (context) => const PaywallScreen(),
+            '/paywall': (context) => const PaywallScreen(source: 'app_route'),
             '/achievements': (context) => const AchievementsScreen(),
           },
         );

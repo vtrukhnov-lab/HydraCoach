@@ -94,7 +94,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showPaywall() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const PaywallScreen(showCloseButton: true),
+        builder: (context) => const PaywallScreen(
+          showCloseButton: true,
+          source: 'settings',
+        ),
         fullscreenDialog: true,
       ),
     ).then((_) async {

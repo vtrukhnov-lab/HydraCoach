@@ -249,7 +249,7 @@ class WeatherCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const PaywallScreen(),
+            builder: (context) => const PaywallScreen(source: 'home_weather_card'),
             fullscreenDialog: true,
           ),
         );

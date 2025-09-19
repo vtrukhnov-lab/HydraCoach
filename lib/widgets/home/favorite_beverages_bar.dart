@@ -166,6 +166,7 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
         sodium: 0,
         potassium: 0,
         magnesium: 0,
+        source: 'favorite_beverage_${favorite.type}',
       );
       
       // Рассчитываем пропорциональный кофеин
@@ -190,6 +191,7 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
         sodium: ((favorite.sodiumMg ?? 0) * multiplier).round(),
         potassium: ((favorite.potassiumMg ?? 0) * multiplier).round(),
         magnesium: ((favorite.magnesiumMg ?? 0) * multiplier).round(),
+        source: 'favorite_beverage_${favorite.type}',
       );
     } else {
       // Обычные напитки без особых свойств
@@ -199,6 +201,7 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
         sodium: 0,
         potassium: 0,
         magnesium: 0,
+        source: 'favorite_beverage_${favorite.type}',
       );
     }
 
@@ -252,7 +255,7 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (context) => const PaywallScreen(), 
+        builder: (context) => const PaywallScreen(source: 'favorite_beverages_bar'),
         fullscreenDialog: true
       ),
     );

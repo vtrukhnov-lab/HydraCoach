@@ -770,7 +770,7 @@ class ElectrolyteStatusCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const PaywallScreen(),
+            builder: (context) => const PaywallScreen(source: 'status_card'),
             fullscreenDialog: true,
           ),
         );

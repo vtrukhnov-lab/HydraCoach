@@ -81,7 +81,7 @@ class FavoriteSlotSelector extends StatelessWidget {
                 final upgraded = await Navigator.push<bool>(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const PaywallScreen(),
+                    builder: (_) => const PaywallScreen(source: 'favorite_slot_selector'),
                     fullscreenDialog: true,
                   ),
                 );

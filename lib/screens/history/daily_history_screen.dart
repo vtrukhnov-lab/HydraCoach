@@ -1160,6 +1160,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
             potassium: deletedIntake.potassium,
             magnesium: deletedIntake.magnesium,
             showAchievement: false,
+            source: 'history_undo',
           );
           _loadDayData();
         },

@@ -5,17 +5,22 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../services/analytics_service.dart';
 import '../../../services/notification_service.dart';
 
 class NotificationExamplesPage extends StatelessWidget {
   final VoidCallback onSkip;
   final VoidCallback onBack;
+  final ValueChanged<PermissionStatus> onPermissionResult;
 
   const NotificationExamplesPage({
     Key? key,
     required this.onSkip,
     required this.onBack,
+    required this.onPermissionResult,
   }) : super(key: key);
+
+  AnalyticsService get _analytics => AnalyticsService();
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +154,13 @@ class NotificationExamplesPage extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () async {
                         HapticFeedback.lightImpact();
-                        await _requestNotificationPermission(context, onSkip);
+                        _analytics.logPermissionPrompt(
+                          permission: 'notifications',
+                          context: 'onboarding',
+                        );
+                        final status =
+                            await _requestNotificationPermission(context);
+                        onPermissionResult(status);
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -197,10 +208,11 @@ class NotificationExamplesPage extends StatelessWidget {
   }
 
   /// Запрос разрешений на уведомления
-  Future<void> _requestNotificationPermission(
+  Future<PermissionStatus> _requestNotificationPermission(
     BuildContext context,
-    VoidCallback onComplete,
   ) async {
+    PermissionStatus finalStatus = await Permission.notification.status;
+    bool overlayVisible = true;
     // Показываем индикатор загрузки
     showDialog(
       context: context,
@@ -214,22 +226,24 @@ class NotificationExamplesPage extends StatelessWidget {
       // 1. Сначала проверяем и запрашиваем системное разрешение через permission_handler
       debugPrint('📱 Step 1: Checking system notification permission...');
       
-      PermissionStatus status = await Permission.notification.status;
+      PermissionStatus status = finalStatus;
       debugPrint('Current permission status: $status');
-      
+
       if (!status.isGranted) {
         debugPrint('🔔 Requesting system notification permission...');
         status = await Permission.notification.request();
         debugPrint('New permission status: $status');
-        
+
         // Добавляем небольшую задержку после системного запроса
         await Future.delayed(const Duration(milliseconds: 500));
       }
-      
+
+      finalStatus = status;
+
       // 2. Теперь инициализируем NotificationService если нужно
       debugPrint('📱 Step 2: Initializing NotificationService...');
       final notificationService = NotificationService();
-      
+
       if (!notificationService.isInitialized) {
         await NotificationService.initialize();
         // Ждем завершения инициализации
@@ -239,20 +253,21 @@ class NotificationExamplesPage extends StatelessWidget {
       // 3. Если разрешение получено, настраиваем уведомления
       if (status.isGranted) {
         debugPrint('✅ Permission granted, configuring notifications...');
-        
+
         // Вызываем дополнительную конфигурацию через NotificationService
         // Это настроит каналы и запланирует уведомления
         await notificationService.requestPermissions(exactAlarms: true);
-        
+
         debugPrint('🎉 Notifications configured successfully!');
       } else if (status.isPermanentlyDenied) {
         debugPrint('⚠️ Permission permanently denied, showing settings dialog...');
-        
+
         // Закрываем индикатор загрузки
-        if (context.mounted) {
+        if (context.mounted && overlayVisible && Navigator.canPop(context)) {
           Navigator.pop(context);
+          overlayVisible = false;
         }
-        
+
         // Показываем диалог для перехода в настройки
         if (context.mounted) {
           await _showSettingsDialog(context);
@@ -260,19 +275,19 @@ class NotificationExamplesPage extends StatelessWidget {
       } else {
         debugPrint('❌ Permission denied by user');
       }
-      
+
     } catch (e, stackTrace) {
       debugPrint('❌ Error requesting permissions: $e');
       debugPrint('Stack trace: $stackTrace');
     } finally {
       // Закрываем индикатор загрузки
-      if (context.mounted) {
+      if (context.mounted && overlayVisible && Navigator.canPop(context)) {
         Navigator.pop(context);
+        overlayVisible = false;
       }
-      
-      // Переходим дальше
-      onComplete();
     }
+
+    return finalStatus;
   }
 
   /// Диалог для перехода в настройки

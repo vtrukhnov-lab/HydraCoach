@@ -164,6 +164,7 @@ class _SupplementsScreenState extends State<SupplementsScreen>
         sodium: sodium,
         potassium: potassium,
         magnesium: magnesium,
+        source: 'supplements',
       );
       
       // Show tips after first supplement
@@ -285,7 +286,7 @@ class _SupplementsScreenState extends State<SupplementsScreen>
       final result = await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const PaywallScreen(),
+          builder: (context) => const PaywallScreen(source: 'supplements'),
           fullscreenDialog: true,
         ),
       );
