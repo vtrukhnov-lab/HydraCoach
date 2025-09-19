@@ -25,6 +25,7 @@ import 'screens/sports_screen.dart';
 import 'screens/main_shell.dart';
 import 'screens/paywall_screen.dart';
 import 'screens/achievements_screen.dart';
+import 'screens/food_catalog_screen.dart';
 
 // Services
 import 'services/notification_service.dart';
@@ -89,16 +90,8 @@ void main() async {
   // Get or create userId for AppsFlyer
   final userId = await _loadOrCreateUserId();
 
-  // Initialize AppsFlyer analytics with customer userId
-  // ConsentService will be checked inside AnalyticsService
-  await AnalyticsService().init(
-    devKey: 'QEcQmWqRcQNEtyk6iqNKNX',  // Ваш реальный ключ AppsFlyer
-    appIdIOS: '',  // TODO: Добавьте iOS App ID когда будет (например: id123456789)
-    appIdAndroid: '',  // Android использует package name автоматически
-    customerUserId: userId,
-    delayStartUntilATT: true,
-    debug: true,  // Поставьте false в продакшене
-  );
+  // Initialize Analytics Service
+  await AnalyticsService().init();
 
   // Setup Firebase Messaging background handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -262,7 +255,8 @@ class MyApp extends StatelessWidget {
             '/supplements': (context) => const SupplementsScreen(),
             '/hot_drinks': (context) => const HotDrinksScreen(),
             '/sports': (context) => const SportsScreen(),
-            '/main': (context) => const MainShell(), 
+            '/food': (context) => const FoodCatalogScreen(),
+            '/main': (context) => const MainShell(),
             '/paywall': (context) => const PaywallScreen(source: 'app_route'),
             '/achievements': (context) => const AchievementsScreen(),
           },

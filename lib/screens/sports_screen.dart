@@ -182,6 +182,8 @@ class _SportsScreenState extends State<SportsScreen> {
         durationMinutes: durationMinutes,
         item: item,
         userWeight: _userWeight,
+        name: item.getName(l10n),
+        emoji: item.icon is String ? item.icon as String : null,
       );
       
       // Затем синхронизируем с HydrationProvider

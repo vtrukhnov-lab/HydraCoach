@@ -3680,4 +3680,403 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingAllowLocation => 'Allow Location';
+
+  @override
+  String get foodCatalog => 'Food Catalog';
+
+  @override
+  String get todaysFoodIntake => 'Today\'s Food Intake';
+
+  @override
+  String get noFoodToday => 'No food logged today';
+
+  @override
+  String foodItemsCount(int count) {
+    return '$count food items';
+  }
+
+  @override
+  String get waterFromFood => 'Water from food';
+
+  @override
+  String get last => 'Last';
+
+  @override
+  String get categoryFruits => 'Fruits';
+
+  @override
+  String get categoryVegetables => 'Vegetables';
+
+  @override
+  String get categorySoups => 'Soups';
+
+  @override
+  String get categoryDairy => 'Dairy';
+
+  @override
+  String get categoryMeat => 'Meat';
+
+  @override
+  String get categoryFastFood => 'Fast Food';
+
+  @override
+  String get weightGrams => 'Weight (grams)';
+
+  @override
+  String get enterWeight => 'Enter weight';
+
+  @override
+  String get grams => 'g';
+
+  @override
+  String get calories => 'Calories';
+
+  @override
+  String get waterContent => 'Water Content';
+
+  @override
+  String get sugar => 'Sugar';
+
+  @override
+  String get nutritionalInfo => 'Nutritional Info';
+
+  @override
+  String caloriesPerWeight(int calories, int weight) {
+    return '$calories kcal per ${weight}g';
+  }
+
+  @override
+  String waterPerWeight(int water, int weight) {
+    return '$water ml water per ${weight}g';
+  }
+
+  @override
+  String sugarPerWeight(String sugar, int weight) {
+    return '${sugar}g sugar per ${weight}g';
+  }
+
+  @override
+  String get addFood => 'Add Food';
+
+  @override
+  String get foodAdded => 'Food added successfully';
+
+  @override
+  String get enterValidWeight => 'Please enter a valid weight';
+
+  @override
+  String get proOnlyFood => 'PRO only';
+
+  @override
+  String get unlockProForFood => 'Unlock PRO to access all food items';
+
+  @override
+  String get foodTracker => 'Food Tracker';
+
+  @override
+  String get todaysFoodSummary => 'Today\'s Food Summary';
+
+  @override
+  String get kcal => 'kcal';
+
+  @override
+  String get per100g => 'per 100g';
+
+  @override
+  String get addToFavorites => 'Add to favorites';
+
+  @override
+  String get favoritesFeatureComingSoon => 'Favorites feature coming soon!';
+
+  @override
+  String foodAddedSuccess(String food, int calories, String water) {
+    return '$food added! +$calories kcal, +$water';
+  }
+
+  @override
+  String get selectWeight => 'Select Weight';
+
+  @override
+  String get ounces => 'oz';
+
+  @override
+  String get items => 'items';
+
+  @override
+  String get tapToAddFood => 'Tap to add food';
+
+  @override
+  String get noFoodLoggedToday => 'No food logged today';
+
+  @override
+  String get lightEatingDay => 'Light eating day';
+
+  @override
+  String get moderateIntake => 'Moderate intake';
+
+  @override
+  String get goodCalorieIntake => 'Good calorie intake';
+
+  @override
+  String get substantialMeals => 'Substantial meals';
+
+  @override
+  String get highCalorieDay => 'High calorie day';
+
+  @override
+  String get veryHighIntake => 'Very high intake';
+
+  @override
+  String get caloriesTracker => 'Calories Tracker';
+
+  @override
+  String get trackYourDailyCalorieIntake =>
+      'Track your daily calorie intake from food';
+
+  @override
+  String get unlockFoodTrackingFeatures => 'Unlock food tracking features';
+
+  @override
+  String get selectFoodType => 'Select food type';
+
+  @override
+  String get foodApple => 'Apple';
+
+  @override
+  String get foodBanana => 'Banana';
+
+  @override
+  String get foodOrange => 'Orange';
+
+  @override
+  String get foodWatermelon => 'Watermelon';
+
+  @override
+  String get foodStrawberry => 'Strawberry';
+
+  @override
+  String get foodGrapes => 'Grapes';
+
+  @override
+  String get foodPineapple => 'Pineapple';
+
+  @override
+  String get foodMango => 'Mango';
+
+  @override
+  String get foodPear => 'Pear';
+
+  @override
+  String get foodCarrot => 'Carrot';
+
+  @override
+  String get foodBroccoli => 'Broccoli';
+
+  @override
+  String get foodSpinach => 'Spinach';
+
+  @override
+  String get foodTomato => 'Tomato';
+
+  @override
+  String get foodCucumber => 'Cucumber';
+
+  @override
+  String get foodBellPepper => 'Bell Pepper';
+
+  @override
+  String get foodLettuce => 'Lettuce';
+
+  @override
+  String get foodOnion => 'Onion';
+
+  @override
+  String get foodCelery => 'Celery';
+
+  @override
+  String get foodChickenSoup => 'Chicken Soup';
+
+  @override
+  String get foodTomatoSoup => 'Tomato Soup';
+
+  @override
+  String get foodVegetableSoup => 'Vegetable Soup';
+
+  @override
+  String get foodMinestrone => 'Minestrone';
+
+  @override
+  String get foodMisoSoup => 'Miso Soup';
+
+  @override
+  String get foodMushroomSoup => 'Mushroom Soup';
+
+  @override
+  String get foodBeefStew => 'Beef Stew';
+
+  @override
+  String get foodLentilSoup => 'Lentil Soup';
+
+  @override
+  String get foodOnionSoup => 'French Onion Soup';
+
+  @override
+  String get foodMilk => 'Milk';
+
+  @override
+  String get foodYogurt => 'Greek Yogurt';
+
+  @override
+  String get foodCheese => 'Cheddar Cheese';
+
+  @override
+  String get foodCottageCheese => 'Cottage Cheese';
+
+  @override
+  String get foodButter => 'Butter';
+
+  @override
+  String get foodCream => 'Heavy Cream';
+
+  @override
+  String get foodIceCream => 'Ice Cream';
+
+  @override
+  String get foodMozzarella => 'Mozzarella';
+
+  @override
+  String get foodParmesan => 'Parmesan';
+
+  @override
+  String get foodChickenBreast => 'Chicken Breast';
+
+  @override
+  String get foodBeef => 'Ground Beef';
+
+  @override
+  String get foodSalmon => 'Salmon';
+
+  @override
+  String get foodEggs => 'Eggs';
+
+  @override
+  String get foodTuna => 'Tuna';
+
+  @override
+  String get foodPork => 'Pork Chop';
+
+  @override
+  String get foodTurkey => 'Turkey';
+
+  @override
+  String get foodShrimp => 'Shrimp';
+
+  @override
+  String get foodBacon => 'Bacon';
+
+  @override
+  String get foodBigMac => 'Big Mac';
+
+  @override
+  String get foodPizza => 'Pizza Slice';
+
+  @override
+  String get foodFrenchFries => 'French Fries';
+
+  @override
+  String get foodChickenNuggets => 'Chicken Nuggets';
+
+  @override
+  String get foodHotDog => 'Hot Dog';
+
+  @override
+  String get foodTacos => 'Tacos';
+
+  @override
+  String get foodSubway => 'Subway Sandwich';
+
+  @override
+  String get foodDonut => 'Donut';
+
+  @override
+  String get foodBurgerKing => 'Whopper';
+
+  @override
+  String get meals => 'meals';
+
+  @override
+  String get dailyProgress => 'Daily Progress';
+
+  @override
+  String get fromFood => 'from food';
+
+  @override
+  String get noFoodThisWeek => 'No food data this week';
+
+  @override
+  String get foodIntake => 'Food Intake';
+
+  @override
+  String get foodStats => 'Food Statistics';
+
+  @override
+  String get totalCalories => 'Total calories';
+
+  @override
+  String get avgCaloriesPerDay => 'Avg per day';
+
+  @override
+  String get daysWithFood => 'Days with food';
+
+  @override
+  String get avgMealsPerDay => 'Meals per day';
+
+  @override
+  String get caloriesPerDay => 'Calories per day';
+
+  @override
+  String get sugarPerDay => 'Sugar per day';
+
+  @override
+  String get foodTracking => 'Food Tracking';
+
+  @override
+  String get foodTrackingPro => 'Track food impact on hydration and HRI';
+
+  @override
+  String get hydrationBalance => 'Hydration Balance';
+
+  @override
+  String get highSodiumFood => 'High sodium from food';
+
+  @override
+  String get hydratingFood => 'Great hydrating choices';
+
+  @override
+  String get dryFood => 'Low water content food';
+
+  @override
+  String get balancedFood => 'Balanced nutrition';
+
+  @override
+  String get foodAdviceEmpty => 'Add meals to track food impact on hydration.';
+
+  @override
+  String get foodAdviceHighSodium =>
+      'High sodium intake detected. Increase water to balance electrolytes.';
+
+  @override
+  String get foodAdviceLowWater =>
+      'Your food had low water content. Consider drinking extra water.';
+
+  @override
+  String get foodAdviceGoodHydration =>
+      'Excellent! Your food choices are supporting hydration goals.';
+
+  @override
+  String get foodAdviceBalanced =>
+      'Keep up the balanced nutrition. Monitor water intake throughout the day.';
+
+  @override
+  String get richInElectrolytes => 'Rich in electrolytes';
 }

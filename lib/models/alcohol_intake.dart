@@ -39,6 +39,8 @@ class AlcoholIntake {
   final double abv; // Alcohol by Volume (%)
   final double standardDrinks;
   final double? sugar; // Добавлено: содержание сахара в граммах
+  final String? name; // Конкретное название напитка
+  final String? emoji; // Эмодзи напитка
 
   AlcoholIntake({
     String? id,
@@ -47,6 +49,8 @@ class AlcoholIntake {
     required this.volumeMl,
     required this.abv,
     this.sugar, // Добавлено: опциональный параметр сахара
+    this.name,
+    this.emoji,
   })  : id = id ?? DateTime.now().millisecondsSinceEpoch.toString(),
         standardDrinks = _calculateStandardDrinks(volumeMl, abv);
 
@@ -100,6 +104,8 @@ class AlcoholIntake {
         'abv': abv,
         'standardDrinks': standardDrinks,
         'sugar': sugar, // Добавлено: сохранение сахара
+        if (name != null) 'name': name,
+        if (emoji != null) 'emoji': emoji,
       };
 
   factory AlcoholIntake.fromJson(Map<String, dynamic> json) {
@@ -110,6 +116,8 @@ class AlcoholIntake {
       volumeMl: json['volumeMl'].toDouble(),
       abv: json['abv'].toDouble(),
       sugar: json['sugar']?.toDouble(), // Добавлено: чтение сахара
+      name: json['name'] as String?,
+      emoji: json['emoji'] as String?,
     );
   }
 

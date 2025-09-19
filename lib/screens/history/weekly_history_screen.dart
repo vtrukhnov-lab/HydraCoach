@@ -28,6 +28,11 @@ class DailyData {
   final int workoutCount;
   final bool hasWorkouts;
   final int waterGoal;
+  final int foodCount;
+  final int totalCalories;
+  final double totalFoodSugar;
+  final double totalFoodWater;
+  final bool hasFood;
 
   DailyData({
     required this.date,
@@ -43,6 +48,11 @@ class DailyData {
     this.workoutCount = 0,
     this.hasWorkouts = false,
     required this.waterGoal,
+    this.foodCount = 0,
+    this.totalCalories = 0,
+    this.totalFoodSugar = 0.0,
+    this.totalFoodWater = 0.0,
+    this.hasFood = false,
   });
 }
 
@@ -124,6 +134,11 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
             workoutCount: hriService.todayWorkouts.length,
             hasWorkouts: hriService.todayWorkouts.isNotEmpty,
             waterGoal: waterGoal,
+            foodCount: provider.todayFoodIntakes.length,
+            totalCalories: provider.totalCaloriesToday,
+            totalFoodSugar: provider.totalSugarToday,
+            totalFoodWater: provider.totalWaterFromFoodToday,
+            hasFood: provider.todayFoodIntakes.isNotEmpty,
           );
         } else {
           // Исторические данные из HistoryService
@@ -149,6 +164,11 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               workoutCount: daySummary['workoutCount'] ?? 0,
               hasWorkouts: daySummary['hasWorkouts'] ?? false,
               waterGoal: waterGoal,
+              foodCount: daySummary['foodCount'] ?? 0,
+              totalCalories: daySummary['totalCalories'] ?? 0,
+              totalFoodSugar: daySummary['totalFoodSugar'] ?? 0.0,
+              totalFoodWater: daySummary['totalFoodWater'] ?? 0.0,
+              hasFood: daySummary['hasFood'] ?? false,
             );
           }
         }
@@ -174,16 +194,49 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
            date1.day == date2.day;
   }
 
-  // Сортировка данных начиная с понедельника
+  // Сортировка данных начиная с понедельника и обеспечение 7 дней
   List<DailyData> _getSortedWeekData() {
-    final sorted = weeklyData.values.toList()
-      ..sort((a, b) {
-        // Сортируем по дням недели, начиная с понедельника
-        int dayA = a.date.weekday;
-        int dayB = b.date.weekday;
-        return dayA.compareTo(dayB);
-      });
-    return sorted;
+    final now = DateTime.now();
+    final monday = now.subtract(Duration(days: now.weekday - 1));
+
+    final List<DailyData> result = [];
+
+    // Создаем ровно 7 дней с понедельника по воскресенье
+    for (int i = 0; i < 7; i++) {
+      final date = monday.add(Duration(days: i));
+      final dateKey = date.toIso8601String().split('T')[0];
+
+      if (weeklyData.containsKey(dateKey)) {
+        result.add(weeklyData[dateKey]!);
+      } else {
+        // Создаем пустую запись для дней без данных
+        final provider = Provider.of<HydrationProvider>(context, listen: false);
+        final waterGoal = (_remoteConfig.waterOptPerKg * provider.weight).round();
+
+        result.add(DailyData(
+          date: date,
+          water: 0,
+          sodium: 0,
+          potassium: 0,
+          magnesium: 0,
+          waterPercent: 0,
+          coffeeCount: 0,
+          intakeCount: 0,
+          alcoholSD: 0,
+          workoutMinutes: 0,
+          workoutCount: 0,
+          hasWorkouts: false,
+          waterGoal: waterGoal,
+          foodCount: 0,
+          totalCalories: 0,
+          totalFoodSugar: 0,
+          totalFoodWater: 0,
+          hasFood: false,
+        ));
+      }
+    }
+
+    return result;
   }
 
   @override
@@ -213,6 +266,13 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               _buildElectrolytesChart(l10n).animate().fadeIn(delay: 50.ms),
               const SizedBox(height: 20),
 
+              // График еды (если есть данные)
+              if (_hasFoodData())
+                _buildFoodChart(l10n).animate().fadeIn(delay: 75.ms),
+
+              if (_hasFoodData())
+                const SizedBox(height: 20),
+
               // График тренировок (если есть данные)
               if (_hasWorkoutData())
                 _buildWorkoutsChart(l10n).animate().fadeIn(delay: 100.ms),
@@ -230,13 +290,6 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               // Средние показатели
               _buildAverageStats(l10n).animate().slideY(delay: 200.ms),
               const SizedBox(height: 20),
-
-              // Статистика алкоголя (если есть данные)
-              if (!alcoholService.soberModeEnabled && _hasAlcoholData())
-                _buildAlcoholStats(l10n).animate().fadeIn(delay: 250.ms),
-
-              if (!alcoholService.soberModeEnabled && _hasAlcoholData())
-                const SizedBox(height: 20),
 
               // Инсайты недели
               _buildWeeklyInsights(l10n).animate().scale(delay: 300.ms),
@@ -601,6 +654,122 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
     );
   }
 
+  Widget _buildFoodChart(AppLocalizations l10n) {
+    return Container(
+      height: 280,
+      padding: const EdgeInsets.all(20),
+      decoration: _cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const SizedBox(width: 8),
+              Text(
+                l10n.foodIntake,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Expanded(child: _buildFoodBarChart(l10n)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFoodBarChart(AppLocalizations l10n) {
+    final List<BarChartGroupData> barGroups = [];
+    final sortedData = _getSortedWeekData();
+
+    for (int i = 0; i < sortedData.length; i++) {
+      final d = sortedData[i];
+      barGroups.add(
+        BarChartGroupData(
+          x: i,
+          barRods: [
+            BarChartRodData(
+              toY: d.totalCalories.toDouble(),
+              color: d.totalCalories > 0 ? Colors.green : Colors.grey.shade300,
+              width: 16,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (!_hasFoodData()) {
+      return Center(child: Text(l10n.noFoodThisWeek));
+    }
+
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceAround,
+        maxY: (_getMaxCaloriesValue() * 1.2),
+        barTouchData: BarTouchData(
+          touchTooltipData: BarTouchTooltipData(
+            getTooltipColor: (_) => Colors.blueGrey.shade800,
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              if (groupIndex < sortedData.length) {
+                final d = sortedData[groupIndex];
+                if (d.totalCalories > 0) {
+                  return BarTooltipItem(
+                    '${rod.toY.toStringAsFixed(0)} kcal\n${d.foodCount} ${l10n.meals}',
+                    const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  );
+                }
+              }
+              return null;
+            },
+          ),
+        ),
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) => Text(
+                '${value.toStringAsFixed(0)}',
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
+              ),
+              reservedSize: 35,
+            ),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                final idx = value.toInt();
+                if (idx >= 0 && idx < sortedData.length) {
+                  return Text(
+                    _getWeekdayShort(sortedData[idx].date, l10n),
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+              reservedSize: 25,
+            ),
+          ),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        ),
+        borderData: FlBorderData(show: false),
+        barGroups: barGroups,
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          getDrawingHorizontalLine: (value) =>
+              FlLine(color: Colors.grey.shade200, strokeWidth: 1),
+        ),
+      ),
+    );
+  }
+
   Widget _buildWorkoutsChart(AppLocalizations l10n) {
     return Container(
       height: 280,
@@ -719,6 +888,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
 
   Widget _buildAlcoholChart(AppLocalizations l10n) {
     return Container(
+      height: 280,
       padding: const EdgeInsets.all(20),
       decoration: _cardDecoration(),
       child: Column(
@@ -734,116 +904,102 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          _buildAlcoholBarChart(l10n),
+          Expanded(child: _buildAlcoholBarChart(l10n)),
         ],
       ),
     );
   }
 
   Widget _buildAlcoholBarChart(AppLocalizations l10n) {
+    final List<BarChartGroupData> barGroups = [];
     final sortedData = _getSortedWeekData();
 
-    if (!_hasAlcoholData()) {
-      return Padding(
-        padding: const EdgeInsets.all(20),
-        child: Center(child: Text(l10n.noAlcoholThisWeek)),
+    for (int i = 0; i < sortedData.length; i++) {
+      final d = sortedData[i];
+      barGroups.add(
+        BarChartGroupData(
+          x: i,
+          barRods: [
+            BarChartRodData(
+              toY: d.alcoholSD > 0 ? d.alcoholSD : 0,
+              color: d.alcoholSD > 2 ? Colors.red.shade400 :
+                     d.alcoholSD > 0 ? Colors.orange.shade400 : Colors.grey.shade300,
+              width: 16,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ],
+        ),
       );
     }
 
-    return Column(
-      children: [
-        // График-полосы для каждого дня
-        ...sortedData.map((data) {
-          final dayName = _getWeekdayShort(data.date, l10n);
-          final sdValue = data.alcoholSD;
-          
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 35,
-                  child: Text(
-                    dayName,
-                    style: TextStyle(
+    if (!_hasAlcoholData()) {
+      return Center(child: Text(l10n.noAlcoholThisWeek));
+    }
+
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceAround,
+        maxY: (_getMaxAlcoholValue() * 1.2).clamp(2.0, 10.0),
+        barTouchData: BarTouchData(
+          touchTooltipData: BarTouchTooltipData(
+            getTooltipColor: (_) => Colors.blueGrey.shade800,
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              if (groupIndex < sortedData.length) {
+                final d = sortedData[groupIndex];
+                if (d.alcoholSD > 0) {
+                  return BarTooltipItem(
+                    '${rod.toY.toStringAsFixed(1)} SD',
+                    const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                       fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey.shade600,
                     ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Container(
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Stack(
-                      children: [
-                        if (sdValue > 0)
-                          FractionallySizedBox(
-                            widthFactor: (sdValue / _getMaxAlcoholValue()).clamp(0.0, 1.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: sdValue > 2 
-                                    ? [Colors.red.shade400, Colors.red.shade500]
-                                    : [Colors.orange.shade400, Colors.orange.shade500],
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                        Center(
-                          child: Text(
-                            sdValue > 0 ? '${sdValue.toStringAsFixed(1)} SD' : '0 SD',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: sdValue > 0 ? Colors.white : Colors.grey.shade600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
-        
-        // Легенда
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: Colors.orange.shade400,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(width: 4),
-            const Text('1-2 SD', style: TextStyle(fontSize: 11)),
-            const SizedBox(width: 16),
-            Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: Colors.red.shade400,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(width: 4),
-            const Text('>2 SD', style: TextStyle(fontSize: 11)),
-          ],
+                  );
+                }
+              }
+              return null;
+            },
+          ),
         ),
-      ],
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) => Text(
+                '${value.toStringAsFixed(0)} SD',
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 10),
+              ),
+              reservedSize: 35,
+            ),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                final idx = value.toInt();
+                if (idx >= 0 && idx < sortedData.length) {
+                  return Text(
+                    _getWeekdayShort(sortedData[idx].date, l10n),
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+              reservedSize: 25,
+            ),
+          ),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        ),
+        borderData: FlBorderData(show: false),
+        barGroups: barGroups,
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          getDrawingHorizontalLine: (value) =>
+              FlLine(color: Colors.grey.shade200, strokeWidth: 1),
+        ),
+      ),
     );
   }
 
@@ -889,6 +1045,11 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
     double totalIntakes = 0;
     int totalWorkoutMinutes = 0;
     int daysWithWorkouts = 0;
+    int totalCalories = 0;
+    double totalFoodSugar = 0;
+    double totalFoodWater = 0;
+    int totalFoodCount = 0;
+    int daysWithFood = 0;
 
     for (var d in weeklyData.values) {
       totalWater += d.water;
@@ -897,8 +1058,13 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
       totalMagnesium += d.magnesium;
       totalIntakes += d.intakeCount;
       totalWorkoutMinutes += d.workoutMinutes;
+      totalCalories += d.totalCalories;
+      totalFoodSugar += d.totalFoodSugar;
+      totalFoodWater += d.totalFoodWater;
+      totalFoodCount += d.foodCount;
       if (d.waterPercent >= 90) daysWithGoal++;
       if (d.hasWorkouts) daysWithWorkouts++;
+      if (d.hasFood) daysWithFood++;
     }
 
     final daysCount = weeklyData.isNotEmpty ? weeklyData.length : 1;
@@ -936,7 +1102,26 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
           target: '${provider.goals.magnesium} ${l10n.mg}',
           color: Colors.pink,
         ),
-        
+
+        if (_hasFoodData()) ...[
+          const SizedBox(height: 12),
+          _buildStatRow(
+            icon: '🍽️',
+            label: l10n.caloriesPerDay,
+            value: '${(totalCalories / daysCount).round()} kcal',
+            target: '$daysWithFood days with food',
+            color: Colors.green,
+          ),
+          const SizedBox(height: 12),
+          _buildStatRow(
+            icon: '🍯',
+            label: l10n.sugarPerDay,
+            value: '${(totalFoodSugar / daysCount).toStringAsFixed(1)}g',
+            target: '${(totalFoodCount / daysCount).toStringAsFixed(1)} meals/day',
+            color: Colors.amber,
+          ),
+        ],
+
         if (_hasWorkoutData()) ...[
           const SizedBox(height: 12),
           _buildStatRow(
@@ -1040,103 +1225,6 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
     );
   }
 
-  Widget _buildAlcoholStats(AppLocalizations l10n) {
-    double totalSD = 0;
-    int daysWithAlcohol = 0;
-    int soberDays = 0;
-
-    for (var d in weeklyData.values) {
-      if (d.alcoholSD > 0) {
-        totalSD += d.alcoholSD;
-        daysWithAlcohol++;
-      } else {
-        soberDays++;
-      }
-    }
-
-    final avgSD = daysWithAlcohol > 0 ? totalSD / daysWithAlcohol : 0;
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.orange.shade200),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.local_bar, color: Colors.orange),
-              const SizedBox(width: 8),
-              Text(
-                l10n.alcoholStatisticsTitle,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildAlcoholStatCard(l10n.totalSD, totalSD.toStringAsFixed(1), Icons.assessment),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildAlcoholStatCard(l10n.daysWithAlcohol, '$daysWithAlcohol', Icons.calendar_today),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildAlcoholStatCard(l10n.soberDays, '$soberDays', Icons.check_circle),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildAlcoholStatCard(l10n.averageSD, avgSD.toStringAsFixed(1), Icons.trending_flat),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAlcoholStatCard(String label, String value, IconData icon) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [
-            Icon(icon, size: 16, color: Colors.orange),
-            const SizedBox(width: 4),
-            Expanded(
-              child: Text(label,
-                  style: TextStyle(color: Colors.grey.shade700, fontSize: 12)),
-            ),
-          ]),
-          const SizedBox(height: 4),
-          Text(value,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
 
   Widget _buildWeeklyInsights(AppLocalizations l10n) {
     return Container(
@@ -1418,6 +1506,16 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
   bool _hasAlcoholData() => weeklyData.values.any((d) => d.alcoholSD > 0);
 
   bool _hasWorkoutData() => weeklyData.values.any((d) => d.hasWorkouts);
+  bool _hasFoodData() => weeklyData.values.any((d) => d.hasFood);
+
+  double _getMaxCaloriesValue() {
+    double maxV = 0;
+    for (var d in weeklyData.values) {
+      if (d.totalCalories > maxV) maxV = d.totalCalories.toDouble();
+    }
+    return maxV > 0 ? maxV * 1.1 : 2000;
+  }
+
 
   double _getMaxAlcoholValue() {
     double maxV = 0;

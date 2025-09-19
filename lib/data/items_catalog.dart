@@ -8,6 +8,13 @@ import 'items/hot_drink_items.dart';
 import 'items/alcohol_items.dart';
 import 'items/sport_items.dart';
 import 'items/supplement_items.dart';
+// Food items
+import 'items/fruit_items.dart';
+import 'items/vegetable_items.dart';
+import 'items/soup_items.dart';
+import 'items/dairy_items.dart';
+import 'items/meat_items.dart';
+import 'items/fast_food_items.dart';
 
 /// Enum для категорий элементов
 enum ItemCategory {
@@ -17,6 +24,13 @@ enum ItemCategory {
   alcohol,
   sport,
   supplement,
+  // Food categories
+  fruits,
+  vegetables,
+  soups,
+  dairy,
+  meat,
+  fastFood,
 }
 
 /// Централизованный каталог всех элементов
@@ -40,6 +54,19 @@ class ItemsCatalog {
         return SportItems.getAllItems();
       case ItemCategory.supplement:
         return SupplementItems.getAllItems();
+      // Food categories
+      case ItemCategory.fruits:
+        return FruitItems.getAllItems();
+      case ItemCategory.vegetables:
+        return VegetableItems.getAllItems();
+      case ItemCategory.soups:
+        return SoupItems.getAllItems();
+      case ItemCategory.dairy:
+        return DairyItems.getAllItems();
+      case ItemCategory.meat:
+        return MeatItems.getAllItems();
+      case ItemCategory.fastFood:
+        return FastFoodItems.getAllItems();
     }
   }
 
@@ -52,6 +79,13 @@ class ItemsCatalog {
       ...AlcoholItems.getAllItems(),
       ...SportItems.getAllItems(),
       ...SupplementItems.getAllItems(),
+      // Food items
+      ...FruitItems.getAllItems(),
+      ...VegetableItems.getAllItems(),
+      ...SoupItems.getAllItems(),
+      ...DairyItems.getAllItems(),
+      ...MeatItems.getAllItems(),
+      ...FastFoodItems.getAllItems(),
     ];
     
     try {

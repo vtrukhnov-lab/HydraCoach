@@ -29,6 +29,11 @@ class DailyData {
   final int waterGoal;
   final int caffeineTotal; // NEW: Total caffeine mg
   final double sugarTotal; // NEW: Total sugar grams
+  final int foodCount; // NEW: Number of food items
+  final int totalCalories; // NEW: Total calories from food
+  final double totalFoodSugar; // NEW: Sugar specifically from food
+  final double totalFoodWater; // NEW: Water from food
+  final bool hasFood; // NEW: Whether any food was logged
 
   DailyData({
     required this.date,
@@ -46,6 +51,11 @@ class DailyData {
     required this.waterGoal,
     this.caffeineTotal = 0,
     this.sugarTotal = 0,
+    this.foodCount = 0,
+    this.totalCalories = 0,
+    this.totalFoodSugar = 0.0,
+    this.totalFoodWater = 0.0,
+    this.hasFood = false,
   });
 }
 
@@ -61,6 +71,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
   bool isLoadingMonthData = false;
   int soberStreakDays = 0;
   DateTime _selectedMonth = DateTime(DateTime.now().year, DateTime.now().month);
+  DateTime? _selectedDate; // Null означает что показываем весь месяц
   
   late final HistoryService _historyService;
   late final RemoteConfigService _remoteConfig;
@@ -147,6 +158,11 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
             waterGoal: waterGoal,
             caffeineTotal: caffeineTotal,
             sugarTotal: sugarData.totalGrams,
+            foodCount: provider.todayFoodIntakes.length,
+            totalCalories: provider.totalCaloriesToday,
+            totalFoodSugar: provider.totalSugarToday,
+            totalFoodWater: provider.totalWaterFromFoodToday,
+            hasFood: provider.todayFoodIntakes.isNotEmpty,
           );
         } else {
           // Исторические данные из HistoryService
@@ -173,7 +189,12 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
               hasWorkouts: daySummary['hasWorkouts'] ?? false,
               waterGoal: waterGoal,
               caffeineTotal: (daySummary['caffeineTotal'] as num?)?.toInt() ?? 0,
-              sugarTotal: 0, // TODO: Add sugar tracking to history service
+              sugarTotal: (daySummary['totalFoodSugar'] as num?)?.toDouble() ?? 0.0,
+              foodCount: (daySummary['foodCount'] as num?)?.toInt() ?? 0,
+              totalCalories: (daySummary['totalCalories'] as num?)?.toInt() ?? 0,
+              totalFoodSugar: (daySummary['totalFoodSugar'] as num?)?.toDouble() ?? 0.0,
+              totalFoodWater: (daySummary['totalFoodWater'] as num?)?.toDouble() ?? 0.0,
+              hasFood: daySummary['hasFood'] ?? false,
             );
           }
         }
@@ -249,6 +270,13 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
               if (_hasSugarData())
                 const SizedBox(height: 20),
 
+              // NEW: Статистика еды (если есть данные)
+              if (_hasFoodData())
+                _buildFoodStats(l10n).animate().fadeIn(delay: 225.ms),
+
+              if (_hasFoodData())
+                const SizedBox(height: 20),
+
               // NEW: Статистика спорта (если есть данные)
               if (_hasWorkoutData())
                 _buildWorkoutStats(l10n).animate().fadeIn(delay: 250.ms),
@@ -286,7 +314,10 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                 icon: const Icon(Icons.chevron_left),
                 onPressed: () {
                   HapticFeedback.lightImpact();
-                  setState(() => _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month - 1));
+                  setState(() {
+                    _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month - 1);
+                    _selectedDate = null; // Сбрасываем выбранную дату
+                  });
                   _loadMonthlyData();
                 },
               ),
@@ -320,13 +351,47 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                 icon: const Icon(Icons.chevron_right),
                 onPressed: _canGoForward() ? () {
                   HapticFeedback.lightImpact();
-                  setState(() => _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month + 1));
+                  setState(() {
+                    _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month + 1);
+                    _selectedDate = null; // Сбрасываем выбранную дату
+                  });
                   _loadMonthlyData();
                 } : null,
               ),
             ],
           ),
           const SizedBox(height: 20),
+
+          // Информация о выбранной дате
+          if (_selectedDate != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              margin: const EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                color: Colors.purple.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.purple.shade200),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.filter_alt, color: Colors.purple.shade600, size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Статистика до ${_selectedDate!.day}.${_selectedDate!.month}.${_selectedDate!.year}',
+                    style: TextStyle(
+                      color: Colors.purple.shade700,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => setState(() => _selectedDate = null),
+                    child: Icon(Icons.close, color: Colors.purple.shade600, size: 16),
+                  ),
+                ],
+              ),
+            ),
 
           // Календарь-сетка
           _buildCalendarGrid(l10n),
@@ -410,12 +475,16 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
     );
   }
 
-  Widget _buildDayCell(DateTime date, int day, double progress, double alcoholSD, 
+  Widget _buildDayCell(DateTime date, int day, double progress, double alcoholSD,
                       DailyData? dayData, AppLocalizations l10n, DateTime now) {
     final alcoholService = Provider.of<AlcoholService>(context, listen: false);
-    
-    if (date.isAfter(now)) {
-      // Будущие даты
+
+    // Определяем, должен ли день быть неактивным
+    final bool isInactive = _selectedDate != null && date.isAfter(_selectedDate!) ||
+                           _selectedDate == null && date.isAfter(now);
+
+    if (isInactive) {
+      // Неактивные даты (будущие или после выбранной даты)
       return Container(
         decoration: BoxDecoration(
           color: Colors.grey.shade100,
@@ -436,8 +505,23 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
     final textColor = progress > 70 ? Colors.white : Colors.black87;
     final alcLevel = _alcoholLevel(alcoholSD);
 
+    // Проверяем, выбрана ли эта дата
+    final bool isSelected = _selectedDate != null && _isSameDay(date, _selectedDate!);
+
     return GestureDetector(
       onTap: () {
+        HapticFeedback.lightImpact();
+        setState(() {
+          if (_selectedDate != null && _isSameDay(date, _selectedDate!)) {
+            // Если кликнули на уже выбранную дату - сбрасываем выбор
+            _selectedDate = null;
+          } else {
+            // Выбираем новую дату
+            _selectedDate = date;
+          }
+        });
+      },
+      onLongPress: () {
         HapticFeedback.lightImpact();
         _showDayDetails(date, dayData, alcoholSD, l10n);
       },
@@ -445,7 +529,11 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(12),
-          border: _isSameDay(date, now) ? Border.all(color: Colors.blue, width: 2) : null,
+          border: isSelected
+              ? Border.all(color: Colors.purple, width: 3)
+              : _isSameDay(date, now)
+                  ? Border.all(color: Colors.blue, width: 2)
+                  : null,
         ),
         child: Stack(
           children: [
@@ -579,14 +667,11 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
     double totalSD = 0;
     int daysWithAlcohol = 0;
     int soberDays = 0;
-    
-    // Подсчитываем только до текущей даты для текущего месяца
-    final now = DateTime.now();
-    final isCurrentMonth = _selectedMonth.year == now.year && _selectedMonth.month == now.month;
 
-    for (final data in monthlyData.values) {
-      // Пропускаем будущие даты
-      if (isCurrentMonth && data.date.isAfter(now)) continue;
+    // Используем фильтрованные данные
+    final filteredData = _getFilteredMonthlyData();
+
+    for (final data in filteredData) {
       
       final sd = data.alcoholSD;
       totalSD += sd;
@@ -597,7 +682,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
       }
     }
     
-    final actualDaysInMonth = isCurrentMonth ? now.day : monthlyData.length;
+    final actualDaysInMonth = filteredData.length;
     final avgSD = daysWithAlcohol > 0 ? totalSD / daysWithAlcohol : 0;
 
     return Container(
@@ -724,13 +809,10 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
     int daysWithCoffee = 0;
     double maxDailyCaffeine = 0;
     
-    // Подсчитываем только до текущей даты для текущего месяца
-    final now = DateTime.now();
-    final isCurrentMonth = _selectedMonth.year == now.year && _selectedMonth.month == now.month;
+    // Используем фильтрованные данные
+    final filteredData = _getFilteredMonthlyData();
 
-    for (final data in monthlyData.values) {
-      // Пропускаем будущие даты
-      if (isCurrentMonth && data.date.isAfter(now)) continue;
+    for (final data in filteredData) {
       
       if (data.coffeeCount > 0) {
         daysWithCoffee++;
@@ -744,7 +826,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
       }
     }
     
-    final actualDaysInMonth = isCurrentMonth ? now.day : monthlyData.length;
+    final actualDaysInMonth = filteredData.length;
     final avgCaffeine = daysWithCoffee > 0 ? totalCaffeineMg ~/ daysWithCoffee : 0;
     final avgCupsPerDay = daysWithCoffee > 0 ? (totalCoffeeCups / daysWithCoffee).toStringAsFixed(1) : "0";
 
@@ -862,13 +944,10 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
     
     final dailyLimit = 50.0; // WHO recommendation
     
-    // Подсчитываем только до текущей даты для текущего месяца
-    final now = DateTime.now();
-    final isCurrentMonth = _selectedMonth.year == now.year && _selectedMonth.month == now.month;
+    // Используем фильтрованные данные
+    final filteredData = _getFilteredMonthlyData();
 
-    for (final data in monthlyData.values) {
-      // Пропускаем будущие даты
-      if (isCurrentMonth && data.date.isAfter(now)) continue;
+    for (final data in filteredData) {
       
       if (data.sugarTotal > 0) {
         daysWithSugar++;
@@ -989,29 +1068,110 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
     );
   }
 
+  // NEW: Food statistics widget
+  Widget _buildFoodStats(AppLocalizations l10n) {
+    int totalCalories = 0;
+    double totalFoodSugar = 0;
+    double totalFoodWater = 0;
+    int totalFoodCount = 0;
+    int daysWithFood = 0;
+    int maxDailyCalories = 0;
+
+    // Используем фильтрованные данные
+    final filteredData = _getFilteredMonthlyData();
+
+    for (final data in filteredData) {
+      if (data.hasFood) {
+        daysWithFood++;
+        totalCalories += data.totalCalories;
+        totalFoodSugar += data.totalFoodSugar;
+        totalFoodWater += data.totalFoodWater;
+        totalFoodCount += data.foodCount;
+
+        if (data.totalCalories > maxDailyCalories) {
+          maxDailyCalories = data.totalCalories;
+        }
+      }
+    }
+
+    final avgCaloriesPerDay = daysWithFood > 0 ? (totalCalories / daysWithFood).round() : 0;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.green.shade50,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.green.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.restaurant, color: Colors.green),
+              const SizedBox(width: 8),
+              Text(
+                l10n.foodStats,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          Row(
+            children: [
+              Expanded(
+                child: _buildFoodStatCard(l10n.totalCalories, '$totalCalories kcal', Icons.assessment),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildFoodStatCard(l10n.avgCaloriesPerDay, '$avgCaloriesPerDay kcal', Icons.trending_up),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _buildFoodStatCard(l10n.daysWithFood, '$daysWithFood', Icons.calendar_today),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildFoodStatCard(l10n.avgMealsPerDay, '${(totalFoodCount / (daysWithFood > 0 ? daysWithFood : 1)).toStringAsFixed(1)}', Icons.restaurant_menu),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   // NEW: Workout statistics widget
   Widget _buildWorkoutStats(AppLocalizations l10n) {
     int totalMinutes = 0;
     int totalSessions = 0;
     int activeDays = 0;
     Map<String, int> workoutTypes = {};
-    
-    // Подсчитываем только до текущей даты для текущего месяца
-    final now = DateTime.now();
-    final isCurrentMonth = _selectedMonth.year == now.year && _selectedMonth.month == now.month;
 
-    for (final data in monthlyData.values) {
-      // Пропускаем будущие даты
-      if (isCurrentMonth && data.date.isAfter(now)) continue;
-      
+    // Используем фильтрованные данные
+    final filteredData = _getFilteredMonthlyData();
+
+    for (final data in filteredData) {
       if (data.hasWorkouts) {
         activeDays++;
         totalMinutes += data.workoutMinutes;
         totalSessions += data.workoutCount;
       }
     }
-    
-    final actualDaysInMonth = isCurrentMonth ? now.day : monthlyData.length;
+
+    final actualDaysInMonth = filteredData.length;
     final avgMinutesPerSession = totalSessions > 0 ? totalMinutes ~/ totalSessions : 0;
     final totalHours = (totalMinutes / 60).toStringAsFixed(1);
 
@@ -1102,19 +1262,16 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
     int daysWithGoodPotassium = 0;
     int daysWithGoodMagnesium = 0;
     int perfectElectrolyteDays = 0;
-    
+
     // Цели электролитов (базовые значения)
     final sodiumGoal = 2500;
     final potassiumGoal = 3000;
     final magnesiumGoal = 350;
-    
-    // Подсчитываем только до текущей даты для текущего месяца
-    final now = DateTime.now();
-    final isCurrentMonth = _selectedMonth.year == now.year && _selectedMonth.month == now.month;
 
-    for (final data in monthlyData.values) {
-      // Пропускаем будущие даты
-      if (isCurrentMonth && data.date.isAfter(now)) continue;
+    // Используем фильтрованные данные
+    final filteredData = _getFilteredMonthlyData();
+
+    for (final data in filteredData) {
       
       totalSodium += data.sodium;
       totalPotassium += data.potassium;
@@ -1139,7 +1296,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
       }
     }
     
-    final actualDaysInMonth = isCurrentMonth ? now.day : monthlyData.length;
+    final actualDaysInMonth = filteredData.length;
     final daysCount = actualDaysInMonth > 0 ? actualDaysInMonth : 1;
     
     final avgSodium = totalSodium ~/ daysCount;
@@ -1466,6 +1623,32 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
           const SizedBox(height: 4),
           Text(value, style: TextStyle(color: color.shade800, fontSize: 20, fontWeight: FontWeight.bold)),
           Text(subtitle, style: TextStyle(color: color.shade600, fontSize: 10)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFoodStatCard(String label, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Icon(icon, size: 16, color: Colors.green),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(label,
+                  style: TextStyle(color: Colors.grey.shade700, fontSize: 12)),
+            ),
+          ]),
+          const SizedBox(height: 4),
+          Text(value,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -1949,6 +2132,15 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
         ],
       );
 
+  // Фильтрует данные до выбранной/текущей даты
+  List<DailyData> _getFilteredMonthlyData() {
+    final now = DateTime.now();
+    final isCurrentMonth = _selectedMonth.year == now.year && _selectedMonth.month == now.month;
+    final limitDate = _selectedDate ?? (isCurrentMonth ? now : DateTime(_selectedMonth.year, _selectedMonth.month + 1, 0));
+
+    return monthlyData.values.where((data) => !data.date.isAfter(limitDate)).toList();
+  }
+
   bool _canGoForward() {
     final now = DateTime.now();
     return !(_selectedMonth.month == now.month && _selectedMonth.year == now.year);
@@ -1991,6 +2183,11 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
         waterGoal: waterGoal,
         caffeineTotal: hriService.getTodaysCaffeine(),
         sugarTotal: provider.getSugarIntakeData(context).totalGrams,
+        foodCount: provider.todayFoodIntakes.length,
+        totalCalories: provider.totalCaloriesToday,
+        totalFoodSugar: provider.totalSugarToday,
+        totalFoodWater: provider.totalWaterFromFoodToday,
+        hasFood: provider.todayFoodIntakes.isNotEmpty,
       );
       
       if (mounted) setState(() {});
@@ -2004,6 +2201,8 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
   bool _hasCaffeineData() => monthlyData.values.any((d) => d.caffeineTotal > 0 || d.coffeeCount > 0);
   
   bool _hasSugarData() => monthlyData.values.any((d) => d.sugarTotal > 0);
+
+  bool _hasFoodData() => monthlyData.values.any((d) => d.hasFood);
 
   String _getMonthName(int month, AppLocalizations l10n) {
     switch (month) {

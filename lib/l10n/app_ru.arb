@@ -1692,5 +1692,585 @@
 "onboardingLocationExamplesTitle": "Персональные советы",
 "onboardingLocationExamplesSubtitle": "Учитываем погоду для точных рекомендаций",
 "onboardingAllowNotifications": "Разрешить уведомления",
-"onboardingAllowLocation": "Разрешить геолокацию"
+"onboardingAllowLocation": "Разрешить геолокацию",
+
+"foodCatalog": "Каталог продуктов",
+"@foodCatalog": {
+  "description": "Food catalog screen title"
+},
+"todaysFoodIntake": "Сегодняшний прием пищи",
+"@todaysFoodIntake": {
+  "description": "Title for today's food intake summary"
+},
+"noFoodToday": "Продукты не добавлены",
+"@noFoodToday": {
+  "description": "Message when no food has been logged today"
+},
+"foodItemsCount": "{count} продуктов",
+"@foodItemsCount": {
+  "description": "Count of food items logged today",
+  "placeholders": {
+    "count": {
+      "type": "int",
+      "example": "3"
+    }
+  }
+},
+"waterFromFood": "Вода из продуктов",
+"@waterFromFood": {
+  "description": "Label for water content from food"
+},
+"last": "Последний",
+"@last": {
+  "description": "Label for last item"
+},
+"categoryFruits": "Фрукты",
+"@categoryFruits": {
+  "description": "Fruits category"
+},
+"categoryVegetables": "Овощи",
+"@categoryVegetables": {
+  "description": "Vegetables category"
+},
+"categorySoups": "Супы",
+"@categorySoups": {
+  "description": "Soups category"
+},
+"categoryDairy": "Молочное",
+"@categoryDairy": {
+  "description": "Dairy category"
+},
+"categoryMeat": "Мясо",
+"@categoryMeat": {
+  "description": "Meat category"
+},
+"categoryFastFood": "Фастфуд",
+"@categoryFastFood": {
+  "description": "Fast food category"
+},
+"weightGrams": "Вес (граммы)",
+"@weightGrams": {
+  "description": "Weight in grams label"
+},
+"enterWeight": "Введите вес",
+"@enterWeight": {
+  "description": "Enter weight prompt"
+},
+"grams": "г",
+"@grams": {
+  "description": "Grams unit"
+},
+"calories": "Калории",
+"@calories": {
+  "description": "Calories label"
+},
+"waterContent": "Содержание воды",
+"@waterContent": {
+  "description": "Water content label"
+},
+"sugar": "Сахар",
+"@sugar": {
+  "description": "Sugar label"
+},
+"nutritionalInfo": "Пищевая ценность",
+"@nutritionalInfo": {
+  "description": "Nutritional information label"
+},
+"caloriesPerWeight": "{calories} ккал на {weight}г",
+"@caloriesPerWeight": {
+  "description": "Calories per weight format",
+  "placeholders": {
+    "calories": {
+      "type": "int"
+    },
+    "weight": {
+      "type": "int"
+    }
+  }
+},
+"waterPerWeight": "{water} мл воды на {weight}г",
+"@waterPerWeight": {
+  "description": "Water per weight format",
+  "placeholders": {
+    "water": {
+      "type": "int"
+    },
+    "weight": {
+      "type": "int"
+    }
+  }
+},
+"sugarPerWeight": "{sugar}г сахара на {weight}г",
+"@sugarPerWeight": {
+  "description": "Sugar per weight format",
+  "placeholders": {
+    "sugar": {
+      "type": "String"
+    },
+    "weight": {
+      "type": "int"
+    }
+  }
+},
+"addFood": "Добавить продукт",
+"@addFood": {
+  "description": "Add food button"
+},
+"foodAdded": "Продукт успешно добавлен",
+"@foodAdded": {
+  "description": "Food added success message"
+},
+"enterValidWeight": "Пожалуйста, введите корректный вес",
+"@enterValidWeight": {
+  "description": "Invalid weight error message"
+},
+"proOnlyFood": "Только PRO",
+"@proOnlyFood": {
+  "description": "PRO only food label"
+},
+"unlockProForFood": "Разблокируйте PRO для доступа ко всем продуктам",
+"@unlockProForFood": {
+  "description": "PRO unlock message for food"
+},
+"foodTracker": "Трекер питания",
+"@foodTracker": {
+  "description": "Food tracker title"
+},
+"todaysFoodSummary": "Сводка питания за сегодня",
+"@todaysFoodSummary": {
+  "description": "Today's food summary title"
+},
+"kcal": "ккал",
+"@kcal": {
+  "description": "Kilocalories unit"
+},
+"per100g": "на 100г",
+"@per100g": {
+  "description": "Per 100 grams"
+},
+"addToFavorites": "Добавить в избранное",
+"@addToFavorites": {
+  "description": "Add to favorites checkbox"
+},
+"favoritesFeatureComingSoon": "Функция избранного скоро появится!",
+"@favoritesFeatureComingSoon": {
+  "description": "Favorites feature not yet available message"
+},
+"foodAddedSuccess": "{food} добавлено! +{calories} ккал, +{water}",
+"@foodAddedSuccess": {
+  "description": "Success message when food is added",
+  "placeholders": {
+    "food": {
+      "type": "String"
+    },
+    "calories": {
+      "type": "int"
+    },
+    "water": {
+      "type": "String"
+    }
+  }
+},
+"selectWeight": "Выберите вес",
+"@selectWeight": {
+  "description": "Select weight dialog title"
+},
+"weight": "Вес",
+"@weight": {
+  "description": "Weight label"
+},
+"nutritionalInfo": "Пищевая ценность",
+"@nutritionalInfo": {
+  "description": "Nutritional information"
+},
+"ounces": "унц",
+"@ounces": {
+  "description": "Ounces unit"
+},
+"items": "элементов",
+"@items": {
+  "description": "Items count"
+},
+"tapToAddFood": "Нажмите чтобы добавить продукт",
+"@tapToAddFood": {
+  "description": "Add food prompt"
+},
+"noFoodLoggedToday": "Сегодня продукты не отслеживались",
+"@noFoodLoggedToday": {
+  "description": "No food logged message"
+},
+"lightEatingDay": "День лёгкого питания",
+"@lightEatingDay": {
+  "description": "Light eating day status"
+},
+"moderateIntake": "Умеренное потребление",
+"@moderateIntake": {
+  "description": "Moderate intake status"
+},
+"goodCalorieIntake": "Хорошее потребление калорий",
+"@goodCalorieIntake": {
+  "description": "Good calorie intake status"
+},
+"substantialMeals": "Существенные приёмы пищи",
+"@substantialMeals": {
+  "description": "Substantial meals status"
+},
+"highCalorieDay": "День высококалорийного питания",
+"@highCalorieDay": {
+  "description": "High calorie day status"
+},
+"veryHighIntake": "Очень высокое потребление",
+"@veryHighIntake": {
+  "description": "Very high intake status"
+},
+"caloriesTracker": "Трекер калорий",
+"@caloriesTracker": {
+  "description": "Calories tracker title"
+},
+"trackYourDailyCalorieIntake": "Отслеживайте ежедневное потребление калорий из пищи",
+"@trackYourDailyCalorieIntake": {
+  "description": "Calories tracker description"
+},
+"unlockFoodTrackingFeatures": "Разблокируйте функции отслеживания питания",
+"@unlockFoodTrackingFeatures": {
+  "description": "Unlock food tracking features message"
+},
+"selectFoodType": "Выберите тип продукта",
+"@selectFoodType": {
+  "description": "Select food type title"
+},
+
+"foodApple": "Яблоко",
+"@foodApple": {
+  "description": "Apple fruit"
+},
+"foodBanana": "Банан",
+"@foodBanana": {
+  "description": "Banana fruit"
+},
+"foodOrange": "Апельсин",
+"@foodOrange": {
+  "description": "Orange fruit"
+},
+"foodWatermelon": "Арбуз",
+"@foodWatermelon": {
+  "description": "Watermelon fruit"
+},
+"foodStrawberry": "Клубника",
+"@foodStrawberry": {
+  "description": "Strawberry fruit"
+},
+"foodGrapes": "Виноград",
+"@foodGrapes": {
+  "description": "Grapes fruit"
+},
+"foodPineapple": "Ананас",
+"@foodPineapple": {
+  "description": "Pineapple fruit"
+},
+"foodMango": "Манго",
+"@foodMango": {
+  "description": "Mango fruit"
+},
+"foodPear": "Груша",
+"@foodPear": {
+  "description": "Pear fruit"
+},
+
+"foodCarrot": "Морковь",
+"@foodCarrot": {
+  "description": "Carrot vegetable"
+},
+"foodBroccoli": "Брокколи",
+"@foodBroccoli": {
+  "description": "Broccoli vegetable"
+},
+"foodSpinach": "Шпинат",
+"@foodSpinach": {
+  "description": "Spinach vegetable"
+},
+"foodTomato": "Помидор",
+"@foodTomato": {
+  "description": "Tomato vegetable"
+},
+"foodCucumber": "Огурец",
+"@foodCucumber": {
+  "description": "Cucumber vegetable"
+},
+"foodBellPepper": "Болгарский перец",
+"@foodBellPepper": {
+  "description": "Bell pepper vegetable"
+},
+"foodLettuce": "Салат",
+"@foodLettuce": {
+  "description": "Lettuce vegetable"
+},
+"foodOnion": "Лук",
+"@foodOnion": {
+  "description": "Onion vegetable"
+},
+"foodCelery": "Сельдерей",
+"@foodCelery": {
+  "description": "Celery vegetable"
+},
+
+"foodChickenSoup": "Куриный суп",
+"@foodChickenSoup": {
+  "description": "Chicken soup"
+},
+"foodTomatoSoup": "Томатный суп",
+"@foodTomatoSoup": {
+  "description": "Tomato soup"
+},
+"foodVegetableSoup": "Овощной суп",
+"@foodVegetableSoup": {
+  "description": "Vegetable soup"
+},
+"foodMinestrone": "Минестроне",
+"@foodMinestrone": {
+  "description": "Minestrone soup"
+},
+"foodMisoSoup": "Мисо суп",
+"@foodMisoSoup": {
+  "description": "Miso soup"
+},
+"foodMushroomSoup": "Грибной суп",
+"@foodMushroomSoup": {
+  "description": "Mushroom soup"
+},
+"foodBeefStew": "Говяжье рагу",
+"@foodBeefStew": {
+  "description": "Beef stew"
+},
+"foodLentilSoup": "Чечевичный суп",
+"@foodLentilSoup": {
+  "description": "Lentil soup"
+},
+"foodOnionSoup": "Французский луковый суп",
+"@foodOnionSoup": {
+  "description": "French onion soup"
+},
+
+"foodMilk": "Молоко",
+"@foodMilk": {
+  "description": "Milk"
+},
+"foodYogurt": "Греческий йогурт",
+"@foodYogurt": {
+  "description": "Greek yogurt"
+},
+"foodCheese": "Сыр чеддер",
+"@foodCheese": {
+  "description": "Cheddar cheese"
+},
+"foodCottageCheese": "Творог",
+"@foodCottageCheese": {
+  "description": "Cottage cheese"
+},
+"foodButter": "Масло",
+"@foodButter": {
+  "description": "Butter"
+},
+"foodCream": "Жирные сливки",
+"@foodCream": {
+  "description": "Heavy cream"
+},
+"foodIceCream": "Мороженое",
+"@foodIceCream": {
+  "description": "Ice cream"
+},
+"foodMozzarella": "Моцарелла",
+"@foodMozzarella": {
+  "description": "Mozzarella cheese"
+},
+"foodParmesan": "Пармезан",
+"@foodParmesan": {
+  "description": "Parmesan cheese"
+},
+
+"foodChickenBreast": "Куриная грудка",
+"@foodChickenBreast": {
+  "description": "Chicken breast"
+},
+"foodBeef": "Говяжий фарш",
+"@foodBeef": {
+  "description": "Ground beef"
+},
+"foodSalmon": "Лосось",
+"@foodSalmon": {
+  "description": "Salmon fish"
+},
+"foodEggs": "Яйца",
+"@foodEggs": {
+  "description": "Chicken eggs"
+},
+"foodTuna": "Тунец",
+"@foodTuna": {
+  "description": "Tuna fish"
+},
+"foodPork": "Свиная отбивная",
+"@foodPork": {
+  "description": "Pork chop"
+},
+"foodTurkey": "Индейка",
+"@foodTurkey": {
+  "description": "Turkey meat"
+},
+"foodShrimp": "Креветки",
+"@foodShrimp": {
+  "description": "Shrimp"
+},
+"foodBacon": "Бекон",
+"@foodBacon": {
+  "description": "Bacon"
+},
+
+"foodBigMac": "Биг Мак",
+"@foodBigMac": {
+  "description": "McDonald's Big Mac"
+},
+"foodPizza": "Кусок пиццы",
+"@foodPizza": {
+  "description": "Pizza slice"
+},
+"foodFrenchFries": "Картофель фри",
+"@foodFrenchFries": {
+  "description": "French fries"
+},
+"foodChickenNuggets": "Куриные наггетсы",
+"@foodChickenNuggets": {
+  "description": "Chicken nuggets"
+},
+"foodHotDog": "Хот-дог",
+"@foodHotDog": {
+  "description": "Hot dog"
+},
+"foodTacos": "Тако",
+"@foodTacos": {
+  "description": "Tacos"
+},
+"foodSubway": "Сэндвич Subway",
+"@foodSubway": {
+  "description": "Subway sandwich"
+},
+"foodDonut": "Пончик",
+"@foodDonut": {
+  "description": "Donut"
+},
+"foodBurgerKing": "Воппер",
+"@foodBurgerKing": {
+  "description": "Burger King Whopper"
+},
+"meals": "приемов пищи",
+"@meals": {
+  "description": "Meals counter"
+},
+"dailyProgress": "Дневной прогресс",
+"@dailyProgress": {
+  "description": "Daily progress label"
+},
+"fromFood": "из еды",
+"@fromFood": {
+  "description": "Water from food label"
+},
+"tapToAddFood": "Нажмите, чтобы добавить еду",
+"@tapToAddFood": {
+  "description": "Tap to add food instruction"
+},
+"noFoodThisWeek": "Нет данных о еде за эту неделю",
+"@noFoodThisWeek": {
+  "description": "No food data message for weekly view"
+},
+"foodIntake": "Потребление пищи",
+"@foodIntake": {
+  "description": "Food intake chart title"
+},
+"foodStats": "Статистика питания",
+"@foodStats": {
+  "description": "Food statistics title"
+},
+"totalCalories": "Всего калорий",
+"@totalCalories": {
+  "description": "Total calories label"
+},
+"avgCaloriesPerDay": "В среднем в день",
+"@avgCaloriesPerDay": {
+  "description": "Average calories per day label"
+},
+"daysWithFood": "Дней с едой",
+"@daysWithFood": {
+  "description": "Days with food label"
+},
+"avgMealsPerDay": "Приемов пищи в день",
+"@avgMealsPerDay": {
+  "description": "Average meals per day label"
+},
+"waterFromFood": "Вода из еды",
+"@waterFromFood": {
+  "description": "Water from food label"
+},
+"caloriesPerDay": "Калорий в день",
+"@caloriesPerDay": {
+  "description": "Calories per day label"
+},
+"sugarPerDay": "Сахара в день",
+"@sugarPerDay": {
+  "description": "Sugar per day label"
+},
+"foodTracking": "Отслеживание питания",
+"@foodTracking": {
+  "description": "Food tracking feature name"
+},
+"foodTrackingPro": "Отслеживайте влияние пищи на гидратацию и HRI",
+"@foodTrackingPro": {
+  "description": "Food tracking pro description"
+},
+"hydrationBalance": "Водный баланс",
+"@hydrationBalance": {
+  "description": "Hydration balance label"
+},
+"highSodiumFood": "Высокий натрий из еды",
+"@highSodiumFood": {
+  "description": "High sodium food status"
+},
+"hydratingFood": "Отличные увлажняющие продукты",
+"@hydratingFood": {
+  "description": "Hydrating food status"
+},
+"dryFood": "Пища с низким содержанием воды",
+"@dryFood": {
+  "description": "Dry food status"
+},
+"balancedFood": "Сбалансированное питание",
+"@balancedFood": {
+  "description": "Balanced food status"
+},
+"foodAdviceEmpty": "Добавьте блюда для отслеживания влияния пищи на гидратацию.",
+"@foodAdviceEmpty": {
+  "description": "Advice when no food logged"
+},
+"foodAdviceHighSodium": "Высокий натрий. Пейте больше воды для баланса.",
+"@foodAdviceHighSodium": {
+  "description": "Advice for high sodium food"
+},
+"foodAdviceLowWater": "Сухая пища. Пейте больше воды.",
+"@foodAdviceLowWater": {
+  "description": "Advice for low water content food"
+},
+"foodAdviceGoodHydration": "Отлично! Ваш выбор продуктов поддерживает цели гидратации.",
+"@foodAdviceGoodHydration": {
+  "description": "Advice for good hydrating food"
+},
+"foodAdviceBalanced": "Продолжайте сбалансированное питание. Следите за потреблением воды в течение дня.",
+"@foodAdviceBalanced": {
+  "description": "Advice for balanced food choices"
+},
+"richInElectrolytes": "Богато электролитами",
+"@richInElectrolytes": {
+  "description": "Status for food rich in electrolytes"
+},
+"kcal": "ккал",
+"@kcal": {
+  "description": "Kilocalories abbreviation"
+}
 }

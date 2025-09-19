@@ -27,6 +27,7 @@ import '../services/analytics_service.dart';
 import '../models/daily_goals.dart';
 import '../models/intake.dart';
 import '../models/alcohol_intake.dart';
+import '../models/food_intake.dart';
 import '../data/catalog_item.dart'; // Added for CatalogItem
 import '../widgets/home/sugar_intake_card.dart'; // Added for SugarIntakeData
 import '../services/achievement_tracker.dart';
@@ -46,6 +47,7 @@ class HydrationProvider extends ChangeNotifier {
   String dietMode = 'normal';
   String activityLevel = 'medium'; // Kept for compatibility
   List<Intake> todayIntakes = [];
+  List<FoodIntake> todayFoodIntakes = [];
   
   double weatherWaterAdjustment = 0;
   int weatherSodiumAdjustment = 0;
@@ -311,7 +313,37 @@ class HydrationProvider extends ChangeNotifier {
       // If AlcoholService is not available or error occurred
       print('Could not get alcohol sugar data: $e');
     }
-    
+
+    // NEW: Add sugar from food intakes
+    for (final foodIntake in todayFoodIntakes) {
+      final sugarGrams = foodIntake.sugar;
+
+      if (sugarGrams > 0) {
+        totalSugar += sugarGrams;
+
+        // Food sugars are mostly natural (fruits) or added (processed foods)
+        // We can categorize based on food category or just count as natural for now
+        if (foodIntake.foodName.toLowerCase().contains('fruit') ||
+            foodIntake.foodName.toLowerCase().contains('apple') ||
+            foodIntake.foodName.toLowerCase().contains('banana') ||
+            foodIntake.foodName.toLowerCase().contains('orange') ||
+            foodIntake.foodName.toLowerCase().contains('berry')) {
+          naturalSugar += sugarGrams;
+        } else {
+          addedSugar += sugarGrams; // Most other foods have processed sugars
+        }
+
+        foodGrams += sugarGrams;
+
+        // Add to sources by food type
+        bySource['food'] = (bySource['food'] ?? 0) + sugarGrams;
+
+        // More detailed breakdown by food name if needed
+        final foodKey = foodIntake.foodName.toLowerCase().replaceAll(' ', '_');
+        bySource[foodKey] = (bySource[foodKey] ?? 0) + sugarGrams;
+      }
+    }
+
     return SugarIntakeData(
       totalGrams: totalSugar,
       naturalSugarGrams: naturalSugar,
@@ -382,6 +414,8 @@ class HydrationProvider extends ChangeNotifier {
     required int intensity, // 1-5
     required int durationMinutes,
     CatalogItem? item,
+    String? name,
+    String? emoji,
   }) async {
     print('=== LOGWORKOUT DEBUG ===');
     print('Logging workout: $type, $intensity, ${durationMinutes}min, weight: $weight');
@@ -397,6 +431,8 @@ class HydrationProvider extends ChangeNotifier {
       durationMinutes: durationMinutes,
       item: item,
       userWeight: weight,
+      name: name,
+      emoji: emoji,
     );
     
     // NEW: Sync workout losses back to goals
@@ -454,6 +490,11 @@ class HydrationProvider extends ChangeNotifier {
       sugarIntake: sugarData.totalGrams,
       lastIntakeTime: lastIntakeTime,
       userWeightKg: weight,
+      // NEW: Add food data
+      foodWaterContent: totalWaterFromFoodToday,
+      foodSodiumIntake: todayFoodIntakes.fold(0.0, (sum, food) => sum + food.sodium),
+      foodCount: todayFoodIntakes.length,
+      foodSugarIntake: todayFoodIntakes.fold(0.0, (sum, food) => sum + food.sugar),
     );
 
     // NEW: Sync workout losses back to update goals
@@ -653,7 +694,7 @@ class HydrationProvider extends ChangeNotifier {
     
     final todayKey = 'intakes_${DateTime.now().toIso8601String().split('T')[0]}';
     final intakesJson = prefs.getStringList(todayKey) ?? [];
-    
+
     todayIntakes = intakesJson.map((json) {
       final parts = json.split('|');
       return Intake(
@@ -664,8 +705,39 @@ class HydrationProvider extends ChangeNotifier {
         sodium: int.parse(parts[4]),
         potassium: int.parse(parts[5]),
         magnesium: int.parse(parts[6]),
+        // Handle new fields for backward compatibility
+        name: parts.length > 7 && parts[7].isNotEmpty ? parts[7] : null,
+        emoji: parts.length > 8 && parts[8].isNotEmpty ? parts[8] : null,
       );
     }).toList();
+
+    // Load food intakes
+    final todayFoodKey = 'food_intakes_${DateTime.now().toIso8601String().split('T')[0]}';
+    final foodIntakesJson = prefs.getStringList(todayFoodKey) ?? [];
+
+    todayFoodIntakes = foodIntakesJson.map((json) {
+      try {
+        final data = json.split('|');
+        return FoodIntake(
+          id: data[0],
+          timestamp: DateTime.parse(data[1]),
+          foodId: data[2],
+          foodName: data[3],
+          weight: double.parse(data[4]),
+          calories: int.parse(data[5]),
+          waterContent: double.parse(data[6]),
+          sodium: int.parse(data[7]),
+          potassium: int.parse(data[8]),
+          magnesium: int.parse(data[9]),
+          sugar: double.parse(data[10]),
+          hasCaffeine: data[11] == 'true',
+          emoji: data.length > 12 && data[12].isNotEmpty ? data[12] : null,
+        );
+      } catch (e) {
+        print('Error parsing food intake: $e');
+        return null;
+      }
+    }).where((intake) => intake != null).cast<FoodIntake>().toList();
     
     _calculateGoals();
     
@@ -723,7 +795,8 @@ class HydrationProvider extends ChangeNotifier {
       
       final intakesJson = todayIntakes.map((intake) {
         return '${intake.id}|${intake.timestamp.toIso8601String()}|${intake.type}|'
-               '${intake.volume}|${intake.sodium}|${intake.potassium}|${intake.magnesium}';
+               '${intake.volume}|${intake.sodium}|${intake.potassium}|${intake.magnesium}|'
+               '${intake.name ?? ""}|${intake.emoji ?? ""}';
       }).toList();
       
       await prefs.setStringList(todayKey, intakesJson);
@@ -814,6 +887,8 @@ class HydrationProvider extends ChangeNotifier {
     int magnesium = 0,
     bool showAchievement = true,  // NEW: Control achievement notification
     String source = 'manual_entry',
+    String? name,  // NEW: Specific product name
+    String? emoji, // NEW: Product emoji
   }) {
     // Calculate old percentage BEFORE adding intake
     final oldPercent = goals.waterOpt > 0 
@@ -829,6 +904,8 @@ class HydrationProvider extends ChangeNotifier {
       sodium: sodium,
       potassium: potassium,
       magnesium: magnesium,
+      name: name,
+      emoji: emoji,
     );
 
     todayIntakes.add(newIntake);
@@ -952,14 +1029,221 @@ class HydrationProvider extends ChangeNotifier {
   
   void removeIntake(String id) {
     todayIntakes.removeWhere((intake) => intake.id == id);
-    
+
     // First update UI
     notifyListeners();
-    
+
     // Then save (includes water progress cache update)
     _saveIntakes().then((_) {
       print('Intake removed successfully');
     });
+  }
+
+  // =============================================================================
+  // FOOD INTAKE METHODS
+  // =============================================================================
+
+  /// Add food intake
+  Future<void> addFoodIntake(FoodIntake foodIntake) async {
+    todayFoodIntakes.add(foodIntake);
+
+    // Log analytics for food
+    _analytics.log('food_intake_added', {
+      'food_id': foodIntake.foodId,
+      'food_name': foodIntake.foodName,
+      'weight': foodIntake.weight,
+      'calories': foodIntake.calories,
+      'water_content': foodIntake.waterContent,
+      'sodium': foodIntake.sodium,
+      'potassium': foodIntake.potassium,
+      'magnesium': foodIntake.magnesium,
+      'sugar': foodIntake.sugar,
+      'has_caffeine': foodIntake.hasCaffeine,
+    });
+
+    // Add water content from food to hydration goals
+    if (foodIntake.waterContent > 0) {
+      addIntake(
+        'water',
+        foodIntake.waterContent.round(),
+        sodium: foodIntake.sodium,
+        potassium: foodIntake.potassium,
+        magnesium: foodIntake.magnesium,
+        showAchievement: false, // Don't show achievement for food water
+        source: 'food_intake',
+      );
+    }
+
+    // Handle high sodium foods - increase water need
+    if (foodIntake.isHighSodium) {
+      // Add extra 100ml per 300mg of sodium above normal
+      final extraWater = ((foodIntake.sodium - 300) / 300 * 100).clamp(0, 500);
+      if (extraWater > 0) {
+        // This increases the recommended water intake for the day
+        _analytics.log('high_sodium_food_adjustment', {
+          'food_name': foodIntake.foodName,
+          'sodium': foodIntake.sodium,
+          'extra_water_needed': extraWater,
+        });
+      }
+    }
+
+    // Handle caffeine from food (like chocolate)
+    if (foodIntake.hasCaffeine) {
+      // Estimate caffeine content (rough estimate for food)
+      final estimatedCaffeine = (foodIntake.weight * 0.1).round(); // ~10mg per 100g
+      logCoffeeIntake(estimatedCaffeine);
+    }
+
+    // Haptic feedback
+    HapticFeedback.lightImpact();
+
+    // Save to Firestore
+    _saveFoodToFirestore(foodIntake);
+
+    // Update UI
+    notifyListeners();
+
+    // Save locally
+    await _saveFoodIntakes();
+  }
+
+  /// Remove food intake
+  void removeFoodIntake(String id) {
+    FoodIntake? foodIntake;
+    try {
+      foodIntake = todayFoodIntakes.where((intake) => intake.id == id).first;
+    } catch (e) {
+      foodIntake = null;
+    }
+    if (foodIntake != null) {
+      // Remove the water that was added from this food
+      Intake? waterIntakeToRemove;
+      try {
+        waterIntakeToRemove = todayIntakes.where((intake) =>
+            intake.id.contains(foodIntake!.id) ||
+            (intake.timestamp.difference(foodIntake.timestamp).abs().inMinutes < 1 &&
+             intake.volume == foodIntake.waterContent.round())
+        ).first;
+      } catch (e) {
+        waterIntakeToRemove = null;
+      }
+
+      if (waterIntakeToRemove != null) {
+        removeIntake(waterIntakeToRemove.id);
+      }
+    }
+
+    todayFoodIntakes.removeWhere((intake) => intake.id == id);
+
+    // Update UI
+    notifyListeners();
+
+    // Save
+    _saveFoodIntakes().then((_) {
+      print('Food intake removed successfully');
+    });
+  }
+
+  /// Save food intakes to local storage
+  Future<void> _saveFoodIntakes() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final todayFoodKey = 'food_intakes_${DateTime.now().toIso8601String().split('T')[0]}';
+
+      final foodIntakesJson = todayFoodIntakes.map((intake) {
+        return '${intake.id}|${intake.timestamp.toIso8601String()}|${intake.foodId}|'
+               '${intake.foodName}|${intake.weight}|${intake.calories}|${intake.waterContent}|'
+               '${intake.sodium}|${intake.potassium}|${intake.magnesium}|${intake.sugar}|${intake.hasCaffeine}|'
+               '${intake.emoji ?? ""}';
+      }).toList();
+
+      await prefs.setStringList(todayFoodKey, foodIntakesJson);
+      print('Food intakes saved successfully');
+    } catch (e) {
+      print('Error saving food intakes: $e');
+    }
+  }
+
+  /// Save food intake to Firestore
+  Future<void> _saveFoodToFirestore(FoodIntake foodIntake) async {
+    try {
+      final historyService = HistoryService();
+
+      // Save food intake using the proper saveFoodIntake method
+      await historyService.saveFoodIntake(foodIntake);
+
+      print('Food intake saved to Firestore: ${foodIntake.foodName}');
+    } catch (e) {
+      print('Error saving food to Firestore: $e');
+      // Don't block the app on Firestore errors
+    }
+  }
+
+  /// Get today's total calories from food
+  int get totalCaloriesToday {
+    return todayFoodIntakes.fold(0, (sum, intake) => sum + intake.calories);
+  }
+
+  /// Get today's total sugar from food
+  double get totalSugarToday {
+    return todayFoodIntakes.fold(0.0, (sum, intake) => sum + intake.sugar);
+  }
+
+  /// Get today's water from food
+  double get totalWaterFromFoodToday {
+    return todayFoodIntakes.fold(0.0, (sum, intake) => sum + intake.waterContent);
+  }
+
+  /// Get food intake progress/summary
+  Map<String, dynamic> getFoodProgress() {
+    final totalCalories = totalCaloriesToday;
+    final totalSugar = totalSugarToday;
+    final totalWaterFromFood = totalWaterFromFoodToday;
+    final foodCount = todayFoodIntakes.length;
+
+    // Calculate additional sodium from food
+    final additionalSodium = todayFoodIntakes.fold(0, (sum, intake) => sum + intake.sodium);
+
+    // Calculate calories from different food categories
+    int fruitCalories = 0;
+    int vegetableCalories = 0;
+    int meatCalories = 0;
+    int fastFoodCalories = 0;
+    int dairyCalories = 0;
+    int soupCalories = 0;
+
+    for (final intake in todayFoodIntakes) {
+      if (intake.foodId.startsWith('fruit_')) {
+        fruitCalories += intake.calories;
+      } else if (intake.foodId.startsWith('vegetable_')) {
+        vegetableCalories += intake.calories;
+      } else if (intake.foodId.startsWith('meat_')) {
+        meatCalories += intake.calories;
+      } else if (intake.foodId.startsWith('fastfood_')) {
+        fastFoodCalories += intake.calories;
+      } else if (intake.foodId.startsWith('dairy_')) {
+        dairyCalories += intake.calories;
+      } else if (intake.foodId.startsWith('soup_')) {
+        soupCalories += intake.calories;
+      }
+    }
+
+    return {
+      'totalCalories': totalCalories,
+      'totalSugar': totalSugar,
+      'totalWaterFromFood': totalWaterFromFood,
+      'foodCount': foodCount,
+      'additionalSodium': additionalSodium,
+      'breakdown': {
+        'fruits': fruitCalories,
+        'vegetables': vegetableCalories,
+        'meat': meatCalories,
+        'fastFood': fastFoodCalories,
+        'dairy': dairyCalories,
+        'soups': soupCalories,
+      },
+    };
   }
   
   Map<String, double> getProgress() {

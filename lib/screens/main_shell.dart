@@ -304,6 +304,23 @@ class _AddMenuSheet extends StatelessWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: 12),
+
+                // Четвертая строка - Food
+                Row(
+                  children: [
+                    _buildAddOption(
+                      context: context,
+                      icon: Icons.restaurant,
+                      label: l10n.foodCatalog,
+                      color: Colors.deepOrange,
+                      route: '/food',
+                    ),
+                    const SizedBox(width: 12),
+                    // Пустое место для будущих категорий
+                    Expanded(child: SizedBox()),
+                  ],
+                ),
               ],
             ),
           ),

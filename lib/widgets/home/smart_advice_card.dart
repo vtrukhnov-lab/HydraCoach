@@ -155,6 +155,49 @@ class SmartAdviceCard extends StatelessWidget {
       };
     }
 
+    // ========== FOOD-BASED ADVICE ==========
+    final foodSodiumIntake = provider.todayFoodIntakes.fold(0.0, (sum, food) => sum + food.sodium);
+    final foodWaterContent = provider.totalWaterFromFoodToday;
+    final foodCount = provider.todayFoodIntakes.length;
+
+    // High sodium from food advice
+    if (foodSodiumIntake > 1500 && foodCount > 0) {
+      final volumeToShow = units.formatVolume(300);
+      return {
+        'title': 'High sodium from food',
+        'body': 'You consumed ${foodSodiumIntake.round()}mg sodium from food. Drink extra $volumeToShow to balance.',
+        'tone': Colors.orange.shade50,
+        'border': Colors.orange.shade300,
+        'ionMood': IonMood.thinking,
+        'ionHydrationLevel': HydrationLevel.normal,
+      };
+    }
+
+    // Low water content food advice
+    if (foodCount > 2 && foodWaterContent < 100) {
+      final volumeToShow = units.formatVolume(400);
+      return {
+        'title': 'Dry food intake',
+        'body': 'Your food had little water content. Drink extra $volumeToShow to compensate.',
+        'tone': Colors.blue.shade50,
+        'border': Colors.blue.shade300,
+        'ionMood': IonMood.thinking,
+        'ionHydrationLevel': HydrationLevel.normal,
+      };
+    }
+
+    // Positive advice for hydrating foods
+    if (foodWaterContent > 300 && foodCount > 0) {
+      return {
+        'title': 'Great food choices!',
+        'body': 'Your food provided ${foodWaterContent.round()}ml water. This helps your hydration goals.',
+        'tone': Colors.green.shade50,
+        'border': Colors.green.shade300,
+        'ionMood': IonMood.happy,
+        'ionHydrationLevel': HydrationLevel.perfect,
+      };
+    }
+
     final waterNeed = (provider.goals.waterOpt - provider.totalWaterToday).clamp(200, 800);
     final displayNeed = units.formatVolume(waterNeed.toInt(), hideUnit: true);
     return {

@@ -165,6 +165,8 @@ class _SupplementsScreenState extends State<SupplementsScreen>
         potassium: potassium,
         magnesium: magnesium,
         source: 'supplements',
+        name: item.getName(AppLocalizations.of(context)!),
+        emoji: item.icon is String ? item.icon as String : null,
       );
       
       // Show tips after first supplement

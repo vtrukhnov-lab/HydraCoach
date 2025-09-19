@@ -3689,4 +3689,405 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get onboardingAllowLocation => 'Разрешить геолокацию';
+
+  @override
+  String get foodCatalog => 'Каталог продуктов';
+
+  @override
+  String get todaysFoodIntake => 'Сегодняшний прием пищи';
+
+  @override
+  String get noFoodToday => 'Продукты не добавлены';
+
+  @override
+  String foodItemsCount(int count) {
+    return '$count продуктов';
+  }
+
+  @override
+  String get waterFromFood => 'Вода из еды';
+
+  @override
+  String get last => 'Последний';
+
+  @override
+  String get categoryFruits => 'Фрукты';
+
+  @override
+  String get categoryVegetables => 'Овощи';
+
+  @override
+  String get categorySoups => 'Супы';
+
+  @override
+  String get categoryDairy => 'Молочное';
+
+  @override
+  String get categoryMeat => 'Мясо';
+
+  @override
+  String get categoryFastFood => 'Фастфуд';
+
+  @override
+  String get weightGrams => 'Вес (граммы)';
+
+  @override
+  String get enterWeight => 'Введите вес';
+
+  @override
+  String get grams => 'г';
+
+  @override
+  String get calories => 'Калории';
+
+  @override
+  String get waterContent => 'Содержание воды';
+
+  @override
+  String get sugar => 'Сахар';
+
+  @override
+  String get nutritionalInfo => 'Пищевая ценность';
+
+  @override
+  String caloriesPerWeight(int calories, int weight) {
+    return '$calories ккал на $weightг';
+  }
+
+  @override
+  String waterPerWeight(int water, int weight) {
+    return '$water мл воды на $weightг';
+  }
+
+  @override
+  String sugarPerWeight(String sugar, int weight) {
+    return '$sugarг сахара на $weightг';
+  }
+
+  @override
+  String get addFood => 'Добавить продукт';
+
+  @override
+  String get foodAdded => 'Продукт успешно добавлен';
+
+  @override
+  String get enterValidWeight => 'Пожалуйста, введите корректный вес';
+
+  @override
+  String get proOnlyFood => 'Только PRO';
+
+  @override
+  String get unlockProForFood =>
+      'Разблокируйте PRO для доступа ко всем продуктам';
+
+  @override
+  String get foodTracker => 'Трекер питания';
+
+  @override
+  String get todaysFoodSummary => 'Сводка питания за сегодня';
+
+  @override
+  String get kcal => 'ккал';
+
+  @override
+  String get per100g => 'на 100г';
+
+  @override
+  String get addToFavorites => 'Добавить в избранное';
+
+  @override
+  String get favoritesFeatureComingSoon => 'Функция избранного скоро появится!';
+
+  @override
+  String foodAddedSuccess(String food, int calories, String water) {
+    return '$food добавлено! +$calories ккал, +$water';
+  }
+
+  @override
+  String get selectWeight => 'Выберите вес';
+
+  @override
+  String get ounces => 'унц';
+
+  @override
+  String get items => 'элементов';
+
+  @override
+  String get tapToAddFood => 'Нажмите, чтобы добавить еду';
+
+  @override
+  String get noFoodLoggedToday => 'Сегодня продукты не отслеживались';
+
+  @override
+  String get lightEatingDay => 'День лёгкого питания';
+
+  @override
+  String get moderateIntake => 'Умеренное потребление';
+
+  @override
+  String get goodCalorieIntake => 'Хорошее потребление калорий';
+
+  @override
+  String get substantialMeals => 'Существенные приёмы пищи';
+
+  @override
+  String get highCalorieDay => 'День высококалорийного питания';
+
+  @override
+  String get veryHighIntake => 'Очень высокое потребление';
+
+  @override
+  String get caloriesTracker => 'Трекер калорий';
+
+  @override
+  String get trackYourDailyCalorieIntake =>
+      'Отслеживайте ежедневное потребление калорий из пищи';
+
+  @override
+  String get unlockFoodTrackingFeatures =>
+      'Разблокируйте функции отслеживания питания';
+
+  @override
+  String get selectFoodType => 'Выберите тип продукта';
+
+  @override
+  String get foodApple => 'Яблоко';
+
+  @override
+  String get foodBanana => 'Банан';
+
+  @override
+  String get foodOrange => 'Апельсин';
+
+  @override
+  String get foodWatermelon => 'Арбуз';
+
+  @override
+  String get foodStrawberry => 'Клубника';
+
+  @override
+  String get foodGrapes => 'Виноград';
+
+  @override
+  String get foodPineapple => 'Ананас';
+
+  @override
+  String get foodMango => 'Манго';
+
+  @override
+  String get foodPear => 'Груша';
+
+  @override
+  String get foodCarrot => 'Морковь';
+
+  @override
+  String get foodBroccoli => 'Брокколи';
+
+  @override
+  String get foodSpinach => 'Шпинат';
+
+  @override
+  String get foodTomato => 'Помидор';
+
+  @override
+  String get foodCucumber => 'Огурец';
+
+  @override
+  String get foodBellPepper => 'Болгарский перец';
+
+  @override
+  String get foodLettuce => 'Салат';
+
+  @override
+  String get foodOnion => 'Лук';
+
+  @override
+  String get foodCelery => 'Сельдерей';
+
+  @override
+  String get foodChickenSoup => 'Куриный суп';
+
+  @override
+  String get foodTomatoSoup => 'Томатный суп';
+
+  @override
+  String get foodVegetableSoup => 'Овощной суп';
+
+  @override
+  String get foodMinestrone => 'Минестроне';
+
+  @override
+  String get foodMisoSoup => 'Мисо суп';
+
+  @override
+  String get foodMushroomSoup => 'Грибной суп';
+
+  @override
+  String get foodBeefStew => 'Говяжье рагу';
+
+  @override
+  String get foodLentilSoup => 'Чечевичный суп';
+
+  @override
+  String get foodOnionSoup => 'Французский луковый суп';
+
+  @override
+  String get foodMilk => 'Молоко';
+
+  @override
+  String get foodYogurt => 'Греческий йогурт';
+
+  @override
+  String get foodCheese => 'Сыр чеддер';
+
+  @override
+  String get foodCottageCheese => 'Творог';
+
+  @override
+  String get foodButter => 'Масло';
+
+  @override
+  String get foodCream => 'Жирные сливки';
+
+  @override
+  String get foodIceCream => 'Мороженое';
+
+  @override
+  String get foodMozzarella => 'Моцарелла';
+
+  @override
+  String get foodParmesan => 'Пармезан';
+
+  @override
+  String get foodChickenBreast => 'Куриная грудка';
+
+  @override
+  String get foodBeef => 'Говяжий фарш';
+
+  @override
+  String get foodSalmon => 'Лосось';
+
+  @override
+  String get foodEggs => 'Яйца';
+
+  @override
+  String get foodTuna => 'Тунец';
+
+  @override
+  String get foodPork => 'Свиная отбивная';
+
+  @override
+  String get foodTurkey => 'Индейка';
+
+  @override
+  String get foodShrimp => 'Креветки';
+
+  @override
+  String get foodBacon => 'Бекон';
+
+  @override
+  String get foodBigMac => 'Биг Мак';
+
+  @override
+  String get foodPizza => 'Кусок пиццы';
+
+  @override
+  String get foodFrenchFries => 'Картофель фри';
+
+  @override
+  String get foodChickenNuggets => 'Куриные наггетсы';
+
+  @override
+  String get foodHotDog => 'Хот-дог';
+
+  @override
+  String get foodTacos => 'Тако';
+
+  @override
+  String get foodSubway => 'Сэндвич Subway';
+
+  @override
+  String get foodDonut => 'Пончик';
+
+  @override
+  String get foodBurgerKing => 'Воппер';
+
+  @override
+  String get meals => 'приемов пищи';
+
+  @override
+  String get dailyProgress => 'Дневной прогресс';
+
+  @override
+  String get fromFood => 'из еды';
+
+  @override
+  String get noFoodThisWeek => 'Нет данных о еде за эту неделю';
+
+  @override
+  String get foodIntake => 'Потребление пищи';
+
+  @override
+  String get foodStats => 'Статистика питания';
+
+  @override
+  String get totalCalories => 'Всего калорий';
+
+  @override
+  String get avgCaloriesPerDay => 'В среднем в день';
+
+  @override
+  String get daysWithFood => 'Дней с едой';
+
+  @override
+  String get avgMealsPerDay => 'Приемов пищи в день';
+
+  @override
+  String get caloriesPerDay => 'Калорий в день';
+
+  @override
+  String get sugarPerDay => 'Сахара в день';
+
+  @override
+  String get foodTracking => 'Отслеживание питания';
+
+  @override
+  String get foodTrackingPro => 'Отслеживайте влияние пищи на гидратацию и HRI';
+
+  @override
+  String get hydrationBalance => 'Водный баланс';
+
+  @override
+  String get highSodiumFood => 'Высокий натрий из еды';
+
+  @override
+  String get hydratingFood => 'Отличные увлажняющие продукты';
+
+  @override
+  String get dryFood => 'Пища с низким содержанием воды';
+
+  @override
+  String get balancedFood => 'Сбалансированное питание';
+
+  @override
+  String get foodAdviceEmpty =>
+      'Добавьте блюда для отслеживания влияния пищи на гидратацию.';
+
+  @override
+  String get foodAdviceHighSodium =>
+      'Высокий натрий. Пейте больше воды для баланса.';
+
+  @override
+  String get foodAdviceLowWater => 'Сухая пища. Пейте больше воды.';
+
+  @override
+  String get foodAdviceGoodHydration =>
+      'Отлично! Ваш выбор продуктов поддерживает цели гидратации.';
+
+  @override
+  String get foodAdviceBalanced =>
+      'Продолжайте сбалансированное питание. Следите за потреблением воды в течение дня.';
+
+  @override
+  String get richInElectrolytes => 'Богато электролитами';
 }

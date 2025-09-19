@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/intake.dart';
 import '../models/alcohol_intake.dart';
+import '../models/food_intake.dart';
 import 'hri_service.dart';
 import 'alcohol_service.dart';
 
@@ -174,7 +175,35 @@ class HistoryService {
       return _getAlcoholFromPrefs(date);
     }
   }
-  
+
+  /// Get food intakes for a specific date
+  Future<List<FoodIntake>> getFoodForDate(DateTime date) async {
+    if (!_isAuthenticated) {
+      return _getFoodFromPrefs(date);
+    }
+
+    try {
+      final dateKey = _formatDateKey(date);
+
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('food_intakes')
+          .where('date', isEqualTo: dateKey)
+          .orderBy('timestamp', descending: true)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        return snapshot.docs.map((doc) => _foodFromFirestore(doc)).toList();
+      }
+
+      return _getFoodFromPrefs(date);
+    } catch (e) {
+      print('Error loading food from Firestore: $e');
+      return _getFoodFromPrefs(date);
+    }
+  }
+
   /// Get caffeine intakes for a specific date
   Future<List<Map<String, dynamic>>> getCaffeineForDate(DateTime date) async {
     if (!_isAuthenticated) {
@@ -244,6 +273,7 @@ class HistoryService {
   Future<Map<String, dynamic>> getDaySummary(DateTime date) async {
     final intakes = await getIntakesForDate(date);
     final alcohol = await getAlcoholForDate(date);
+    final food = await getFoodForDate(date);
     final caffeine = await getCaffeineForDate(date);
     final workouts = await getWorkoutsForDate(date);
     final hriData = await getHRIForDate(date);
@@ -280,7 +310,21 @@ class HistoryService {
     for (final workout in workouts) {
       totalWorkoutMinutes += workout.durationMinutes;
     }
-    
+
+    // Calculate food totals
+    int totalCalories = 0;
+    double totalFoodSugar = 0;
+    double totalFoodWater = 0;
+    int foodCount = food.length;
+    for (final foodIntake in food) {
+      totalCalories += foodIntake.calories;
+      totalFoodSugar += foodIntake.sugar;
+      totalFoodWater += foodIntake.waterContent;
+      totalSodium += foodIntake.sodium;
+      totalPotassium += foodIntake.potassium;
+      totalMagnesium += foodIntake.magnesium;
+    }
+
     // Получаем сохраненные цели дня из Firestore или рассчитываем базовые
     Map<String, dynamic>? dayGoals;
     if (_isAuthenticated) {
@@ -318,6 +362,11 @@ class HistoryService {
       'hriStatus': hriData?['status'],
       'hasAlcohol': alcohol.isNotEmpty,
       'hasWorkouts': workouts.isNotEmpty,
+      'hasFood': food.isNotEmpty,
+      'foodCount': foodCount,
+      'totalCalories': totalCalories,
+      'totalFoodSugar': totalFoodSugar,
+      'totalFoodWater': totalFoodWater,
       'goals': dayGoals, // Добавлено: все цели дня
     };
   }
@@ -376,7 +425,37 @@ class HistoryService {
       print('Error saving alcohol to Firestore: $e');
     }
   }
-  
+
+  /// Save food intake to Firestore (called from HydrationProvider)
+  Future<void> saveFoodIntake(FoodIntake intake) async {
+    if (!_isAuthenticated) return;
+
+    try {
+      final dateKey = _formatDateKey(intake.timestamp);
+
+      await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('food_intakes')
+          .doc(intake.id)
+          .set({
+        'date': dateKey,
+        'timestamp': Timestamp.fromDate(intake.timestamp),
+        'foodId': intake.foodId,
+        'foodName': intake.foodName,
+        'weight': intake.weight,
+        'calories': intake.calories,
+        'sugar': intake.sugar,
+        'waterContent': intake.waterContent,
+        'potassium': intake.potassium,
+        'sodium': intake.sodium,
+        'magnesium': intake.magnesium,
+      });
+    } catch (e) {
+      print('Error saving food intake to Firestore: $e');
+    }
+  }
+
   /// Save caffeine intake to Firestore (called from HRIService)
   Future<void> saveCaffeineIntake(String id, DateTime timestamp, double caffeineMg, String source) async {
     if (!_isAuthenticated) return;
@@ -605,6 +684,8 @@ class HistoryService {
       sodium: data['sodium'] ?? 0,
       potassium: data['potassium'] ?? 0,
       magnesium: data['magnesium'] ?? 0,
+      name: data['name'] as String?,
+      emoji: data['emoji'] as String?,
     );
   }
   
@@ -617,9 +698,29 @@ class HistoryService {
       volumeMl: data['volumeMl'].toDouble(),
       abv: data['abv'].toDouble(),
       sugar: data['sugar']?.toDouble(),
+      name: data['name'] as String?,
+      emoji: data['emoji'] as String?,
     );
   }
-  
+
+  FoodIntake _foodFromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return FoodIntake(
+      id: doc.id,
+      timestamp: (data['timestamp'] as Timestamp).toDate(),
+      foodId: data['foodId'] ?? '',
+      foodName: data['foodName'],
+      weight: data['weight'].toDouble(),
+      calories: data['calories'],
+      sugar: data['sugar'].toDouble(),
+      waterContent: data['waterContent'].toDouble(),
+      potassium: data['potassium'],
+      sodium: data['sodium'],
+      magnesium: data['magnesium'],
+      emoji: data['emoji'] as String?,
+    );
+  }
+
   Workout _workoutFromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return Workout(
@@ -659,6 +760,8 @@ class HistoryService {
               sodium: int.tryParse(parts[4]) ?? 0,
               potassium: int.tryParse(parts[5]) ?? 0,
               magnesium: int.tryParse(parts[6]) ?? 0,
+              name: parts.length > 7 && parts[7].isNotEmpty ? parts[7] : null,
+              emoji: parts.length > 8 && parts[8].isNotEmpty ? parts[8] : null,
             );
           }
         } catch (e) {
@@ -683,7 +786,43 @@ class HistoryService {
       return [];
     }
   }
-  
+
+  Future<List<FoodIntake>> _getFoodFromPrefs(DateTime date) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final dateKey = _formatDateKey(date);
+      final foodKey = 'food_intakes_$dateKey';
+      final foodIntakesJson = prefs.getStringList(foodKey) ?? [];
+
+      return foodIntakesJson.map((json) {
+        try {
+          final parts = json.split('|');
+          if (parts.length >= 12) {
+            return FoodIntake(
+              id: parts[0],
+              timestamp: DateTime.parse(parts[1]),
+              foodId: parts[2] ?? '',
+              foodName: parts[3],
+              weight: double.tryParse(parts[4]) ?? 0.0,
+              calories: int.tryParse(parts[5]) ?? 0,
+              sugar: double.tryParse(parts[10]) ?? 0.0,
+              waterContent: double.tryParse(parts[6]) ?? 0.0,
+              potassium: int.tryParse(parts[8]) ?? 0,
+              sodium: int.tryParse(parts[7]) ?? 0,
+              magnesium: int.tryParse(parts[9]) ?? 0,
+            );
+          }
+        } catch (e) {
+          print('Error parsing food intake: $e');
+        }
+        return null;
+      }).where((food) => food != null).cast<FoodIntake>().toList();
+    } catch (e) {
+      print('Error loading food from prefs: $e');
+      return [];
+    }
+  }
+
   Future<List<Map<String, dynamic>>> _getCaffeineFromPrefs(DateTime date) async {
     // Only return today's caffeine from HRIService
     final now = DateTime.now();

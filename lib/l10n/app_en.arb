@@ -1928,6 +1928,586 @@
 "onboardingLocationExamplesTitle": "Personal Advice",
 "onboardingLocationExamplesSubtitle": "We consider weather for accurate recommendations",
 "onboardingAllowNotifications": "Allow Notifications",
-"onboardingAllowLocation": "Allow Location"
+"onboardingAllowLocation": "Allow Location",
+
+"foodCatalog": "Food Catalog",
+"@foodCatalog": {
+  "description": "Food catalog screen title"
+},
+"todaysFoodIntake": "Today's Food Intake",
+"@todaysFoodIntake": {
+  "description": "Title for today's food intake summary"
+},
+"noFoodToday": "No food logged today",
+"@noFoodToday": {
+  "description": "Message when no food has been logged today"
+},
+"foodItemsCount": "{count} food items",
+"@foodItemsCount": {
+  "description": "Count of food items logged today",
+  "placeholders": {
+    "count": {
+      "type": "int",
+      "example": "3"
+    }
+  }
+},
+"waterFromFood": "Water from food",
+"@waterFromFood": {
+  "description": "Label for water content from food"
+},
+"last": "Last",
+"@last": {
+  "description": "Label for last item"
+},
+"categoryFruits": "Fruits",
+"@categoryFruits": {
+  "description": "Fruits category"
+},
+"categoryVegetables": "Vegetables",
+"@categoryVegetables": {
+  "description": "Vegetables category"
+},
+"categorySoups": "Soups",
+"@categorySoups": {
+  "description": "Soups category"
+},
+"categoryDairy": "Dairy",
+"@categoryDairy": {
+  "description": "Dairy category"
+},
+"categoryMeat": "Meat",
+"@categoryMeat": {
+  "description": "Meat category"
+},
+"categoryFastFood": "Fast Food",
+"@categoryFastFood": {
+  "description": "Fast food category"
+},
+"weightGrams": "Weight (grams)",
+"@weightGrams": {
+  "description": "Weight in grams label"
+},
+"enterWeight": "Enter weight",
+"@enterWeight": {
+  "description": "Enter weight prompt"
+},
+"grams": "g",
+"@grams": {
+  "description": "Grams unit"
+},
+"calories": "Calories",
+"@calories": {
+  "description": "Calories label"
+},
+"waterContent": "Water Content",
+"@waterContent": {
+  "description": "Water content label"
+},
+"sugar": "Sugar",
+"@sugar": {
+  "description": "Sugar label"
+},
+"nutritionalInfo": "Nutritional Info",
+"@nutritionalInfo": {
+  "description": "Nutritional information label"
+},
+"caloriesPerWeight": "{calories} kcal per {weight}g",
+"@caloriesPerWeight": {
+  "description": "Calories per weight format",
+  "placeholders": {
+    "calories": {
+      "type": "int"
+    },
+    "weight": {
+      "type": "int"
+    }
+  }
+},
+"waterPerWeight": "{water} ml water per {weight}g",
+"@waterPerWeight": {
+  "description": "Water per weight format",
+  "placeholders": {
+    "water": {
+      "type": "int"
+    },
+    "weight": {
+      "type": "int"
+    }
+  }
+},
+"sugarPerWeight": "{sugar}g sugar per {weight}g",
+"@sugarPerWeight": {
+  "description": "Sugar per weight format",
+  "placeholders": {
+    "sugar": {
+      "type": "String"
+    },
+    "weight": {
+      "type": "int"
+    }
+  }
+},
+"addFood": "Add Food",
+"@addFood": {
+  "description": "Add food button"
+},
+"foodAdded": "Food added successfully",
+"@foodAdded": {
+  "description": "Food added success message"
+},
+"enterValidWeight": "Please enter a valid weight",
+"@enterValidWeight": {
+  "description": "Invalid weight error message"
+},
+"proOnlyFood": "PRO only",
+"@proOnlyFood": {
+  "description": "PRO only food label"
+},
+"unlockProForFood": "Unlock PRO to access all food items",
+"@unlockProForFood": {
+  "description": "PRO unlock message for food"
+},
+"foodTracker": "Food Tracker",
+"@foodTracker": {
+  "description": "Food tracker title"
+},
+"todaysFoodSummary": "Today's Food Summary",
+"@todaysFoodSummary": {
+  "description": "Today's food summary title"
+},
+"kcal": "kcal",
+"@kcal": {
+  "description": "Kilocalories unit"
+},
+"per100g": "per 100g",
+"@per100g": {
+  "description": "Per 100 grams"
+},
+"addToFavorites": "Add to favorites",
+"@addToFavorites": {
+  "description": "Add to favorites checkbox"
+},
+"favoritesFeatureComingSoon": "Favorites feature coming soon!",
+"@favoritesFeatureComingSoon": {
+  "description": "Favorites feature not yet available message"
+},
+"foodAddedSuccess": "{food} added! +{calories} kcal, +{water}",
+"@foodAddedSuccess": {
+  "description": "Success message when food is added",
+  "placeholders": {
+    "food": {
+      "type": "String"
+    },
+    "calories": {
+      "type": "int"
+    },
+    "water": {
+      "type": "String"
+    }
+  }
+},
+"selectWeight": "Select Weight",
+"@selectWeight": {
+  "description": "Select weight dialog title"
+},
+"weight": "Weight",
+"@weight": {
+  "description": "Weight label"
+},
+"nutritionalInfo": "Nutritional Info",
+"@nutritionalInfo": {
+  "description": "Nutritional information"
+},
+"ounces": "oz",
+"@ounces": {
+  "description": "Ounces unit"
+},
+"items": "items",
+"@items": {
+  "description": "Items count"
+},
+"tapToAddFood": "Tap to add food",
+"@tapToAddFood": {
+  "description": "Add food prompt"
+},
+"noFoodLoggedToday": "No food logged today",
+"@noFoodLoggedToday": {
+  "description": "No food logged message"
+},
+"lightEatingDay": "Light eating day",
+"@lightEatingDay": {
+  "description": "Light eating day status"
+},
+"moderateIntake": "Moderate intake",
+"@moderateIntake": {
+  "description": "Moderate intake status"
+},
+"goodCalorieIntake": "Good calorie intake",
+"@goodCalorieIntake": {
+  "description": "Good calorie intake status"
+},
+"substantialMeals": "Substantial meals",
+"@substantialMeals": {
+  "description": "Substantial meals status"
+},
+"highCalorieDay": "High calorie day",
+"@highCalorieDay": {
+  "description": "High calorie day status"
+},
+"veryHighIntake": "Very high intake",
+"@veryHighIntake": {
+  "description": "Very high intake status"
+},
+"caloriesTracker": "Calories Tracker",
+"@caloriesTracker": {
+  "description": "Calories tracker title"
+},
+"trackYourDailyCalorieIntake": "Track your daily calorie intake from food",
+"@trackYourDailyCalorieIntake": {
+  "description": "Calories tracker description"
+},
+"unlockFoodTrackingFeatures": "Unlock food tracking features",
+"@unlockFoodTrackingFeatures": {
+  "description": "Unlock food tracking features message"
+},
+"selectFoodType": "Select food type",
+"@selectFoodType": {
+  "description": "Select food type title"
+},
+
+"foodApple": "Apple",
+"@foodApple": {
+  "description": "Apple fruit"
+},
+"foodBanana": "Banana",
+"@foodBanana": {
+  "description": "Banana fruit"
+},
+"foodOrange": "Orange",
+"@foodOrange": {
+  "description": "Orange fruit"
+},
+"foodWatermelon": "Watermelon",
+"@foodWatermelon": {
+  "description": "Watermelon fruit"
+},
+"foodStrawberry": "Strawberry",
+"@foodStrawberry": {
+  "description": "Strawberry fruit"
+},
+"foodGrapes": "Grapes",
+"@foodGrapes": {
+  "description": "Grapes fruit"
+},
+"foodPineapple": "Pineapple",
+"@foodPineapple": {
+  "description": "Pineapple fruit"
+},
+"foodMango": "Mango",
+"@foodMango": {
+  "description": "Mango fruit"
+},
+"foodPear": "Pear",
+"@foodPear": {
+  "description": "Pear fruit"
+},
+
+"foodCarrot": "Carrot",
+"@foodCarrot": {
+  "description": "Carrot vegetable"
+},
+"foodBroccoli": "Broccoli",
+"@foodBroccoli": {
+  "description": "Broccoli vegetable"
+},
+"foodSpinach": "Spinach",
+"@foodSpinach": {
+  "description": "Spinach vegetable"
+},
+"foodTomato": "Tomato",
+"@foodTomato": {
+  "description": "Tomato vegetable"
+},
+"foodCucumber": "Cucumber",
+"@foodCucumber": {
+  "description": "Cucumber vegetable"
+},
+"foodBellPepper": "Bell Pepper",
+"@foodBellPepper": {
+  "description": "Bell pepper vegetable"
+},
+"foodLettuce": "Lettuce",
+"@foodLettuce": {
+  "description": "Lettuce vegetable"
+},
+"foodOnion": "Onion",
+"@foodOnion": {
+  "description": "Onion vegetable"
+},
+"foodCelery": "Celery",
+"@foodCelery": {
+  "description": "Celery vegetable"
+},
+
+"foodChickenSoup": "Chicken Soup",
+"@foodChickenSoup": {
+  "description": "Chicken soup"
+},
+"foodTomatoSoup": "Tomato Soup",
+"@foodTomatoSoup": {
+  "description": "Tomato soup"
+},
+"foodVegetableSoup": "Vegetable Soup",
+"@foodVegetableSoup": {
+  "description": "Vegetable soup"
+},
+"foodMinestrone": "Minestrone",
+"@foodMinestrone": {
+  "description": "Minestrone soup"
+},
+"foodMisoSoup": "Miso Soup",
+"@foodMisoSoup": {
+  "description": "Miso soup"
+},
+"foodMushroomSoup": "Mushroom Soup",
+"@foodMushroomSoup": {
+  "description": "Mushroom soup"
+},
+"foodBeefStew": "Beef Stew",
+"@foodBeefStew": {
+  "description": "Beef stew"
+},
+"foodLentilSoup": "Lentil Soup",
+"@foodLentilSoup": {
+  "description": "Lentil soup"
+},
+"foodOnionSoup": "French Onion Soup",
+"@foodOnionSoup": {
+  "description": "French onion soup"
+},
+
+"foodMilk": "Milk",
+"@foodMilk": {
+  "description": "Milk"
+},
+"foodYogurt": "Greek Yogurt",
+"@foodYogurt": {
+  "description": "Greek yogurt"
+},
+"foodCheese": "Cheddar Cheese",
+"@foodCheese": {
+  "description": "Cheddar cheese"
+},
+"foodCottageCheese": "Cottage Cheese",
+"@foodCottageCheese": {
+  "description": "Cottage cheese"
+},
+"foodButter": "Butter",
+"@foodButter": {
+  "description": "Butter"
+},
+"foodCream": "Heavy Cream",
+"@foodCream": {
+  "description": "Heavy cream"
+},
+"foodIceCream": "Ice Cream",
+"@foodIceCream": {
+  "description": "Ice cream"
+},
+"foodMozzarella": "Mozzarella",
+"@foodMozzarella": {
+  "description": "Mozzarella cheese"
+},
+"foodParmesan": "Parmesan",
+"@foodParmesan": {
+  "description": "Parmesan cheese"
+},
+
+"foodChickenBreast": "Chicken Breast",
+"@foodChickenBreast": {
+  "description": "Chicken breast"
+},
+"foodBeef": "Ground Beef",
+"@foodBeef": {
+  "description": "Ground beef"
+},
+"foodSalmon": "Salmon",
+"@foodSalmon": {
+  "description": "Salmon fish"
+},
+"foodEggs": "Eggs",
+"@foodEggs": {
+  "description": "Chicken eggs"
+},
+"foodTuna": "Tuna",
+"@foodTuna": {
+  "description": "Tuna fish"
+},
+"foodPork": "Pork Chop",
+"@foodPork": {
+  "description": "Pork chop"
+},
+"foodTurkey": "Turkey",
+"@foodTurkey": {
+  "description": "Turkey meat"
+},
+"foodShrimp": "Shrimp",
+"@foodShrimp": {
+  "description": "Shrimp"
+},
+"foodBacon": "Bacon",
+"@foodBacon": {
+  "description": "Bacon"
+},
+
+"foodBigMac": "Big Mac",
+"@foodBigMac": {
+  "description": "McDonald's Big Mac"
+},
+"foodPizza": "Pizza Slice",
+"@foodPizza": {
+  "description": "Pizza slice"
+},
+"foodFrenchFries": "French Fries",
+"@foodFrenchFries": {
+  "description": "French fries"
+},
+"foodChickenNuggets": "Chicken Nuggets",
+"@foodChickenNuggets": {
+  "description": "Chicken nuggets"
+},
+"foodHotDog": "Hot Dog",
+"@foodHotDog": {
+  "description": "Hot dog"
+},
+"foodTacos": "Tacos",
+"@foodTacos": {
+  "description": "Tacos"
+},
+"foodSubway": "Subway Sandwich",
+"@foodSubway": {
+  "description": "Subway sandwich"
+},
+"foodDonut": "Donut",
+"@foodDonut": {
+  "description": "Donut"
+},
+"foodBurgerKing": "Whopper",
+"@foodBurgerKing": {
+  "description": "Burger King Whopper"
+},
+"meals": "meals",
+"@meals": {
+  "description": "Meals counter"
+},
+"dailyProgress": "Daily Progress",
+"@dailyProgress": {
+  "description": "Daily progress label"
+},
+"fromFood": "from food",
+"@fromFood": {
+  "description": "Water from food label"
+},
+"tapToAddFood": "Tap to add food",
+"@tapToAddFood": {
+  "description": "Tap to add food instruction"
+},
+"noFoodThisWeek": "No food data this week",
+"@noFoodThisWeek": {
+  "description": "No food data message for weekly view"
+},
+"foodIntake": "Food Intake",
+"@foodIntake": {
+  "description": "Food intake chart title"
+},
+"foodStats": "Food Statistics",
+"@foodStats": {
+  "description": "Food statistics title"
+},
+"totalCalories": "Total calories",
+"@totalCalories": {
+  "description": "Total calories label"
+},
+"avgCaloriesPerDay": "Avg per day",
+"@avgCaloriesPerDay": {
+  "description": "Average calories per day label"
+},
+"daysWithFood": "Days with food",
+"@daysWithFood": {
+  "description": "Days with food label"
+},
+"avgMealsPerDay": "Meals per day",
+"@avgMealsPerDay": {
+  "description": "Average meals per day label"
+},
+"waterFromFood": "Water from food",
+"@waterFromFood": {
+  "description": "Water from food label"
+},
+"caloriesPerDay": "Calories per day",
+"@caloriesPerDay": {
+  "description": "Calories per day label"
+},
+"sugarPerDay": "Sugar per day",
+"@sugarPerDay": {
+  "description": "Sugar per day label"
+},
+"foodTracking": "Food Tracking",
+"@foodTracking": {
+  "description": "Food tracking feature name"
+},
+"foodTrackingPro": "Track food impact on hydration and HRI",
+"@foodTrackingPro": {
+  "description": "Food tracking pro description"
+},
+"hydrationBalance": "Hydration Balance",
+"@hydrationBalance": {
+  "description": "Hydration balance label"
+},
+"highSodiumFood": "High sodium from food",
+"@highSodiumFood": {
+  "description": "High sodium food status"
+},
+"hydratingFood": "Great hydrating choices",
+"@hydratingFood": {
+  "description": "Hydrating food status"
+},
+"dryFood": "Low water content food",
+"@dryFood": {
+  "description": "Dry food status"
+},
+"balancedFood": "Balanced nutrition",
+"@balancedFood": {
+  "description": "Balanced food status"
+},
+"foodAdviceEmpty": "Add meals to track food impact on hydration.",
+"@foodAdviceEmpty": {
+  "description": "Advice when no food logged"
+},
+"foodAdviceHighSodium": "High sodium intake detected. Increase water to balance electrolytes.",
+"@foodAdviceHighSodium": {
+  "description": "Advice for high sodium food"
+},
+"foodAdviceLowWater": "Your food had low water content. Consider drinking extra water.",
+"@foodAdviceLowWater": {
+  "description": "Advice for low water content food"
+},
+"foodAdviceGoodHydration": "Excellent! Your food choices are supporting hydration goals.",
+"@foodAdviceGoodHydration": {
+  "description": "Advice for good hydrating food"
+},
+"foodAdviceBalanced": "Keep up the balanced nutrition. Monitor water intake throughout the day.",
+"@foodAdviceBalanced": {
+  "description": "Advice for balanced food choices"
+},
+"richInElectrolytes": "Rich in electrolytes",
+"@richInElectrolytes": {
+  "description": "Status for food rich in electrolytes"
+},
+"kcal": "kcal",
+"@kcal": {
+  "description": "Kilocalories abbreviation"
+}
 }
 

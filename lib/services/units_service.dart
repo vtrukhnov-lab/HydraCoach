@@ -67,13 +67,13 @@ class UnitsService extends ChangeNotifier {
       return '$formatted $unit';
     } else {
       if (hideUnit) return ml.toString();
-      return '$ml мл'; // TODO: использовать l10n.ml
+      return '$ml ml';
     }
   }
   
   /// Получить единицу измерения объёма
-  String get volumeUnit => isImperial ? 'oz' : 'мл';
-  String get volumeUnitShort => isImperial ? 'oz' : 'мл';
+  String get volumeUnit => isImperial ? 'oz' : 'ml';
+  String get volumeUnitShort => isImperial ? 'oz' : 'ml';
   
   // ============= ВЕС (Weight) =============
   
@@ -99,16 +99,16 @@ class UnitsService extends ChangeNotifier {
       final lb = kg * KG_TO_LB;
       final formatted = lb.toStringAsFixed(1);
       if (hideUnit) return formatted;
-      return '$formatted lb'; // TODO: использовать l10n.lb
+      return '$formatted lb';
     } else {
       final formatted = kg.toStringAsFixed(1);
       if (hideUnit) return formatted;
-      return '$formatted кг'; // TODO: использовать l10n.kg
+      return '$formatted kg';
     }
   }
   
   /// Получить единицу измерения веса
-  String get weightUnit => isImperial ? 'lb' : 'кг';
+  String get weightUnit => isImperial ? 'lb' : 'kg';
   
   // ============= ТЕМПЕРАТУРА (Temperature) =============
   
@@ -155,7 +155,7 @@ class UnitsService extends ChangeNotifier {
       final inches = (totalInches % 12).round();
       return "$feet'$inches\"";
     }
-    return '$cm см'; // TODO: использовать l10n.cm
+    return '$cm cm';
   }
   
   /// Конвертация введённого значения в см для хранения
@@ -199,7 +199,7 @@ class UnitsService extends ChangeNotifier {
     if (isImperial) {
       return '$value oz';
     }
-    return '$value мл'; // TODO: использовать l10n
+    return '$value ml';
   }
   
   // ============= ЭЛЕКТРОЛИТЫ =============
@@ -207,7 +207,7 @@ class UnitsService extends ChangeNotifier {
   /// Форматирование электролитов (всегда в мг)
   String formatElectrolyte(int mg, {bool hideUnit = false}) {
     if (hideUnit) return mg.toString();
-    return '$mg мг'; // TODO: использовать l10n.mg
+    return '$mg mg';
   }
   
   // ============= АЛКОГОЛЬ =============

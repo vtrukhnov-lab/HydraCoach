@@ -194,6 +194,8 @@ class _HotDrinksScreenState extends State<HotDrinksScreen>
         potassium: 0,
         magnesium: 0,
         source: 'hot_drinks',
+        name: item.getName(AppLocalizations.of(context)!),
+        emoji: item.icon is String ? item.icon as String : null,
       );
       
       // Add caffeine to HRI if present

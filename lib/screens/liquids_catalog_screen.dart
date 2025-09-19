@@ -140,6 +140,8 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen>
         potassium: 0,
         magnesium: 0,
         source: 'liquids_catalog',
+        name: name,
+        emoji: emoji,
       );
       
       // Log sugar if present

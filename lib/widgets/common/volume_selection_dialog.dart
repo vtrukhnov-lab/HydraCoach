@@ -14,6 +14,7 @@ class VolumeSelectionDialog extends StatefulWidget {
   final String units;
   final bool showElectrolytes;
   final bool showAlcoholInfo;
+  final bool showFoodInfo; // for food items
   final bool showDosage; // for supplements
   final bool showDuration; // for workouts
   final double? userWeight; // for workout calculations
@@ -28,6 +29,7 @@ class VolumeSelectionDialog extends StatefulWidget {
     required this.units,
     this.showElectrolytes = false,
     this.showAlcoholInfo = false,
+    this.showFoodInfo = false,
     this.showDosage = false,
     this.showDuration = false,
     this.userWeight,
@@ -44,6 +46,7 @@ class VolumeSelectionDialog extends StatefulWidget {
     required String units,
     bool showElectrolytes = false,
     bool showAlcoholInfo = false,
+    bool showFoodInfo = false,
     bool showDosage = false,
     bool showDuration = false,
     double? userWeight,
@@ -60,6 +63,7 @@ class VolumeSelectionDialog extends StatefulWidget {
           units: units,
           showElectrolytes: showElectrolytes,
           showAlcoholInfo: showAlcoholInfo,
+          showFoodInfo: showFoodInfo,
           showDosage: showDosage,
           showDuration: showDuration,
           userWeight: userWeight,
@@ -93,14 +97,22 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
       displayUnit = 'min'; // Always minutes for duration
       minValue = 5;
       maxValue = 120;
-      
+
       // Initialize with default duration
       sliderValue = (widget.item.properties['defaultMinutes'] as int? ?? 30).toDouble();
-      
+
       // Calculate initial workout losses
       if (widget.userWeight != null) {
         _calculateWorkoutLosses();
       }
+    } else if (widget.showFoodInfo) {
+      // Food mode - weight in grams/ounces
+      displayUnit = widget.units == 'imperial' ? 'oz' : 'g';
+      minValue = widget.units == 'imperial' ? 0.5 : 10.0;
+      maxValue = widget.units == 'imperial' ? 18.0 : 500.0;
+
+      // Initialize with default weight
+      sliderValue = widget.item.getDefaultVolume(widget.units).toDouble();
     } else if (widget.showDosage) {
       // Dosage mode for supplements
       displayUnit = widget.item.getDosageUnit(widget.units);
@@ -178,12 +190,20 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
     if (widget.showDuration) {
       return sliderValue; // Return minutes, not volume
     }
-    
+
     // For dosage mode, return the dosage value as is
     if (widget.showDosage) {
       return sliderValue; // Return dosage, not volume
     }
-    
+
+    // For food mode, return weight in grams
+    if (widget.showFoodInfo) {
+      if (widget.units == 'imperial') {
+        return sliderValue * 28.3495; // Convert oz to grams
+      }
+      return sliderValue; // Already in grams
+    }
+
     // For volume mode, convert to ml if needed
     if (widget.units == 'imperial') {
       return sliderValue * 29.5735;
@@ -200,7 +220,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
         'magnesium': workoutLosses!.magnesiumLossMg,
       };
     }
-    
+
     // For supplements with dosage
     if (widget.showDosage) {
       final magnesium = widget.item.getMagnesiumContent(widget.units);
@@ -210,17 +230,31 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
         'magnesium': (magnesium * sliderValue).round(),
       };
     }
-    
+
+    // For food items, calculate electrolytes based on weight
+    if (widget.showFoodInfo) {
+      try {
+        final weightGrams = getVolumeMl(); // Returns weight in grams for food
+        return {
+          'sodium': ((widget.item.properties['sodium'] ?? 0) * weightGrams / 100).round(),
+          'potassium': ((widget.item.properties['potassium'] ?? 0) * weightGrams / 100).round(),
+          'magnesium': ((widget.item.properties['magnesium'] ?? 0) * weightGrams / 100).round(),
+        };
+      } catch (e) {
+        return {'sodium': 0, 'potassium': 0, 'magnesium': 0};
+      }
+    }
+
     // For regular electrolytes with volume
     if (!widget.showElectrolytes) {
       return {'sodium': 0, 'potassium': 0, 'magnesium': 0};
     }
-    
+
     try {
       final baseVolume = widget.item.getDefaultVolume(widget.units).toDouble();
       final baseVolumeMl = widget.units == 'imperial' ? baseVolume * 29.5735 : baseVolume;
       final multiplier = getVolumeMl() / baseVolumeMl;
-      
+
       return {
         'sodium': ((widget.item.properties['sodium'] ?? 0) * multiplier).round(),
         'potassium': ((widget.item.properties['potassium'] ?? 0) * multiplier).round(),
@@ -245,7 +279,19 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
 
   double getTotalSugar() {
     if (widget.showDosage || widget.showDuration) return 0; // Supplements and workouts don't have sugar
-    
+
+    // For food items, calculate sugar based on weight
+    if (widget.showFoodInfo) {
+      try {
+        final weightGrams = getVolumeMl(); // Returns weight in grams for food
+        final sugarPer100g = (widget.item.properties['sugarPer100g'] ?? 0.0) as num;
+        return (sugarPer100g * weightGrams / 100.0);
+      } catch (e) {
+        return 0.0;
+      }
+    }
+
+    // For drinks, calculate sugar based on volume
     try {
       final baseVolume = widget.item.getDefaultVolume(widget.units).toDouble();
       final baseVolumeMl = widget.units == 'imperial' ? baseVolume * 29.5735 : baseVolume;
@@ -253,6 +299,18 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
       return (baseSugar * getVolumeMl() / baseVolumeMl);
     } catch (e) {
       return 0.0;
+    }
+  }
+
+  int getCalories() {
+    if (!widget.showFoodInfo) return 0; // Only food items have calories
+
+    try {
+      final weightGrams = getVolumeMl(); // Returns weight in grams for food
+      final caloriesPer100g = (widget.item.properties['caloriesPer100g'] ?? 0) as int;
+      return ((caloriesPer100g * weightGrams) / 100).round();
+    } catch (e) {
+      return 0;
     }
   }
 
@@ -392,10 +450,10 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
   }
 
   bool get hasSignificantElectrolytes {
-    if (!widget.showElectrolytes && !widget.showDosage && !widget.showDuration) return false;
+    if (!widget.showElectrolytes && !widget.showDosage && !widget.showDuration && !widget.showFoodInfo) return false;
     final e = getElectrolytes();
-    return (e['sodium'] ?? 0) > 0 || 
-           (e['potassium'] ?? 0) > 0 || 
+    return (e['sodium'] ?? 0) > 0 ||
+           (e['potassium'] ?? 0) > 0 ||
            (e['magnesium'] ?? 0) > 0;
   }
 
@@ -456,9 +514,10 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
     final theme = Theme.of(context);
     final itemName = widget.item.getName(l10n);
     final hydration = (widget.item.properties['hydration'] as num? ?? 1.0);
-    final sliderActiveColor = widget.sliderColor ?? 
-      (widget.showDuration ? Colors.teal : 
-       widget.showDosage ? Colors.purple : 
+    final sliderActiveColor = widget.sliderColor ??
+      (widget.showDuration ? Colors.teal :
+       widget.showFoodInfo ? Colors.deepOrange :
+       widget.showDosage ? Colors.purple :
        Colors.blue);
     final caffeine = getCaffeine();
     final sugar = getTotalSugar();
@@ -517,6 +576,15 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                       fontWeight: FontWeight.normal,
                     ),
                   )
+                else if (widget.showFoodInfo)
+                  Text(
+                    '${widget.item.properties['caloriesPer100g']} ${l10n.kcal}/${l10n.per100g}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.normal,
+                    ),
+                  )
                 else if (!widget.showElectrolytes && !widget.showDosage && hydration != 1.0)
                   Text(
                     '${(hydration * 100).toInt()}% ${l10n.hydration.toLowerCase()}',
@@ -551,7 +619,8 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                   children: [
                     Text(
                       widget.showDuration ? l10n.duration :
-                      widget.showDosage ? l10n.dosage : 
+                      widget.showFoodInfo ? l10n.weight :
+                      widget.showDosage ? l10n.dosage :
                       l10n.volume,
                       style: const TextStyle(
                         fontSize: 14,
@@ -561,9 +630,11 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       decoration: BoxDecoration(
-                        color: widget.showDuration 
+                        color: widget.showDuration
                           ? Colors.teal.withOpacity(0.1)
-                          : widget.showDosage 
+                          : widget.showFoodInfo
+                            ? Colors.deepOrange.shade100
+                          : widget.showDosage
                             ? Colors.purple.shade100
                             : theme.colorScheme.primaryContainer.withOpacity(0.5),
                         borderRadius: BorderRadius.circular(8),
@@ -577,7 +648,9 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                           fontWeight: FontWeight.bold,
                           color: widget.showDuration
                             ? Colors.teal[700]
-                            : widget.showDosage 
+                            : widget.showFoodInfo
+                              ? Colors.deepOrange[700]
+                            : widget.showDosage
                               ? Colors.purple[700]
                               : theme.colorScheme.primary,
                         ),
@@ -777,6 +850,139 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                   ],
                 ),
               ),
+            ] else if (widget.showFoodInfo) ...[
+              // For food items, show calories and sugar as main metrics
+              Row(
+                children: [
+                  // Calories card
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.green.shade400, Colors.green.shade600],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        children: [
+                          const Icon(
+                            Icons.local_fire_department,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            getCalories().toString(),
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            l10n.kcal,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white.withOpacity(0.9),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Sugar card
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: getSugarGradientColors(getTotalSugar()),
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        children: [
+                          const Icon(
+                            Icons.cake,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            getTotalSugar().toStringAsFixed(1),
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            l10n.gramsSugar,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white.withOpacity(0.9),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              // Electrolytes for food
+              if (hasSignificantElectrolytes) ...[
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.deepOrange.shade50, Colors.deepOrange.shade100],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        l10n.electrolyteContent,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.deepOrange.shade700,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          if (electrolytes['sodium']! > 0)
+                            _buildElectrolyteMetric(
+                              'Na',
+                              electrolytes['sodium']!,
+                              Colors.blue,
+                            ),
+                          if (electrolytes['potassium']! > 0)
+                            _buildElectrolyteMetric(
+                              'K',
+                              electrolytes['potassium']!,
+                              Colors.green,
+                            ),
+                          if (electrolytes['magnesium']! > 0)
+                            _buildElectrolyteMetric(
+                              'Mg',
+                              electrolytes['magnesium']!,
+                              Colors.purple,
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ] else if (widget.showDosage) ...[
               // For supplements, show only electrolytes if present
               if (hasSignificantElectrolytes) ...[
@@ -1036,11 +1242,14 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                 },
                 icon: const Icon(Icons.add),
                 label: Text(
-                  widget.showDuration ? l10n.logActivity : l10n.add
+                  widget.showDuration ? l10n.logActivity :
+                  widget.showFoodInfo ? l10n.addFood :
+                  l10n.add
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: widget.showDuration ? Colors.teal :
-                                 widget.showDosage ? const Color.fromARGB(255, 98, 179, 246) : 
+                                 widget.showFoodInfo ? const Color.fromARGB(255, 98, 179, 246) :
+                                 widget.showDosage ? const Color.fromARGB(255, 98, 179, 246) :
                                  const Color.fromARGB(255, 98, 179, 246),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -1083,29 +1292,40 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
     if (value == 0) {
       return const SizedBox.shrink();
     }
-    
+
     return Column(
       children: [
+        // Квадратный символ как в главной карточке
         Container(
-          width: 8,
-          height: 8,
+          width: 28,
+          height: 28,
           decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
+            color: color.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
         Text(
           '$value',
           style: const TextStyle(
-            fontSize: 20,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
         ),
         Text(
-          '$label mg',
+          'mg',
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 10,
             color: Colors.grey.shade600,
           ),
         ),

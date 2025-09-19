@@ -315,7 +315,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   
                   // 5 - Notification Examples
                   NotificationExamplesPage(
-                    onSkip: _skipToLocationExamples,
+                    onSkip: () => _pageController.jumpToPage(6),
                     onBack: () {
                       _pageController.animateToPage(
                         4,

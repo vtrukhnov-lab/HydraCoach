@@ -116,6 +116,8 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
         potassium: potassium,
         magnesium: magnesium,
         source: 'electrolytes_screen',
+        name: item.getName(AppLocalizations.of(context)!),
+        emoji: item.icon is String ? item.icon as String : null,
       );
       
       // Show success message

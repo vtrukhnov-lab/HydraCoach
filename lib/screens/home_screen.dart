@@ -25,6 +25,7 @@ import '../widgets/home/electrolytes_card.dart';
 import '../widgets/home/smart_advice_card.dart';
 import '../widgets/home/hri_status_card.dart';
 import '../widgets/home/sugar_intake_card.dart';
+import '../widgets/home/food_intake_card.dart';
 import '../widgets/achievement_overlay.dart';
 import '../models/achievement.dart';
 
@@ -202,6 +203,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       sugarIntake: sugarData.totalGrams,
       lastIntakeTime: lastIntakeTime,
       userWeightKg: provider.weight,
+      // NEW: Add food data
+      foodWaterContent: provider.totalWaterFromFoodToday,
+      foodSodiumIntake: provider.todayFoodIntakes.fold(0.0, (sum, food) => sum + food.sodium),
+      foodCount: provider.todayFoodIntakes.length,
+      foodSugarIntake: provider.todayFoodIntakes.fold(0.0, (sum, food) => sum + food.sugar),
     );
   }
 
@@ -242,6 +248,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       const ElectrolytesCard(),
       const WeatherCard(),
       const SugarIntakeCard(),
+      const FoodIntakeCard(),
     ];
 
     return Scaffold(

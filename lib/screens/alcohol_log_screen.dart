@@ -113,6 +113,8 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
       volumeMl: volumeMl,
       abv: abv,
       sugar: proportionalSugar,
+      name: item.getName(AppLocalizations.of(context)!),
+      emoji: item.icon is String ? item.icon as String : null,
     );
     
     try {

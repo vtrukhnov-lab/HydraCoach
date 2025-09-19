@@ -12,6 +12,8 @@ class Intake {
   final int sodium;
   final int potassium;
   final int magnesium;
+  final String? name; // Конкретное название напитка
+  final String? emoji; // Эмодзи напитка
 
   Intake({
     required this.id,
@@ -21,6 +23,8 @@ class Intake {
     this.sodium = 0,
     this.potassium = 0,
     this.magnesium = 0,
+    this.name,
+    this.emoji,
   });
 
   // Convert to JSON for storage
@@ -32,6 +36,8 @@ class Intake {
     'sodium': sodium,
     'potassium': potassium,
     'magnesium': magnesium,
+    if (name != null) 'name': name,
+    if (emoji != null) 'emoji': emoji,
   };
 
   // Create from JSON
@@ -43,6 +49,8 @@ class Intake {
     sodium: json['sodium'] as int? ?? 0,
     potassium: json['potassium'] as int? ?? 0,
     magnesium: json['magnesium'] as int? ?? 0,
+    name: json['name'] as String?,
+    emoji: json['emoji'] as String?,
   );
 
   // Create from legacy pipe-separated string format
@@ -73,6 +81,8 @@ class Intake {
     int? sodium,
     int? potassium,
     int? magnesium,
+    String? name,
+    String? emoji,
   }) {
     return Intake(
       id: id ?? this.id,
@@ -82,6 +92,8 @@ class Intake {
       sodium: sodium ?? this.sodium,
       potassium: potassium ?? this.potassium,
       magnesium: magnesium ?? this.magnesium,
+      name: name ?? this.name,
+      emoji: emoji ?? this.emoji,
     );
   }
 
@@ -113,7 +125,7 @@ class Intake {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    
+
     return other is Intake &&
       other.id == id &&
       other.timestamp == timestamp &&
@@ -121,7 +133,9 @@ class Intake {
       other.volume == volume &&
       other.sodium == sodium &&
       other.potassium == potassium &&
-      other.magnesium == magnesium;
+      other.magnesium == magnesium &&
+      other.name == name &&
+      other.emoji == emoji;
   }
 
   @override
@@ -132,6 +146,8 @@ class Intake {
       volume.hashCode ^
       sodium.hashCode ^
       potassium.hashCode ^
-      magnesium.hashCode;
+      magnesium.hashCode ^
+      name.hashCode ^
+      emoji.hashCode;
   }
 }

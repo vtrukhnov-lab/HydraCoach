@@ -10,7 +10,21 @@
       "Bash(git checkout:*)",
       "Bash(git add:*)",
       "Bash(git stash:*)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(flutter doctor:*)",
+      "Bash(powershell:*)",
+      "WebSearch",
+      "WebFetch(domain:dev.appsflyer.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:central.sonatype.com)",
+      "Bash(./gradlew:*)",
+      "Bash(dir:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(flutter build:*)",
+      "Bash(find:*)",
+      "Bash(flutter gen-l10n:*)",
+      "Bash(flutter clean:*)"
     ],
     "deny": [],
     "ask": []

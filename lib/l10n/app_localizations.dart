@@ -628,7 +628,7 @@ abstract class AppLocalizations {
   /// **'Profile'**
   String get profileSection;
 
-  /// No description provided for @weight.
+  /// Weight label
   ///
   /// In en, this message translates to:
   /// **'Weight'**
@@ -6927,6 +6927,774 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Allow Location'**
   String get onboardingAllowLocation;
+
+  /// Food catalog screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Food Catalog'**
+  String get foodCatalog;
+
+  /// Title for today's food intake summary
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Food Intake'**
+  String get todaysFoodIntake;
+
+  /// Message when no food has been logged today
+  ///
+  /// In en, this message translates to:
+  /// **'No food logged today'**
+  String get noFoodToday;
+
+  /// Count of food items logged today
+  ///
+  /// In en, this message translates to:
+  /// **'{count} food items'**
+  String foodItemsCount(int count);
+
+  /// Water from food label
+  ///
+  /// In en, this message translates to:
+  /// **'Water from food'**
+  String get waterFromFood;
+
+  /// Label for last item
+  ///
+  /// In en, this message translates to:
+  /// **'Last'**
+  String get last;
+
+  /// Fruits category
+  ///
+  /// In en, this message translates to:
+  /// **'Fruits'**
+  String get categoryFruits;
+
+  /// Vegetables category
+  ///
+  /// In en, this message translates to:
+  /// **'Vegetables'**
+  String get categoryVegetables;
+
+  /// Soups category
+  ///
+  /// In en, this message translates to:
+  /// **'Soups'**
+  String get categorySoups;
+
+  /// Dairy category
+  ///
+  /// In en, this message translates to:
+  /// **'Dairy'**
+  String get categoryDairy;
+
+  /// Meat category
+  ///
+  /// In en, this message translates to:
+  /// **'Meat'**
+  String get categoryMeat;
+
+  /// Fast food category
+  ///
+  /// In en, this message translates to:
+  /// **'Fast Food'**
+  String get categoryFastFood;
+
+  /// Weight in grams label
+  ///
+  /// In en, this message translates to:
+  /// **'Weight (grams)'**
+  String get weightGrams;
+
+  /// Enter weight prompt
+  ///
+  /// In en, this message translates to:
+  /// **'Enter weight'**
+  String get enterWeight;
+
+  /// Grams unit
+  ///
+  /// In en, this message translates to:
+  /// **'g'**
+  String get grams;
+
+  /// Calories label
+  ///
+  /// In en, this message translates to:
+  /// **'Calories'**
+  String get calories;
+
+  /// Water content label
+  ///
+  /// In en, this message translates to:
+  /// **'Water Content'**
+  String get waterContent;
+
+  /// Sugar label
+  ///
+  /// In en, this message translates to:
+  /// **'Sugar'**
+  String get sugar;
+
+  /// Nutritional information
+  ///
+  /// In en, this message translates to:
+  /// **'Nutritional Info'**
+  String get nutritionalInfo;
+
+  /// Calories per weight format
+  ///
+  /// In en, this message translates to:
+  /// **'{calories} kcal per {weight}g'**
+  String caloriesPerWeight(int calories, int weight);
+
+  /// Water per weight format
+  ///
+  /// In en, this message translates to:
+  /// **'{water} ml water per {weight}g'**
+  String waterPerWeight(int water, int weight);
+
+  /// Sugar per weight format
+  ///
+  /// In en, this message translates to:
+  /// **'{sugar}g sugar per {weight}g'**
+  String sugarPerWeight(String sugar, int weight);
+
+  /// Add food button
+  ///
+  /// In en, this message translates to:
+  /// **'Add Food'**
+  String get addFood;
+
+  /// Food added success message
+  ///
+  /// In en, this message translates to:
+  /// **'Food added successfully'**
+  String get foodAdded;
+
+  /// Invalid weight error message
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid weight'**
+  String get enterValidWeight;
+
+  /// PRO only food label
+  ///
+  /// In en, this message translates to:
+  /// **'PRO only'**
+  String get proOnlyFood;
+
+  /// PRO unlock message for food
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock PRO to access all food items'**
+  String get unlockProForFood;
+
+  /// Food tracker title
+  ///
+  /// In en, this message translates to:
+  /// **'Food Tracker'**
+  String get foodTracker;
+
+  /// Today's food summary title
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Food Summary'**
+  String get todaysFoodSummary;
+
+  /// Kilocalories abbreviation
+  ///
+  /// In en, this message translates to:
+  /// **'kcal'**
+  String get kcal;
+
+  /// Per 100 grams
+  ///
+  /// In en, this message translates to:
+  /// **'per 100g'**
+  String get per100g;
+
+  /// Add to favorites checkbox
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get addToFavorites;
+
+  /// Favorites feature not yet available message
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites feature coming soon!'**
+  String get favoritesFeatureComingSoon;
+
+  /// Success message when food is added
+  ///
+  /// In en, this message translates to:
+  /// **'{food} added! +{calories} kcal, +{water}'**
+  String foodAddedSuccess(String food, int calories, String water);
+
+  /// Select weight dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Select Weight'**
+  String get selectWeight;
+
+  /// Ounces unit
+  ///
+  /// In en, this message translates to:
+  /// **'oz'**
+  String get ounces;
+
+  /// Items count
+  ///
+  /// In en, this message translates to:
+  /// **'items'**
+  String get items;
+
+  /// Tap to add food instruction
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to add food'**
+  String get tapToAddFood;
+
+  /// No food logged message
+  ///
+  /// In en, this message translates to:
+  /// **'No food logged today'**
+  String get noFoodLoggedToday;
+
+  /// Light eating day status
+  ///
+  /// In en, this message translates to:
+  /// **'Light eating day'**
+  String get lightEatingDay;
+
+  /// Moderate intake status
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate intake'**
+  String get moderateIntake;
+
+  /// Good calorie intake status
+  ///
+  /// In en, this message translates to:
+  /// **'Good calorie intake'**
+  String get goodCalorieIntake;
+
+  /// Substantial meals status
+  ///
+  /// In en, this message translates to:
+  /// **'Substantial meals'**
+  String get substantialMeals;
+
+  /// High calorie day status
+  ///
+  /// In en, this message translates to:
+  /// **'High calorie day'**
+  String get highCalorieDay;
+
+  /// Very high intake status
+  ///
+  /// In en, this message translates to:
+  /// **'Very high intake'**
+  String get veryHighIntake;
+
+  /// Calories tracker title
+  ///
+  /// In en, this message translates to:
+  /// **'Calories Tracker'**
+  String get caloriesTracker;
+
+  /// Calories tracker description
+  ///
+  /// In en, this message translates to:
+  /// **'Track your daily calorie intake from food'**
+  String get trackYourDailyCalorieIntake;
+
+  /// Unlock food tracking features message
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock food tracking features'**
+  String get unlockFoodTrackingFeatures;
+
+  /// Select food type title
+  ///
+  /// In en, this message translates to:
+  /// **'Select food type'**
+  String get selectFoodType;
+
+  /// Apple fruit
+  ///
+  /// In en, this message translates to:
+  /// **'Apple'**
+  String get foodApple;
+
+  /// Banana fruit
+  ///
+  /// In en, this message translates to:
+  /// **'Banana'**
+  String get foodBanana;
+
+  /// Orange fruit
+  ///
+  /// In en, this message translates to:
+  /// **'Orange'**
+  String get foodOrange;
+
+  /// Watermelon fruit
+  ///
+  /// In en, this message translates to:
+  /// **'Watermelon'**
+  String get foodWatermelon;
+
+  /// Strawberry fruit
+  ///
+  /// In en, this message translates to:
+  /// **'Strawberry'**
+  String get foodStrawberry;
+
+  /// Grapes fruit
+  ///
+  /// In en, this message translates to:
+  /// **'Grapes'**
+  String get foodGrapes;
+
+  /// Pineapple fruit
+  ///
+  /// In en, this message translates to:
+  /// **'Pineapple'**
+  String get foodPineapple;
+
+  /// Mango fruit
+  ///
+  /// In en, this message translates to:
+  /// **'Mango'**
+  String get foodMango;
+
+  /// Pear fruit
+  ///
+  /// In en, this message translates to:
+  /// **'Pear'**
+  String get foodPear;
+
+  /// Carrot vegetable
+  ///
+  /// In en, this message translates to:
+  /// **'Carrot'**
+  String get foodCarrot;
+
+  /// Broccoli vegetable
+  ///
+  /// In en, this message translates to:
+  /// **'Broccoli'**
+  String get foodBroccoli;
+
+  /// Spinach vegetable
+  ///
+  /// In en, this message translates to:
+  /// **'Spinach'**
+  String get foodSpinach;
+
+  /// Tomato vegetable
+  ///
+  /// In en, this message translates to:
+  /// **'Tomato'**
+  String get foodTomato;
+
+  /// Cucumber vegetable
+  ///
+  /// In en, this message translates to:
+  /// **'Cucumber'**
+  String get foodCucumber;
+
+  /// Bell pepper vegetable
+  ///
+  /// In en, this message translates to:
+  /// **'Bell Pepper'**
+  String get foodBellPepper;
+
+  /// Lettuce vegetable
+  ///
+  /// In en, this message translates to:
+  /// **'Lettuce'**
+  String get foodLettuce;
+
+  /// Onion vegetable
+  ///
+  /// In en, this message translates to:
+  /// **'Onion'**
+  String get foodOnion;
+
+  /// Celery vegetable
+  ///
+  /// In en, this message translates to:
+  /// **'Celery'**
+  String get foodCelery;
+
+  /// Chicken soup
+  ///
+  /// In en, this message translates to:
+  /// **'Chicken Soup'**
+  String get foodChickenSoup;
+
+  /// Tomato soup
+  ///
+  /// In en, this message translates to:
+  /// **'Tomato Soup'**
+  String get foodTomatoSoup;
+
+  /// Vegetable soup
+  ///
+  /// In en, this message translates to:
+  /// **'Vegetable Soup'**
+  String get foodVegetableSoup;
+
+  /// Minestrone soup
+  ///
+  /// In en, this message translates to:
+  /// **'Minestrone'**
+  String get foodMinestrone;
+
+  /// Miso soup
+  ///
+  /// In en, this message translates to:
+  /// **'Miso Soup'**
+  String get foodMisoSoup;
+
+  /// Mushroom soup
+  ///
+  /// In en, this message translates to:
+  /// **'Mushroom Soup'**
+  String get foodMushroomSoup;
+
+  /// Beef stew
+  ///
+  /// In en, this message translates to:
+  /// **'Beef Stew'**
+  String get foodBeefStew;
+
+  /// Lentil soup
+  ///
+  /// In en, this message translates to:
+  /// **'Lentil Soup'**
+  String get foodLentilSoup;
+
+  /// French onion soup
+  ///
+  /// In en, this message translates to:
+  /// **'French Onion Soup'**
+  String get foodOnionSoup;
+
+  /// Milk
+  ///
+  /// In en, this message translates to:
+  /// **'Milk'**
+  String get foodMilk;
+
+  /// Greek yogurt
+  ///
+  /// In en, this message translates to:
+  /// **'Greek Yogurt'**
+  String get foodYogurt;
+
+  /// Cheddar cheese
+  ///
+  /// In en, this message translates to:
+  /// **'Cheddar Cheese'**
+  String get foodCheese;
+
+  /// Cottage cheese
+  ///
+  /// In en, this message translates to:
+  /// **'Cottage Cheese'**
+  String get foodCottageCheese;
+
+  /// Butter
+  ///
+  /// In en, this message translates to:
+  /// **'Butter'**
+  String get foodButter;
+
+  /// Heavy cream
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy Cream'**
+  String get foodCream;
+
+  /// Ice cream
+  ///
+  /// In en, this message translates to:
+  /// **'Ice Cream'**
+  String get foodIceCream;
+
+  /// Mozzarella cheese
+  ///
+  /// In en, this message translates to:
+  /// **'Mozzarella'**
+  String get foodMozzarella;
+
+  /// Parmesan cheese
+  ///
+  /// In en, this message translates to:
+  /// **'Parmesan'**
+  String get foodParmesan;
+
+  /// Chicken breast
+  ///
+  /// In en, this message translates to:
+  /// **'Chicken Breast'**
+  String get foodChickenBreast;
+
+  /// Ground beef
+  ///
+  /// In en, this message translates to:
+  /// **'Ground Beef'**
+  String get foodBeef;
+
+  /// Salmon fish
+  ///
+  /// In en, this message translates to:
+  /// **'Salmon'**
+  String get foodSalmon;
+
+  /// Chicken eggs
+  ///
+  /// In en, this message translates to:
+  /// **'Eggs'**
+  String get foodEggs;
+
+  /// Tuna fish
+  ///
+  /// In en, this message translates to:
+  /// **'Tuna'**
+  String get foodTuna;
+
+  /// Pork chop
+  ///
+  /// In en, this message translates to:
+  /// **'Pork Chop'**
+  String get foodPork;
+
+  /// Turkey meat
+  ///
+  /// In en, this message translates to:
+  /// **'Turkey'**
+  String get foodTurkey;
+
+  /// Shrimp
+  ///
+  /// In en, this message translates to:
+  /// **'Shrimp'**
+  String get foodShrimp;
+
+  /// Bacon
+  ///
+  /// In en, this message translates to:
+  /// **'Bacon'**
+  String get foodBacon;
+
+  /// McDonald's Big Mac
+  ///
+  /// In en, this message translates to:
+  /// **'Big Mac'**
+  String get foodBigMac;
+
+  /// Pizza slice
+  ///
+  /// In en, this message translates to:
+  /// **'Pizza Slice'**
+  String get foodPizza;
+
+  /// French fries
+  ///
+  /// In en, this message translates to:
+  /// **'French Fries'**
+  String get foodFrenchFries;
+
+  /// Chicken nuggets
+  ///
+  /// In en, this message translates to:
+  /// **'Chicken Nuggets'**
+  String get foodChickenNuggets;
+
+  /// Hot dog
+  ///
+  /// In en, this message translates to:
+  /// **'Hot Dog'**
+  String get foodHotDog;
+
+  /// Tacos
+  ///
+  /// In en, this message translates to:
+  /// **'Tacos'**
+  String get foodTacos;
+
+  /// Subway sandwich
+  ///
+  /// In en, this message translates to:
+  /// **'Subway Sandwich'**
+  String get foodSubway;
+
+  /// Donut
+  ///
+  /// In en, this message translates to:
+  /// **'Donut'**
+  String get foodDonut;
+
+  /// Burger King Whopper
+  ///
+  /// In en, this message translates to:
+  /// **'Whopper'**
+  String get foodBurgerKing;
+
+  /// Meals counter
+  ///
+  /// In en, this message translates to:
+  /// **'meals'**
+  String get meals;
+
+  /// Daily progress label
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Progress'**
+  String get dailyProgress;
+
+  /// Water from food label
+  ///
+  /// In en, this message translates to:
+  /// **'from food'**
+  String get fromFood;
+
+  /// No food data message for weekly view
+  ///
+  /// In en, this message translates to:
+  /// **'No food data this week'**
+  String get noFoodThisWeek;
+
+  /// Food intake chart title
+  ///
+  /// In en, this message translates to:
+  /// **'Food Intake'**
+  String get foodIntake;
+
+  /// Food statistics title
+  ///
+  /// In en, this message translates to:
+  /// **'Food Statistics'**
+  String get foodStats;
+
+  /// Total calories label
+  ///
+  /// In en, this message translates to:
+  /// **'Total calories'**
+  String get totalCalories;
+
+  /// Average calories per day label
+  ///
+  /// In en, this message translates to:
+  /// **'Avg per day'**
+  String get avgCaloriesPerDay;
+
+  /// Days with food label
+  ///
+  /// In en, this message translates to:
+  /// **'Days with food'**
+  String get daysWithFood;
+
+  /// Average meals per day label
+  ///
+  /// In en, this message translates to:
+  /// **'Meals per day'**
+  String get avgMealsPerDay;
+
+  /// Calories per day label
+  ///
+  /// In en, this message translates to:
+  /// **'Calories per day'**
+  String get caloriesPerDay;
+
+  /// Sugar per day label
+  ///
+  /// In en, this message translates to:
+  /// **'Sugar per day'**
+  String get sugarPerDay;
+
+  /// Food tracking feature name
+  ///
+  /// In en, this message translates to:
+  /// **'Food Tracking'**
+  String get foodTracking;
+
+  /// Food tracking pro description
+  ///
+  /// In en, this message translates to:
+  /// **'Track food impact on hydration and HRI'**
+  String get foodTrackingPro;
+
+  /// Hydration balance label
+  ///
+  /// In en, this message translates to:
+  /// **'Hydration Balance'**
+  String get hydrationBalance;
+
+  /// High sodium food status
+  ///
+  /// In en, this message translates to:
+  /// **'High sodium from food'**
+  String get highSodiumFood;
+
+  /// Hydrating food status
+  ///
+  /// In en, this message translates to:
+  /// **'Great hydrating choices'**
+  String get hydratingFood;
+
+  /// Dry food status
+  ///
+  /// In en, this message translates to:
+  /// **'Low water content food'**
+  String get dryFood;
+
+  /// Balanced food status
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced nutrition'**
+  String get balancedFood;
+
+  /// Advice when no food logged
+  ///
+  /// In en, this message translates to:
+  /// **'Add meals to track food impact on hydration.'**
+  String get foodAdviceEmpty;
+
+  /// Advice for high sodium food
+  ///
+  /// In en, this message translates to:
+  /// **'High sodium intake detected. Increase water to balance electrolytes.'**
+  String get foodAdviceHighSodium;
+
+  /// Advice for low water content food
+  ///
+  /// In en, this message translates to:
+  /// **'Your food had low water content. Consider drinking extra water.'**
+  String get foodAdviceLowWater;
+
+  /// Advice for good hydrating food
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent! Your food choices are supporting hydration goals.'**
+  String get foodAdviceGoodHydration;
+
+  /// Advice for balanced food choices
+  ///
+  /// In en, this message translates to:
+  /// **'Keep up the balanced nutrition. Monitor water intake throughout the day.'**
+  String get foodAdviceBalanced;
+
+  /// Status for food rich in electrolytes
+  ///
+  /// In en, this message translates to:
+  /// **'Rich in electrolytes'**
+  String get richInElectrolytes;
 }
 
 class _AppLocalizationsDelegate
