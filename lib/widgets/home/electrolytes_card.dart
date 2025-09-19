@@ -263,7 +263,7 @@ class ElectrolytesCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const PaywallScreen(),
+            builder: (context) => const PaywallScreen(source: 'home_electrolytes_card'),
             fullscreenDialog: true,
           ),
         );

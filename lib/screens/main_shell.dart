@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
+import '../services/analytics_service.dart';
 
 // Экраны
 import 'home_screen.dart';
@@ -17,9 +18,17 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
-  
+
   // Инициализируем экраны один раз
   late final List<Widget> _screens;
+  final AnalyticsService _analytics = AnalyticsService();
+  static const List<String> _tabKeys = <String>[
+    'home',
+    'history',
+    'notifications',
+    'reports',
+    'settings',
+  ];
   
   @override
   void initState() {
@@ -31,9 +40,18 @@ class _MainShellState extends State<MainShell> {
       Container(), // Пустой контейнер вместо текста
       const SettingsScreen(),
     ];
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _analytics.logScreenView(
+        screenName: 'main_${_tabKeys[_currentIndex]}',
+        screenClass: 'MainShell',
+      );
+    });
   }
 
   void _onTabTapped(int index) {
+    final String tabKey = _tabKeys[index];
+    _analytics.logNavigationTabSelected(tab: tabKey);
+
     // Если это неработающая вкладка (только 3), показываем сообщение
     if (index == 3) {
       final l10n = AppLocalizations.of(context);
@@ -45,15 +63,21 @@ class _MainShellState extends State<MainShell> {
       );
       return;
     }
-    
+
     setState(() {
       _currentIndex = index;
     });
     HapticFeedback.lightImpact();
+
+    _analytics.logScreenView(
+      screenName: 'main_${_tabKeys[index]}',
+      screenClass: 'MainShell',
+    );
   }
 
   void _showAddMenu() {
     HapticFeedback.mediumImpact();
+    _analytics.logQuickAddMenuOpened();
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,

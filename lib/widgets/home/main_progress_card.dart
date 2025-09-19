@@ -53,9 +53,9 @@ class _MainProgressCardState extends State<MainProgressCard> {
     
     // Убеждаемся, что контекст установлен перед добавлением
     provider.setContext(context);
-    
+
     // Добавляем воду (AchievementService покажет уведомление автоматически)
-    provider.addIntake('water', _quickAddVolume);
+    provider.addIntake('water', _quickAddVolume, source: 'quick_add_single');
     
     // Обновляем родительский виджет
     widget.onUpdate();
@@ -71,7 +71,7 @@ class _MainProgressCardState extends State<MainProgressCard> {
     provider.setContext(context);
     
     // Добавляем двойной объем
-    provider.addIntake('water', _quickAddVolume * 2);
+    provider.addIntake('water', _quickAddVolume * 2, source: 'quick_add_double');
     
     widget.onUpdate();
   }

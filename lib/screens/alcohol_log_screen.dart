@@ -212,7 +212,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const PaywallScreen(),
+          builder: (context) => const PaywallScreen(source: 'alcohol_log'),
           fullscreenDialog: true,
         ),
       );

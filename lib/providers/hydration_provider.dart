@@ -23,6 +23,7 @@ import '../services/weather_service.dart';
 import '../services/achievement_service.dart';
 import '../services/units_service.dart';
 import '../services/history_service.dart';
+import '../services/analytics_service.dart';
 import '../models/daily_goals.dart';
 import '../models/intake.dart';
 import '../models/alcohol_intake.dart';
@@ -68,8 +69,9 @@ class HydrationProvider extends ChangeNotifier {
   final AchievementTracker _achievementTracker = AchievementTracker();
 
   late DailyGoals goals;
-  
+
   final RemoteConfigService _remoteConfig = RemoteConfigService.instance;
+  final AnalyticsService _analytics = AnalyticsService();
   
   HydrationProvider() {
     _calculateGoals();
@@ -807,10 +809,11 @@ class HydrationProvider extends ChangeNotifier {
   
   // UPDATED: Added achievement service integration with control parameter
   void addIntake(String type, int volume, {
-    int sodium = 0, 
-    int potassium = 0, 
+    int sodium = 0,
+    int potassium = 0,
     int magnesium = 0,
     bool showAchievement = true,  // NEW: Control achievement notification
+    String source = 'manual_entry',
   }) {
     // Calculate old percentage BEFORE adding intake
     final oldPercent = goals.waterOpt > 0 
@@ -827,9 +830,32 @@ class HydrationProvider extends ChangeNotifier {
       potassium: potassium,
       magnesium: magnesium,
     );
-    
+
     todayIntakes.add(newIntake);
-    
+
+    switch (type) {
+      case 'water':
+      case 'broth':
+        _analytics.logWaterIntake(amount: volume, source: source);
+        break;
+      case 'electrolyte':
+        if (sodium > 0) {
+          _analytics.logElectrolyteIntake(type: 'sodium', amount: sodium);
+        }
+        if (potassium > 0) {
+          _analytics.logElectrolyteIntake(type: 'potassium', amount: potassium);
+        }
+        if (magnesium > 0) {
+          _analytics.logElectrolyteIntake(type: 'magnesium', amount: magnesium);
+        }
+        break;
+      case 'coffee':
+        _analytics.logCoffeeIntake(cups: 1);
+        break;
+      default:
+        break;
+    }
+
     // NEW: Save to Firestore via HistoryService
     _saveToFirestore(newIntake);
     

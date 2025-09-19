@@ -139,6 +139,7 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen>
         sodium: 0,
         potassium: 0,
         magnesium: 0,
+        source: 'liquids_catalog',
       );
       
       // Log sugar if present
@@ -215,7 +216,7 @@ class _LiquidsCatalogScreenState extends State<LiquidsCatalogScreen>
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const PaywallScreen(),
+          builder: (context) => const PaywallScreen(source: 'liquids_catalog'),
           fullscreenDialog: true,
         ),
       );

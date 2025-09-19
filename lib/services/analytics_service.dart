@@ -358,14 +358,62 @@ class AnalyticsService {
     );
   }
 
+  /// Выбор плана на paywall
+  Future<void> logPaywallPlanSelected({
+    required String plan,
+    required String source,
+    String? variant,
+  }) async {
+    await logEvent(
+      name: 'paywall_plan_selected',
+      parameters: {
+        'plan': plan,
+        'source': source,
+        'variant': variant ?? 'default',
+      },
+    );
+  }
+
+  /// Переключение триала на paywall
+  Future<void> logPaywallTrialToggle({
+    required String source,
+    required bool enabled,
+  }) async {
+    await logEvent(
+      name: 'paywall_trial_toggled',
+      parameters: {
+        'source': source,
+        'enabled': enabled,
+      },
+    );
+  }
+
   /// Закрытие paywall
   Future<void> logPaywallDismissed({
     required String source,
+    String? reason,
   }) async {
     await logEvent(
       name: 'paywall_dismissed',
       parameters: {
         'source': source,
+        if (reason != null) 'reason': reason,
+      },
+    );
+  }
+
+  /// Попытка покупки подписки
+  Future<void> logSubscriptionPurchaseAttempt({
+    required String product,
+    required String source,
+    bool trialEnabled = false,
+  }) async {
+    await logEvent(
+      name: 'subscription_purchase_attempt',
+      parameters: {
+        'product': product,
+        'source': source,
+        'trial_enabled': trialEnabled,
       },
     );
   }
@@ -380,6 +428,53 @@ class AnalyticsService {
       parameters: {
         'product': product, // 'monthly', 'annual', 'lifetime'
         'is_trial': isTrial,
+      },
+    );
+  }
+
+  /// Результат покупки подписки
+  Future<void> logSubscriptionPurchaseResult({
+    required String product,
+    required String source,
+    required bool success,
+    bool trialEnabled = false,
+    String? error,
+  }) async {
+    await logEvent(
+      name: 'subscription_purchase_result',
+      parameters: {
+        'product': product,
+        'source': source,
+        'success': success,
+        'trial_enabled': trialEnabled,
+        if (error != null && error.isNotEmpty)
+          'error': error.substring(0, 80),
+      },
+    );
+  }
+
+  /// Попытка восстановления подписки
+  Future<void> logSubscriptionRestoreAttempt({
+    required String source,
+  }) async {
+    await logEvent(
+      name: 'subscription_restore_attempt',
+      parameters: {
+        'source': source,
+      },
+    );
+  }
+
+  /// Результат восстановления подписки
+  Future<void> logSubscriptionRestoreResult({
+    required String source,
+    required bool success,
+  }) async {
+    await logEvent(
+      name: 'subscription_restore_result',
+      parameters: {
+        'source': source,
+        'success': success,
       },
     );
   }
@@ -458,6 +553,57 @@ class AnalyticsService {
     await logEvent(name: 'onboarding_start');
   }
 
+  /// Просмотр шага онбординга
+  Future<void> logOnboardingStepViewed({
+    required String stepId,
+    required int stepIndex,
+    String? screenName,
+  }) async {
+    await logEvent(
+      name: 'onboarding_step_viewed',
+      parameters: {
+        'step_id': stepId,
+        'step_index': stepIndex,
+        if (screenName != null) 'screen_name': screenName,
+      },
+    );
+
+    await logScreenView(
+      screenName: screenName ?? stepId,
+      screenClass: 'Onboarding$stepId',
+    );
+  }
+
+  /// Завершение шага онбординга
+  Future<void> logOnboardingStepCompleted({
+    required String stepId,
+    required int stepIndex,
+  }) async {
+    await logEvent(
+      name: 'onboarding_step_completed',
+      parameters: {
+        'step_id': stepId,
+        'step_index': stepIndex,
+      },
+    );
+  }
+
+  /// Выбор опции на онбординге
+  Future<void> logOnboardingOptionSelected({
+    required String stepId,
+    required String option,
+    required String value,
+  }) async {
+    await logEvent(
+      name: 'onboarding_option_selected',
+      parameters: {
+        'step_id': stepId,
+        'option': option,
+        'value': value,
+      },
+    );
+  }
+
   /// Завершение онбординга
   Future<void> logOnboardingComplete() async {
     await logEvent(name: 'onboarding_complete');
@@ -471,6 +617,54 @@ class AnalyticsService {
       name: 'onboarding_skip',
       parameters: {
         'step': step,
+      },
+    );
+  }
+
+  /// Сохранение профиля пользователя на финальном шаге онбординга
+  Future<void> logOnboardingProfileSaved({
+    required double weightKg,
+    required String units,
+    required String dietMode,
+    required bool fastingEnabled,
+  }) async {
+    await logEvent(
+      name: 'onboarding_profile_saved',
+      parameters: {
+        'weight_kg': weightKg,
+        'units': units,
+        'diet_mode': dietMode,
+        'fasting_enabled': fastingEnabled,
+      },
+    );
+  }
+
+  /// Показ системного запроса разрешений
+  Future<void> logPermissionPrompt({
+    required String permission,
+    required String context,
+  }) async {
+    await logEvent(
+      name: 'permission_prompt',
+      parameters: {
+        'permission': permission,
+        'context': context,
+      },
+    );
+  }
+
+  /// Результат запроса разрешений
+  Future<void> logPermissionResult({
+    required String permission,
+    required String status,
+    required String context,
+  }) async {
+    await logEvent(
+      name: 'permission_result',
+      parameters: {
+        'permission': permission,
+        'status': status,
+        'context': context,
       },
     );
   }
@@ -492,6 +686,23 @@ class AnalyticsService {
         'duration_seconds': durationSeconds,
       },
     );
+  }
+
+  /// Выбор вкладки нижней навигации
+  Future<void> logNavigationTabSelected({
+    required String tab,
+  }) async {
+    await logEvent(
+      name: 'navigation_tab_selected',
+      parameters: {
+        'tab': tab,
+      },
+    );
+  }
+
+  /// Открытие меню быстрого добавления напитков
+  Future<void> logQuickAddMenuOpened() async {
+    await logEvent(name: 'quick_add_menu_opened');
   }
 
   // ==================== DEBUG HELPERS ====================

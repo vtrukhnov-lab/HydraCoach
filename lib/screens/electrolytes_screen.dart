@@ -115,6 +115,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
         sodium: sodium,
         potassium: potassium,
         magnesium: magnesium,
+        source: 'electrolytes_screen',
       );
       
       // Show success message
@@ -190,7 +191,7 @@ class _ElectrolytesScreenState extends State<ElectrolytesScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const PaywallScreen(),
+          builder: (context) => const PaywallScreen(source: 'electrolytes'),
           fullscreenDialog: true,
         ),
       );

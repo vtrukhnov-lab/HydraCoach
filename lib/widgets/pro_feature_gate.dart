@@ -152,8 +152,9 @@ class ProFeatureGate extends StatelessWidget {
   void _showPaywall(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const PaywallScreen(
+        builder: (context) => PaywallScreen(
           showCloseButton: true,
+          source: 'feature_gate_${feature.name}',
         ),
         fullscreenDialog: true,
       ),
@@ -244,7 +245,10 @@ class _ProBadge extends StatelessWidget {
   void _showPaywall(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const PaywallScreen(showCloseButton: true),
+        builder: (context) => PaywallScreen(
+          showCloseButton: true,
+          source: 'feature_teaser_${feature.name}',
+        ),
         fullscreenDialog: true,
       ),
     );
@@ -374,8 +378,9 @@ class ProFeatureCard extends StatelessWidget {
   void _showPaywall(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const PaywallScreen(
+        builder: (context) => PaywallScreen(
           showCloseButton: true,
+          source: 'feature_card_${feature.name}',
         ),
         fullscreenDialog: true,
       ),

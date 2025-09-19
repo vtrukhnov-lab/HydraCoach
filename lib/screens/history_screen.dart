@@ -32,7 +32,10 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
   void _showPaywall() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const PaywallScreen(showCloseButton: true),
+        builder: (context) => const PaywallScreen(
+          showCloseButton: true,
+          source: 'history',
+        ),
         fullscreenDialog: true,
       ),
     ).then((result) {

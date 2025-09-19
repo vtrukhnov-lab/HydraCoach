@@ -4,16 +4,21 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../services/analytics_service.dart';
 
 class LocationExamplesPage extends StatelessWidget {
   final VoidCallback onSkip;
   final VoidCallback onBack;
+  final ValueChanged<LocationPermission> onPermissionResult;
 
   const LocationExamplesPage({
     Key? key,
     required this.onSkip,
     required this.onBack,
+    required this.onPermissionResult,
   }) : super(key: key);
+
+  AnalyticsService get _analytics => AnalyticsService();
 
   @override
   Widget build(BuildContext context) {
@@ -147,51 +152,13 @@ class LocationExamplesPage extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () async {
                         HapticFeedback.lightImpact();
-                        
-                        // Показываем индикатор загрузки
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (context) => const Center(
-                            child: CircularProgressIndicator(),
-                          ),
+                        _analytics.logPermissionPrompt(
+                          permission: 'location',
+                          context: 'onboarding',
                         );
-                        
-                        try {
-                          // Проверяем включены ли службы геолокации
-                          final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-                          if (!serviceEnabled) {
-                            debugPrint('Location services are disabled');
-                            // Можно показать диалог с просьбой включить геолокацию
-                          }
-                          
-                          // Проверяем текущие разрешения
-                          var permission = await Geolocator.checkPermission();
-                          
-                          // Если разрешения нет - запрашиваем
-                          if (permission == LocationPermission.denied) {
-                            permission = await Geolocator.requestPermission();
-                          }
-                          
-                          // Если разрешение отклонено навсегда
-                          if (permission == LocationPermission.deniedForever) {
-                            debugPrint('Location permissions are permanently denied');
-                            // Можно показать диалог с инструкцией открыть настройки
-                          }
-                          
-                          debugPrint('Location permission: $permission');
-                          
-                        } catch (e) {
-                          debugPrint('Error requesting location permission: $e');
-                        } finally {
-                          // Закрываем индикатор загрузки
-                          if (context.mounted) {
-                            Navigator.pop(context);
-                          }
-                        }
-                        
-                        // Переходим дальше
-                        onSkip();
+                        final status =
+                            await _requestLocationPermission(context);
+                        onPermissionResult(status);
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -236,6 +203,51 @@ class LocationExamplesPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<LocationPermission> _requestLocationPermission(
+    BuildContext context,
+  ) async {
+    bool overlayVisible = true;
+    LocationPermission finalStatus = await Geolocator.checkPermission();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        debugPrint('Location services are disabled');
+      }
+
+      var permission = finalStatus;
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        debugPrint('Location permissions are permanently denied');
+      }
+
+      finalStatus = permission;
+      debugPrint('Location permission: $finalStatus');
+    } catch (error, stackTrace) {
+      debugPrint('Error requesting location permission: $error');
+      debugPrint(stackTrace.toString());
+    } finally {
+      if (context.mounted && overlayVisible && Navigator.canPop(context)) {
+        Navigator.pop(context);
+        overlayVisible = false;
+      }
+    }
+
+    return finalStatus;
   }
 
   Widget _buildLocationExample({

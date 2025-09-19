@@ -8,6 +8,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../l10n/app_localizations.dart';
+import '../services/analytics_service.dart';
 import '../services/units_service.dart';
 import 'onboarding/pages/welcome_page.dart';
 import 'onboarding/pages/units_page.dart';
@@ -30,24 +31,170 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  
+
+  final AnalyticsService _analytics = AnalyticsService();
+
+  static const Map<int, String> _stepIds = {
+    0: 'welcome',
+    1: 'units',
+    2: 'weight',
+    3: 'diet',
+    4: 'profile_summary',
+    5: 'notifications_preview',
+    6: 'notification_permission',
+    7: 'location_preview',
+    8: 'location_permission',
+  };
+
   // User data
   double _weight = 70;
   String _units = 'metric';
   String _dietMode = 'normal';
   String _fastingSchedule = 'none';
   bool _isPracticingFasting = false;
-  
+
   @override
   void initState() {
     super.initState();
     _units = UnitsService.instance.units;
+
+    Future.microtask(() {
+      _analytics.logOnboardingStart();
+      _trackStepView(_currentPage);
+    });
   }
   
   @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  String _stepIdFor(int index) => _stepIds[index] ?? 'step_$index';
+
+  void _trackStepView(int index) {
+    final stepId = _stepIdFor(index);
+    _analytics.logOnboardingStepViewed(
+      stepId: stepId,
+      stepIndex: index,
+      screenName: 'onboarding_$stepId',
+    );
+  }
+
+  void _trackStepCompleted(int index) {
+    final stepId = _stepIdFor(index);
+    _analytics.logOnboardingStepCompleted(
+      stepId: stepId,
+      stepIndex: index,
+    );
+  }
+
+  void _completeStep(int index) {
+    if (index == 2) {
+      _analytics.logOnboardingOptionSelected(
+        stepId: _stepIdFor(index),
+        option: 'weight_kg',
+        value: _weight.toStringAsFixed(1),
+      );
+    }
+
+    _trackStepCompleted(index);
+  }
+
+  String _notificationStatusToString(PermissionStatus status) {
+    if (status.isGranted) {
+      return 'granted';
+    }
+    if (status.isPermanentlyDenied) {
+      return 'permanently_denied';
+    }
+    if (status.isDenied) {
+      return 'denied';
+    }
+    if (status == PermissionStatus.restricted) {
+      return 'restricted';
+    }
+    if (status == PermissionStatus.limited) {
+      return 'limited';
+    }
+    return status.name;
+  }
+
+  String _locationStatusToString(LocationPermission status) {
+    switch (status) {
+      case LocationPermission.always:
+        return 'always';
+      case LocationPermission.whileInUse:
+        return 'while_in_use';
+      case LocationPermission.denied:
+        return 'denied';
+      case LocationPermission.deniedForever:
+        return 'permanently_denied';
+      case LocationPermission.unableToDetermine:
+        return 'unknown';
+      case LocationPermission.unrestricted:
+        return 'unrestricted';
+    }
+  }
+
+  void _advanceFromNotifications({
+    required String status,
+    bool isSkip = false,
+  }) {
+    if (isSkip) {
+      _analytics.logOnboardingSkip(step: 5);
+    }
+    _analytics.logPermissionResult(
+      permission: 'notifications',
+      status: status,
+      context: 'onboarding',
+    );
+    _analytics.logOnboardingOptionSelected(
+      stepId: _stepIdFor(6),
+      option: 'status',
+      value: status,
+    );
+    _trackStepCompleted(6);
+    _completeStep(5);
+
+    _pageController.animateToPage(
+      7,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _advanceFromLocation({
+    required String status,
+    bool isSkip = false,
+  }) {
+    if (isSkip) {
+      _analytics.logOnboardingSkip(step: 7);
+    }
+    _analytics.logPermissionResult(
+      permission: 'location',
+      status: status,
+      context: 'onboarding',
+    );
+    _analytics.logOnboardingOptionSelected(
+      stepId: _stepIdFor(8),
+      option: 'status',
+      value: status,
+    );
+    _trackStepCompleted(8);
+    _completeStep(7);
+
+    _completeOnboarding();
+  }
+
+  void _handleNotificationPermissionResult(PermissionStatus status) {
+    final statusString = _notificationStatusToString(status);
+    _advanceFromNotifications(status: statusString);
+  }
+
+  void _handleLocationPermissionResult(LocationPermission status) {
+    final statusString = _locationStatusToString(status);
+    _advanceFromLocation(status: statusString);
   }
   
   @override
@@ -71,6 +218,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   setState(() {
                     _currentPage = page;
                   });
+                  _trackStepView(page);
                 },
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
@@ -86,6 +234,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       setState(() {
                         _units = units;
                       });
+                      _analytics.logOnboardingOptionSelected(
+                        stepId: _stepIdFor(1),
+                        option: 'units_system',
+                        value: units,
+                      );
                     },
                     onNext: _goToNextPage,
                   ),
@@ -116,17 +269,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           _dietMode = 'fasting';
                         }
                       });
+                      _analytics.logOnboardingOptionSelected(
+                        stepId: _stepIdFor(3),
+                        option: 'fasting_enabled',
+                        value: isFasting.toString(),
+                      );
                     },
                     onFastingScheduleChanged: (schedule) {
                       setState(() {
                         _fastingSchedule = schedule;
                       });
+                      _analytics.logOnboardingOptionSelected(
+                        stepId: _stepIdFor(3),
+                        option: 'fasting_schedule',
+                        value: schedule,
+                      );
                     },
                     onDietModeChanged: (mode) {
                       setState(() {
                         _dietMode = mode;
                         _fastingSchedule = 'none';
                       });
+                      _analytics.logOnboardingOptionSelected(
+                        stepId: _stepIdFor(3),
+                        option: 'diet_mode',
+                        value: mode,
+                      );
                     },
                   ),
                   
@@ -152,6 +320,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         curve: Curves.easeInOut,
                       );
                     },
+                    onPermissionResult: _handleNotificationPermissionResult,
                   ),
                   
                   // 6 - Notification Permission (старая страница - можно удалить)
@@ -168,6 +337,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         curve: Curves.easeInOut,
                       );
                     },
+                    onPermissionResult: _handleLocationPermissionResult,
                   ),
                   
                   // 8 - Location Permission (старая страница - можно удалить)
@@ -390,6 +560,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   
   // Navigation methods
   void _goToNextPage() {
+    _completeStep(_currentPage);
     if (_currentPage < 8) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -404,8 +575,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       curve: Curves.easeInOut,
     );
   }
-  
+
   void _completeBasicOnboarding() {
+    _completeStep(4);
+    _analytics.logOnboardingProfileSaved(
+      weightKg: _weight,
+      units: _units,
+      dietMode: _dietMode,
+      fastingEnabled: _isPracticingFasting,
+    );
     _saveBasicData();
     _pageController.animateToPage(
       5, // Переход к примерам уведомлений
@@ -415,28 +593,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
   
   void _skipPermission() {
-    if (_currentPage == 5) { // После примеров уведомлений
-      _pageController.animateToPage(
-        7, // Переход к примерам геолокации
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    } else if (_currentPage == 7) { // После примеров геолокации
-      _completeOnboarding(); // Завершаем онбординг
+    if (_currentPage == 5) {
+      _advanceFromNotifications(status: 'skipped', isSkip: true);
+    } else if (_currentPage == 7) {
+      _advanceFromLocation(status: 'skipped', isSkip: true);
     }
   }
-  
+
   void _skipNotificationPermission() {
-    // Переходим к примерам геолокации
-    _pageController.animateToPage(
-      7, // Примеры геолокации
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+    _advanceFromNotifications(status: 'skipped', isSkip: true);
   }
-  
+
   void _skipLocationPermission() {
-    _completeOnboarding();
+    _advanceFromLocation(status: 'skipped', isSkip: true);
   }
   
   // Permission methods (старые - не используются)
@@ -514,15 +683,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Future<void> _completeOnboarding() async {
     // Сохраняем данные перед завершением
     await _saveBasicData();
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboardingCompleted', true);
-    
+
+    await _analytics.logOnboardingComplete();
+
     if (mounted) {
       // Показываем paywall
       final bool? purchased = await Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => const PaywallScreen(showCloseButton: true),
+          builder: (_) => const PaywallScreen(
+            showCloseButton: true,
+            source: 'onboarding',
+          ),
           fullscreenDialog: true,
         ),
       );

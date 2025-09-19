@@ -133,7 +133,7 @@ class _SportsScreenState extends State<SportsScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const PaywallScreen(),
+          builder: (context) => const PaywallScreen(source: 'sports'),
           fullscreenDialog: true,
         ),
       );

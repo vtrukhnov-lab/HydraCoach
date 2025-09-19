@@ -193,6 +193,7 @@ class _HotDrinksScreenState extends State<HotDrinksScreen>
         sodium: 0,
         potassium: 0,
         magnesium: 0,
+        source: 'hot_drinks',
       );
       
       // Add caffeine to HRI if present
@@ -316,7 +317,7 @@ Future<void> _showHotDrinkDialog(CatalogItem item) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const PaywallScreen(),
+        builder: (context) => const PaywallScreen(source: 'hot_drinks'),
         fullscreenDialog: true,
       ),
     );

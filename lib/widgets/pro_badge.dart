@@ -54,7 +54,10 @@ class ProBadge extends StatelessWidget {
   void _showPaywall(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const PaywallScreen(showCloseButton: true),
+        builder: (context) => const PaywallScreen(
+          showCloseButton: true,
+          source: 'pro_badge',
+        ),
         fullscreenDialog: true,
       ),
     );
@@ -133,7 +136,10 @@ class ProListTile extends StatelessWidget {
   void _showPaywall(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const PaywallScreen(showCloseButton: true),
+        builder: (context) => const PaywallScreen(
+          showCloseButton: true,
+          source: 'pro_list_tile',
+        ),
         fullscreenDialog: true,
       ),
     );
@@ -196,7 +202,10 @@ class ProButton extends StatelessWidget {
   void _showPaywall(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const PaywallScreen(showCloseButton: true),
+        builder: (context) => const PaywallScreen(
+          showCloseButton: true,
+          source: 'pro_card',
+        ),
         fullscreenDialog: true,
       ),
     );
@@ -264,7 +273,10 @@ class ProCard extends StatelessWidget {
   void _showPaywall(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const PaywallScreen(showCloseButton: true),
+        builder: (context) => const PaywallScreen(
+          showCloseButton: true,
+          source: 'pro_row',
+        ),
         fullscreenDialog: true,
       ),
     );

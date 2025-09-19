@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'analytics_service.dart';
 
 class SubscriptionProduct {
   const SubscriptionProduct({
@@ -25,6 +26,8 @@ class SubscriptionService {
 
   static const _isProKey = 'is_pro';
   static const _proExpiresAtKey = 'pro_expires_at';
+
+  final AnalyticsService _analytics = AnalyticsService();
 
   static const List<SubscriptionProduct> _defaultProducts = [
     SubscriptionProduct(
@@ -100,6 +103,10 @@ class SubscriptionService {
     );
 
     await _activatePro(product.billingPeriod);
+    await _analytics.logSubscriptionStarted(
+      product: product.identifier,
+      isTrial: false,
+    );
 
     if (kDebugMode) {
       print('✅ Mock purchase completed for ${product.identifier}');

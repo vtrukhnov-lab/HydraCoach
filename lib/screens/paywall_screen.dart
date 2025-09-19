@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import 'package:hydracoach/l10n/app_localizations.dart';
+import '../services/analytics_service.dart';
 import '../services/remote_config_service.dart';
 import '../services/subscription_service.dart';
 import '../widgets/ion_character.dart';
@@ -29,7 +30,15 @@ class PricingPack {
 
 class PaywallScreen extends StatefulWidget {
   final bool showCloseButton;
-  const PaywallScreen({super.key, this.showCloseButton = true});
+  final String source;
+  final String? variant;
+
+  const PaywallScreen({
+    super.key,
+    this.showCloseButton = true,
+    this.source = 'unknown',
+    this.variant,
+  });
 
   @override
   State<PaywallScreen> createState() => _PaywallScreenState();
@@ -37,12 +46,14 @@ class PaywallScreen extends StatefulWidget {
 
 class _PaywallScreenState extends State<PaywallScreen> {
   final RemoteConfigService _rc = RemoteConfigService.instance;
+  final AnalyticsService _analytics = AnalyticsService();
 
   // State
   bool _isLoading = false;
   Plan _selected = Plan.annual;
   bool _trialEnabledSwitch = true;
   bool _showAllFeatures = false;
+  bool _dismissLogged = false;
 
   // offerings (mock for now)
   late Map<Plan, PricingPack> _pricing;
@@ -52,6 +63,18 @@ class _PaywallScreenState extends State<PaywallScreen> {
     super.initState();
     _trialEnabledSwitch = _rc.trialEnabled;
     _pricing = _mockPricing();
+    _analytics.logPaywallShown(
+      source: widget.source,
+      variant: widget.variant,
+    );
+  }
+
+  @override
+  void dispose() {
+    if (!_dismissLogged) {
+      _logPaywallDismiss('dispose');
+    }
+    super.dispose();
   }
 
   Map<Plan, PricingPack> _mockPricing() {
@@ -104,7 +127,12 @@ class _PaywallScreenState extends State<PaywallScreen> {
     final l10n = AppLocalizations.of(context);
 
     return WillPopScope(
-      onWillPop: () async => widget.showCloseButton,
+      onWillPop: () async {
+        if (widget.showCloseButton) {
+          _logPaywallDismiss('system_back');
+        }
+        return widget.showCloseButton;
+      },
       child: Scaffold(
         backgroundColor: isDark ? const Color(0xFF0F1214) : const Color(0xFFF8FAFA),
         body: SafeArea(
@@ -208,7 +236,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   top: 10,
                   right: 10,
                   child: IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () {
+                      _logPaywallDismiss('close_button');
+                      Navigator.of(context).pop();
+                    },
                     icon: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
@@ -306,6 +337,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
+        if (_selected != pack.plan) {
+          _analytics.logPaywallPlanSelected(
+            plan: pack.plan.name,
+            source: widget.source,
+            variant: widget.variant,
+          );
+        }
         setState(() => _selected = pack.plan);
       },
       child: Container(
@@ -440,6 +478,17 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   double _discountPercent(double price, double original) => (1 - price / original) * 100;
 
+  void _logPaywallDismiss(String reason) {
+    if (_dismissLogged) {
+      return;
+    }
+    _dismissLogged = true;
+    _analytics.logPaywallDismissed(
+      source: widget.source,
+      reason: reason,
+    );
+  }
+
   Widget _buildTrialToggle(bool isDark, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -461,6 +510,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
             onChanged: (v) {
               HapticFeedback.selectionClick();
               setState(() => _trialEnabledSwitch = v);
+              _analytics.logPaywallTrialToggle(
+                source: widget.source,
+                enabled: v,
+              );
             },
           ),
         ],
@@ -600,6 +653,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
     if (_isLoading) return;
     HapticFeedback.mediumImpact();
     setState(() => _isLoading = true);
+    final bool trialEnabledForAnalytics = _showTrialSwitch && _trialEnabledSwitch;
 
     try {
       final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
@@ -621,7 +675,18 @@ class _PaywallScreenState extends State<PaywallScreen> {
       // MOCK покупка (до подключения RC)
       print('🛍️ Initiating purchase for plan: ${_selected.name}');
       print('📦 Product ID: $productId');
+      _analytics.logSubscriptionPurchaseAttempt(
+        product: _selected.name,
+        source: widget.source,
+        trialEnabled: trialEnabledForAnalytics,
+      );
       await subscriptionProvider.mockPurchase();
+      _analytics.logSubscriptionPurchaseResult(
+        product: _selected.name,
+        source: widget.source,
+        success: true,
+        trialEnabled: trialEnabledForAnalytics,
+      );
 
       if (!mounted) return;
 
@@ -676,6 +741,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                _logPaywallDismiss('purchase_success');
                 Navigator.of(context).pop(true);
               },
               child: Container(
@@ -696,6 +762,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
     } catch (e) {
       if (!mounted) return;
       print('❌ Purchase error: $e');
+      _analytics.logSubscriptionPurchaseResult(
+        product: _selected.name,
+        source: widget.source,
+        success: false,
+        trialEnabled: trialEnabledForAnalytics,
+        error: e.toString(),
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(l10n.purchaseFailed(e.toString())),
@@ -717,12 +790,17 @@ class _PaywallScreenState extends State<PaywallScreen> {
     try {
       final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
       print('🔄 Attempting to restore purchases...');
+      _analytics.logSubscriptionRestoreAttempt(source: widget.source);
       final restored = await subscriptionProvider.restorePurchases();
 
       if (!mounted) return;
 
       if (restored) {
         print('✅ Purchases restored successfully!');
+        _analytics.logSubscriptionRestoreResult(
+          source: widget.source,
+          success: true,
+        );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.proSubscriptionRestored),
@@ -730,9 +808,14 @@ class _PaywallScreenState extends State<PaywallScreen> {
             behavior: SnackBarBehavior.floating,
           ),
         );
+        _logPaywallDismiss('restore_success');
         Navigator.of(context).pop(true);
       } else {
         print('ℹ️ No purchases to restore');
+        _analytics.logSubscriptionRestoreResult(
+          source: widget.source,
+          success: false,
+        );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.noPurchasesToRestore),
@@ -743,6 +826,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
     } catch (e) {
       if (!mounted) return;
       print('❌ Restore error: $e');
+      _analytics.logSubscriptionRestoreResult(
+        source: widget.source,
+        success: false,
+      );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(l10n.restoreFailed(e.toString())),
