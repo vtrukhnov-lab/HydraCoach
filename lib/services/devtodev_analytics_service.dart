@@ -19,29 +19,43 @@ class DevToDevAnalyticsService {
   static const MethodChannel _channel = MethodChannel('devtodev_analytics');
 
   bool _isInitialized = false;
+  DevToDevCredentials _credentials = const DevToDevCredentials.empty();
 
   bool get isInitialized => _isInitialized;
+  DevToDevCredentials get credentials => _credentials;
 
   Future<void> initialize() async {
     if (_isInitialized) {
       return;
     }
 
-    if (devToDevAndroidAppKey.isEmpty && devToDevIosAppKey.isEmpty) {
+    _credentials = _resolveCredentials();
+
+    if (!_credentials.isComplete) {
       if (kDebugMode) {
         print(
-          '⚠️ DevToDev ключи не указаны. Интеграция DevToDev будет пропущена.',
+          '⚠️ DevToDev ключи не заполнены для платформы $defaultTargetPlatform. '
+          'Интеграция DevToDev будет пропущена.',
         );
       }
       return;
     }
 
     try {
-      await _channel.invokeMethod<void>('initialize', {
-        'androidKey': devToDevAndroidAppKey,
-        'iosKey': devToDevIosAppKey,
+      await _channel.invokeMethod<void>('initialize', <String, dynamic>{
+        'appId': _credentials.appId,
+        'secretKey': _credentials.secretKey,
+        'apiKey': _credentials.apiKey,
       });
       _isInitialized = true;
+    } on MissingPluginException {
+      // В сборке без нативной реализации тихо пропускаем инициализацию.
+      if (kDebugMode) {
+        print(
+          '⚠️ Плагин DevToDev не найден. Убедитесь, что добавили нативную '
+          'реализацию MethodChannel devtodev_analytics.',
+        );
+      }
     } catch (error, stackTrace) {
       if (kDebugMode) {
         print('❌ Ошибка инициализации DevToDev: $error');
@@ -138,6 +152,17 @@ class DevToDevAnalyticsService {
       });
     } catch (error) {
       _logError('logEvent', error);
+    }
+  }
+
+  DevToDevCredentials _resolveCredentials() {
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return devToDevAndroidCredentials;
+      case TargetPlatform.iOS:
+        return devToDevIosCredentials;
+      default:
+        return const DevToDevCredentials.empty();
     }
   }
 
