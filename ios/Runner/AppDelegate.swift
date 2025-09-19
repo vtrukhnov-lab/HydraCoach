@@ -7,6 +7,32 @@ import UIKit
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+
+    let controller = window?.rootViewController as! FlutterViewController
+    let purchaseConnectorChannel = FlutterMethodChannel(
+      name: "hydracoach.purchase_connector",
+      binaryMessenger: controller.binaryMessenger
+    )
+
+    purchaseConnectorChannel.setMethodCallHandler { [weak self] (call, result) in
+      switch call.method {
+      case "initializePurchaseConnector":
+        // TODO: Integrate Purchase Connector after resolving dependencies
+        result("Purchase Connector mock initialized (pending native integration)")
+
+      case "startPurchaseConnector":
+        // TODO: Start Purchase Connector after resolving dependencies
+        result("Purchase Connector mock started (pending native integration)")
+
+      case "stopPurchaseConnector":
+        // TODO: Stop Purchase Connector after resolving dependencies
+        result("Purchase Connector mock stopped (pending native integration)")
+
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

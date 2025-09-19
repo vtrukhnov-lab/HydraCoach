@@ -6,11 +6,14 @@ class ConsentService {
   static const String _consentGivenKey = 'consent_given';
   static const String _hasShownBannerKey = 'has_shown_consent_banner';
   
-  // Usercentrics Settings ID для вашего приложения
+  // Usercentrics Settings ID для вашего приложения (Ruleset ID от паблишера)
   static const String settingsId = 'UxKlz-EOgB16Ne';
-  
-  // AppsFlyer Template ID
+
+  // Template IDs от паблишера для основных сервисов
   static const String appsFlyerTemplateId = 'Gx9iMF__f';
+  static const String firebaseTemplateId = '42vRvlulK96R-F';
+  static const String appLovinTemplateId = 'fHczTMzX8';
+  static const String googleAdsTemplateId = 'S1_9Vsuj-Q';
   
   bool _isInitialized = false;
   bool _hasConsent = false;
@@ -38,6 +41,7 @@ class ConsentService {
       Usercentrics.initialize(
         settingsId: settingsId,
         loggerLevel: UsercentricsLoggerLevel.debug,
+        ruleSetId: settingsId, // явно указываем Ruleset ID
       );
       
       _isInitialized = true;
@@ -207,21 +211,48 @@ class ConsentService {
   // Проверить, нужно ли показывать баннер при запуске
   Future<bool> shouldShowConsentBanner() async {
     try {
-      // Проверяем, был ли уже показан баннер
-      final prefs = await SharedPreferences.getInstance();
-      final hasShownBanner = prefs.getBool(_hasShownBannerKey) ?? false;
-      
-      if (hasShownBanner) {
-        return false; // Баннер уже был показан
-      }
-      
       // Проверяем через Usercentrics
       final status = await Usercentrics.status;
+      debugPrint('ConsentService: shouldCollectConsent = ${status.shouldCollectConsent}');
+      debugPrint('ConsentService: User location: ${status.location}');
+      debugPrint('ConsentService: Consent template count: ${status.consents.length}');
+
       return status.shouldCollectConsent;
-      
+
     } catch (e) {
       debugPrint('ConsentService: Ошибка проверки необходимости баннера - $e');
       return false;
+    }
+  }
+
+  // Принудительный показ баннера для тестирования
+  Future<void> forceShowConsentBanner(BuildContext context) async {
+    try {
+      debugPrint('ConsentService: 🧪 ПРИНУДИТЕЛЬНЫЙ показ баннера для тестирования...');
+
+      await resetConsent(); // Сбрасываем локальные данные
+      await initialize(); // Переинициализируем
+
+      // Принудительно показываем баннер
+      final response = await Usercentrics.showFirstLayer(
+        settings: const BannerSettings(
+          firstLayer: FirstLayerStyleSettings(
+            backgroundColor: Color(0xFFFFFFFF),
+            cornerRadius: 20,
+            overlayColor: Color(0x4D000000),
+          ),
+          general: GeneralStyleSettings(
+            textColor: Color(0xFF000000),
+          ),
+        ),
+      );
+
+      if (response != null) {
+        await _handleUserResponse(response);
+      }
+
+    } catch (e) {
+      debugPrint('ConsentService: Ошибка принудительного показа: $e');
     }
   }
   

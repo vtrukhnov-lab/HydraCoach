@@ -45,4 +45,10 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+
+    // Google Play Billing Library (требуется для Purchase Connector)
+    implementation("com.android.billingclient:billing:7.1.1")
+
+    // AppsFlyer Purchase Connector для IAP валидации
+    implementation("com.appsflyer:purchase-connector:2.1.1")
 }

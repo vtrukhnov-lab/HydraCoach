@@ -9,8 +9,10 @@ import '../l10n/app_localizations.dart';
 import '../services/notification_service.dart' as notif;
 import '../services/subscription_service.dart';
 import '../services/units_service.dart';
+import '../services/consent_service.dart';
 import '../screens/paywall_screen.dart';
 import '../widgets/notification_debug_panel.dart';
+import '../services/url_launcher_service.dart';
 
 
 class SettingsScreen extends StatefulWidget {
@@ -140,8 +142,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ).animate().fadeIn(duration: 350.ms),
                   ),
                 
-                // ВСТАВИТЬ СЮДА <<<<<<<<<<<<<<<<<<<
+                // DEBUG PANELS
                 if (kDebugMode) const NotificationDebugPanel(),
+                if (kDebugMode) _buildUsercentricsDebugPanel(),
                 
                   // Profile Section
                   _buildSectionTitle(l10n.profileSection),
@@ -470,11 +473,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         _buildDivider(),
                         _buildListTile(
+                          'Сайт компании',
+                          'playcus.com',
+                          Icons.language_outlined,
+                          () async {
+                            final success = await UrlLauncherService.openWebsite();
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Ссылка скопирована в буфер обмена')),
+                              );
+                            }
+                          },
+                        ),
+                        _buildListTile(
+                          'Поддержка',
+                          'support@playcus.com',
+                          Icons.support_agent_outlined,
+                          () async {
+                            final success = await UrlLauncherService.openSupportEmail();
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Email скопирован в буфер обмена')),
+                              );
+                            }
+                          },
+                        ),
+                        _buildListTile(
                           l10n.privacyPolicy,
-                          '',
+                          'playcus.com/privacy-policy',
                           Icons.privacy_tip_outlined,
-                          () {
-                            // TODO: Open privacy policy
+                          () async {
+                            final success = await UrlLauncherService.openPrivacyPolicy();
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Ссылка скопирована в буфер обмена')),
+                              );
+                            }
                           },
                         ),
                       ],
@@ -498,7 +532,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                   
-                  const SizedBox(height: 50),
+                  // Company Information
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Playcus Ltd',
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Thiseos 9, Flat/Office C1\nAglantzia, P.C. 2121\nNicosia, Cyprus',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey.shade600,
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(Icons.email_outlined, size: 14, color: Colors.grey.shade600),
+                            const SizedBox(width: 4),
+                            Text(
+                              'support@playcus.com',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
                 ],
               ),
             );
@@ -886,6 +963,143 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: Text(l10n.reset),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Usercentrics Debug Panel
+  Widget _buildUsercentricsDebugPanel() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.orange.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange.shade200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.privacy_tip, color: Colors.orange.shade700, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                '🧪 Usercentrics Debug',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange.shade700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    try {
+                      final consentService = ConsentService();
+                      await consentService.forceShowConsentBanner(context);
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error: $e'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  icon: const Icon(Icons.visibility, size: 16),
+                  label: const Text('Force Show Banner'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    try {
+                      final consentService = ConsentService();
+                      await consentService.resetConsent();
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Consent reset! Restart app to test.'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error: $e'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  icon: const Icon(Icons.refresh, size: 16),
+                  label: const Text('Reset Consent'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 8),
+
+          ElevatedButton.icon(
+            onPressed: () async {
+              try {
+                final consentService = ConsentService();
+                await consentService.showPrivacySettings(context);
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            icon: const Icon(Icons.settings, size: 16),
+            label: const Text('Privacy Settings'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          Text(
+            'Settings ID: UxKlz-EOgB16Ne\nTemplate IDs: AppsFlyer, Firebase, AppLovin, Google Ads',
+            style: TextStyle(
+              fontSize: 10,
+              color: Colors.orange.shade600,
+              fontFamily: 'monospace',
+            ),
           ),
         ],
       ),

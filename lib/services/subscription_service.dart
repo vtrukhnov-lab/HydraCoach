@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'analytics_service.dart';
+import 'appsflyer_service.dart';
 
 class SubscriptionProduct {
   const SubscriptionProduct({
@@ -45,6 +46,7 @@ class SubscriptionService {
   static const _proExpiresAtKey = 'pro_expires_at';
 
   final AnalyticsService _analytics = AnalyticsService();
+  final AppsFlyerService _appsFlyer = AppsFlyerService();
 
   static const List<SubscriptionProduct> _defaultProducts = [
     SubscriptionProduct(
@@ -120,10 +122,28 @@ class SubscriptionService {
     );
 
     await _activatePro(product.billingPeriod);
+
+    // Получаем цену из priceText для аналитики
+    final priceMatch = RegExp(r'(\d[\d\s]*\d|\d+)').firstMatch(product.priceText);
+    final price = priceMatch != null
+        ? double.tryParse(priceMatch.group(1)!.replaceAll(' ', '')) ?? 0.0
+        : 0.0;
+    final currency = product.priceText.contains('₽') ? 'RUB' : 'USD';
+
     await _analytics.logSubscriptionStarted(
       product: product.identifier,
       isTrial: false,
+      price: price,
+      currency: currency,
     );
+
+    // ВАЖНО: Purchase Connector автоматически обрабатывает валидацию покупок
+    // Не нужно вызывать _validatePurchaseWithAppsFlyer, чтобы избежать дублирования
+    // await _validatePurchaseWithAppsFlyer(product);
+
+    if (kDebugMode) {
+      print('💰 Purchase Connector автоматически обработает эту покупку');
+    }
 
     if (kDebugMode) {
       print('✅ Mock purchase completed for ${product.identifier}');
@@ -233,6 +253,60 @@ class SubscriptionService {
   /// Мок-покупка для тестирования — годовая подписка
   Future<void> mockPurchase() async {
     await purchaseSubscription(_defaultProducts.first.identifier);
+  }
+
+  /// Валидация покупки через AppsFlyer SDK Connector
+  Future<void> _validatePurchaseWithAppsFlyer(SubscriptionProduct product) async {
+    try {
+      // Получаем цену из priceText (парсим "2 290 ₽ / год" -> 2290.0)
+      final priceMatch = RegExp(r'(\d[\d\s]*\d|\d+)').firstMatch(product.priceText);
+      final price = priceMatch != null
+          ? double.tryParse(priceMatch.group(1)!.replaceAll(' ', '')) ?? 0.0
+          : 0.0;
+
+      final currency = product.priceText.contains('₽') ? 'RUB' : 'USD';
+
+      if (kDebugMode) {
+        print('💰 AppsFlyer IAP Validation for ${product.identifier}');
+        print('   Price: $price $currency');
+      }
+
+      // Отправляем базовое событие покупки в AppsFlyer
+      await _appsFlyer.logPurchase(
+        product: product.identifier,
+        revenue: price,
+        currency: currency,
+        orderId: 'mock_order_${DateTime.now().millisecondsSinceEpoch}',
+        additionalParams: {
+          'billing_period': product.billingPeriod.inDays.toString(),
+          'product_title': product.title,
+          'purchase_source': 'mock',
+        },
+      );
+
+      // TODO: Когда будет реальный IAP, добавить платформо-специфичную валидацию:
+      //
+      // Android:
+      // await _appsFlyer.validateAndLogAndroidPurchase(
+      //   productId: product.identifier,
+      //   purchaseToken: realPurchaseToken,
+      //   price: price,
+      //   currency: currency,
+      // );
+      //
+      // iOS:
+      // await _appsFlyer.validateAndLogIOSPurchase(
+      //   productId: product.identifier,
+      //   transactionId: realTransactionId,
+      //   price: price,
+      //   currency: currency,
+      // );
+
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Ошибка валидации покупки через AppsFlyer: $error');
+      }
+    }
   }
 }
 

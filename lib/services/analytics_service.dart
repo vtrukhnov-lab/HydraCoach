@@ -1,12 +1,10 @@
 // lib/services/analytics_service.dart
 
-import 'dart:io';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:appsflyer_sdk/appsflyer_sdk.dart';
 import 'package:flutter/foundation.dart';
-import 'consent_service.dart';
 
 import 'devtodev_analytics_service.dart';
+import 'appsflyer_service.dart';
 
 /// Сервис для работы с аналитикой (Firebase + DevToDev).
 /// Централизует все события и параметры для отслеживания
@@ -17,13 +15,42 @@ class AnalyticsService {
 
   final FirebaseAnalytics _firebase = FirebaseAnalytics.instance;
   final DevToDevAnalyticsService _devToDev = DevToDevAnalyticsService();
+  final AppsFlyerService _appsFlyer = AppsFlyerService();
 
   late final List<_AnalyticsBackend> _backends = <_AnalyticsBackend>[
     _FirebaseAnalyticsBackend(_firebase),
     _DevToDevAnalyticsBackend(_devToDev),
+    _AppsFlyerAnalyticsBackend(_appsFlyer),
   ];
 
   bool _isInitialized = false;
+
+  Future<void> init() async {
+    if (_isInitialized) return;
+
+    for (final backend in _backends) {
+      try {
+        await backend.initialize();
+      } catch (e) {
+        print('Error initializing analytics backend: $e');
+      }
+    }
+
+    _isInitialized = true;
+  }
+
+  Future<void> checkAndEnableAppsFlyer() async {
+    try {
+      await _appsFlyer.initialize();
+      if (kDebugMode) {
+        print('✅ AppsFlyer enabled and initialized');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error enabling AppsFlyer: $e');
+      }
+    }
+  }
 
   Future<void> _setUserId(String? userId) async {
     await _broadcast(
@@ -92,29 +119,8 @@ class AnalyticsService {
     }
   }
 
-  /// Handle conversion data from AppsFlyer
-  void _handleConversionData(Map<String, dynamic> data) {
-    final status = data['af_status'];
-    final mediaSource = data['media_source'];
-    final campaign = data['campaign'];
-    
-    if (kDebugMode) {
-      print('📊 Attribution - Status: $status, Source: $mediaSource, Campaign: $campaign');
-    }
-  }
-
-  /// Handle deep links from AppsFlyer
-  void _handleDeepLink(DeepLink? deepLinkObj) {
-    if (deepLinkObj == null) return;
-    
-    final deepLinkValue = deepLinkObj.deepLinkValue;
-    final mediaSource = deepLinkObj.mediaSource;
-    final campaign = deepLinkObj.campaign;
-    
-    if (kDebugMode) {
-      print('📊 Deep Link - Value: $deepLinkValue, Source: $mediaSource, Campaign: $campaign');
-    }
-  }
+  // AppsFlyer methods removed - SDK not currently integrated
+  // These methods can be restored when AppsFlyer SDK is added back
 
   /// Set default user properties
   Future<void> setDefaultUserProperties() async {
@@ -124,27 +130,10 @@ class AnalyticsService {
 
   // ==================== UNIFIED LOGGING ====================
   
-  /// Main unified logging method - sends to both Firebase and AppsFlyer
-  /// Now checks consent before sending to AppsFlyer
+  /// Main unified logging method - sends to Firebase Analytics
   Future<void> log(String eventName, [Map<String, dynamic>? parameters]) async {
-    // Send to Firebase Analytics (always, as it's essential)
+    // Send to Firebase Analytics
     await logEvent(name: eventName, parameters: parameters);
-    
-    // Send to AppsFlyer only if initialized AND we have consent
-    if (_isAppsFlyerInitialized && _appsflyerSdk != null && _consentService.hasConsent) {
-      await _appsflyerSdk!.logEvent(eventName, parameters ?? {});
-      
-      if (kDebugMode) {
-        print('📊 AppsFlyer Event: $eventName');
-        if (parameters != null) {
-          print('   Parameters: $parameters');
-        }
-      }
-    } else if (_isAppsFlyerInitialized && !_consentService.hasConsent) {
-      if (kDebugMode) {
-        print('⏸️ AppsFlyer Event blocked (no consent): $eventName');
-      }
-    }
   }
 
   // ==================== USER PROPERTIES ====================
@@ -483,7 +472,29 @@ class AnalyticsService {
         'product': product, // 'monthly', 'annual', 'lifetime'
         'is_trial': isTrial,
         'timestamp': DateTime.now().toIso8601String(),
-      });
+        if (price != null) 'price': price,
+        if (currency != null) 'currency': currency,
+      },
+    );
+
+    // Дополнительно логируем в AppsFlyer как конверсионное событие
+    if (price != null && currency != null && !isTrial) {
+      await _appsFlyer.logPurchase(
+        product: product,
+        revenue: price,
+        currency: currency,
+        orderId: 'sub_${DateTime.now().millisecondsSinceEpoch}',
+        additionalParams: {
+          'subscription_type': product,
+          'is_trial': isTrial,
+          'analytics_source': 'subscription_started',
+        },
+      );
+    }
+
+    // Также отправляем завершение регистрации, если это первая подписка
+    if (!isTrial) {
+      await _appsFlyer.logCompleteRegistration(method: 'subscription');
     }
   }
 
@@ -857,7 +868,7 @@ class AnalyticsService {
       },
     );
   }
-} // закрывающая скобка класса AnalyticsService
+}
 
 abstract class _AnalyticsBackend {
   Future<void> initialize();
@@ -1005,5 +1016,58 @@ class _DevToDevAnalyticsBackend implements _AnalyticsBackend {
   @override
   Future<void> setAnalyticsCollectionEnabled(bool enabled) async {
     await _devToDev.setTrackingEnabled(enabled);
+  }
+}
+
+class _AppsFlyerAnalyticsBackend implements _AnalyticsBackend {
+  _AppsFlyerAnalyticsBackend(this._appsFlyer);
+
+  final AppsFlyerService _appsFlyer;
+
+  @override
+  Future<void> initialize() => _appsFlyer.initialize();
+
+  @override
+  Future<void> setUserId(String? userId) async {
+    if (userId != null) {
+      await _appsFlyer.setCustomerUserId(userId);
+    }
+  }
+
+  @override
+  Future<void> setUserProperty(String name, String value) async {
+    // AppsFlyer doesn't have direct user properties, but we can log custom events
+    await _appsFlyer.logEvent(
+      eventName: 'user_property_set',
+      eventValues: {name: value},
+    );
+  }
+
+  @override
+  Future<void> logScreenView({
+    required String screenName,
+    required String screenClass,
+  }) async {
+    await _appsFlyer.logEvent(
+      eventName: 'screen_view',
+      eventValues: {
+        'screen_name': screenName,
+        'screen_class': screenClass,
+      },
+    );
+  }
+
+  @override
+  Future<void> logEvent({
+    required String name,
+    Map<String, dynamic>? parameters,
+  }) async {
+    await _appsFlyer.logEvent(eventName: name, eventValues: parameters);
+  }
+
+  @override
+  Future<void> setAnalyticsCollectionEnabled(bool enabled) async {
+    // AppsFlyer doesn't have a direct method to disable collection
+    // This would need to be handled at SDK initialization level
   }
 }
