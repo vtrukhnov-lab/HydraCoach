@@ -4,6 +4,22 @@ The format is based on Keep a Changelog,
 and this project adheres to Semantic Versioning.
 
 
+## [2.0.1] - 2025-09-20
+
+### Fixed
+- **Critical:** Fixed "Lookup failed: emoji" error in daily history display
+- **Data Integrity:** Added name and emoji fields to all intake models (Intake, AlcoholIntake, FoodIntake, Workout)
+- **History Display:** Product names and emojis now properly display in daily history timeline
+- **UI/UX:** Removed long-press deletion from daily history, kept only trash can delete buttons
+- **Data Loading:** Updated all Firestore converters and SharedPreferences formats to handle new fields
+- **Backward Compatibility:** Ensured old data without name/emoji fields loads correctly
+
+### Technical
+- Updated HistoryService Firestore converters (`_intakeFromFirestore`, `_alcoholFromFirestore`, `_foodFromFirestore`, `_workoutFromFirestore`)
+- Enhanced all Firestore save methods to include name and emoji data
+- Updated HRIService SharedPreferences format for workout data serialization
+- Added proper null handling for optional name/emoji fields across all data models
+
 ## [2.0.0] - 2025-09-18
 
 🎉 Major Release: Achievements, Enhanced Catalogs & Architecture Overhaul
