@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew --stop)",
+      "Bash(flutter pub cache clean:*)",
+      "Bash(flutter pub:*)",
+      "Bash(flutter run:*)",
+      "Bash(adb shell input:*)",
+      "Bash(nc localhost 51094)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git stash:*)",
+      "Bash(git merge:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

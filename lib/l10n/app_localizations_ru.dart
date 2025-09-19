@@ -9,7 +9,7 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
-  String get appTitle => 'HydroMate';
+  String get appTitle => 'HydroCoach';
 
   @override
   String get getPro => 'Получить PRO';
@@ -459,7 +459,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get start => 'Начать';
 
   @override
-  String get welcomeTitle => 'Добро пожаловать в\nHydroMate';
+  String get welcomeTitle => 'Добро пожаловать в\nHydroCoach';
 
   @override
   String get welcomeSubtitle =>
@@ -1112,7 +1112,7 @@ class AppLocalizationsRu extends AppLocalizations {
       '❄️ Холодно! Согревайтесь и пейте тёплые жидкости';
 
   @override
-  String get notificationChannelName => 'Напоминания HydroMate';
+  String get notificationChannelName => 'Напоминания HydroCoach';
 
   @override
   String get notificationChannelDescription =>
@@ -2037,7 +2037,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get onboardingWelcomeTitle =>
-      'HydroMate — умная гидратация каждый день';
+      'HydroCoach — умная гидратация каждый день';
 
   @override
   String get onboardingWelcomeSubtitle =>
@@ -3665,7 +3665,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tutorialStep3 =>
-      'Превосходно! Ты готов к самостоятельному использованию HydroMate. Я буду рядом, чтобы помочь тебе достичь идеальной гидратации!';
+      'Превосходно! Ты готов к самостоятельному использованию HydroCoach. Я буду рядом, чтобы помочь тебе достичь идеальной гидратации!';
 
   @override
   String get tutorialComplete => 'Начать пользоваться';
@@ -3675,7 +3675,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get onboardingNotificationExamplesSubtitle =>
-      'HydroMate знает, когда вам нужна вода';
+      'HydroCoach знает, когда вам нужна вода';
 
   @override
   String get onboardingLocationExamplesTitle => 'Персональные советы';
