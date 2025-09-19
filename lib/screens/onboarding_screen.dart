@@ -132,8 +132,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         return 'permanently_denied';
       case LocationPermission.unableToDetermine:
         return 'unknown';
-      case LocationPermission.unrestricted:
-        return 'unrestricted';
     }
   }
 

@@ -927,7 +927,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String unlockForPrice(String price) {
-    return 'Разблокировать за $price (разовый)';
+    return 'Купить за $price';
   }
 
   @override

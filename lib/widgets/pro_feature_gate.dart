@@ -247,7 +247,7 @@ class _ProBadge extends StatelessWidget {
       MaterialPageRoute(
         builder: (context) => PaywallScreen(
           showCloseButton: true,
-          source: 'feature_teaser_${feature.name}',
+          source: 'pro_badge',
         ),
         fullscreenDialog: true,
       ),

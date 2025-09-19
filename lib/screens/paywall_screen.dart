@@ -173,20 +173,20 @@ class _PaywallScreenState extends State<PaywallScreen> {
                                 Text(
                                   l10n.unlockPro,
                                   style: TextStyle(
-                                    fontSize: 24,
+                                    fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                     color: isDark ? Colors.white : const Color(0xFF2D3436),
                                   ),
                                 ).animate().fadeIn(delay: 300.ms),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 8),
                                 _buildQuickBenefit(Icons.sports_score, l10n.sportRecoveryProtocols, isDark),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: 4),
                                 _buildQuickBenefit(Icons.local_bar, l10n.alcoholProtocols, isDark),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: 4),
                                 _buildQuickBenefit(Icons.local_drink, l10n.allDrinksAndSupplements, isDark),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: 4),
                                 _buildQuickBenefit(Icons.show_chart, l10n.weeklyReports, isDark),
-                                const SizedBox(height: 6),
+                                const SizedBox(height: 4),
                                 _buildQuickBenefit(Icons.notifications_active, l10n.smartReminders, isDark),
                               ].animate(interval: 100.ms).fadeIn(),
                             ),
@@ -221,7 +221,6 @@ class _PaywallScreenState extends State<PaywallScreen> {
                             _buildAutoRenewNote(isDark, l10n),
                             const SizedBox(height: 24),
                             _buildPoliciesAndRestore(isDark, l10n),
-                            const SizedBox(height: 8),
                           ],
                         ),
                       ),
@@ -270,11 +269,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
           child: Icon(icon, size: 14, color: Colors.cyan),
         ),
         const SizedBox(width: 8),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 13,
-            color: isDark ? Colors.white70 : Colors.grey.shade700,
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 13,
+              color: isDark ? Colors.white70 : Colors.grey.shade700,
+            ),
           ),
         ),
       ],

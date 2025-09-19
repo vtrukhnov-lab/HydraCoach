@@ -49,9 +49,6 @@ dependencies:
   firebase_remote_config: ^5.1.0
   firebase_crashlytics: ^4.1.0
 
-  # 📊 Аналитика DevToDev
-  devtodev: ^2.0.0
-  
   # 📁 ФАЙЛЫ - экспорт данных
   path_provider: ^2.1.5
   csv: ^6.0.0
