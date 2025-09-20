@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.File
+
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
@@ -6,6 +9,16 @@ plugins {
     // END: FlutterFire Configuration
     id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+// Загружаем настройки ключа
+val keystoreProperties = Properties()
+val keystorePropertiesFile = File(rootProject.projectDir, "key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(keystorePropertiesFile.inputStream())
+    println("✅ Key properties loaded: ${keystoreProperties.keys}")
+} else {
+    println("❌ Key properties file not found: ${keystorePropertiesFile.absolutePath}")
 }
 
 android {
@@ -32,9 +45,26 @@ android {
         multiDexEnabled = true
     }
 
+    signingConfigs {
+        create("release") {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false
+            isShrinkResources = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }

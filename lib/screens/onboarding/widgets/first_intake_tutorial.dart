@@ -30,7 +30,6 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
   
   // Флаги для показа текста "TAP"
   bool _showTapText = false;
-  bool _showSecondTap = false;
   
   // Позиция круга прогресса
   Offset? _circlePosition;
@@ -41,14 +40,12 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
   late AnimationController _fingerTapController;
   late AnimationController _rippleController;
   late AnimationController _textFadeController;
-  late AnimationController _secondTextFadeController;
   
   // Анимации
   late Animation<double> _pulseAnimation;
   late Animation<double> _fingerTapAnimation;
   late Animation<double> _rippleAnimation;
   late Animation<double> _textFadeAnimation;
-  late Animation<double> _secondTextFadeAnimation;
   
   @override
   void initState() {
@@ -87,11 +84,6 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
       vsync: this,
     );
     
-    // Появление второго текста TAP
-    _secondTextFadeController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
     
     // Настройка анимаций
     _pulseAnimation = Tween<double>(
@@ -126,13 +118,6 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
       curve: Curves.easeOut,
     ));
     
-    _secondTextFadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _secondTextFadeController,
-      curve: Curves.easeOut,
-    ));
   }
   
   @override
@@ -141,7 +126,6 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
     _fingerTapController.dispose();
     _rippleController.dispose();
     _textFadeController.dispose();
-    _secondTextFadeController.dispose();
     super.dispose();
   }
   
@@ -159,13 +143,13 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
     Future.delayed(const Duration(milliseconds: 1000), () async {
       if (!mounted) return;
       
-      if (_currentStep == 1) {
-        // Анимация двойного тапа для второго шага
-        await _animateDoubleTap();
-      } else {
+      // if (_currentStep == 1) {
+      //   // Анимация двойного тапа для второго шага
+      //   await _animateDoubleTap();
+      // } else {
         // Анимация одиночного тапа для первого шага
         await _animateSingleTap();
-      }
+      // }
       
       // Повторяем цикл
       if (_currentStep < 2 && mounted) {
@@ -196,41 +180,6 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
     setState(() => _showTapText = false);
   }
   
-  Future<void> _animateDoubleTap() async {
-    // Первый тап
-    _fingerTapController.forward();
-    await Future.delayed(const Duration(milliseconds: 150));
-    
-    setState(() => _showTapText = true);
-    _textFadeController.forward();
-    
-    await Future.delayed(const Duration(milliseconds: 150));
-    _fingerTapController.reverse();
-    
-    await Future.delayed(const Duration(milliseconds: 300));
-    
-    // Второй тап
-    _fingerTapController.forward();
-    await Future.delayed(const Duration(milliseconds: 150));
-    
-    setState(() => _showSecondTap = true);
-    _secondTextFadeController.forward();
-    
-    await Future.delayed(const Duration(milliseconds: 150));
-    _fingerTapController.reverse();
-    
-    await Future.delayed(const Duration(milliseconds: 500));
-    
-    // Скрываем оба TAP
-    _textFadeController.reverse();
-    _secondTextFadeController.reverse();
-    await Future.delayed(const Duration(milliseconds: 300));
-    
-    setState(() {
-      _showTapText = false;
-      _showSecondTap = false;
-    });
-  }
   
   void _handleSingleTap() {
     if (_currentStep != 0) return;
@@ -248,37 +197,7 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
     final volumeDisplay = unitsService.formatVolume(volumeToAdd, hideUnit: false);
     _showMotivationalMessage('+$volumeDisplay', '💧');
     
-    // Переходим к следующему шагу после увеличенной задержки
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        setState(() {
-          _currentStep = 1;
-        });
-        // Перезапускаем анимацию для второго шага
-        _fingerTapController.reset();
-        _textFadeController.reset();
-        _startFingerAnimation();
-      }
-    });
-  }
-  
-  void _handleDoubleTap() {
-    if (_currentStep != 1) return;
-    
-    HapticFeedback.mediumImpact();
-    
-    final unitsService = UnitsService.instance;
-    final volumeToAdd = unitsService.getQuickVolumeMl(3); // 500ml или ~16oz
-    
-    setState(() {
-      _simulatedWater += volumeToAdd;
-    });
-    
-    // Показываем мотивационное сообщение с правильными единицами
-    final volumeDisplay = unitsService.formatVolume(volumeToAdd, hideUnit: false);
-    _showMotivationalMessage('+$volumeDisplay', '🎯');
-    
-    // Переходим к финальному шагу после увеличенной задержки
+    // Переходим сразу к финальному шагу после задержки
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         setState(() {
@@ -291,6 +210,7 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
       }
     });
   }
+  
   
   void _showMotivationalMessage(String text, String emoji) {
     // Дополнительная вибрация для обратной связи
@@ -328,12 +248,6 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
           hideUnit: false,
         );
         return l10n.tutorialStep1(volume);
-      case 1:
-        final volume = unitsService.formatVolume(
-          unitsService.getQuickVolumeMl(3),
-          hideUnit: false,
-        );
-        return l10n.tutorialStep2(volume);
       case 2:
         return l10n.tutorialStep3;
       default:
@@ -388,7 +302,7 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
               top: _circlePosition!.dy - 100,
               child: GestureDetector(
                 onTap: _currentStep == 0 ? _handleSingleTap : null,
-                onDoubleTap: _currentStep == 1 ? _handleDoubleTap : null,
+                // onDoubleTap: _currentStep == 1 ? _handleDoubleTap : null,
                 child: _SimulatedProgressCircle(
                   progress: simulatedProgress,
                   waterConsumed: _simulatedWater,
@@ -449,47 +363,47 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
                         ),
                       
                       // Второй TAP (только для двойного тапа)
-                      if (_showSecondTap && _currentStep == 1)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: AnimatedBuilder(
-                            animation: _secondTextFadeAnimation,
-                            builder: (context, child) {
-                              return Opacity(
-                                opacity: _secondTextFadeAnimation.value,
-                                child: Transform.scale(
-                                  scale: 0.8 + (_secondTextFadeAnimation.value * 0.4),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 24,
-                                      vertical: 12,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(25),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: const Color(0xFF2EC5FF).withOpacity(0.6),
-                                          blurRadius: 20,
-                                          spreadRadius: 2,
-                                        ),
-                                      ],
-                                    ),
-                                    child: const Text(
-                                      'TAP',
-                                      style: TextStyle(
-                                        color: Color(0xFF2EC5FF),
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: 32,
-                                        letterSpacing: 3,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+                      // if (_showSecondTap && _currentStep == 1)
+                      //   Padding(
+                      //     padding: const EdgeInsets.only(top: 8),
+                      //     child: AnimatedBuilder(
+                      //       animation: _secondTextFadeAnimation,
+                      //       builder: (context, child) {
+                      //         return Opacity(
+                      //           opacity: _secondTextFadeAnimation.value,
+                      //           child: Transform.scale(
+                      //             scale: 0.8 + (_secondTextFadeAnimation.value * 0.4),
+                      //             child: Container(
+                      //               padding: const EdgeInsets.symmetric(
+                      //                 horizontal: 24,
+                      //                 vertical: 12,
+                      //               ),
+                      //               decoration: BoxDecoration(
+                      //                 color: Colors.white,
+                      //                 borderRadius: BorderRadius.circular(25),
+                      //                 boxShadow: [
+                      //                   BoxShadow(
+                      //                     color: const Color(0xFF2EC5FF).withOpacity(0.6),
+                      //                     blurRadius: 20,
+                      //                     spreadRadius: 2,
+                      //                   ),
+                      //                 ],
+                      //               ),
+                      //               child: const Text(
+                      //                 'TAP',
+                      //                 style: TextStyle(
+                      //                   color: Color(0xFF2EC5FF),
+                      //                   fontWeight: FontWeight.w900,
+                      //                   fontSize: 32,
+                      //                   letterSpacing: 3,
+                      //                 ),
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         );
+                      //       },
+                      //     ),
+                      //   ),
                     ],
                   ),
                 ),
@@ -618,18 +532,20 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
                 
                 const SizedBox(height: 40),
                 
-                // Индикатор шагов
+                // Индикатор шагов (теперь только 2 шага)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(3, (index) {
+                  children: List.generate(2, (index) {
+                    // Маппинг индекса: 0 -> шаг 0, 1 -> шаг 2
+                    final stepIndex = index == 0 ? 0 : 2;
                     return AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
-                      width: index == _currentStep ? 32 : 8,
+                      width: stepIndex == _currentStep ? 32 : 8,
                       height: 8,
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(4),
-                        color: index <= _currentStep
+                        color: stepIndex <= _currentStep
                             ? const Color(0xFF2EC5FF)
                             : Colors.white.withOpacity(0.3),
                       ),

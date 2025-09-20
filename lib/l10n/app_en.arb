@@ -242,7 +242,7 @@
   "metricSystem": "Metric System",
   "metricUnits": "ml, kg, °C",
   "imperialSystem": "Imperial System",
-  "imperialUnits": "oz, lb, °F",
+  "imperialUnits": "fl oz, lb, °F",
   "aboutSection": "About",
   "version": "Version",
   "rateApp": "Rate App",
@@ -2493,11 +2493,11 @@
 "@foodAdviceLowWater": {
   "description": "Advice for low water content food"
 },
-"foodAdviceGoodHydration": "Excellent! Your food choices are supporting hydration goals.",
+"foodAdviceGoodHydration": "Great! Your food helps hydration.",
 "@foodAdviceGoodHydration": {
   "description": "Advice for good hydrating food"
 },
-"foodAdviceBalanced": "Keep up the balanced nutrition. Monitor water intake throughout the day.",
+"foodAdviceBalanced": "Good nutrition! Remember to drink water.",
 "@foodAdviceBalanced": {
   "description": "Advice for balanced food choices"
 },
@@ -2508,6 +2508,17 @@
 "kcal": "kcal",
 "@kcal": {
   "description": "Kilocalories abbreviation"
+},
+
+"recommendedCalories": "Recommended calories: ~{calories} kcal/day",
+"@recommendedCalories": {
+  "description": "Recommended daily calorie intake",
+  "placeholders": {
+    "calories": {
+      "type": "int",
+      "example": "1750"
+    }
+  }
 }
 }
 

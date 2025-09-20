@@ -143,7 +143,7 @@ class CaloriesIntakeCard extends StatelessWidget {
               // Nutritional breakdown
               if (foodProgress['foodCount'] > 0) ...[
                 // Progress bar for calories (2000 kcal goal)
-                _buildCalorieProgress(totalCalories, l10n),
+                _buildCalorieProgress(context, totalCalories, l10n),
                 const SizedBox(height: 12),
 
                 // Nutritional info row
@@ -225,8 +225,9 @@ class CaloriesIntakeCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCalorieProgress(int totalCalories, AppLocalizations l10n) {
-    const goal = 2000; // Daily calorie goal
+  Widget _buildCalorieProgress(BuildContext context, int totalCalories, AppLocalizations l10n) {
+    final provider = Provider.of<HydrationProvider>(context, listen: false);
+    final goal = provider.calorieGoal; // Dynamic calorie goal based on weight
     final progress = (totalCalories / goal).clamp(0.0, 1.0);
 
     return Column(

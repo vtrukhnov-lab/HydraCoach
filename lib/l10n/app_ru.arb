@@ -2257,11 +2257,11 @@
 "@foodAdviceLowWater": {
   "description": "Advice for low water content food"
 },
-"foodAdviceGoodHydration": "Отлично! Ваш выбор продуктов поддерживает цели гидратации.",
+"foodAdviceGoodHydration": "Супер! Еда помогает увлажнению организма.",
 "@foodAdviceGoodHydration": {
   "description": "Advice for good hydrating food"
 },
-"foodAdviceBalanced": "Продолжайте сбалансированное питание. Следите за потреблением воды в течение дня.",
+"foodAdviceBalanced": "Хорошее питание! Не забывайте пить воду.",
 "@foodAdviceBalanced": {
   "description": "Advice for balanced food choices"
 },
@@ -2272,5 +2272,16 @@
 "kcal": "ккал",
 "@kcal": {
   "description": "Kilocalories abbreviation"
+},
+
+"recommendedCalories": "Рекомендуемые калории: ~{calories} ккал/день",
+"@recommendedCalories": {
+  "description": "Recommended daily calorie intake",
+  "placeholders": {
+    "calories": {
+      "type": "int",
+      "example": "1750"
+    }
+  }
 }
 }

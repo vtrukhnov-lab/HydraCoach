@@ -4109,12 +4109,16 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get foodAdviceGoodHydration =>
-      '¡Excelente! Tus elecciones de alimentos apoyan tus objetivos de hidratación.';
+      '¡Genial! Tu comida ayuda a la hidratación.';
 
   @override
-  String get foodAdviceBalanced =>
-      'Continúa con la nutrición equilibrada. Monitorea la ingesta de agua durante el día.';
+  String get foodAdviceBalanced => '¡Buena nutrición! Recuerda beber agua.';
 
   @override
   String get richInElectrolytes => 'Rico en electrolitos';
+
+  @override
+  String recommendedCalories(int calories) {
+    return 'Calorías recomendadas: ~$calories kcal/día';
+  }
 }

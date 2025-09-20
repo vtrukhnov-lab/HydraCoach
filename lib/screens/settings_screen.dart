@@ -449,7 +449,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       children: [
                         _buildListTile(
                           l10n.version,
-                          '0.4.0',
+                          '2.0.0',
                           Icons.info_outline,
                           null,
                         ),
@@ -458,8 +458,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           l10n.rateApp,
                           '',
                           Icons.star_outline,
-                          () {
-                            // TODO: Open App Store / Google Play
+                          () async {
+                            final success = await UrlLauncherService.openAppStore();
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(success ? 'Ссылка на магазин скопирована' : 'Ошибка открытия магазина')),
+                              );
+                            }
                           },
                         ),
                         _buildDivider(),
@@ -467,8 +472,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           l10n.share,
                           '',
                           Icons.share_outlined,
-                          () {
-                            // TODO: Share app
+                          () async {
+                            final success = await UrlLauncherService.shareApp();
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(success ? 'Ссылка для шаринга скопирована' : 'Ошибка при шаринге')),
+                              );
+                            }
                           },
                         ),
                         _buildDivider(),

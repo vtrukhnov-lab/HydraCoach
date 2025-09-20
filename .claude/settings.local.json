@@ -24,7 +24,15 @@
       "Bash(flutter build:*)",
       "Bash(find:*)",
       "Bash(flutter gen-l10n:*)",
-      "Bash(flutter clean:*)"
+      "Bash(flutter clean:*)",
+      "Read(//c/android/keys/**)",
+      "Bash(jarsigner:*)",
+      "Bash(cat:*)",
+      "Bash(move androidkey.properties .)",
+      "Bash(magick:*)",
+      "Bash(adb shell:*)",
+      "Bash(adb uninstall:*)",
+      "Bash(keytool:*)"
     ],
     "deny": [],
     "ask": []

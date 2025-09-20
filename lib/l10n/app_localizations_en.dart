@@ -420,7 +420,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get imperialSystem => 'Imperial System';
 
   @override
-  String get imperialUnits => 'oz, lb, °F';
+  String get imperialUnits => 'fl oz, lb, °F';
 
   @override
   String get aboutSection => 'About';
@@ -4070,13 +4070,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your food had low water content. Consider drinking extra water.';
 
   @override
-  String get foodAdviceGoodHydration =>
-      'Excellent! Your food choices are supporting hydration goals.';
+  String get foodAdviceGoodHydration => 'Great! Your food helps hydration.';
 
   @override
-  String get foodAdviceBalanced =>
-      'Keep up the balanced nutrition. Monitor water intake throughout the day.';
+  String get foodAdviceBalanced => 'Good nutrition! Remember to drink water.';
 
   @override
   String get richInElectrolytes => 'Rich in electrolytes';
+
+  @override
+  String recommendedCalories(int calories) {
+    return 'Recommended calories: ~$calories kcal/day';
+  }
 }

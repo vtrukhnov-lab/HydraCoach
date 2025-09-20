@@ -47,7 +47,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   };
 
   // User data
-  double _weight = 176;  // Дефолтный вес в фунтах для США
+  double _weight = 70;  // Дефолтный вес в кг (универсальное внутреннее хранение)
   String _units = '';  // Пустое значение - логика выбора в UnitsPage
   String _dietMode = 'normal';
   String _fastingSchedule = 'none';
@@ -57,6 +57,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void initState() {
     super.initState();
     _units = UnitsService.instance.units;
+
+    // Убеждаемся, что начальный вес находится в разумном диапазоне (кг)
+    if (_weight < 30 || _weight > 200) {
+      _weight = 70; // Безопасное значение по умолчанию
+    }
 
     Future.microtask(() {
       _analytics.logOnboardingStart();
@@ -231,12 +236,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onUnitsChanged: (units) {
                       setState(() {
                         _units = units;
-                        // Автоматически корректируем вес при смене единиц
-                        if (units == 'metric' && _weight > 150) {
-                          _weight = 80; // Конвертируем в кг
-                        } else if (units == 'imperial' && _weight < 100) {
-                          _weight = 176; // Конвертируем в фунты
-                        }
+                        // Вес всегда хранится в кг внутренне, конвертация только для отображения
+                        // Никаких автоматических изменений веса не делаем
                       });
                       _analytics.logOnboardingOptionSelected(
                         stepId: _stepIdFor(1),
@@ -500,15 +501,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   // Data management methods
   Future<void> _saveBasicData() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Если units пустой, ставим imperial по умолчанию
     final unitsToSave = _units.isEmpty ? 'imperial' : _units;
-    
+
+    // Расчет цели по калориям (25 ккал на кг веса)
+    final int dailyCaloriesGoal = (25 * _weight).round();
+
     await prefs.setDouble('weight', _weight);
     await prefs.setString('units', unitsToSave);
     await prefs.setString('dietMode', _dietMode);
     await prefs.setString('activityLevel', 'medium');
     await prefs.setString('fastingSchedule', _fastingSchedule);
+    await prefs.setInt('dailyCaloriesGoal', dailyCaloriesGoal);
     
     // Сохраняем выбранные единицы в UnitsService
     await UnitsService.instance.setUnits(unitsToSave);

@@ -23,18 +23,31 @@ class UnitsPage extends StatefulWidget {
 
 class _UnitsPageState extends State<UnitsPage> {
   late String _selectedUnits;
+  bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
-    // Если ничего не выбрано, ставим imperial по умолчанию
-    _selectedUnits = widget.selectedUnits.isEmpty ? 'imperial' : widget.selectedUnits;
-    
-    // Уведомляем родительский компонент о выборе по умолчанию
-    if (widget.selectedUnits.isEmpty) {
+    _selectedUnits = '';
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (!_initialized) {
+      // Определяем дефолтную систему на основе локали
+      final locale = Localizations.localeOf(context).languageCode;
+      final defaultUnits = (locale == 'en') ? 'imperial' : 'metric';
+
+      // Всегда устанавливаем дефолт на основе локали
+      _selectedUnits = defaultUnits;
+      // Уведомляем родительский компонент о выборе по умолчанию
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        widget.onUnitsChanged('imperial');
+        widget.onUnitsChanged(defaultUnits);
       });
+
+      _initialized = true;
     }
   }
 
@@ -42,56 +55,45 @@ class _UnitsPageState extends State<UnitsPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return SingleChildScrollView(
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
       child: Column(
         children: [
-          const SizedBox(height: 20),
-          const IonCharacter(size: 100, mood: IonMood.happy, showGlow: false)
-            .animate().fadeIn(),
-          
-          const SizedBox(height: 24),
-          
-          Text(
-            l10n.onboardingUnitsTitle,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  const IonCharacter(size: 100, mood: IonMood.happy, showGlow: false)
+                    .animate().fadeIn(),
+
+                  const SizedBox(height: 24),
+
+                  Text(
+                    l10n.onboardingUnitsTitle,
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Text(
+                    l10n.onboardingUnitsSubtitle,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 15, color: Colors.grey[600]),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // Порядок зависит от локали
+                  ...(_buildUnitOptions(l10n)),
+
+                  const SizedBox(height: 40),
+                ],
+              ),
+            ),
           ),
-          
-          const SizedBox(height: 8),
-          
-          Text(
-            l10n.onboardingUnitsSubtitle,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, color: Colors.grey[600]),
-          ),
-          
-          const SizedBox(height: 30),
-          
-          // Imperial option - ПЕРВЫМ
-          _buildUnitOption(
-            context,
-            value: 'imperial',
-            emoji: '🇺🇸',
-            title: l10n.imperialSystem,
-            subtitle: l10n.imperialUnits,
-            delay: 100,
-          ),
-          
-          const SizedBox(height: 14),
-          
-          // Metric option - ВТОРЫМ
-          _buildUnitOption(
-            context,
-            value: 'metric',
-            emoji: '🌍',
-            title: l10n.metricSystem,
-            subtitle: l10n.metricUnits,
-            delay: 200,
-          ),
-          
-          const SizedBox(height: 40),
-          
-          // Next button
+
+          // Next button at bottom
           ElevatedButton(
             onPressed: () {
               HapticFeedback.lightImpact();
@@ -112,6 +114,45 @@ class _UnitsPageState extends State<UnitsPage> {
         ],
       ),
     );
+  }
+
+  List<Widget> _buildUnitOptions(AppLocalizations l10n) {
+    final locale = Localizations.localeOf(context).languageCode;
+    final isEnglish = locale == 'en';
+
+    final metricOption = _buildUnitOption(
+      context,
+      value: 'metric',
+      emoji: '🌍',
+      title: l10n.metricSystem,
+      subtitle: l10n.metricUnits,
+      delay: isEnglish ? 200 : 100,
+    );
+
+    final imperialOption = _buildUnitOption(
+      context,
+      value: 'imperial',
+      emoji: '🇺🇸',
+      title: l10n.imperialSystem,
+      subtitle: l10n.imperialUnits,
+      delay: isEnglish ? 100 : 200,
+    );
+
+    if (isEnglish) {
+      // Для английского: Imperial первый, Metric второй
+      return [
+        imperialOption,
+        const SizedBox(height: 14),
+        metricOption,
+      ];
+    } else {
+      // Для остальных: Metric первый, Imperial второй
+      return [
+        metricOption,
+        const SizedBox(height: 14),
+        imperialOption,
+      ];
+    }
   }
 
   Widget _buildUnitOption(

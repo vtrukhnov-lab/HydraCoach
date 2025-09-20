@@ -2271,11 +2271,11 @@
 "@foodAdviceLowWater": {
   "description": "Advice for low water content food"
 },
-"foodAdviceGoodHydration": "¡Excelente! Tus elecciones de alimentos apoyan tus objetivos de hidratación.",
+"foodAdviceGoodHydration": "¡Genial! Tu comida ayuda a la hidratación.",
 "@foodAdviceGoodHydration": {
   "description": "Advice for good hydrating food"
 },
-"foodAdviceBalanced": "Continúa con la nutrición equilibrada. Monitorea la ingesta de agua durante el día.",
+"foodAdviceBalanced": "¡Buena nutrición! Recuerda beber agua.",
 "@foodAdviceBalanced": {
   "description": "Advice for balanced food choices"
 },
@@ -2286,5 +2286,16 @@
 "kcal": "kcal",
 "@kcal": {
   "description": "Kilocalories abbreviation"
+},
+
+"recommendedCalories": "Calorías recomendadas: ~{calories} kcal/día",
+"@recommendedCalories": {
+  "description": "Recommended daily calorie intake",
+  "placeholders": {
+    "calories": {
+      "type": "int",
+      "example": "1750"
+    }
+  }
 }
 }

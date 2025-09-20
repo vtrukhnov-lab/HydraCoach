@@ -859,7 +859,7 @@ abstract class AppLocalizations {
   /// No description provided for @imperialUnits.
   ///
   /// In en, this message translates to:
-  /// **'oz, lb, °F'**
+  /// **'fl oz, lb, °F'**
   String get imperialUnits;
 
   /// No description provided for @aboutSection.
@@ -7681,13 +7681,13 @@ abstract class AppLocalizations {
   /// Advice for good hydrating food
   ///
   /// In en, this message translates to:
-  /// **'Excellent! Your food choices are supporting hydration goals.'**
+  /// **'Great! Your food helps hydration.'**
   String get foodAdviceGoodHydration;
 
   /// Advice for balanced food choices
   ///
   /// In en, this message translates to:
-  /// **'Keep up the balanced nutrition. Monitor water intake throughout the day.'**
+  /// **'Good nutrition! Remember to drink water.'**
   String get foodAdviceBalanced;
 
   /// Status for food rich in electrolytes
@@ -7695,6 +7695,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rich in electrolytes'**
   String get richInElectrolytes;
+
+  /// Recommended daily calorie intake
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended calories: ~{calories} kcal/day'**
+  String recommendedCalories(int calories);
 }
 
 class _AppLocalizationsDelegate

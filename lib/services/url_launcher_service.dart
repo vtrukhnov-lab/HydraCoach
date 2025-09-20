@@ -13,6 +13,11 @@ class UrlLauncherService {
   static const String dataSafetyGPUrl = 'https://docs.google.com/spreadsheets/d/1kPc5mX9z9Nm_7YDGTK1qkH-ZoQRdbXxQ00ICc6n2ipk/edit#gid=15532220';
   static const String dataSafetyIOSUrl = 'https://docs.google.com/spreadsheets/u/0/d/17QaT_AMP7UhtfrVNuZuznlrAyZvMDXlOpToA6-4Cpxg/htmlview#gid=1742509917';
 
+  // Ссылки для магазинов приложений (будут обновлены после публикации)
+  static const String googlePlayUrl = 'https://play.google.com/store/apps/details?id=com.playcus.hydracoach';
+  static const String appStoreUrl = 'https://apps.apple.com/app/hydracoach/id123456789';
+  static const String shareText = 'Check out HydraCoach - Smart hydration tracking app! 💧';
+
   /// Открыть веб-ссылку
   static Future<bool> openUrl(String url) async {
     try {
@@ -48,4 +53,36 @@ class UrlLauncherService {
   static Future<bool> openSupportEmail() => openEmail(supportEmail, subject: 'HydraCoach Support');
   static Future<bool> openDataSafetyGP() => openUrl(dataSafetyGPUrl);
   static Future<bool> openDataSafetyIOS() => openUrl(dataSafetyIOSUrl);
+
+  /// Открыть страницу приложения в магазине
+  static Future<bool> openAppStore() async {
+    // В зависимости от платформы открываем соответствующий магазин
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      return await openUrl(appStoreUrl);
+    } else {
+      return await openUrl(googlePlayUrl);
+    }
+  }
+
+  /// Поделиться приложением
+  static Future<bool> shareApp() async {
+    try {
+      final shareUrl = defaultTargetPlatform == TargetPlatform.iOS ? appStoreUrl : googlePlayUrl;
+      final fullShareText = '$shareText\n$shareUrl';
+
+      // Копируем в буфер обмена
+      await Clipboard.setData(ClipboardData(text: fullShareText));
+
+      if (kDebugMode) {
+        print('📋 Ссылка для шаринга скопирована: $fullShareText');
+      }
+
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Ошибка при шаринге: $e');
+      }
+      return false;
+    }
+  }
 }

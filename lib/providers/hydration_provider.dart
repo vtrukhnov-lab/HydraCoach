@@ -46,6 +46,7 @@ class HydrationProvider extends ChangeNotifier {
   double weight = 70;
   String dietMode = 'normal';
   String activityLevel = 'medium'; // Kept for compatibility
+  int dailyCaloriesGoal = 2000; // Цель по калориям на основе веса
   List<Intake> todayIntakes = [];
   List<FoodIntake> todayFoodIntakes = [];
   
@@ -565,12 +566,12 @@ class HydrationProvider extends ChangeNotifier {
   
   void _calculateGoals() {
   // 🔥 УПРОЩЕНО: Используем константы из ТЗ вместо Remote Config
-  
+
   // Константы формул воды (мл на кг веса) - из ТЗ
   const double waterMinPerKg = 22.0;
-  const double waterOptPerKg = 30.0; 
+  const double waterOptPerKg = 30.0;
   const double waterMaxPerKg = 36.0;
-  
+
   // Константы электролитов (мг в день) - из ТЗ
   const int sodiumNormal = 2500;
   const int sodiumKeto = 3500;
@@ -581,6 +582,9 @@ class HydrationProvider extends ChangeNotifier {
 
   // Безопасная проверка веса
   final double safeWeight = weight > 0 ? weight : 70.0;
+
+  // Расчет цели по калориям (25 ккал на кг веса)
+  dailyCaloriesGoal = (25 * safeWeight).round();
   
   // Базовые цели воды
   int baseWaterMin = (waterMinPerKg * safeWeight).round();
@@ -691,6 +695,7 @@ class HydrationProvider extends ChangeNotifier {
     weight = prefs.getDouble('weight') ?? 70;
     dietMode = prefs.getString('dietMode') ?? 'normal';
     activityLevel = prefs.getString('activityLevel') ?? 'medium';
+    dailyCaloriesGoal = prefs.getInt('dailyCaloriesGoal') ?? 2000;
     
     final todayKey = 'intakes_${DateTime.now().toIso8601String().split('T')[0]}';
     final intakesJson = prefs.getStringList(todayKey) ?? [];
@@ -866,6 +871,7 @@ class HydrationProvider extends ChangeNotifier {
     await prefs.setDouble('weight', weight);
     await prefs.setString('dietMode', dietMode);
     await prefs.setString('activityLevel', activityLevel);
+    await prefs.setInt('dailyCaloriesGoal', dailyCaloriesGoal);
   }
   
   // NEW: Save intake to Firestore via HistoryService
@@ -1184,6 +1190,9 @@ class HydrationProvider extends ChangeNotifier {
   int get totalCaloriesToday {
     return todayFoodIntakes.fold(0, (sum, intake) => sum + intake.calories);
   }
+
+  /// Get daily calorie goal based on weight
+  int get calorieGoal => dailyCaloriesGoal;
 
   /// Get today's total sugar from food
   double get totalSugarToday {

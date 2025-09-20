@@ -3,6 +3,32 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'analytics_service.dart';
 import 'appsflyer_service.dart';
 
+/*
+🧪 НАСТРОЙКА ТЕСТОВЫХ ПОКУПОК В GOOGLE PLAY CONSOLE:
+
+1. Перейдите в Google Play Console → Ваше приложение → Testing → Closed testing
+2. Создайте тестовую дорожку (например, "Internal Testing")
+3. Добавьте тестовые аккаунты в список тестеров:
+   - test@playcus.com
+   - vtrukhnov.lab@gmail.com
+   - qa@playcus.com
+   - и другие из списка _testAccounts
+
+4. В разделе "Monetization" → "Products" → "In-app products":
+   - Создайте продукты подписки
+   - Установите тестовые цены
+   - Тестовые аккаунты смогут покупать бесплатно
+
+5. В Release Management → Test tracks → Internal Testing:
+   - Загрузите APK/AAB с этим кодом
+   - Тестеры получат ссылку для установки
+
+РЕЗУЛЬТАТ:
+- Тестовые аккаунты: покупки БЕСПЛАТНО (но события аналитики логируются)
+- Обычные пользователи: ПЛАТНЫЕ покупки
+- Все события отслеживаются в Firebase/AppsFlyer
+*/
+
 class SubscriptionProduct {
   const SubscriptionProduct({
     required this.identifier,
@@ -45,6 +71,20 @@ class SubscriptionService {
   static const _isProKey = 'is_pro';
   static const _proExpiresAtKey = 'pro_expires_at';
 
+  // Список тестовых аккаунтов Google Play для бесплатного тестирования
+  static const List<String> _testAccounts = [
+    'test@playcus.com',
+    'tester1@playcus.com',
+    'tester2@playcus.com',
+    'qa@playcus.com',
+    'beta@playcus.com',
+    'vtrukhnov.lab@gmail.com', // Основной разработчик
+    // Добавьте свои тестовые аккаунты сюда
+  ];
+
+  // Дополнительные тестовые аккаунты, добавленные в рантайме
+  static final List<String> _runtimeTestAccounts = [];
+
   final AnalyticsService _analytics = AnalyticsService();
   final AppsFlyerService _appsFlyer = AppsFlyerService();
 
@@ -70,6 +110,37 @@ class SubscriptionService {
 
   bool get isPro => _isPro;
   bool get isInitialized => _isInitialized;
+
+  /// Проверяет, является ли текущий пользователь тестовым
+  bool _isTestAccount() {
+    // В реальном приложении здесь должна быть логика получения email пользователя
+    // Например, через Firebase Auth, Google Sign-In, или другой метод аутентификации
+
+    // Для демонстрации используем debug режим или можно добавить проверку email
+    if (kDebugMode) {
+      // В debug режиме считаем всех тестовыми для удобства разработки
+      return true;
+    }
+
+    // TODO: Здесь добавить получение email текущего пользователя
+    // final userEmail = getCurrentUserEmail();
+    // return _testAccounts.contains(userEmail) || _runtimeTestAccounts.contains(userEmail);
+
+    return false;
+  }
+
+  /// Добавить тестовый аккаунт в рантайме (только для debug)
+  static void addTestAccount(String email) {
+    if (kDebugMode && !_runtimeTestAccounts.contains(email)) {
+      _runtimeTestAccounts.add(email);
+      print('🧪 Added test account: $email');
+    }
+  }
+
+  /// Получить список всех тестовых аккаунтов
+  static List<String> getTestAccounts() {
+    return [..._testAccounts, ..._runtimeTestAccounts];
+  }
 
   /// "Инициализация" подписки: загружаем локальные данные и сбрасываем просроченные
   Future<void> initialize() async {
@@ -121,7 +192,32 @@ class SubscriptionService {
       orElse: () => throw Exception('Продукт не найден'),
     );
 
-    await _activatePro(product.billingPeriod);
+    final isTestUser = _isTestAccount();
+
+    if (isTestUser) {
+      // Для тестовых пользователей - бесплатная активация PRO
+      await _activatePro(product.billingPeriod);
+
+      if (kDebugMode) {
+        print('🧪 TEST USER: Подписка активирована бесплатно');
+      }
+    } else {
+      // Для обычных пользователей - реальная покупка
+      // TODO: Здесь должна быть интеграция с реальной системой платежей
+      // Например, RevenueCat, Google Play Billing, etc.
+
+      if (kDebugMode) {
+        // В debug режиме активируем мок для тестирования
+        await _activatePro(product.billingPeriod);
+        print('💰 REAL USER: Покупка обработана (мок-режим)');
+      } else {
+        // В релизе - покупки пока недоступны
+        if (kDebugMode) {
+          print('❌ REAL USER: Покупки пока не реализованы в релизе');
+        }
+        return false;
+      }
+    }
 
     // Получаем цену из priceText для аналитики
     final priceMatch = RegExp(r'(\d[\d\s]*\d|\d+)').firstMatch(product.priceText);
@@ -130,12 +226,24 @@ class SubscriptionService {
         : 0.0;
     final currency = product.priceText.contains('₽') ? 'RUB' : 'USD';
 
+    // Логируем аналитику с отметкой о типе пользователя
     await _analytics.logSubscriptionStarted(
       product: product.identifier,
-      isTrial: false,
-      price: price,
+      isTrial: isTestUser, // Помечаем тестовые покупки как trial
+      price: isTestUser ? 0.0 : price, // Для тестовых - цена 0
       currency: currency,
     );
+
+    // Дополнительная аналитика для разделения тестовых и реальных событий
+    if (isTestUser) {
+      if (kDebugMode) {
+        print('📊 Analytics: Test purchase logged (price: 0)');
+      }
+    } else {
+      if (kDebugMode) {
+        print('📊 Analytics: Real purchase logged (price: $price $currency)');
+      }
+    }
 
     // ВАЖНО: Purchase Connector автоматически обрабатывает валидацию покупок
     // Не нужно вызывать _validatePurchaseWithAppsFlyer, чтобы избежать дублирования

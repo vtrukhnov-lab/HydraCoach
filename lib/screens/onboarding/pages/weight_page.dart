@@ -73,9 +73,12 @@ class WeightPage extends StatelessWidget {
     // Создаем временный экземпляр UnitsService для конвертации
     // с правильной системой единиц
     final unitsService = UnitsService.instance;
-    
+
     // Определяем, какая система единиц выбрана
     final bool isImperial = units == 'imperial';
+
+    // Отладочная информация
+    print('WeightPage: weight=$weight, units=$units, isImperial=$isImperial');
     
     // Конвертация веса в отображаемые единицы
     final int displayWeight = isImperial 
@@ -172,50 +175,90 @@ class WeightPage extends StatelessWidget {
   }
 
   Widget _buildWaterNormInfo(AppLocalizations l10n) {
-    // Определяем, какая система единиц выбрана  
+    // Определяем, какая система единиц выбрана
     final bool isImperial = units == 'imperial';
-    
+
     // Расчет нормы воды основан на весе в кг (22-36 мл на кг веса)
     final int minWaterMl = (22 * weight).round();
     final int maxWaterMl = (36 * weight).round();
-    
+
     // Конвертируем в выбранные единицы
     final int minWater = isImperial
         ? (minWaterMl / 29.5735).round()  // мл в унции
         : minWaterMl;                      // остаемся в мл
-        
+
     final int maxWater = isImperial
         ? (maxWaterMl / 29.5735).round()  // мл в унции
         : maxWaterMl;                      // остаемся в мл
-    
+
     final String waterUnit = isImperial ? 'oz' : 'мл';
-    
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFF8AF5A3).withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFF8AF5A3).withOpacity(0.3),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.water_drop_outlined, color: Color(0xFF2EC5FF), size: 22),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              '${l10n.recommendedNorm(minWater, maxWater).split(':')[0]}: $minWater-$maxWater $waterUnit',
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF2EC5FF),
-                fontWeight: FontWeight.w500,
-              ),
+
+    // Расчет калорий (базовый метаболизм + активность)
+    // Формула Харриса-Бенедикта (упрощенная): BMR = 22 * вес_в_кг для среднего человека
+    final int dailyCalories = (25 * weight).round(); // 25 ккал на кг веса
+
+    return Column(
+      children: [
+        // Информация о воде
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFF8AF5A3).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: const Color(0xFF8AF5A3).withOpacity(0.3),
+              width: 1,
             ),
           ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 500.ms);
+          child: Row(
+            children: [
+              const Icon(Icons.water_drop_outlined, color: Color(0xFF2EC5FF), size: 22),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  '${l10n.recommendedNorm(minWater, maxWater).split(':')[0]}: $minWater-$maxWater $waterUnit',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF2EC5FF),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: 500.ms),
+
+        const SizedBox(height: 12),
+
+        // Информация о калориях
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFF9F43).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: const Color(0xFFFF9F43).withOpacity(0.3),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.local_fire_department, color: Color(0xFFFF9F43), size: 22),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  l10n.recommendedCalories(dailyCalories),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFFFF9F43),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ).animate().fadeIn(delay: 700.ms),
+      ],
+    );
   }
 }

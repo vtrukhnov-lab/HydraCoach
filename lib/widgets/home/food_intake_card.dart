@@ -418,22 +418,28 @@ class FoodIntakeCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
+          RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: value,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                if (unit.isNotEmpty)
+                  TextSpan(
+                    text: unit,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 11,
+                    ),
+                  ),
+              ],
             ),
           ),
-          if (unit.isNotEmpty)
-            Text(
-              unit,
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: 11,
-              ),
-            ),
         ],
       ),
     );

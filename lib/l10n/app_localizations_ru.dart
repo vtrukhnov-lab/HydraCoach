@@ -4082,12 +4082,16 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get foodAdviceGoodHydration =>
-      'Отлично! Ваш выбор продуктов поддерживает цели гидратации.';
+      'Супер! Еда помогает увлажнению организма.';
 
   @override
-  String get foodAdviceBalanced =>
-      'Продолжайте сбалансированное питание. Следите за потреблением воды в течение дня.';
+  String get foodAdviceBalanced => 'Хорошее питание! Не забывайте пить воду.';
 
   @override
   String get richInElectrolytes => 'Богато электролитами';
+
+  @override
+  String recommendedCalories(int calories) {
+    return 'Рекомендуемые калории: ~$calories ккал/день';
+  }
 }
