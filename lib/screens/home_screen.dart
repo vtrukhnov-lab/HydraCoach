@@ -22,7 +22,6 @@ import '../widgets/home/home_header.dart';
 import '../widgets/home/weather_card.dart';
 import '../widgets/home/main_progress_card.dart';
 import '../widgets/home/electrolytes_card.dart';
-import '../widgets/home/smart_advice_card.dart';
 import '../widgets/home/hri_status_card.dart';
 import '../widgets/home/sugar_intake_card.dart';
 import '../widgets/home/food_intake_card.dart';
@@ -432,10 +431,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   const SizedBox(height: 16),
                 ],
               ),
-            ),
-            
-            const SliverToBoxAdapter(
-              child: SmartAdviceCard(),
             ),
             
             SliverToBoxAdapter(

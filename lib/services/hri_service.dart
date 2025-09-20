@@ -834,11 +834,19 @@ class HRIService extends ChangeNotifier {
     }
     
     // ========== CALCULATE TOTAL HRI ==========
-    double total = 0.0;
+    // Weighted calculation: Water is 50%, other factors are 50%
+    double waterContribution = _components['water']! * 0.5; // 50% weight for water
+
+    // Other components share the remaining 50%
+    double otherComponents = 0.0;
     _components.forEach((key, value) {
-      total += value;
+      if (key != 'water') {
+        otherComponents += value;
+      }
     });
-    
+    double otherContribution = otherComponents * 0.5; // 50% weight for everything else
+
+    double total = waterContribution + otherContribution;
     _currentHRI = total.clamp(0, 100);
     _lastUpdate = DateTime.now();
     
@@ -848,8 +856,8 @@ class HRIService extends ChangeNotifier {
     
     // Debug output
     if (kDebugMode) {
-      print('=== HRI Calculation Update ===');
-      print('Water: ${_components['water']?.toStringAsFixed(1)} (ratio: ${waterRatio.toStringAsFixed(2)})');
+      print('=== HRI Calculation Update (Weighted) ===');
+      print('Water: ${_components['water']?.toStringAsFixed(1)} (ratio: ${waterRatio.toStringAsFixed(2)}) → ${waterContribution.toStringAsFixed(1)} (50% weight)');
       print('Sodium: ${_components['sodium']?.toStringAsFixed(1)}');
       print('Potassium: ${_components['potassium']?.toStringAsFixed(1)}');
       print('Magnesium: ${_components['magnesium']?.toStringAsFixed(1)}');
@@ -862,7 +870,8 @@ class HRIService extends ChangeNotifier {
       print('Food: ${_components['food']?.toStringAsFixed(1)} (${foodCount} items, ${foodSodiumIntake.toStringAsFixed(0)}mg Na, ${foodWaterContent.toStringAsFixed(0)}ml H2O)');
       print('Time: ${_components['timeSinceIntake']?.toStringAsFixed(1)}');
       print('Morning: ${_components['morning']?.toStringAsFixed(1)}');
-      print('TOTAL HRI: ${_currentHRI.toStringAsFixed(1)}');
+      print('Other factors total: ${otherComponents.toStringAsFixed(1)} → ${otherContribution.toStringAsFixed(1)} (50% weight)');
+      print('TOTAL HRI: ${_currentHRI.toStringAsFixed(1)} (${waterContribution.toStringAsFixed(1)} + ${otherContribution.toStringAsFixed(1)})');
       print('==============================');
     }
     

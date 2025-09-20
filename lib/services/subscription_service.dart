@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'dart:async';
 import 'analytics_service.dart';
 import 'appsflyer_service.dart';
 
@@ -71,6 +73,13 @@ class SubscriptionService {
   static const _isProKey = 'is_pro';
   static const _proExpiresAtKey = 'pro_expires_at';
 
+  // Google Play subscription product IDs
+  static const String _yearlyProductId = 'hydracoach_pro_yearly';
+  static const String _monthlyProductId = 'hydracoach_pro_monthly';
+
+  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
+  late StreamSubscription<List<PurchaseDetails>> _subscription;
+
   // Список тестовых аккаунтов Google Play для бесплатного тестирования
   static const List<String> _testAccounts = [
     'test@playcus.com',
@@ -107,9 +116,11 @@ class SubscriptionService {
 
   bool _isInitialized = false;
   bool _isPro = false;
+  List<ProductDetails> _products = [];
 
   bool get isPro => _isPro;
   bool get isInitialized => _isInitialized;
+  List<ProductDetails> get products => _products;
 
   /// Проверяет, является ли текущий пользователь тестовым
   bool _isTestAccount() {
@@ -135,17 +146,42 @@ class SubscriptionService {
     return [..._testAccounts, ..._runtimeTestAccounts];
   }
 
-  /// "Инициализация" подписки: загружаем локальные данные и сбрасываем просроченные
+  /// Инициализация подписки: подключение к Google Play и загрузка продуктов
   Future<void> initialize() async {
     if (_isInitialized) return;
 
     await _restoreFromStorage();
 
+    // Проверяем доступность покупок
+    final bool isAvailable = await _inAppPurchase.isAvailable();
+    if (!isAvailable) {
+      if (kDebugMode) {
+        print('❌ In-app purchases not available');
+      }
+      _isInitialized = true;
+      return;
+    }
+
+    // Настраиваем слушатель покупок
+    _subscription = _inAppPurchase.purchaseStream.listen(
+      _onPurchaseUpdate,
+      onDone: () => _subscription.cancel(),
+      onError: (error) {
+        if (kDebugMode) {
+          print('❌ Purchase stream error: $error');
+        }
+      },
+    );
+
+    // Загружаем продукты
+    await _loadProducts();
+
     _isInitialized = true;
 
     if (kDebugMode) {
-      print('✅ SubscriptionService initialized (mock)');
+      print('✅ SubscriptionService initialized');
       print('🔒 PRO status: $_isPro');
+      print('📦 Products loaded: ${_products.length}');
     }
   }
 
@@ -173,95 +209,158 @@ class SubscriptionService {
     _isPro = storedIsPro && expiry == null;
   }
 
+  /// Загрузка продуктов подписки из Google Play
+  Future<void> _loadProducts() async {
+    try {
+      final Set<String> productIds = {_yearlyProductId, _monthlyProductId};
+      final ProductDetailsResponse response = await _inAppPurchase.queryProductDetails(productIds);
+
+      if (response.error != null) {
+        if (kDebugMode) {
+          print('❌ Failed to load products: ${response.error}');
+        }
+        return;
+      }
+
+      _products = response.productDetails;
+
+      if (kDebugMode) {
+        print('📦 Loaded ${_products.length} products:');
+        for (final product in _products) {
+          print('   - ${product.id}: ${product.price}');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error loading products: $e');
+      }
+    }
+  }
+
+  /// Обработчик обновлений покупок
+  void _onPurchaseUpdate(List<PurchaseDetails> purchaseDetailsList) {
+    for (final PurchaseDetails purchaseDetails in purchaseDetailsList) {
+      _handlePurchase(purchaseDetails);
+    }
+  }
+
+  /// Обработка конкретной покупки
+  Future<void> _handlePurchase(PurchaseDetails purchaseDetails) async {
+    if (purchaseDetails.status == PurchaseStatus.purchased) {
+      // Покупка успешна - активируем PRO
+      final product = _products.firstWhere(
+        (p) => p.id == purchaseDetails.productID,
+        orElse: () => throw Exception('Product not found'),
+      );
+
+      Duration billingPeriod;
+      if (purchaseDetails.productID == _yearlyProductId) {
+        billingPeriod = const Duration(days: 365);
+      } else {
+        billingPeriod = const Duration(days: 30);
+      }
+
+      await _activatePro(billingPeriod);
+
+      // Логируем аналитику
+      await _analytics.logSubscriptionStarted(
+        product: purchaseDetails.productID,
+        price: double.tryParse(product.price.replaceAll(RegExp(r'[^\d.]'), '')) ?? 0.0,
+        currency: product.currencyCode,
+        isTrial: false, // Для реальных покупок это всегда false
+      );
+
+      if (kDebugMode) {
+        print('✅ Purchase completed: ${purchaseDetails.productID}');
+      }
+    } else if (purchaseDetails.status == PurchaseStatus.error) {
+      if (kDebugMode) {
+        print('❌ Purchase failed: ${purchaseDetails.error}');
+      }
+    }
+
+    // Завершаем покупку для Android
+    if (purchaseDetails.pendingCompletePurchase) {
+      await _inAppPurchase.completePurchase(purchaseDetails);
+    }
+  }
+
   /// Получение доступных продуктов подписки (мок-данные)
   Future<List<SubscriptionProduct>> getAvailableProducts() async {
     return List.unmodifiable(_defaultProducts);
   }
 
-  /// Заглушка покупки подписки
+  /// Покупка подписки через Google Play Billing
   Future<bool> purchaseSubscription(String productId) async {
-    final product = _defaultProducts.firstWhere(
-      (item) => item.identifier == productId,
-      orElse: () => throw Exception('Продукт не найден'),
-    );
-
-    final isTestUser = _isTestAccount();
-
-    if (isTestUser) {
-      // Для тестовых пользователей - бесплатная активация PRO
-      await _activatePro(product.billingPeriod);
-
-      if (kDebugMode) {
-        print('🧪 TEST USER: Подписка активирована бесплатно');
-      }
-    } else {
-      // Для обычных пользователей - реальная покупка
-      // TODO: Здесь должна быть интеграция с реальной системой платежей
-      // Например, RevenueCat, Google Play Billing, etc.
-
-      if (kDebugMode) {
-        // В debug режиме активируем мок для тестирования
-        await _activatePro(product.billingPeriod);
-        print('💰 REAL USER: Покупка обработана (мок-режим)');
-      } else {
-        // В релизе - покупки пока недоступны
-        if (kDebugMode) {
-          print('❌ REAL USER: Покупки пока не реализованы в релизе');
-        }
-        return false;
-      }
+    if (!_isInitialized) {
+      throw Exception('SubscriptionService not initialized');
     }
 
-    // Получаем цену из priceText для аналитики
-    final priceMatch = RegExp(r'(\d[\d\s]*\d|\d+)').firstMatch(product.priceText);
-    final price = priceMatch != null
-        ? double.tryParse(priceMatch.group(1)!.replaceAll(' ', '')) ?? 0.0
-        : 0.0;
-    final currency = product.priceText.contains('₽') ? 'RUB' : 'USD';
+    // Проверяем, доступны ли покупки
+    final bool isAvailable = await _inAppPurchase.isAvailable();
+    if (!isAvailable) {
+      throw Exception('In-app purchases not available');
+    }
 
-    // Логируем аналитику с отметкой о типе пользователя
-    await _analytics.logSubscriptionStarted(
-      product: product.identifier,
-      isTrial: isTestUser, // Помечаем тестовые покупки как trial
-      price: isTestUser ? 0.0 : price, // Для тестовых - цена 0
-      currency: currency,
-    );
+    // Находим продукт
+    final ProductDetails? product = _products.where((p) => p.id == productId).firstOrNull;
+    if (product == null) {
+      throw Exception('Product not found: $productId');
+    }
 
-    // Дополнительная аналитика для разделения тестовых и реальных событий
-    if (isTestUser) {
+    try {
       if (kDebugMode) {
-        print('📊 Analytics: Test purchase logged (price: 0)');
+        print('🛍️ Starting purchase for: ${product.id}');
+        print('💰 Price: ${product.price}');
       }
-    } else {
+
+      // Создаем параметры покупки
+      final PurchaseParam purchaseParam = PurchaseParam(productDetails: product);
+
+      // Инициируем покупку
+      final bool purchaseResult = await _inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam);
+
       if (kDebugMode) {
-        print('📊 Analytics: Real purchase logged (price: $price $currency)');
+        print('🔄 Purchase initiated: $purchaseResult');
       }
+
+      return purchaseResult;
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Purchase error: $e');
+      }
+      rethrow;
     }
-
-    // ВАЖНО: Purchase Connector автоматически обрабатывает валидацию покупок
-    // Не нужно вызывать _validatePurchaseWithAppsFlyer, чтобы избежать дублирования
-    // await _validatePurchaseWithAppsFlyer(product);
-
-    if (kDebugMode) {
-      print('💰 Purchase Connector автоматически обработает эту покупку');
-    }
-
-    if (kDebugMode) {
-      print('✅ Mock purchase completed for ${product.identifier}');
-    }
-
-    return _isPro;
   }
 
-  /// Заглушка восстановления покупок
+  /// Восстановление покупок через Google Play
   Future<bool> restorePurchases() async {
-    await _restoreFromStorage();
-
-    if (kDebugMode) {
-      print('🔄 Mock restore completed. PRO: $_isPro');
+    if (!_isInitialized) {
+      throw Exception('SubscriptionService not initialized');
     }
 
-    return _isPro;
+    try {
+      if (kDebugMode) {
+        print('🔄 Restoring purchases...');
+      }
+
+      // Восстанавливаем покупки через Google Play
+      await _inAppPurchase.restorePurchases();
+
+      // Также загружаем из локального хранилища
+      await _restoreFromStorage();
+
+      if (kDebugMode) {
+        print('✅ Restore completed. PRO: $_isPro');
+      }
+
+      return _isPro;
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Restore error: $e');
+      }
+      rethrow;
+    }
   }
 
   /// Обновление статуса подписки
@@ -353,7 +452,12 @@ class SubscriptionService {
 
   /// Мок-покупка для тестирования — годовая подписка
   Future<void> mockPurchase() async {
-    await purchaseSubscription(_defaultProducts.first.identifier);
+    await purchaseSubscription(_yearlyProductId);
+  }
+
+  /// Очистка ресурсов
+  void dispose() {
+    _subscription.cancel();
   }
 
   /// Валидация покупки через AppsFlyer SDK Connector

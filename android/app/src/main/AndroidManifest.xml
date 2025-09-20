@@ -17,6 +17,9 @@
     
     <!-- Для Android 13+ (API 33+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <!-- Разрешение для Google Play Billing -->
+    <uses-permission android:name="com.android.vending.BILLING" />
     
     <application
         android:label="HydroCoach"

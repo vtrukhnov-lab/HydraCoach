@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -659,21 +660,21 @@ class _PaywallScreenState extends State<PaywallScreen> {
     try {
       final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
 
-      // ID продукта по плану (заглушки)
+      // ID продукта по плану
       String productId;
       switch (_selected) {
         case Plan.lifetime:
-          productId = 'lifetime_pro';
+          productId = 'hydracoach_pro_yearly'; // используем годовую для lifetime
           break;
         case Plan.annual:
-          productId = 'annual_pro';
+          productId = 'hydracoach_pro_yearly';
           break;
         case Plan.monthly:
-          productId = 'monthly_pro';
+          productId = 'hydracoach_pro_monthly';
           break;
       }
 
-      // MOCK покупка (до подключения RC)
+      // Реальная покупка через Google Play
       print('🛍️ Initiating purchase for plan: ${_selected.name}');
       print('📦 Product ID: $productId');
       _analytics.logSubscriptionPurchaseAttempt(
@@ -681,17 +682,20 @@ class _PaywallScreenState extends State<PaywallScreen> {
         source: widget.source,
         trialEnabled: trialEnabledForAnalytics,
       );
-      await subscriptionProvider.mockPurchase();
+
+      final success = await subscriptionProvider.purchaseSubscription(productId);
+
       _analytics.logSubscriptionPurchaseResult(
         product: _selected.name,
         source: widget.source,
-        success: true,
+        success: success,
         trialEnabled: trialEnabledForAnalytics,
       );
 
       if (!mounted) return;
 
-      await showDialog(
+      if (success) {
+        await showDialog(
         context: context,
         barrierDismissible: false,
         builder: (_) => AlertDialog(
@@ -757,9 +761,15 @@ class _PaywallScreenState extends State<PaywallScreen> {
             )
           ],
         ),
-      );
+        );
 
-      print('✅ PRO activated successfully!');
+        print('✅ PRO activated successfully!');
+      } else {
+        // Покупка не удалась
+        if (kDebugMode) {
+          print('❌ Purchase was not successful');
+        }
+      }
     } catch (e) {
       if (!mounted) return;
       print('❌ Purchase error: $e');

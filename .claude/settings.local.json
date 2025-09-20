@@ -34,7 +34,21 @@
       "Bash(adb uninstall:*)",
       "Bash(keytool:*)",
       "Bash(adb:*)",
-      "WebFetch(domain:docs.devtodev.com)"
+      "WebFetch(domain:docs.devtodev.com)",
+      "Bash(pod install:*)",
+      "Bash(dart:*)",
+      "WebFetch(domain:patch-diff.githubusercontent.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(findstr:*)",
+      "Read(//c/Users/Виктор/.gradle/**)",
+      "Read(//c/Users/**)",
+      "Bash(curl:*)",
+      "Bash(unzip:*)",
+      "Bash(jar tf:*)",
+      "Bash(git commit:*)",
+      "Bash(timeout:*)",
+      "Bash(flutter:*)",
+      "Bash(nc localhost 54365)"
     ],
     "deny": [],
     "ask": []

@@ -101,15 +101,19 @@ class HRIStatusCard extends StatelessWidget {
             ],
           ),
           if (_hasActiveFactors(components, alcohol, weather, sugarGrams)) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             const Divider(),
-            const SizedBox(height: 8),
-            Text(l10n.hriBreakdownTitle, style: TextStyle(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w600)),
-            const SizedBox(height: 4),
-            Wrap(
-              spacing: 6,
-              runSpacing: 4,
-              children: _buildActiveFactorChips(components, alcohol, weather, sugarGrams, sugarImpact, l10n),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Icon(Icons.warning_amber_rounded, size: 16, color: Colors.orange[600]),
+                const SizedBox(width: 6),
+                Text(l10n.hriBreakdownTitle, style: TextStyle(fontSize: 14, color: Colors.grey[700], fontWeight: FontWeight.w700)),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Column(
+              children: _buildEnhancedFactorCards(components, alcohol, weather, sugarGrams, sugarImpact, l10n),
             ),
           ],
           if (isFasting) ...[
@@ -137,22 +141,222 @@ class HRIStatusCard extends StatelessWidget {
     ).animate().fadeIn(delay: 500.ms);
   }
 
-  // ИСПРАВЛЕНО: добавлена проверка workouts
+  // ИСПРАВЛЕНО: добавлена проверка всех компонентов
   bool _hasActiveFactors(Map<String, double> components, AlcoholService alcohol, WeatherService weather, double sugarGrams) {
-    // Добавляем проверку компонента workouts
     final hasWorkouts = (components['workouts'] ?? 0) > 0;
     final hasCaffeine = (components['caffeine'] ?? 0) > 0;
-    final hasAlcohol = alcohol.totalStandardDrinks > 0;
-    final hasWeather = weather.heatIndex != null && (components['heat'] ?? 0) > 0;
-    final hasSugar = sugarGrams > 50;
-    
-    return hasWorkouts || hasCaffeine || hasAlcohol || hasWeather || hasSugar;
+    final hasAlcohol = (components['alcohol'] ?? 0) > 0;
+    final hasWeather = (components['heat'] ?? 0) > 0;
+    final hasSugar = (components['sugar'] ?? 0) > 0;
+    final hasDehydration = (components['dehydration'] ?? 0) > 0;
+    final hasFood = (components['food'] ?? 0) > 0;
+    final hasTime = (components['timeSinceIntake'] ?? 0) > 0;
+    final hasMorning = (components['morning'] ?? 0) > 0;
+    final hasWater = (components['water'] ?? 0) > 2;
+    final hasSodium = (components['sodium'] ?? 0) > 2;
+    final hasPotassium = (components['potassium'] ?? 0) > 2;
+    final hasMagnesium = (components['magnesium'] ?? 0) > 2;
+
+    return hasWorkouts || hasCaffeine || hasAlcohol || hasWeather || hasSugar ||
+           hasDehydration || hasFood || hasTime || hasMorning || hasWater ||
+           hasSodium || hasPotassium || hasMagnesium;
+  }
+
+  List<Widget> _buildEnhancedFactorCards(
+    Map<String, double> components,
+    AlcoholService alcohol,
+    WeatherService weather,
+    double sugarGrams,
+    int sugarImpact,
+    AppLocalizations l10n
+  ) {
+    final cards = <Widget>[];
+
+    // Water dehydration risk (highest priority)
+    final waterImpact = components['water'] ?? 0;
+    if (waterImpact > 2) {
+      cards.add(_buildEnhancedFactorCard(
+        'Water Shortage',
+        '+${waterImpact.toInt()} HRI',
+        waterImpact > 15 ? 'Severe dehydration risk detected' : 'Insufficient water intake today',
+        Icons.water_drop,
+        waterImpact > 15 ? Colors.red : Colors.orange,
+        waterImpact
+      ));
+    }
+
+    // Dehydration from workouts
+    final dehydrationImpact = components['dehydration'] ?? 0;
+    if (dehydrationImpact > 0) {
+      cards.add(_buildEnhancedFactorCard(
+        'Workout Dehydration',
+        '+${dehydrationImpact.toInt()} HRI',
+        'Fluid losses from physical activity not compensated',
+        Icons.fitness_center,
+        Colors.red,
+        dehydrationImpact
+      ));
+    }
+
+    // Workouts (ongoing effect)
+    final workoutImpact = components['workouts'] ?? 0;
+    if (workoutImpact > 0) {
+      cards.add(_buildEnhancedFactorCard(
+        '${l10n.hriComponentWorkout}',
+        '+${workoutImpact.toInt()} HRI',
+        'Recent physical activity increases fluid needs',
+        Icons.fitness_center,
+        Colors.teal,
+        workoutImpact
+      ));
+    }
+
+    // Electrolyte imbalances
+    final sodiumImpact = components['sodium'] ?? 0;
+    if (sodiumImpact > 2) {
+      cards.add(_buildEnhancedFactorCard(
+        'Low Sodium',
+        '+${sodiumImpact.toInt()} HRI',
+        'Insufficient sodium intake disrupts fluid balance',
+        Icons.grain,
+        Colors.amber,
+        sodiumImpact
+      ));
+    }
+
+    final potassiumImpact = components['potassium'] ?? 0;
+    if (potassiumImpact > 2) {
+      cards.add(_buildEnhancedFactorCard(
+        'Low Potassium',
+        '+${potassiumImpact.toInt()} HRI',
+        'Low potassium affects cellular hydration',
+        Icons.eco,
+        Colors.green,
+        potassiumImpact
+      ));
+    }
+
+    final magnesiumImpact = components['magnesium'] ?? 0;
+    if (magnesiumImpact > 2) {
+      cards.add(_buildEnhancedFactorCard(
+        'Low Magnesium',
+        '+${magnesiumImpact.toInt()} HRI',
+        'Magnesium deficiency impacts muscle function',
+        Icons.psychology,
+        Colors.purple,
+        magnesiumImpact
+      ));
+    }
+
+    // Environmental factors
+    final heatImpact = components['heat'] ?? 0;
+    if (heatImpact > 0) {
+      final temp = weather.heatIndex?.round() ?? 30;
+      String description = temp < 32 ? 'Warm weather increases sweating' : 'High heat significantly increases fluid loss';
+      cards.add(_buildEnhancedFactorCard(
+        '${l10n.hriComponentHeat}',
+        '+${heatImpact.toInt()} HRI',
+        '$description (${temp}°C)',
+        temp < 32 ? Icons.wb_sunny : Icons.local_fire_department,
+        temp < 32 ? Colors.orange : Colors.red,
+        heatImpact
+      ));
+    }
+
+    // Dietary factors
+    final alcoholImpact = components['alcohol'] ?? 0;
+    if (alcoholImpact > 0) {
+      final sd = alcohol.totalStandardDrinks;
+      cards.add(_buildEnhancedFactorCard(
+        '${l10n.alcohol}',
+        '+${alcoholImpact.toInt()} HRI',
+        '${sd.toStringAsFixed(1)} standard drinks consumed',
+        Icons.local_bar,
+        Colors.red,
+        alcoholImpact
+      ));
+    }
+
+    final caffeineImpact = components['caffeine'] ?? 0;
+    if (caffeineImpact > 0) {
+      cards.add(_buildEnhancedFactorCard(
+        '${l10n.hriComponentCaffeine}',
+        '+${caffeineImpact.toInt()} HRI',
+        'Caffeine has mild diuretic effects',
+        Icons.coffee,
+        Colors.brown,
+        caffeineImpact
+      ));
+    }
+
+    final sugarImpactComponent = components['sugar'] ?? 0;
+    if (sugarImpactComponent > 0) {
+      Color sugarColor = Colors.amber;
+      String level = 'Moderate';
+      if (sugarImpactComponent > 5) {
+        sugarColor = Colors.orange;
+        level = 'High';
+      }
+      if (sugarImpactComponent > 8) {
+        sugarColor = Colors.red;
+        level = 'Very High';
+      }
+
+      cards.add(_buildEnhancedFactorCard(
+        '${l10n.sugarIntake}',
+        '+${sugarImpactComponent.toInt()} HRI',
+        '$level sugar intake increases fluid needs',
+        Icons.cake,
+        sugarColor,
+        sugarImpactComponent
+      ));
+    }
+
+    final foodImpact = components['food'] ?? 0;
+    if (foodImpact > 0) {
+      cards.add(_buildEnhancedFactorCard(
+        'Processed Food',
+        '+${foodImpact.toInt()} HRI',
+        'High sodium food reduces hydration efficiency',
+        Icons.restaurant,
+        Colors.orange,
+        foodImpact
+      ));
+    }
+
+    // Time-based factors
+    final timeImpact = components['timeSinceIntake'] ?? 0;
+    if (timeImpact > 0) {
+      final hours = (timeImpact / 2).round();
+      cards.add(_buildEnhancedFactorCard(
+        'Long Gap',
+        '+${timeImpact.toInt()} HRI',
+        '${hours}h since last fluid intake',
+        Icons.schedule,
+        Colors.blue,
+        timeImpact
+      ));
+    }
+
+    final morningImpact = components['morning'] ?? 0;
+    if (morningImpact > 0) {
+      cards.add(_buildEnhancedFactorCard(
+        'Morning Indicators',
+        '+${morningImpact.toInt()} HRI',
+        'Dark urine or weight loss detected this morning',
+        Icons.wb_twilight,
+        Colors.orange,
+        morningImpact
+      ));
+    }
+
+    return cards;
   }
 
   List<Widget> _buildActiveFactorChips(
-    Map<String, double> components, 
-    AlcoholService alcohol, 
-    WeatherService weather, 
+    Map<String, double> components,
+    AlcoholService alcohol,
+    WeatherService weather,
     double sugarGrams,
     int sugarImpact,
     AppLocalizations l10n
@@ -228,6 +432,75 @@ class HRIStatusCard extends StatelessWidget {
     }
     
     return chips;
+  }
+
+  Widget _buildEnhancedFactorCard(String title, String impact, String description, IconData icon, Color color, double impactValue) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.2), width: 1),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 20, color: color),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: color.withOpacity(0.9),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        impact,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: color,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildFactorChip(String label, IconData icon, Color color) {

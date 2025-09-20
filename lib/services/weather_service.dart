@@ -29,7 +29,32 @@ class WeatherService extends ChangeNotifier {
   double? get heatIndex => _heatIndex;
 
   WeatherService() {
+    _loadCachedWeather();
     loadWeather();
+  }
+
+  /// Load cached weather data immediately for consistent HRI calculation
+  Future<void> _loadCachedWeather() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cachedWeatherJson = prefs.getString('cached_weather');
+      if (cachedWeatherJson != null) {
+        final cachedData = json.decode(cachedWeatherJson);
+        _currentWeather = WeatherData.fromJson(cachedData);
+        _heatIndex = _currentWeather?.heatIndex;
+        debugPrint('🌡️ Loaded cached weather: temp=${_currentWeather?.temperature}°C, heatIndex=${_heatIndex}');
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('🌡️ Error loading cached weather: $e');
+    }
+  }
+
+  /// Initialize weather synchronously for critical services like HRI
+  static Future<WeatherService> createInitialized() async {
+    final service = WeatherService();
+    await service.loadWeather();
+    return service;
   }
 
   Future<void> loadWeather() async {
@@ -40,10 +65,29 @@ class WeatherService extends ChangeNotifier {
       if (weather != null) {
         _currentWeather = weather;
         _heatIndex = weather.heatIndex;
+
+        // Cache weather data for consistent HRI calculation
+        await _cacheWeatherData(weather);
+
+        debugPrint('🌡️ Weather loaded: temp=${weather.temperature}°C, heatIndex=${weather.heatIndex}');
         notifyListeners();
+      } else {
+        debugPrint('🌡️ Weather failed to load');
       }
     } finally {
       _fetchInProgress = false;
+    }
+  }
+
+  /// Cache weather data to prevent HRI jumps
+  Future<void> _cacheWeatherData(WeatherData weather) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final weatherJson = json.encode(weather.toJson());
+      await prefs.setString('cached_weather', weatherJson);
+      debugPrint('🌡️ Weather data cached successfully');
+    } catch (e) {
+      debugPrint('🌡️ Error caching weather data: $e');
     }
   }
 
@@ -430,5 +474,26 @@ class WeatherData {
     if (heatIndex < 39) return const Color(0xFFFF9800);
     if (heatIndex < 45) return const Color(0xFFFF5722);
     return const Color(0xFFF44336);
+  }
+
+  // JSON serialization for caching
+  Map<String, dynamic> toJson() {
+    return {
+      'temperature': temperature,
+      'humidity': humidity,
+      'heatIndex': heatIndex,
+      'description': description,
+      'city': city,
+    };
+  }
+
+  factory WeatherData.fromJson(Map<String, dynamic> json) {
+    return WeatherData(
+      temperature: (json['temperature'] as num?)?.toDouble() ?? 0.0,
+      humidity: (json['humidity'] as num?)?.toDouble() ?? 0.0,
+      heatIndex: (json['heatIndex'] as num?)?.toDouble() ?? 0.0,
+      description: json['description'] as String? ?? 'clear',
+      city: json['city'] as String? ?? '',
+    );
   }
 }

@@ -35,6 +35,9 @@ target 'Runner' do
 
   # AppsFlyer Purchase Connector для IAP валидации
   pod 'PurchaseConnector', '~> 2.1.1'
+
+  # DevToDev Analytics SDK
+  pod 'DevToDev', '~> 2.6.0'
 end
 
 post_install do |installer|

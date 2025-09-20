@@ -61,6 +61,9 @@ dependencies:
   # 📊 ATTRIBUTION & MONETIZATION
   appsflyer_sdk: ^6.17.5
 
+  # 💰 IN-APP PURCHASES
+  in_app_purchase: ^3.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

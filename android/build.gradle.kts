@@ -17,6 +17,10 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        // DevToDev official Maven repository
+        maven {
+            url = uri("https://maven.devtodev.com/public")
+        }
     }
 }
 
