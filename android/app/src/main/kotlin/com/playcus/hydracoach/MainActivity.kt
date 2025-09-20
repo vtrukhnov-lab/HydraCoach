@@ -1,18 +1,28 @@
 package com.playcus.hydracoach
 
+import android.util.Log
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import android.util.Log
 
 class MainActivity: FlutterActivity() {
-    private val CHANNEL = "hydracoach.purchase_connector"
+    private val PURCHASE_CONNECTOR_CHANNEL = "hydracoach.purchase_connector"
+    private val DEVTODEV_CHANNEL = "devtodev_analytics"
     private val TAG = "PurchaseConnector"
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
+        val devToDevHandler = DevToDevMethodHandler(application)
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            DEVTODEV_CHANNEL,
+        ).setMethodCallHandler { call, result ->
+            devToDevHandler.handle(call, result)
+        }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, PURCHASE_CONNECTOR_CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
                 "initializePurchaseConnector" -> {
                     try {
