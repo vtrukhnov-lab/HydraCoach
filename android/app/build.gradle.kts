@@ -81,4 +81,8 @@ dependencies {
 
     // AppsFlyer Purchase Connector для IAP валидации
     implementation("com.appsflyer:purchase-connector:2.1.1")
+
+    // DevToDev Analytics SDK v2
+    implementation("com.devtodev:android-analytics:2.5.1")
+    implementation("com.devtodev:android-google:1.0.1")
 }

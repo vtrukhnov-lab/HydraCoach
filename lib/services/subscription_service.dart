@@ -113,19 +113,12 @@ class SubscriptionService {
 
   /// Проверяет, является ли текущий пользователь тестовым
   bool _isTestAccount() {
-    // В реальном приложении здесь должна быть логика получения email пользователя
-    // Например, через Firebase Auth, Google Sign-In, или другой метод аутентификации
-
-    // Для демонстрации используем debug режим или можно добавить проверку email
-    if (kDebugMode) {
-      // В debug режиме считаем всех тестовыми для удобства разработки
-      return true;
-    }
-
-    // TODO: Здесь добавить получение email текущего пользователя
+    // В релизе блокируем все тестовые покупки - только реальные платежи
+    // TODO: В будущем добавить проверку email пользователя
     // final userEmail = getCurrentUserEmail();
     // return _testAccounts.contains(userEmail) || _runtimeTestAccounts.contains(userEmail);
 
+    // Пока что в релизе никто не является тестовым пользователем
     return false;
   }
 

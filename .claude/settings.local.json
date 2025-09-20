@@ -32,7 +32,9 @@
       "Bash(magick:*)",
       "Bash(adb shell:*)",
       "Bash(adb uninstall:*)",
-      "Bash(keytool:*)"
+      "Bash(keytool:*)",
+      "Bash(adb:*)",
+      "WebFetch(domain:docs.devtodev.com)"
     ],
     "deny": [],
     "ask": []

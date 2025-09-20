@@ -4,13 +4,22 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import android.util.Log
+// DevToDev integration via reflection-based handler
+import org.json.JSONObject
 
 class MainActivity: FlutterActivity() {
     private val CHANNEL = "hydracoach.purchase_connector"
+    private val DEVTODEV_CHANNEL = "devtodev_analytics"
     private val TAG = "PurchaseConnector"
+    private val DEVTODEV_TAG = "DevToDevAnalytics"
+
+    private lateinit var devToDevHandler: DevToDevMethodHandler
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+
+        // Initialize DevToDev handler
+        devToDevHandler = DevToDevMethodHandler(this)
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
@@ -57,6 +66,11 @@ class MainActivity: FlutterActivity() {
                 }
                 else -> result.notImplemented()
             }
+        }
+
+        // DevToDev Analytics MethodChannel
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, DEVTODEV_CHANNEL).setMethodCallHandler { call, result ->
+            devToDevHandler.handle(call, result)
         }
     }
 
