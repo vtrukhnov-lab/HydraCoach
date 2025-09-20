@@ -5,7 +5,6 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import android.util.Log
 // DevToDev integration via reflection-based handler
-import org.json.JSONObject
 
 class MainActivity: FlutterActivity() {
     private val CHANNEL = "hydracoach.purchase_connector"
