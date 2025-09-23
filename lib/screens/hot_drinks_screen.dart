@@ -175,24 +175,29 @@ class _HotDrinksScreenState extends State<HotDrinksScreen>
       final hriService = Provider.of<HRIService>(context, listen: false);
       final l10n = AppLocalizations.of(context);
       
-      // Calculate proportional caffeine
+      // Calculate proportional caffeine and sugar
       final baseCaffeine = (item.properties['caffeineMgPer100ml'] ?? 0) as num;
       final caffeine = (baseCaffeine * volumeMl / 100).round();
-      
+
+      // Calculate sugar from item properties
+      final baseSugar = (item.properties['sugar'] ?? 0) as num;
+      final sugar = (baseSugar * volumeMl / 250).toDouble(); // Proportional to 250ml default
+
       // CRITICAL: Set context for AchievementService to work
       provider.setContext(context);
-      
+
       // Determine intake type based on item type and caffeine content
       final itemType = item.properties['type'] as String? ?? '';
       final intakeType = (itemType.contains('coffee') && caffeine > 0) ? 'coffee' : 'water';
-      
-      // Add to hydration system with correct type
+
+      // Add to hydration system with correct type and sugar
       provider.addIntake(
         intakeType,  // Now 'coffee' for coffee drinks with caffeine
         volumeMl.round(),
         sodium: 0,
         potassium: 0,
         magnesium: 0,
+        sugar: sugar,  // NEW: Pass sugar content
         source: 'hot_drinks',
         name: item.getName(AppLocalizations.of(context)!),
         emoji: item.icon is String ? item.icon as String : null,

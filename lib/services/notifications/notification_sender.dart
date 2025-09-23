@@ -256,15 +256,15 @@ class NotificationSender {
       _getChannelName(channelId),
       importance: importance,
       priority: priority,
-      ticker: 'HydroMate',
-      icon: '@mipmap/ic_launcher',
+      ticker: 'HydroCoach',
+      icon: 'notification_icon',
       color: const Color.fromARGB(255, 33, 150, 243),
       enableVibration: !channelId.contains('report') && !channelId.contains('silent'),
       playSound: !channelId.contains('silent'),
       styleInformation: BigTextStyleInformation(
         body,
         contentTitle: title,
-        summaryText: 'HydroMate',
+        summaryText: 'HydroCoach',
       ),
     );
 

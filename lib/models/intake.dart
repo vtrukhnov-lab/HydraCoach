@@ -12,6 +12,7 @@ class Intake {
   final int sodium;
   final int potassium;
   final int magnesium;
+  final double sugar; // Количество сахара в граммах
   final String? name; // Конкретное название напитка
   final String? emoji; // Эмодзи напитка
 
@@ -23,6 +24,7 @@ class Intake {
     this.sodium = 0,
     this.potassium = 0,
     this.magnesium = 0,
+    this.sugar = 0,
     this.name,
     this.emoji,
   });
@@ -36,6 +38,7 @@ class Intake {
     'sodium': sodium,
     'potassium': potassium,
     'magnesium': magnesium,
+    'sugar': sugar,
     if (name != null) 'name': name,
     if (emoji != null) 'emoji': emoji,
   };
@@ -49,6 +52,7 @@ class Intake {
     sodium: json['sodium'] as int? ?? 0,
     potassium: json['potassium'] as int? ?? 0,
     magnesium: json['magnesium'] as int? ?? 0,
+    sugar: (json['sugar'] as num?)?.toDouble() ?? 0,
     name: json['name'] as String?,
     emoji: json['emoji'] as String?,
   );
@@ -81,6 +85,7 @@ class Intake {
     int? sodium,
     int? potassium,
     int? magnesium,
+    double? sugar,
     String? name,
     String? emoji,
   }) {
@@ -92,6 +97,7 @@ class Intake {
       sodium: sodium ?? this.sodium,
       potassium: potassium ?? this.potassium,
       magnesium: magnesium ?? this.magnesium,
+      sugar: sugar ?? this.sugar,
       name: name ?? this.name,
       emoji: emoji ?? this.emoji,
     );
@@ -119,7 +125,7 @@ class Intake {
   @override
   String toString() {
     return 'Intake(id: $id, timestamp: $timestamp, type: $type, '
-           'volume: $volume, sodium: $sodium, potassium: $potassium, magnesium: $magnesium)';
+           'volume: $volume, sodium: $sodium, potassium: $potassium, magnesium: $magnesium, sugar: $sugar)';
   }
 
   @override
@@ -134,6 +140,7 @@ class Intake {
       other.sodium == sodium &&
       other.potassium == potassium &&
       other.magnesium == magnesium &&
+      other.sugar == sugar &&
       other.name == name &&
       other.emoji == emoji;
   }
@@ -147,6 +154,7 @@ class Intake {
       sodium.hashCode ^
       potassium.hashCode ^
       magnesium.hashCode ^
+      sugar.hashCode ^
       name.hashCode ^
       emoji.hashCode;
   }

@@ -139,14 +139,25 @@ class HydrationProvider extends ChangeNotifier {
     double foodGrams = 0;
     double snacksGrams = 0;
     Map<String, double> bySource = {};
-    
+
     // Process regular intakes
     for (final intake in todayIntakes) {
       double sugarGrams = 0;
       String category = 'other';
       bool isNatural = false;
       bool isHidden = false;
-      
+
+      // First, check if sugar is directly stored in intake (NEW)
+      if (intake.sugar > 0) {
+        sugarGrams = intake.sugar;
+        category = 'drinks';
+        // Determine if natural/added based on source or name
+        isNatural = _isNaturalSugar(intake);
+        final sourceName = intake.name ?? intake.type;
+        bySource[sourceName] = (bySource[sourceName] ?? 0) + sugarGrams;
+      } else {
+        // Fallback to calculating sugar based on intake type (legacy)
+
       // Calculate sugar based on intake type
       switch (intake.type) {
         case 'juice':
@@ -243,7 +254,8 @@ class HydrationProvider extends ChangeNotifier {
           bySource['meal'] = (bySource['meal'] ?? 0) + sugarGrams;
           break;
       }
-      
+      } // End else block for legacy calculation
+
       // Sum up by categories
       totalSugar += sugarGrams;
       
@@ -356,7 +368,22 @@ class HydrationProvider extends ChangeNotifier {
       bySource: bySource,
     );
   }
-  
+
+  /// Helper method to determine if sugar is natural
+  bool _isNaturalSugar(Intake intake) {
+    final name = intake.name?.toLowerCase() ?? '';
+    final type = intake.type.toLowerCase();
+
+    // Natural sugars from fruits, milk, etc.
+    return name.contains('fruit') ||
+           name.contains('milk') ||
+           name.contains('apple') ||
+           name.contains('orange') ||
+           type.contains('juice') ||
+           type.contains('smoothie') ||
+           type.contains('kombucha');
+  }
+
   /// Get sugar impact on HRI (updated to use context)
   double getSugarHRIImpact(BuildContext context) {
     final sugarData = getSugarIntakeData(context);
@@ -891,6 +918,7 @@ class HydrationProvider extends ChangeNotifier {
     int sodium = 0,
     int potassium = 0,
     int magnesium = 0,
+    double sugar = 0,  // NEW: Sugar content in grams
     bool showAchievement = true,  // NEW: Control achievement notification
     String source = 'manual_entry',
     String? name,  // NEW: Specific product name
@@ -910,6 +938,7 @@ class HydrationProvider extends ChangeNotifier {
       sodium: sodium,
       potassium: potassium,
       magnesium: magnesium,
+      sugar: sugar,
       name: name,
       emoji: emoji,
     );
