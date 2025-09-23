@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../services/notification_service.dart' as notif;
+import '../services/subscription_service.dart';
+import '../screens/paywall_screen.dart';
 
 class NotificationSettingsScreen extends StatefulWidget {
   const NotificationSettingsScreen({super.key});
@@ -13,22 +16,21 @@ class NotificationSettingsScreen extends StatefulWidget {
 }
 
 class _NotificationSettingsScreenState extends State<NotificationSettingsScreen> {
-  // Статус пользователя
-  bool _isPro = false;
   
   // Настройки уведомлений
   bool _postCoffeeReminders = true;
   bool _eveningReports = true;
   bool _heatWarnings = true;
   bool _postAlcoholReminders = true;
+  bool _postWorkoutReminders = true;
   
   // Время уведомлений
   TimeOfDay _morningTime = const TimeOfDay(hour: 8, minute: 0);
   TimeOfDay _eveningTime = const TimeOfDay(hour: 21, minute: 0);
-  
-  // Частота напоминаний о воде
-  int _reminderFrequency = 4;
-  
+
+  // Частота напоминаний
+  int _reminderFrequency = 4; // раз в день
+
   // Тихие часы (PRO)
   bool _quietHoursEnabled = false;
   TimeOfDay _quietStart = const TimeOfDay(hour: 22, minute: 0);
@@ -46,18 +48,38 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     _loadSettings();
   }
 
+  void _showPaywall() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const PaywallScreen(
+          showCloseButton: true,
+          source: 'notifications',
+        ),
+        fullscreenDialog: true,
+      ),
+    );
+  }
+
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     
     setState(() {
-      _isPro = prefs.getBool('is_pro') ?? false;
       _postCoffeeReminders = prefs.getBool('post_coffee_reminders') ?? true;
       _eveningReports = prefs.getBool('evening_reports') ?? true;
       _heatWarnings = prefs.getBool('heat_warnings') ?? true;
       _postAlcoholReminders = prefs.getBool('post_alcohol_reminders') ?? true;
-      _reminderFrequency = prefs.getInt('reminder_frequency') ?? 4;
+      _postWorkoutReminders = prefs.getBool('post_workout_reminders') ?? true;
       _quietHoursEnabled = prefs.getBool('quiet_hours_enabled') ?? false;
       _todayCount = prefs.getInt('notification_count_today') ?? 0;
+      // Безопасная загрузка frequency - может быть строкой или int
+      final freqValue = prefs.get('reminder_frequency');
+      if (freqValue is int) {
+        _reminderFrequency = freqValue;
+      } else if (freqValue is String) {
+        _reminderFrequency = int.tryParse(freqValue) ?? 4;
+      } else {
+        _reminderFrequency = 4;
+      }
       
       // Загрузка времени
       final morningMinutes = prefs.getInt('morning_time') ?? 480; // 8:00
@@ -84,9 +106,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     await prefs.setBool('evening_reports', _eveningReports);
     await prefs.setBool('heat_warnings', _heatWarnings);
     await prefs.setBool('post_alcohol_reminders', _postAlcoholReminders);
-    await prefs.setInt('reminder_frequency', _reminderFrequency);
+    await prefs.setBool('post_workout_reminders', _postWorkoutReminders);
     await prefs.setBool('quiet_hours_enabled', _quietHoursEnabled);
-    
+    await prefs.setInt('reminder_frequency', _reminderFrequency);
+
     // Сохраняем время в минутах
     await prefs.setInt('morning_time', _morningTime.hour * 60 + _morningTime.minute);
     await prefs.setInt('evening_report_time', _eveningTime.hour * 60 + _eveningTime.minute);
@@ -103,16 +126,6 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     
     // Перепланируем уведомления
     await _rescheduleNotifications();
-    
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Settings saved'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
   }
 
   Future<void> _rescheduleNotifications() async {
@@ -144,6 +157,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final subscription = context.watch<SubscriptionProvider>();
+    final isPro = subscription.isPro;
     final theme = Theme.of(context);
     
     return Scaffold(
@@ -192,8 +207,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   ),
                 ),
               ),
-              _buildFrequencySettings(theme, l10n),
-              
+              _buildReminderFrequency(theme, l10n, isPro),
+
               // Секция: Дополнительные напоминания
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
@@ -209,7 +224,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               _buildAdditionalReminders(theme, l10n),
               
               // PRO функции или их разблокировка
-              if (_isPro) ...[
+              if (isPro) ...[
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                   child: Text(
@@ -238,24 +253,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 _buildProPreview(theme, l10n),
               ],
               
-              // Кнопка сохранения
-              Container(
-                margin: const EdgeInsets.all(16),
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _saveSettings,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.all(16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(l10n.save),
-                ),
-              ),
               
               // Debug панель
-              if (_showDebugPanel && kDebugMode) _buildDebugPanel(theme),
+              if (_showDebugPanel && kDebugMode) _buildDebugPanel(theme, isPro),
             ],
           ),
         ),
@@ -337,7 +337,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   ),
                 Switch(
                   value: _eveningReports,
-                  onChanged: (value) => setState(() => _eveningReports = value),
+                  onChanged: (value) {
+                    setState(() => _eveningReports = value);
+                    _saveSettings();
+                  },
                 ),
               ],
             ),
@@ -352,110 +355,6 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     ).animate().fadeIn(duration: 350.ms);
   }
 
-  Widget _buildFrequencySettings(ThemeData theme, AppLocalizations l10n) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(Icons.timer, color: theme.colorScheme.primary, size: 20),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Water reminders per day',
-                      style: TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                    Text(
-                      _isPro 
-                        ? l10n.timesPerDay(_reminderFrequency)
-                        : l10n.maxTimesPerDay(_reminderFrequency),
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: DropdownButton<int>(
-                  value: _reminderFrequency,
-                  underline: const SizedBox(),
-                  isDense: true,
-                  items: (_isPro ? [2, 4, 6, 8, 10] : [2, 3, 4]).map((times) {
-                    return DropdownMenuItem(
-                      value: times,
-                      child: Text('$times'),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => _reminderFrequency = value);
-                    }
-                  },
-                ),
-              ),
-            ],
-          ),
-          if (!_isPro)
-            Container(
-              margin: const EdgeInsets.only(top: 12),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.info_outline, color: Colors.amber, size: 20),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.notificationLimit,
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-                        ),
-                        Text(
-                          l10n.notificationUsage(_todayCount, 4),
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
-    ).animate().fadeIn(delay: 100.ms);
-  }
 
   Widget _buildAdditionalReminders(ThemeData theme, AppLocalizations l10n) {
     return Container(
@@ -485,7 +384,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
             title: Text(l10n.postCoffeeReminders),
             subtitle: Text(l10n.postCoffeeRemindersDesc),
             value: _postCoffeeReminders,
-            onChanged: (value) => setState(() => _postCoffeeReminders = value),
+            onChanged: (value) {
+              setState(() => _postCoffeeReminders = value);
+              _saveSettings();
+            },
           ),
         ],
       ),
@@ -520,7 +422,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
             title: Text(l10n.heatWarnings),
             subtitle: Text(l10n.heatWarningsDesc),
             value: _heatWarnings,
-            onChanged: (value) => setState(() => _heatWarnings = value),
+            onChanged: (value) {
+              setState(() => _heatWarnings = value);
+              _saveSettings();
+            },
           ),
           const Divider(height: 1),
           SwitchListTile(
@@ -535,7 +440,28 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
             title: Text(l10n.postAlcoholReminders),
             subtitle: Text(l10n.postAlcoholRemindersDesc),
             value: _postAlcoholReminders,
-            onChanged: (value) => setState(() => _postAlcoholReminders = value),
+            onChanged: (value) {
+              setState(() => _postAlcoholReminders = value);
+              _saveSettings();
+            },
+          ),
+          const Divider(height: 1),
+          SwitchListTile(
+            secondary: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.green.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.fitness_center, color: Colors.green, size: 20),
+            ),
+            title: Text(l10n.notificationPostWorkoutTitle),
+            subtitle: Text(l10n.notificationPostWorkoutBody),
+            value: _postWorkoutReminders,
+            onChanged: (value) {
+              setState(() => _postWorkoutReminders = value);
+              _saveSettings();
+            },
           ),
         ],
       ),
@@ -593,7 +519,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               ),
               Switch(
                 value: _quietHoursEnabled,
-                onChanged: (value) => setState(() => _quietHoursEnabled = value),
+                onChanged: (value) {
+                  setState(() => _quietHoursEnabled = value);
+                  _saveSettings();
+                },
               ),
             ],
           ),
@@ -655,146 +584,119 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   }
 
   Widget _buildProPreview(ThemeData theme, AppLocalizations l10n) {
-    return Column(
-      children: [
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: theme.colorScheme.primary.withOpacity(0.3),
-              width: 2,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFFFFD700).withOpacity(0.1),
+            const Color(0xFFFFA500).withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFFFFD700).withOpacity(0.3),
+        ),
+      ),
+      child: InkWell(
+        onTap: _showPaywall,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(Icons.thermostat, color: Colors.orange, size: 20),
-                ),
-                title: Text(l10n.heatWarnings),
-                subtitle: Text(l10n.heatWarningsDesc),
-                trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    'PRO',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.amber,
+              Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.star,
+                      color: Colors.white,
+                      size: 24,
                     ),
                   ),
-                ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.unlockPro,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          l10n.unlockProDesc,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    size: 16,
+                    color: Colors.grey,
+                  ),
+                ],
               ),
-              const Divider(height: 1),
-              ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.purple.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(Icons.local_bar, color: Colors.purple, size: 20),
-                ),
-                title: Text(l10n.postAlcoholReminders),
-                subtitle: Text(l10n.postAlcoholRemindersDesc),
-                trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    'PRO',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.amber,
-                    ),
-                  ),
-                ),
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(Icons.all_inclusive, color: Colors.green, size: 20),
-                ),
-                title: Text(l10n.unlimitedReminders),
-                subtitle: Text(l10n.noNotificationLimit),
-                trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.amber.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    'PRO',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.amber,
-                    ),
-                  ),
-                ),
+              const SizedBox(height: 16),
+              Column(
+                children: [
+                  _ProFeatureItem(icon: Icons.all_inclusive, text: l10n.noNotificationLimit),
+                  _ProFeatureItem(icon: Icons.coffee, text: l10n.postCoffeeReminders),
+                  _ProFeatureItem(icon: Icons.wb_sunny, text: l10n.heatWarnings),
+                  _ProFeatureItem(icon: Icons.local_bar, text: l10n.postAlcoholReminders),
+                  _ProFeatureItem(icon: Icons.fitness_center, text: l10n.notificationPostWorkoutTitle),
+                ],
               ),
             ],
           ),
         ),
-        Container(
-          margin: const EdgeInsets.all(16),
-          child: ElevatedButton(
-            onPressed: () => Navigator.pushNamed(context, '/paywall'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary,
-              padding: const EdgeInsets.all(16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.star, color: Colors.white),
-                const SizedBox(width: 8),
-                Text(
-                  l10n.unlockPro,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    ).animate().fadeIn(delay: 300.ms);
+      ),
+    ).animate().fadeIn(delay: 150.ms);
   }
 
-  Widget _buildDebugPanel(ThemeData theme) {
+  Widget _buildReminderFrequency(ThemeData theme, AppLocalizations l10n, bool isPro) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.blue.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(Icons.schedule, color: Colors.blue),
+        ),
+        title: Text(l10n.reminderFrequency),
+        subtitle: Text(l10n.timesPerDay(_reminderFrequency)),
+        trailing: Icon(Icons.chevron_right),
+        onTap: () => _showFrequencyDialog(l10n, isPro),
+      ),
+    ).animate().fadeIn(delay: 200.ms);
+  }
+
+  Widget _buildDebugPanel(ThemeData theme, bool isPro) {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
@@ -811,7 +713,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               const Icon(Icons.bug_report, color: Colors.orange, size: 20),
               const SizedBox(width: 8),
               Text(
-                'Debug Panel (${_isPro ? "PRO" : "FREE"})',
+                'Debug Panel (${isPro ? "PRO" : "FREE"})',
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ],
@@ -870,11 +772,11 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               ElevatedButton.icon(
                 onPressed: () async {
                   final prefs = await SharedPreferences.getInstance();
-                  await prefs.setBool('is_pro', !_isPro);
+                  // Debug toggle removed - use subscription service instead
                   _loadSettings();
                 },
                 icon: const Icon(Icons.star, size: 16),
-                label: Text(_isPro ? 'FREE' : 'PRO', style: const TextStyle(fontSize: 12)),
+                label: Text(isPro ? 'PRO Active' : 'FREE', style: const TextStyle(fontSize: 12)),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   backgroundColor: Colors.orange,
@@ -886,5 +788,67 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         ],
       ),
     ).animate().fadeIn(delay: 500.ms);
+  }
+
+  void _showFrequencyDialog(AppLocalizations l10n, bool isPro) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.reminderFrequency),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: (isPro ? [2, 3, 4, 6, 8, 12] : [2, 3, 4]).map((freq) =>
+            RadioListTile<int>(
+              title: Text(l10n.timesPerDay(freq)),
+              subtitle: !isPro && freq > 4 ? const Text('PRO', style: TextStyle(color: Colors.orange)) : null,
+              value: freq,
+              groupValue: _reminderFrequency,
+              onChanged: (freq <= 4 || isPro) ? (value) {
+                setState(() {
+                  _reminderFrequency = value!;
+                });
+                _saveSettings();
+                Navigator.pop(context);
+              } : null,
+            ),
+          ).toList(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProFeatureItem extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _ProFeatureItem({
+    required this.icon,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: const Color(0xFFFFD700)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 13),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

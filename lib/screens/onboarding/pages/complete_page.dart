@@ -120,11 +120,27 @@ class CompletePage extends StatelessWidget {
   }
 
   Widget _buildSummaryCard(AppLocalizations l10n) {
-    final unitsService = UnitsService.instance;
-    final waterNorm = unitsService.toDisplayVolume((30 * weight).toInt()).round();
-    final waterUnit = unitsService.isImperial ? l10n.oz : l10n.ml;
-    
-    final displayWeight = unitsService.formatWeight(weight, hideUnit: false);
+    // ИСПРАВЛЕНО: Правильный расчет и отображение с учетом выбранной системы мер
+    // weight уже в правильных единицах (кг для metric, фунты для imperial)
+    // Для расчета нормы всегда нужны кг
+    final weightInKg = units == 'imperial' ? weight / UnitsService.KG_TO_LB : weight;
+    final waterNormMl = (30 * weightInKg).toInt(); // Базовая норма в мл
+
+    // Конвертируем объем в зависимости от выбранной системы мер
+    final double waterNormDisplay;
+    final String waterUnit;
+    if (units == 'imperial') {
+      waterNormDisplay = waterNormMl / UnitsService.ML_TO_OZ; // мл в унции
+      waterUnit = 'fl oz';
+    } else {
+      waterNormDisplay = waterNormMl.toDouble();
+      waterUnit = 'ml';
+    }
+    final waterNorm = waterNormDisplay.round().toString();
+
+    // Для отображения веса используем уже правильные единицы
+    final weightUnit = units == 'imperial' ? 'lbs' : 'kg';
+    final displayWeight = '${weight.round()} $weightUnit';
     
     return Container(
       padding: const EdgeInsets.all(18),

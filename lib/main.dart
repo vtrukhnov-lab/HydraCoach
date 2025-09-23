@@ -118,7 +118,7 @@ void main() async {
 
   // Log app open event with AppsFlyer
   await AnalyticsService().log('app_open', {
-    'app_version': '2.0.0',
+    'app_version': '2.0.8',
     'locale': LocaleService.instance.currentLocale.toString(),
     'tz': DateTime.now().timeZoneName,
     'onboarding_completed': onboardingCompleted.toString(),  // преобразуем в строку
@@ -179,14 +179,14 @@ Future<void> _initializeNotifications() async {
 
     // Log notification status to AppsFlyer
     await AnalyticsService().log('notification_status', {
-      'enabled': true,
-      'fcm_token_exists': fcmToken != null,
+      'enabled': 'true',
+      'fcm_token_exists': fcmToken != null ? 'true' : 'false',
     });
   } else {
     // Log that notifications are disabled
     await AnalyticsService().log('notification_status', {
-      'enabled': false,
-      'fcm_token_exists': false,
+      'enabled': 'false',
+      'fcm_token_exists': 'false',
     });
   }
 }
@@ -239,7 +239,7 @@ class MyApp extends StatelessWidget {
     return Consumer<LocaleService>(
       builder: (context, localeService, child) {
         return MaterialApp(
-          title: 'HydroMate',
+          title: 'HydroCoach',
           debugShowCheckedModeBanner: false,
 
           // Localization
@@ -350,9 +350,9 @@ class _SplashScreenState extends State<SplashScreen> {
       // Log user properties to AppsFlyer
       final dietMode = prefs.getString('diet_mode') ?? 'normal';
       await AnalyticsService().log('user_properties', {
-        'pro_status': subscriptionProvider.isPro,
+        'pro_status': subscriptionProvider.isPro ? 'true' : 'false',
         'diet_mode': dietMode,
-        'onboarding_completed': completed,
+        'onboarding_completed': completed ? 'true' : 'false',
       });
 
       if (!mounted) return;
@@ -464,7 +464,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 .shake(delay: 500.ms),
             const SizedBox(height: 20),
             const Text(
-              'HydroMate',
+              'HydroCoach',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 32,
