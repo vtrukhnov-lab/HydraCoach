@@ -239,6 +239,9 @@ class RemoteConfigService {
   /// Получение значения с проверкой инициализации
   T _getValue<T>(String key, T defaultValue) {
     if (!_initialized || _remoteConfig == null) {
+      if (key == 'paywall_show_trial') {
+        print('🧪 RC DEBUG: _getValue($key) -> not initialized (_initialized: $_initialized, _remoteConfig: ${_remoteConfig != null}), returning default: $defaultValue');
+      }
       return defaultValue;
     }
     
@@ -250,14 +253,17 @@ class RemoteConfigService {
       } else if (T == double) {
         return _remoteConfig!.getDouble(key) as T;
       } else if (T == bool) {
-        return _remoteConfig!.getBool(key) as T;
+        final result = _remoteConfig!.getBool(key) as T;
+        print('🧪 RC DEBUG: _getValue($key) -> bool result: $result');
+        return result;
+      } else {
+        print('🧪 RC DEBUG: _getValue($key) -> unsupported type ${T.toString()}, returning default: $defaultValue');
+        return defaultValue;
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('⚠️ Ошибка получения параметра $key: $e');
-      }
+      print('🧪 RC DEBUG: _getValue($key) -> error: $e, returning default: $defaultValue');
     }
-    
+
     return defaultValue;
   }
   
@@ -367,7 +373,26 @@ class RemoteConfigService {
   bool get fastingRefeedingLadderEnabled => _getValue('fasting_refeeding_ladder_enabled', true);
   
   // 💰 ПОДПИСКА И ЦЕНЫ
-  bool get paywallShowTrial => _getValue('paywall_show_trial', true);
+  bool get paywallShowTrial {
+    try {
+      // Если Remote Config не инициализирован - используем default true
+      if (!_initialized || _remoteConfig == null) {
+        print('🧪 RC DEBUG: paywallShowTrial not initialized, returning true');
+        return true;
+      }
+
+      // Получаем значение из Remote Config
+      final value = _remoteConfig!.getBool('paywall_show_trial');
+      print('🧪 RC DEBUG: paywallShowTrial remote value: $value');
+
+      // В production хотим чтобы trial был включен - возвращаем true независимо от Remote Config
+      // TODO: После настройки Remote Config в Firebase можно убрать это и вернуть просто value
+      return true;
+    } catch (e) {
+      print('🧪 RC DEBUG: paywallShowTrial error: $e, returning true');
+      return true;
+    }
+  }
   bool get trialEnabled => _getValue('trial_enabled', true);
   int get trialDurationDays => _getValue('trial_duration_days', 7);
   

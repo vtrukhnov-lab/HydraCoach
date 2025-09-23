@@ -429,6 +429,21 @@ class AnalyticsService {
     );
   }
 
+  /// Log когда пользователь начал free trial
+  Future<void> logTrialStarted({
+    required String product,
+    required int trialDuration,
+  }) async {
+    await logEvent(
+      name: 'trial_started',
+      parameters: {
+        'product': product,
+        'trial_duration_days': trialDuration,
+        'source': 'app',
+      },
+    );
+  }
+
   /// Закрытие paywall
   Future<void> logPaywallDismissed({
     required String source,

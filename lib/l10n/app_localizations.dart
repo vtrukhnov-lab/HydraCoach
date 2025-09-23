@@ -1363,7 +1363,7 @@ abstract class AppLocalizations {
   /// No description provided for @forMonth.
   ///
   /// In en, this message translates to:
-  /// **'for month'**
+  /// **'For month'**
   String get forMonth;
 
   /// No description provided for @daysWithAlcohol.
@@ -2007,6 +2007,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Check location permissions and internet'**
   String get checkLocationPermissions;
+
+  /// No description provided for @recommendedNormLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended norm'**
+  String get recommendedNormLabel;
+
+  /// No description provided for @waterAdjustment300.
+  ///
+  /// In en, this message translates to:
+  /// **'+300 ml'**
+  String get waterAdjustment300;
+
+  /// No description provided for @waterAdjustment400.
+  ///
+  /// In en, this message translates to:
+  /// **'+400 ml'**
+  String get waterAdjustment400;
+
+  /// No description provided for @waterAdjustment200.
+  ///
+  /// In en, this message translates to:
+  /// **'+200 ml'**
+  String get waterAdjustment200;
+
+  /// No description provided for @waterAdjustmentNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get waterAdjustmentNormal;
+
+  /// No description provided for @waterAdjustment500.
+  ///
+  /// In en, this message translates to:
+  /// **'+500 ml'**
+  String get waterAdjustment500;
+
+  /// No description provided for @waterAdjustment250.
+  ///
+  /// In en, this message translates to:
+  /// **'+250 ml'**
+  String get waterAdjustment250;
+
+  /// No description provided for @waterAdjustment750.
+  ///
+  /// In en, this message translates to:
+  /// **'+750 ml'**
+  String get waterAdjustment750;
 
   /// No description provided for @currentLocation.
   ///
@@ -7701,6 +7749,426 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recommended calories: ~{calories} kcal/day'**
   String recommendedCalories(int calories);
+
+  /// PRO welcome screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to HydraCoach PRO!'**
+  String get proWelcomeTitle;
+
+  /// PRO trial activation subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Your 7-day trial activated!'**
+  String get proTrialActivated;
+
+  /// PRO feature: personalized hydration advice
+  ///
+  /// In en, this message translates to:
+  /// **'Personalized recommendations'**
+  String get proFeaturePersonalizedRecommendations;
+
+  /// PRO feature: detailed charts and statistics
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced analytics'**
+  String get proFeatureAdvancedAnalytics;
+
+  /// PRO feature: fluid loss tracking during sports
+  ///
+  /// In en, this message translates to:
+  /// **'Workout tracking'**
+  String get proFeatureWorkoutTracking;
+
+  /// PRO feature: sodium, potassium, magnesium monitoring
+  ///
+  /// In en, this message translates to:
+  /// **'Electrolyte control'**
+  String get proFeatureElectrolyteControl;
+
+  /// PRO feature: personalized notifications
+  ///
+  /// In en, this message translates to:
+  /// **'Smart reminders'**
+  String get proFeatureSmartReminders;
+
+  /// PRO feature: real-time hydration risk index
+  ///
+  /// In en, this message translates to:
+  /// **'HRI index'**
+  String get proFeatureHriIndex;
+
+  /// PRO feature: exclusive rewards and goals
+  ///
+  /// In en, this message translates to:
+  /// **'PRO achievements'**
+  String get proFeatureAchievements;
+
+  /// PRO feature description: personalized recommendations
+  ///
+  /// In en, this message translates to:
+  /// **'Individual hydration advice'**
+  String get proFeaturePersonalizedDescription;
+
+  /// PRO feature description: advanced analytics
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed charts and statistics'**
+  String get proFeatureAdvancedDescription;
+
+  /// PRO feature description: workout tracking
+  ///
+  /// In en, this message translates to:
+  /// **'Fluid loss tracking during sports'**
+  String get proFeatureWorkoutDescription;
+
+  /// PRO feature description: electrolyte control
+  ///
+  /// In en, this message translates to:
+  /// **'Sodium, potassium, magnesium monitoring'**
+  String get proFeatureElectrolyteDescription;
+
+  /// PRO feature description: smart reminders
+  ///
+  /// In en, this message translates to:
+  /// **'Personalized notifications'**
+  String get proFeatureSmartDescription;
+
+  /// PRO feature title: no more ads
+  ///
+  /// In en, this message translates to:
+  /// **'No more ADS!'**
+  String get proFeatureNoMoreAds;
+
+  /// PRO feature description: no more ads
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoy uninterrupted hydration tracking without any advertisements'**
+  String get proFeatureNoMoreAdsDescription;
+
+  /// PRO feature description: HRI index
+  ///
+  /// In en, this message translates to:
+  /// **'Real-time hydration risk index'**
+  String get proFeatureHriDescription;
+
+  /// PRO feature description: PRO achievements
+  ///
+  /// In en, this message translates to:
+  /// **'Exclusive rewards and goals'**
+  String get proFeatureAchievementsDescription;
+
+  /// Button to start using PRO features
+  ///
+  /// In en, this message translates to:
+  /// **'Start using'**
+  String get startUsing;
+
+  /// Text below MREC ad encouraging premium upgrade
+  ///
+  /// In en, this message translates to:
+  /// **'Say goodbye to ads. Go Premium.'**
+  String get sayGoodbyeToAds;
+
+  /// Button text to upgrade to premium
+  ///
+  /// In en, this message translates to:
+  /// **'GO PREMIUM'**
+  String get goPremium;
+
+  /// Text for premium fallback content
+  ///
+  /// In en, this message translates to:
+  /// **'Remove ads forever'**
+  String get removeAdsForever;
+
+  /// Upgrade button text
+  ///
+  /// In en, this message translates to:
+  /// **'UPGRADE'**
+  String get upgrade;
+
+  /// Support section title
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get support;
+
+  /// Company website menu item
+  ///
+  /// In en, this message translates to:
+  /// **'Company Website'**
+  String get companyWebsite;
+
+  /// Message when App Store opens successfully
+  ///
+  /// In en, this message translates to:
+  /// **'App Store opened'**
+  String get appStoreOpened;
+
+  /// Message when link is copied as fallback
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied to clipboard'**
+  String get linkCopiedToClipboard;
+
+  /// Message when share dialog opens successfully
+  ///
+  /// In en, this message translates to:
+  /// **'Share dialog opened'**
+  String get shareDialogOpened;
+
+  /// Message when share link is copied as fallback
+  ///
+  /// In en, this message translates to:
+  /// **'Link for sharing copied'**
+  String get linkForSharingCopied;
+
+  /// Message when website opens successfully
+  ///
+  /// In en, this message translates to:
+  /// **'Website opened in browser'**
+  String get websiteOpenedInBrowser;
+
+  /// Message when email client opens successfully
+  ///
+  /// In en, this message translates to:
+  /// **'Email client opened'**
+  String get emailClientOpened;
+
+  /// Message when email is copied as fallback
+  ///
+  /// In en, this message translates to:
+  /// **'Email copied to clipboard'**
+  String get emailCopiedToClipboard;
+
+  /// Message when privacy policy opens successfully
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy opened'**
+  String get privacyPolicyOpened;
+
+  /// Statistics up to selected date
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics until {date}'**
+  String statisticsTo(DateTime date);
+
+  /// No description provided for @monthlyInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Insights'**
+  String get monthlyInsights;
+
+  /// No description provided for @average.
+  ///
+  /// In en, this message translates to:
+  /// **'Average'**
+  String get average;
+
+  /// No description provided for @daysOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Days over'**
+  String get daysOver;
+
+  /// No description provided for @maximum.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum'**
+  String get maximum;
+
+  /// No description provided for @balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get balance;
+
+  /// No description provided for @allNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'All normal'**
+  String get allNormal;
+
+  /// No description provided for @excellentConsistency.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent consistency'**
+  String get excellentConsistency;
+
+  /// No description provided for @goodResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Good results'**
+  String get goodResults;
+
+  /// No description provided for @positiveImprovement.
+  ///
+  /// In en, this message translates to:
+  /// **'Positive improvement'**
+  String get positiveImprovement;
+
+  /// No description provided for @physicalActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Physical activity'**
+  String get physicalActivity;
+
+  /// No description provided for @coffeeConsumption.
+  ///
+  /// In en, this message translates to:
+  /// **'Coffee consumption'**
+  String get coffeeConsumption;
+
+  /// No description provided for @excellentSobriety.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent sobriety'**
+  String get excellentSobriety;
+
+  /// No description provided for @excellentMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent month'**
+  String get excellentMonth;
+
+  /// No description provided for @keepGoingMotivation.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it up!'**
+  String get keepGoingMotivation;
+
+  /// No description provided for @daysNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'days normal'**
+  String get daysNormal;
+
+  /// No description provided for @electrolyteBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Electrolyte balance needs attention'**
+  String get electrolyteBalance;
+
+  /// No description provided for @caffeineWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Days with overdose of safe dose (400mg)'**
+  String get caffeineWarning;
+
+  /// No description provided for @sugarFrequentExcess.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequent excess sugar affects hydration'**
+  String get sugarFrequentExcess;
+
+  /// No description provided for @averagePerDayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'per day'**
+  String get averagePerDayShort;
+
+  /// No description provided for @highWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get highWarning;
+
+  /// No description provided for @normalStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get normalStatus;
+
+  /// No description provided for @improvementToEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Improvement towards end of month by {percent}%'**
+  String improvementToEnd(int percent);
+
+  /// No description provided for @workoutActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% days with workouts ({hours}h)'**
+  String workoutActivity(int percent, String hours);
+
+  /// No description provided for @coffeeAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Average {avg} cups/day'**
+  String coffeeAverage(String avg);
+
+  /// No description provided for @sobrietyPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% days without alcohol'**
+  String sobrietyPercent(int percent);
+
+  /// No description provided for @daySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Day Summary'**
+  String get daySummary;
+
+  /// No description provided for @records.
+  ///
+  /// In en, this message translates to:
+  /// **'Records'**
+  String get records;
+
+  /// No description provided for @waterGoalAchievement.
+  ///
+  /// In en, this message translates to:
+  /// **'Water goal achievement: {percent}%'**
+  String waterGoalAchievement(int percent);
+
+  /// No description provided for @workoutSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts: {count} sessions'**
+  String workoutSessions(int count);
+
+  /// No description provided for @index.
+  ///
+  /// In en, this message translates to:
+  /// **'Index'**
+  String get index;
+
+  /// No description provided for @status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get status;
+
+  /// No description provided for @moderateRisk.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate risk'**
+  String get moderateRisk;
+
+  /// No description provided for @excess.
+  ///
+  /// In en, this message translates to:
+  /// **'Excess'**
+  String get excess;
+
+  /// No description provided for @whoLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'WHO limit: 50g/day'**
+  String get whoLimit;
+
+  /// No description provided for @stability.
+  ///
+  /// In en, this message translates to:
+  /// **'Stability in {percent}% of days'**
+  String stability(int percent);
+
+  /// No description provided for @goodHydration.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% days with good hydration'**
+  String goodHydration(int percent);
 }
 
 class _AppLocalizationsDelegate

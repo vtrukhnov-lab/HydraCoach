@@ -221,7 +221,7 @@ class SugarIntakeCard extends StatelessWidget {
                   _buildAdjustmentRow(
                     icon: Icons.local_drink,
                     label: l10n.water,
-                    value: _getWaterAdjustment(sugarData.totalGrams),
+                    value: _getWaterAdjustment(sugarData.totalGrams, l10n),
                   ),
                   const SizedBox(height: 6),
                   // Статус дневного лимита
@@ -490,11 +490,11 @@ class SugarIntakeCard extends StatelessWidget {
     }
   }
 
-  String _getWaterAdjustment(double grams) {
-    if (grams <= 25) return 'Normal';
-    if (grams <= 50) return '+250 ml';
-    if (grams <= 75) return '+500 ml';
-    return '+750 ml';
+  String _getWaterAdjustment(double grams, AppLocalizations l10n) {
+    if (grams <= 25) return l10n.waterAdjustmentNormal;
+    if (grams <= 50) return l10n.waterAdjustment250;
+    if (grams <= 75) return l10n.waterAdjustment500;
+    return l10n.waterAdjustment750;
   }
 
   String _getDailyLimitStatus(double grams) {

@@ -253,14 +253,14 @@ class NotificationService {
           iOS: iosDetails,
         );
         
-        // Планируем уведомление
+        // Планируем уведомление с inexact scheduling для Google Play Store compliance
         await _localNotifications.zonedSchedule(
           notificationId,
           NotificationTexts.waterReminderTitle,
           NotificationTexts.notificationMorningWaterBody,
           tz.TZDateTime.from(time, tz.local),
           details,
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         );
         
         created++;

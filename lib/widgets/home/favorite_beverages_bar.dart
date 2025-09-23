@@ -285,7 +285,10 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
     final l10n = AppLocalizations.of(context);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
+    // Определяем планшет ли это
+    final isTablet = screenWidth > 600;
+
     // Слушаем изменения PRO статуса
     final isPro = context.select<SubscriptionProvider, bool>((provider) => provider.isPro);
     
@@ -298,37 +301,25 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
     }
 
     final favorites = _favoritesManager.favorites;
-    
+
     // Адаптивные размеры на основе ширины экрана
-    final cardHeight = screenWidth * 0.28; // ~28% от ширины экрана (было 85px)
-    final horizontalPadding = screenWidth * 0.01; // 1% от ширины
-    final cardSpacing = screenWidth * 0.01; // 1% между карточками
+    final cardHeight = isTablet
+        ? 120.0 // Фиксированная высота для планшетов
+        : screenWidth * 0.28; // ~28% от ширины экрана для телефонов
+    final horizontalPadding = isTablet
+        ? screenWidth * 0.05 // 5% от ширины на планшете
+        : screenWidth * 0.01; // 1% от ширины на телефоне
+    final cardSpacing = isTablet
+        ? screenWidth * 0.02 // 2% между карточками на планшете
+        : screenWidth * 0.01; // 1% между карточками на телефоне
     
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 3),
       child: SizedBox(
         height: cardHeight,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: List.generate(3, (index) {
-            final isLocked = !isPro && index > 0;
-            final favorite = favorites[index];
-            
-            return Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  left: index == 0 ? 0 : cardSpacing,
-                  right: index == 2 ? 0 : cardSpacing,
-                ),
-                child: isLocked
-                    ? _buildProLockedSlot(isDarkMode, l10n, cardHeight)
-                    : favorite != null
-                        ? _buildFilledSlot(favorite, index, isDarkMode, cardHeight)
-                        : _buildEmptySlot(l10n, isDarkMode, cardHeight),
-              ),
-            );
-          }),
-        ),
+        child: isTablet
+            ? _buildTabletLayout(favorites, isPro, isDarkMode, l10n, cardHeight, cardSpacing)
+            : _buildPhoneLayout(favorites, isPro, isDarkMode, l10n, cardHeight, cardSpacing),
       ),
     );
   }
@@ -566,5 +557,56 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
       case 'soda': return const Color(0xFF9C27B0);
       default: return Colors.grey;
     }
+  }
+
+  // Компоновка для телефонов (как было раньше)
+  Widget _buildPhoneLayout(List<QuickFavorite?> favorites, bool isPro, bool isDarkMode, AppLocalizations l10n, double cardHeight, double cardSpacing) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: List.generate(3, (index) {
+        final isLocked = !isPro && index > 0;
+        final favorite = favorites[index];
+
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: index == 0 ? 0 : cardSpacing,
+              right: index == 2 ? 0 : cardSpacing,
+            ),
+            child: isLocked
+                ? _buildProLockedSlot(isDarkMode, l10n, cardHeight)
+                : favorite != null
+                    ? _buildFilledSlot(favorite, index, isDarkMode, cardHeight)
+                    : _buildEmptySlot(l10n, isDarkMode, cardHeight),
+          ),
+        );
+      }),
+    );
+  }
+
+  // Компоновка для планшетов (с фиксированной шириной карточек)
+  Widget _buildTabletLayout(List<QuickFavorite?> favorites, bool isPro, bool isDarkMode, AppLocalizations l10n, double cardHeight, double cardSpacing) {
+    const double cardWidth = 200.0; // Фиксированная ширина карточки для планшетов
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(3, (index) {
+        final isLocked = !isPro && index > 0;
+        final favorite = favorites[index];
+
+        return Container(
+          width: cardWidth,
+          margin: EdgeInsets.only(
+            left: index == 0 ? 0 : cardSpacing,
+            right: index == 2 ? 0 : cardSpacing,
+          ),
+          child: isLocked
+              ? _buildProLockedSlot(isDarkMode, l10n, cardHeight)
+              : favorite != null
+                  ? _buildFilledSlot(favorite, index, isDarkMode, cardHeight)
+                  : _buildEmptySlot(l10n, isDarkMode, cardHeight),
+        );
+      }),
+    );
   }
 }

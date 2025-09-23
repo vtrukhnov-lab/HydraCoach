@@ -340,7 +340,7 @@ class NotificationSender {
       body,
       tzScheduledTime,
       details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       payload: payloadStr,
     );
 

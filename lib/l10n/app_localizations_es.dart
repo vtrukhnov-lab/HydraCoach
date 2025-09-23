@@ -1058,6 +1058,30 @@ class AppLocalizationsEs extends AppLocalizations {
       'Verifica permisos de ubicación e internet';
 
   @override
+  String get recommendedNormLabel => 'Norma recomendada';
+
+  @override
+  String get waterAdjustment300 => '+300 ml';
+
+  @override
+  String get waterAdjustment400 => '+400 ml';
+
+  @override
+  String get waterAdjustment200 => '+200 ml';
+
+  @override
+  String get waterAdjustmentNormal => 'Normal';
+
+  @override
+  String get waterAdjustment500 => '+500 ml';
+
+  @override
+  String get waterAdjustment250 => '+250 ml';
+
+  @override
+  String get waterAdjustment750 => '+750 ml';
+
+  @override
   String get currentLocation => 'Ubicación actual';
 
   @override
@@ -4120,5 +4144,244 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String recommendedCalories(int calories) {
     return 'Calorías recomendadas: ~$calories kcal/día';
+  }
+
+  @override
+  String get proWelcomeTitle => '¡Bienvenido a HydraCoach PRO!';
+
+  @override
+  String get proTrialActivated => '¡Tu prueba de 7 días activada!';
+
+  @override
+  String get proFeaturePersonalizedRecommendations =>
+      'Recomendaciones personalizadas';
+
+  @override
+  String get proFeatureAdvancedAnalytics => 'Análisis avanzado';
+
+  @override
+  String get proFeatureWorkoutTracking => 'Seguimiento de entrenamientos';
+
+  @override
+  String get proFeatureElectrolyteControl => 'Control de electrolitos';
+
+  @override
+  String get proFeatureSmartReminders => 'Recordatorios inteligentes';
+
+  @override
+  String get proFeatureHriIndex => 'Índice HRI';
+
+  @override
+  String get proFeatureAchievements => 'Logros PRO';
+
+  @override
+  String get proFeaturePersonalizedDescription =>
+      'Consejos individuales de hidratación';
+
+  @override
+  String get proFeatureAdvancedDescription =>
+      'Gráficos detallados y estadísticas';
+
+  @override
+  String get proFeatureWorkoutDescription =>
+      'Seguimiento de pérdida de líquidos durante el deporte';
+
+  @override
+  String get proFeatureElectrolyteDescription =>
+      'Monitoreo de sodio, potasio, magnesio';
+
+  @override
+  String get proFeatureSmartDescription => 'Notificaciones personalizadas';
+
+  @override
+  String get proFeatureNoMoreAds => '¡No más anuncios!';
+
+  @override
+  String get proFeatureNoMoreAdsDescription =>
+      'Disfruta del seguimiento de hidratación sin interrupciones de publicidad';
+
+  @override
+  String get proFeatureHriDescription =>
+      'Índice de riesgo de hidratación en tiempo real';
+
+  @override
+  String get proFeatureAchievementsDescription =>
+      'Recompensas y objetivos exclusivos';
+
+  @override
+  String get startUsing => 'Comenzar a usar';
+
+  @override
+  String get sayGoodbyeToAds => 'Dile adiós a los anuncios. Hazte Premium.';
+
+  @override
+  String get goPremium => 'HAZTE PREMIUM';
+
+  @override
+  String get removeAdsForever => 'Eliminar anuncios para siempre';
+
+  @override
+  String get upgrade => 'ACTUALIZAR';
+
+  @override
+  String get support => 'Soporte';
+
+  @override
+  String get companyWebsite => 'Sitio web de la empresa';
+
+  @override
+  String get appStoreOpened => 'App Store abierto';
+
+  @override
+  String get linkCopiedToClipboard => 'Enlace copiado al portapapeles';
+
+  @override
+  String get shareDialogOpened => 'Diálogo de compartir abierto';
+
+  @override
+  String get linkForSharingCopied => 'Enlace para compartir copiado';
+
+  @override
+  String get websiteOpenedInBrowser => 'Sitio web abierto en el navegador';
+
+  @override
+  String get emailClientOpened => 'Cliente de email abierto';
+
+  @override
+  String get emailCopiedToClipboard => 'Email copiado al portapapeles';
+
+  @override
+  String get privacyPolicyOpened => 'Política de privacidad abierta';
+
+  @override
+  String statisticsTo(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Statistics until $dateString';
+  }
+
+  @override
+  String get monthlyInsights => 'Monthly Insights';
+
+  @override
+  String get average => 'Average';
+
+  @override
+  String get daysOver => 'Days over';
+
+  @override
+  String get maximum => 'Maximum';
+
+  @override
+  String get balance => 'Balance';
+
+  @override
+  String get allNormal => 'All normal';
+
+  @override
+  String get excellentConsistency => 'Excellent consistency';
+
+  @override
+  String get goodResults => 'Good results';
+
+  @override
+  String get positiveImprovement => 'Positive improvement';
+
+  @override
+  String get physicalActivity => 'Physical activity';
+
+  @override
+  String get coffeeConsumption => 'Coffee consumption';
+
+  @override
+  String get excellentSobriety => 'Excellent sobriety';
+
+  @override
+  String get excellentMonth => 'Excellent month';
+
+  @override
+  String get keepGoingMotivation => 'Keep it up!';
+
+  @override
+  String get daysNormal => 'days normal';
+
+  @override
+  String get electrolyteBalance => 'Electrolyte balance needs attention';
+
+  @override
+  String get caffeineWarning => 'Days with overdose of safe dose (400mg)';
+
+  @override
+  String get sugarFrequentExcess => 'Frequent excess sugar affects hydration';
+
+  @override
+  String get averagePerDayShort => 'per day';
+
+  @override
+  String get highWarning => 'High';
+
+  @override
+  String get normalStatus => 'Normal';
+
+  @override
+  String improvementToEnd(int percent) {
+    return 'Improvement towards end of month by $percent%';
+  }
+
+  @override
+  String workoutActivity(int percent, String hours) {
+    return '$percent% days with workouts (${hours}h)';
+  }
+
+  @override
+  String coffeeAverage(String avg) {
+    return 'Average $avg cups/day';
+  }
+
+  @override
+  String sobrietyPercent(int percent) {
+    return '$percent% days without alcohol';
+  }
+
+  @override
+  String get daySummary => 'Day Summary';
+
+  @override
+  String get records => 'Records';
+
+  @override
+  String waterGoalAchievement(int percent) {
+    return 'Water goal achievement: $percent%';
+  }
+
+  @override
+  String workoutSessions(int count) {
+    return 'Workouts: $count sessions';
+  }
+
+  @override
+  String get index => 'Index';
+
+  @override
+  String get status => 'Status';
+
+  @override
+  String get moderateRisk => 'Moderate risk';
+
+  @override
+  String get excess => 'Excess';
+
+  @override
+  String get whoLimit => 'WHO limit: 50g/day';
+
+  @override
+  String stability(int percent) {
+    return 'Stability in $percent% of days';
+  }
+
+  @override
+  String goodHydration(int percent) {
+    return '$percent% days with good hydration';
   }
 }

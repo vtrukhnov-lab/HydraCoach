@@ -607,6 +607,14 @@
   },
   "weatherUnavailable": "Weather unavailable",
   "checkLocationPermissions": "Check location permissions and internet",
+  "recommendedNormLabel": "Recommended norm",
+  "waterAdjustment300": "+300 ml",
+  "waterAdjustment400": "+400 ml",
+  "waterAdjustment200": "+200 ml",
+  "waterAdjustmentNormal": "Normal",
+  "waterAdjustment500": "+500 ml",
+  "waterAdjustment250": "+250 ml",
+  "waterAdjustment750": "+750 ml",
   "currentLocation": "Current location",
   "weatherClear": "clear",
   "weatherCloudy": "cloudy",
@@ -2517,6 +2525,247 @@
     "calories": {
       "type": "int",
       "example": "1750"
+    }
+  }
+},
+
+"proWelcomeTitle": "Welcome to HydraCoach PRO!",
+"@proWelcomeTitle": {
+  "description": "PRO welcome screen title"
+},
+"proTrialActivated": "Your 7-day trial activated!",
+"@proTrialActivated": {
+  "description": "PRO trial activation subtitle"
+},
+"proFeaturePersonalizedRecommendations": "Personalized recommendations",
+"@proFeaturePersonalizedRecommendations": {
+  "description": "PRO feature: personalized hydration advice"
+},
+"proFeatureAdvancedAnalytics": "Advanced analytics",
+"@proFeatureAdvancedAnalytics": {
+  "description": "PRO feature: detailed charts and statistics"
+},
+"proFeatureWorkoutTracking": "Workout tracking",
+"@proFeatureWorkoutTracking": {
+  "description": "PRO feature: fluid loss tracking during sports"
+},
+"proFeatureElectrolyteControl": "Electrolyte control",
+"@proFeatureElectrolyteControl": {
+  "description": "PRO feature: sodium, potassium, magnesium monitoring"
+},
+"proFeatureSmartReminders": "Smart reminders",
+"@proFeatureSmartReminders": {
+  "description": "PRO feature: personalized notifications"
+},
+"proFeatureHriIndex": "HRI index",
+"@proFeatureHriIndex": {
+  "description": "PRO feature: real-time hydration risk index"
+},
+"proFeatureAchievements": "PRO achievements",
+"@proFeatureAchievements": {
+  "description": "PRO feature: exclusive rewards and goals"
+},
+"proFeaturePersonalizedDescription": "Individual hydration advice",
+"@proFeaturePersonalizedDescription": {
+  "description": "PRO feature description: personalized recommendations"
+},
+"proFeatureAdvancedDescription": "Detailed charts and statistics",
+"@proFeatureAdvancedDescription": {
+  "description": "PRO feature description: advanced analytics"
+},
+"proFeatureWorkoutDescription": "Fluid loss tracking during sports",
+"@proFeatureWorkoutDescription": {
+  "description": "PRO feature description: workout tracking"
+},
+"proFeatureElectrolyteDescription": "Sodium, potassium, magnesium monitoring",
+"@proFeatureElectrolyteDescription": {
+  "description": "PRO feature description: electrolyte control"
+},
+"proFeatureSmartDescription": "Personalized notifications",
+"proFeatureNoMoreAds": "No more ADS!",
+"@proFeatureNoMoreAds": {
+  "description": "PRO feature title: no more ads"
+},
+"proFeatureNoMoreAdsDescription": "Enjoy uninterrupted hydration tracking without any advertisements",
+"@proFeatureNoMoreAdsDescription": {
+  "description": "PRO feature description: no more ads"
+},
+"@proFeatureSmartDescription": {
+  "description": "PRO feature description: smart reminders"
+},
+"proFeatureHriDescription": "Real-time hydration risk index",
+"@proFeatureHriDescription": {
+  "description": "PRO feature description: HRI index"
+},
+"proFeatureAchievementsDescription": "Exclusive rewards and goals",
+"@proFeatureAchievementsDescription": {
+  "description": "PRO feature description: PRO achievements"
+},
+"startUsing": "Start using",
+"@startUsing": {
+  "description": "Button to start using PRO features"
+},
+
+"sayGoodbyeToAds": "Say goodbye to ads. Go Premium.",
+"@sayGoodbyeToAds": {
+  "description": "Text below MREC ad encouraging premium upgrade"
+},
+"goPremium": "GO PREMIUM",
+"@goPremium": {
+  "description": "Button text to upgrade to premium"
+},
+"removeAdsForever": "Remove ads forever",
+"@removeAdsForever": {
+  "description": "Text for premium fallback content"
+},
+"upgrade": "UPGRADE",
+"@upgrade": {
+  "description": "Upgrade button text"
+},
+
+"support": "Support",
+"@support": {
+  "description": "Support section title"
+},
+"companyWebsite": "Company Website",
+"@companyWebsite": {
+  "description": "Company website menu item"
+},
+"appStoreOpened": "App Store opened",
+"@appStoreOpened": {
+  "description": "Message when App Store opens successfully"
+},
+"linkCopiedToClipboard": "Link copied to clipboard",
+"@linkCopiedToClipboard": {
+  "description": "Message when link is copied as fallback"
+},
+"shareDialogOpened": "Share dialog opened",
+"@shareDialogOpened": {
+  "description": "Message when share dialog opens successfully"
+},
+"linkForSharingCopied": "Link for sharing copied",
+"@linkForSharingCopied": {
+  "description": "Message when share link is copied as fallback"
+},
+"websiteOpenedInBrowser": "Website opened in browser",
+"@websiteOpenedInBrowser": {
+  "description": "Message when website opens successfully"
+},
+"emailClientOpened": "Email client opened",
+"@emailClientOpened": {
+  "description": "Message when email client opens successfully"
+},
+"emailCopiedToClipboard": "Email copied to clipboard",
+"@emailCopiedToClipboard": {
+  "description": "Message when email is copied as fallback"
+},
+"privacyPolicyOpened": "Privacy policy opened",
+"@privacyPolicyOpened": {
+  "description": "Message when privacy policy opens successfully"
+},
+"statisticsTo": "Statistics until {date}",
+"@statisticsTo": {
+  "description": "Statistics up to selected date",
+  "placeholders": {
+    "date": {
+      "type": "DateTime",
+      "format": "yMd"
+    }
+  }
+},
+"monthlyInsights": "Monthly Insights",
+"average": "Average",
+"daysOver": "Days over",
+"maximum": "Maximum",
+"balance": "Balance",
+"allNormal": "All normal",
+"excellentConsistency": "Excellent consistency",
+"goodResults": "Good results",
+"positiveImprovement": "Positive improvement",
+"physicalActivity": "Physical activity",
+"coffeeConsumption": "Coffee consumption",
+"excellentSobriety": "Excellent sobriety",
+"excellentMonth": "Excellent month",
+"keepGoingMotivation": "Keep it up!",
+"daysNormal": "days normal",
+"electrolyteBalance": "Electrolyte balance needs attention",
+"caffeineWarning": "Days with overdose of safe dose (400mg)",
+"sugarFrequentExcess": "Frequent excess sugar affects hydration",
+"averagePerDayShort": "per day",
+"highWarning": "High",
+"normalStatus": "Normal",
+"improvementToEnd": "Improvement towards end of month by {percent}%",
+"@improvementToEnd": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"workoutActivity": "{percent}% days with workouts ({hours}h)",
+"@workoutActivity": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    },
+    "hours": {
+      "type": "String"
+    }
+  }
+},
+"coffeeAverage": "Average {avg} cups/day",
+"@coffeeAverage": {
+  "placeholders": {
+    "avg": {
+      "type": "String"
+    }
+  }
+},
+"sobrietyPercent": "{percent}% days without alcohol",
+"@sobrietyPercent": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"daySummary": "Day Summary",
+"records": "Records",
+"waterGoalAchievement": "Water goal achievement: {percent}%",
+"@waterGoalAchievement": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"workoutSessions": "Workouts: {count} sessions",
+"@workoutSessions": {
+  "placeholders": {
+    "count": {
+      "type": "int"
+    }
+  }
+},
+"index": "Index",
+"status": "Status",
+"moderateRisk": "Moderate risk",
+"excess": "Excess",
+"whoLimit": "WHO limit: 50g/day",
+"forMonth": "For month",
+"stability": "Stability in {percent}% of days",
+"@stability": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"goodHydration": "{percent}% days with good hydration",
+"@goodHydration": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
     }
   }
 }

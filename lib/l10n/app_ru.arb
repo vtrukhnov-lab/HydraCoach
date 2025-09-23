@@ -607,6 +607,14 @@
   },
   "weatherUnavailable": "Погода недоступна",
   "checkLocationPermissions": "Проверьте разрешения геолокации и интернет",
+  "recommendedNormLabel": "Рекомендуемая норма",
+  "waterAdjustment300": "+300 мл",
+  "waterAdjustment400": "+400 мл",
+  "waterAdjustment200": "+200 мл",
+  "waterAdjustmentNormal": "Норма",
+  "waterAdjustment500": "+500 мл",
+  "waterAdjustment250": "+250 мл",
+  "waterAdjustment750": "+750 мл",
   "currentLocation": "Текущее местоположение",
   "weatherClear": "ясно",
   "weatherCloudy": "облачно",
@@ -2281,6 +2289,241 @@
     "calories": {
       "type": "int",
       "example": "1750"
+    }
+  }
+},
+
+"proWelcomeTitle": "Добро пожаловать в HydraCoach PRO!",
+"@proWelcomeTitle": {
+  "description": "PRO welcome screen title"
+},
+"proTrialActivated": "Ваш 7-дневный триал активирован!",
+"@proTrialActivated": {
+  "description": "PRO trial activation subtitle"
+},
+"proFeaturePersonalizedRecommendations": "Персональные рекомендации",
+"@proFeaturePersonalizedRecommendations": {
+  "description": "PRO feature: personalized hydration advice"
+},
+"proFeatureAdvancedAnalytics": "Расширенная аналитика",
+"@proFeatureAdvancedAnalytics": {
+  "description": "PRO feature: detailed charts and statistics"
+},
+"proFeatureWorkoutTracking": "Трекинг тренировок",
+"@proFeatureWorkoutTracking": {
+  "description": "PRO feature: fluid loss tracking during sports"
+},
+"proFeatureElectrolyteControl": "Контроль электролитов",
+"@proFeatureElectrolyteControl": {
+  "description": "PRO feature: sodium, potassium, magnesium monitoring"
+},
+"proFeatureSmartReminders": "Умные напоминания",
+"@proFeatureSmartReminders": {
+  "description": "PRO feature: personalized notifications"
+},
+"proFeatureHriIndex": "HRI индекс",
+"@proFeatureHriIndex": {
+  "description": "PRO feature: real-time hydration risk index"
+},
+"proFeatureAchievements": "Достижения PRO",
+"@proFeatureAchievements": {
+  "description": "PRO feature: exclusive rewards and goals"
+},
+"proFeaturePersonalizedDescription": "Индивидуальные советы по гидратации",
+"@proFeaturePersonalizedDescription": {
+  "description": "PRO feature description: personalized recommendations"
+},
+"proFeatureAdvancedDescription": "Детальные графики и статистика",
+"@proFeatureAdvancedDescription": {
+  "description": "PRO feature description: advanced analytics"
+},
+"proFeatureWorkoutDescription": "Учет потери жидкости во время спорта",
+"@proFeatureWorkoutDescription": {
+  "description": "PRO feature description: workout tracking"
+},
+"proFeatureElectrolyteDescription": "Мониторинг натрия, калия, магния",
+"@proFeatureElectrolyteDescription": {
+  "description": "PRO feature description: electrolyte control"
+},
+"proFeatureSmartDescription": "Персонализированные уведомления",
+"proFeatureNoMoreAds": "Никакой рекламы!",
+"proFeatureNoMoreAdsDescription": "Наслаждайтесь отслеживанием гидратации без любых рекламных объявлений",
+"@proFeatureSmartDescription": {
+  "description": "PRO feature description: smart reminders"
+},
+"proFeatureHriDescription": "Индекс риска гидратации в реальном времени",
+"@proFeatureHriDescription": {
+  "description": "PRO feature description: HRI index"
+},
+"proFeatureAchievementsDescription": "Эксклюзивные награды и цели",
+"@proFeatureAchievementsDescription": {
+  "description": "PRO feature description: PRO achievements"
+},
+"startUsing": "Начать использование",
+"@startUsing": {
+  "description": "Button to start using PRO features"
+},
+
+"sayGoodbyeToAds": "Попрощайтесь с рекламой. Станьте Premium.",
+"@sayGoodbyeToAds": {
+  "description": "Text below MREC ad encouraging premium upgrade"
+},
+"goPremium": "СТАТЬ PREMIUM",
+"@goPremium": {
+  "description": "Button text to upgrade to premium"
+},
+"removeAdsForever": "Убрать рекламу навсегда",
+"@removeAdsForever": {
+  "description": "Text for premium fallback content"
+},
+"upgrade": "ОБНОВИТЬ",
+"@upgrade": {
+  "description": "Upgrade button text"
+},
+
+"support": "Поддержка",
+"@support": {
+  "description": "Support section title"
+},
+"companyWebsite": "Сайт компании",
+"@companyWebsite": {
+  "description": "Company website menu item"
+},
+"appStoreOpened": "App Store открыт",
+"@appStoreOpened": {
+  "description": "Message when App Store opens successfully"
+},
+"linkCopiedToClipboard": "Ссылка скопирована в буфер обмена",
+"@linkCopiedToClipboard": {
+  "description": "Message when link is copied as fallback"
+},
+"shareDialogOpened": "Диалог поделиться открыт",
+"@shareDialogOpened": {
+  "description": "Message when share dialog opens successfully"
+},
+"linkForSharingCopied": "Ссылка для поделиться скопирована",
+"@linkForSharingCopied": {
+  "description": "Message when share link is copied as fallback"
+},
+"websiteOpenedInBrowser": "Сайт открыт в браузере",
+"@websiteOpenedInBrowser": {
+  "description": "Message when website opens successfully"
+},
+"emailClientOpened": "Email клиент открыт",
+"@emailClientOpened": {
+  "description": "Message when email client opens successfully"
+},
+"emailCopiedToClipboard": "Email скопирован в буфер обмена",
+"@emailCopiedToClipboard": {
+  "description": "Message when email is copied as fallback"
+},
+"privacyPolicyOpened": "Политика конфиденциальности открыта",
+"@privacyPolicyOpened": {
+  "description": "Message when privacy policy opens successfully"
+},
+"statisticsTo": "Статистика до {date}",
+"@statisticsTo": {
+  "description": "Statistics up to selected date",
+  "placeholders": {
+    "date": {
+      "type": "DateTime",
+      "format": "yMd"
+    }
+  }
+},
+"monthlyInsights": "Месячные инсайты",
+"average": "Среднее",
+"daysOver": "Дней с превышением",
+"maximum": "Максимум",
+"balance": "Баланс",
+"allNormal": "Все в норме",
+"excellentConsistency": "Отличная консистентность",
+"goodResults": "Хорошие результаты",
+"positiveImprovement": "Положительный тренд",
+"physicalActivity": "Физическая активность",
+"coffeeConsumption": "Потребление кофе",
+"excellentSobriety": "Отличная трезвость",
+"excellentMonth": "Отличный месяц",
+"keepGoingMotivation": "Продолжайте в том же духе!",
+"daysNormal": "дней в норме",
+"electrolyteBalance": "Электролитный баланс требует внимания",
+"caffeineWarning": "Были дни с превышением безопасной дозы (400мг)",
+"sugarFrequentExcess": "Частое превышение нормы сахара влияет на гидратацию",
+"averagePerDayShort": "в день",
+"highWarning": "Высокое",
+"normalStatus": "Норма",
+"improvementToEnd": "Улучшение к концу месяца на {percent}%",
+"@improvementToEnd": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"workoutActivity": "{percent}% дней с тренировками ({hours}ч)",
+"@workoutActivity": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    },
+    "hours": {
+      "type": "String"
+    }
+  }
+},
+"coffeeAverage": "В среднем {avg} чашек/день",
+"@coffeeAverage": {
+  "placeholders": {
+    "avg": {
+      "type": "String"
+    }
+  }
+},
+"sobrietyPercent": "{percent}% дней без алкоголя",
+"@sobrietyPercent": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"daySummary": "Сводка дня",
+"records": "Записей",
+"waterGoalAchievement": "Достижение цели воды: {percent}%",
+"@waterGoalAchievement": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"workoutSessions": "Тренировки: {count} сессий",
+"@workoutSessions": {
+  "placeholders": {
+    "count": {
+      "type": "int"
+    }
+  }
+},
+"index": "Индекс",
+"status": "Статус",
+"moderateRisk": "Умеренный риск",
+"excess": "Превышение",
+"whoLimit": "Лимит ВОЗ: 50г/день",
+"forMonth": "За месяц",
+"stability": "Стабильность в {percent}% дней",
+"@stability": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"goodHydration": "{percent}% дней с хорошей гидратацией",
+"@goodHydration": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
     }
   }
 }

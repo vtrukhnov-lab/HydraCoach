@@ -122,7 +122,7 @@ class CompletePage extends StatelessWidget {
   Widget _buildSummaryCard(AppLocalizations l10n) {
     final unitsService = UnitsService.instance;
     final waterNorm = unitsService.toDisplayVolume((30 * weight).toInt()).round();
-    final waterUnit = unitsService.volumeUnitShort;
+    final waterUnit = unitsService.isImperial ? l10n.oz : l10n.ml;
     
     final displayWeight = unitsService.formatWeight(weight, hideUnit: false);
     

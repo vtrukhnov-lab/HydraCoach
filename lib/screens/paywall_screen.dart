@@ -10,13 +10,14 @@ import '../services/analytics_service.dart';
 import '../services/remote_config_service.dart';
 import '../services/subscription_service.dart';
 import '../widgets/ion_character.dart';
+import 'pro_welcome_screen.dart';
 
 enum Plan { lifetime, annual, monthly }
 
 class PricingPack {
   final Plan plan;
-  final double price; // full price in USD
-  final double? originalPrice; // crossed out, if any
+  final String price; // real price from Google Play Store
+  final String? originalPrice; // crossed out, if any
   final String periodLabel; // kept for compatibility
   final bool isBestValue; // highlight annual
 
@@ -56,14 +57,14 @@ class _PaywallScreenState extends State<PaywallScreen> {
   bool _showAllFeatures = false;
   bool _dismissLogged = false;
 
-  // offerings (mock for now)
-  late Map<Plan, PricingPack> _pricing;
+  // pricing loaded from Google Play Store
+  Map<Plan, PricingPack> _pricing = {};
 
   @override
   void initState() {
     super.initState();
     _trialEnabledSwitch = _rc.trialEnabled;
-    _pricing = _mockPricing();
+    _loadRealPricing();
     _analytics.logPaywallShown(
       source: widget.source,
       variant: widget.variant,
@@ -78,35 +79,59 @@ class _PaywallScreenState extends State<PaywallScreen> {
     super.dispose();
   }
 
-  Map<Plan, PricingPack> _mockPricing() {
-    return {
-      Plan.lifetime: const PricingPack(
+  void _loadRealPricing() {
+    final subscriptionService = SubscriptionService.instance;
+
+    // Get real prices from Google Play Store
+    final lifetimeProduct = subscriptionService.lifetimeProduct;
+    final yearlyProduct = subscriptionService.yearlyProduct;
+    final monthlyProduct = subscriptionService.monthlyProduct;
+
+    _pricing = {
+      Plan.lifetime: PricingPack(
         plan: Plan.lifetime,
-        price: 49.99,
+        price: lifetimeProduct?.price ?? '\$49.99',
         periodLabel: 'one-time',
       ),
-      Plan.annual: const PricingPack(
+      Plan.annual: PricingPack(
         plan: Plan.annual,
-        price: 23.99,
-        originalPrice: 59.99,
+        price: yearlyProduct?.price ?? '\$23.99',
+        originalPrice: null, // Remove hardcoded original price
         periodLabel: '/year',
         isBestValue: true,
       ),
-      Plan.monthly: const PricingPack(
+      Plan.monthly: PricingPack(
         plan: Plan.monthly,
-        price: 4.99,
+        price: monthlyProduct?.price ?? '\$4.99',
         periodLabel: '/month',
       ),
     };
+
+    if (mounted) {
+      setState(() {}); // Trigger rebuild with real prices
+    }
   }
 
   // ---------- Helpers ----------
-  bool get _trialGloballyEnabled => _rc.paywallShowTrial;
-  bool get _trialAllowedForSelectedPlan => _selected == Plan.annual; // trial только на годовом
-  bool get _showTrialSwitch => _trialGloballyEnabled && _trialAllowedForSelectedPlan;
+  bool get _trialGloballyEnabled {
+    final enabled = _rc.paywallShowTrial;
+    print('🧪 DEBUG: _trialGloballyEnabled = $enabled');
+    return enabled;
+  }
 
-  String _formatMoney(double v) =>
-      v == v.roundToDouble() ? '\$${v.toStringAsFixed(0)}' : '\$${v.toStringAsFixed(2)}';
+  bool get _trialAllowedForSelectedPlan {
+    final allowed = _selected == Plan.annual;
+    print('🧪 DEBUG: _trialAllowedForSelectedPlan = $allowed (selected: $_selected)');
+    return allowed;
+  }
+
+  bool get _showTrialSwitch {
+    final show = _trialGloballyEnabled && _trialAllowedForSelectedPlan;
+    print('🧪 DEBUG: _showTrialSwitch = $show (global: $_trialGloballyEnabled, allowed: $_trialAllowedForSelectedPlan)');
+    return show;
+  }
+
+  String _formatMoney(String price) => price;
 
   String _ctaText(AppLocalizations l10n) {
     final pack = _pricing[_selected]!;
@@ -180,15 +205,15 @@ class _PaywallScreenState extends State<PaywallScreen> {
                                   ),
                                 ).animate().fadeIn(delay: 300.ms),
                                 const SizedBox(height: 8),
-                                _buildQuickBenefit(Icons.sports_score, l10n.sportRecoveryProtocols, isDark),
+                                _buildQuickBenefit(Icons.notifications_active, l10n.smartReminders, isDark),
+                                const SizedBox(height: 4),
+                                _buildQuickBenefit(Icons.analytics, l10n.weeklyReports, isDark),
+                                const SizedBox(height: 4),
+                                _buildQuickBenefit(Icons.block, l10n.proFeatureNoMoreAds, isDark),
+                                const SizedBox(height: 4),
+                                _buildQuickBenefit(Icons.health_and_safety, l10n.healthIntegrations, isDark),
                                 const SizedBox(height: 4),
                                 _buildQuickBenefit(Icons.local_bar, l10n.alcoholProtocols, isDark),
-                                const SizedBox(height: 4),
-                                _buildQuickBenefit(Icons.local_drink, l10n.allDrinksAndSupplements, isDark),
-                                const SizedBox(height: 4),
-                                _buildQuickBenefit(Icons.show_chart, l10n.weeklyReports, isDark),
-                                const SizedBox(height: 4),
-                                _buildQuickBenefit(Icons.notifications_active, l10n.smartReminders, isDark),
                               ].animate(interval: 100.ms).fadeIn(),
                             ),
                           ),
@@ -316,11 +341,22 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
     final textMain = isDark ? Colors.white : const Color(0xFF2D3436);
 
-    final original = pack.originalPrice != null ? _formatMoney(pack.originalPrice!) : null;
-    final price = _formatMoney(pack.price);
+    final original = pack.originalPrice;
+    final price = pack.price;
 
     final isAnnual = pack.plan == Plan.annual;
-    final perMonthLabel = isAnnual ? l10n.approximatelyPerMonth(_formatMoney(pack.price / 12)) : null;
+    String? perMonthLabel;
+    if (isAnnual) {
+      final subscriptionService = SubscriptionService.instance;
+      final yearlyProduct = subscriptionService.yearlyProduct;
+      if (yearlyProduct != null) {
+        // Calculate monthly price from yearly product
+        final yearlyPrice = yearlyProduct.rawPrice;
+        final monthlyEquivalent = yearlyPrice / 12;
+        final currencySymbol = yearlyProduct.currencySymbol;
+        perMonthLabel = l10n.approximatelyPerMonth('$currencySymbol${monthlyEquivalent.toStringAsFixed(2)}');
+      }
+    }
 
     // FIXED: Всегда используем локализацию, не Remote Config
     final title = switch (pack.plan) {
@@ -466,7 +502,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   ),
                   child: Text(
                     original != null
-                        ? l10n.percentOff(_discountPercent(pack.price, pack.originalPrice!).round())
+                        ? l10n.percentOff(_discountPercent(pack.price, original).round())
                         : l10n.bestValue,
                     style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                   ),
@@ -478,7 +514,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
     );
   }
 
-  double _discountPercent(double price, double original) => (1 - price / original) * 100;
+  double _discountPercent(String price, String original) {
+    // Extract numeric values from price strings
+    final priceNum = double.tryParse(price.replaceAll(RegExp(r'[^\d.]'), '')) ?? 0;
+    final originalNum = double.tryParse(original.replaceAll(RegExp(r'[^\d.]'), '')) ?? 0;
+    if (originalNum == 0) return 0;
+    return (1 - priceNum / originalNum) * 100;
+  }
 
   void _logPaywallDismiss(String reason) {
     if (_dismissLogged) {
@@ -492,31 +534,91 @@ class _PaywallScreenState extends State<PaywallScreen> {
   }
 
   Widget _buildTrialToggle(bool isDark, AppLocalizations l10n) {
+    final subscriptionProvider = Provider.of<SubscriptionProvider>(context);
+    final canStartTrial = subscriptionProvider.canStartTrial;
+    print('🧪 DEBUG: _buildTrialToggle called - canStartTrial = $canStartTrial, _trialEnabledSwitch = $_trialEnabledSwitch');
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF12161A) : const Color(0xFFF8FAFA),
-        borderRadius: BorderRadius.circular(12),
+        gradient: _trialEnabledSwitch && canStartTrial
+            ? LinearGradient(
+                colors: [
+                  Colors.green.shade400,
+                  Colors.green.shade600,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : null,
+        color: !_trialEnabledSwitch || !canStartTrial
+            ? (isDark ? const Color(0xFF12161A) : const Color(0xFFF8FAFA))
+            : null,
+        borderRadius: BorderRadius.circular(16),
+        border: _trialEnabledSwitch && canStartTrial
+            ? Border.all(color: Colors.green.shade300, width: 2)
+            : null,
       ),
       child: Row(
         children: [
+          if (_trialEnabledSwitch && canStartTrial) ...[
+            Icon(
+              Icons.check_circle,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+          ],
           Expanded(
-            child: Text(
-              l10n.enableFreeTrial,
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: isDark ? Colors.white : const Color(0xFF2D3436)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  canStartTrial ? '7 days FREE trial' : 'Trial already used',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: _trialEnabledSwitch && canStartTrial
+                        ? Colors.white
+                        : (isDark ? Colors.white : const Color(0xFF2D3436)),
+                  ),
+                ),
+                if (canStartTrial)
+                  Text(
+                    canStartTrial ? (
+                        SubscriptionService.instance.yearlyProduct != null
+                        ? 'Then ${SubscriptionService.instance.yearlyProduct!.price}/year'
+                        : 'Then €23.99/year'
+                      ) : 'Then €23.99/year',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: _trialEnabledSwitch
+                          ? Colors.white70
+                          : (isDark ? Colors.white70 : Colors.grey.shade600),
+                    ),
+                  ),
+              ],
             ),
           ),
-          CupertinoSwitch(
-            value: _trialEnabledSwitch,
-            activeTrackColor: Colors.cyan,
-            onChanged: (v) {
-              HapticFeedback.selectionClick();
-              setState(() => _trialEnabledSwitch = v);
-              _analytics.logPaywallTrialToggle(
-                source: widget.source,
-                enabled: v,
-              );
-            },
+          Transform.scale(
+            scale: 1.2,
+            child: CupertinoSwitch(
+              value: _trialEnabledSwitch && canStartTrial,
+              activeColor: Colors.white,
+              trackColor: canStartTrial
+                  ? (_trialEnabledSwitch ? Colors.green.shade200 : Colors.grey.shade300)
+                  : Colors.grey.shade400,
+              onChanged: canStartTrial
+                  ? (v) {
+                      HapticFeedback.selectionClick();
+                      setState(() => _trialEnabledSwitch = v);
+                      _analytics.logPaywallTrialToggle(
+                        source: widget.source,
+                        enabled: v,
+                      );
+                    }
+                  : null,
+            ),
           ),
         ],
       ),
@@ -569,6 +671,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
     final all = <Map<String, dynamic>>[
       {'icon': Icons.notifications_active, 'title': l10n.smartReminders, 'desc': l10n.smartRemindersDesc},
       {'icon': Icons.analytics, 'title': l10n.weeklyReports, 'desc': l10n.weeklyReportsDesc},
+      {'icon': Icons.block, 'title': l10n.proFeatureNoMoreAds, 'desc': l10n.proFeatureNoMoreAdsDescription},
       {'icon': Icons.health_and_safety, 'title': l10n.healthIntegrations, 'desc': l10n.healthIntegrationsDesc},
       {'icon': Icons.local_bar, 'title': l10n.alcoholProtocols, 'desc': l10n.alcoholProtocolsDesc},
       {'icon': Icons.sync, 'title': l10n.fullSync, 'desc': l10n.fullSyncDesc},
@@ -664,7 +767,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
       String productId;
       switch (_selected) {
         case Plan.lifetime:
-          productId = 'hydracoach_pro_yearly'; // используем годовую для lifetime
+          productId = 'hydracoach_pro_lifetime'; // отдельный one-time purchase продукт
           break;
         case Plan.annual:
           productId = 'hydracoach_pro_yearly';
@@ -674,16 +777,32 @@ class _PaywallScreenState extends State<PaywallScreen> {
           break;
       }
 
-      // Реальная покупка через Google Play
-      print('🛍️ Initiating purchase for plan: ${_selected.name}');
-      print('📦 Product ID: $productId');
-      _analytics.logSubscriptionPurchaseAttempt(
-        product: _selected.name,
-        source: widget.source,
-        trialEnabled: trialEnabledForAnalytics,
-      );
+      bool success = false;
 
-      final success = await subscriptionProvider.purchaseSubscription(productId);
+      // Проверяем нужно ли запустить trial вместо покупки
+      if (trialEnabledForAnalytics && subscriptionProvider.canStartTrial && _selected == Plan.annual) {
+        print('🎯 Starting free trial instead of purchase');
+
+        _analytics.logSubscriptionPurchaseAttempt(
+          product: 'trial_${_selected.name}',
+          source: widget.source,
+          trialEnabled: true,
+        );
+
+        success = await subscriptionProvider.startFreeTrial();
+      } else {
+        // Обычная покупка через Google Play
+        print('🛍️ Initiating purchase for plan: ${_selected.name}');
+        print('📦 Product ID: $productId');
+
+        _analytics.logSubscriptionPurchaseAttempt(
+          product: _selected.name,
+          source: widget.source,
+          trialEnabled: false,
+        );
+
+        success = await subscriptionProvider.purchaseSubscription(productId);
+      }
 
       _analytics.logSubscriptionPurchaseResult(
         product: _selected.name,
@@ -695,80 +814,30 @@ class _PaywallScreenState extends State<PaywallScreen> {
       if (!mounted) return;
 
       if (success) {
-        await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 80,
-                height: 80,
-                decoration: const BoxDecoration(color: Color(0xFFE8F5E9), shape: BoxShape.circle),
-                child: Icon(Icons.check_circle, size: 48, color: Colors.green.shade500),
-              ),
-              const SizedBox(height: 20),
-              Text(l10n.welcomeToPro, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Text(l10n.allFeaturesUnlocked, style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.orange.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.orange.shade200),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.info_outline, size: 16, color: Colors.orange.shade700),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            l10n.testMode,
-                            style: TextStyle(fontSize: 12, color: Colors.orange.shade700, fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(l10n.proStatusNote, style: TextStyle(fontSize: 11, color: Colors.orange.shade600)),
-                  ],
-                ),
-              ),
-            ],
+        // Покупка успешна - показываем экран приветствия и закрываем paywall
+        await Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => const ProWelcomeScreen(),
+            fullscreenDialog: true,
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _logPaywallDismiss('purchase_success');
-                Navigator.of(context).pop(true);
-              },
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(12)),
-                child: Center(
-                  child: Text(l10n.startUsingPro,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                ),
-              ),
-            )
-          ],
-        ),
         );
 
-        print('✅ PRO activated successfully!');
+        _logPaywallDismiss('purchase_success');
+        Navigator.of(context).pop(true);
+        print('✅ Purchase completed successfully!');
       } else {
         // Покупка не удалась
         if (kDebugMode) {
           print('❌ Purchase was not successful');
         }
+        // Показываем сообщение об ошибке пользователю
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.purchaseFailed('Purchase was not completed')),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
       }
     } catch (e) {
       if (!mounted) return;

@@ -64,7 +64,7 @@ class StoreProduct {
   });
 }
 
-class SubscriptionService {
+class SubscriptionService extends ChangeNotifier {
   static SubscriptionService? _instance;
   static SubscriptionService get instance => _instance ??= SubscriptionService._();
 
@@ -72,10 +72,15 @@ class SubscriptionService {
 
   static const _isProKey = 'is_pro';
   static const _proExpiresAtKey = 'pro_expires_at';
+  static const _isTrialKey = 'is_trial';
+  static const _trialUsedKey = 'trial_used';
 
   // Google Play subscription product IDs
   static const String _yearlyProductId = 'hydracoach_pro_yearly';
   static const String _monthlyProductId = 'hydracoach_pro_monthly';
+
+  // Google Play one-time purchase (lifetime)
+  static const String _lifetimeProductId = 'hydracoach_pro_lifetime';
 
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
   late StreamSubscription<List<PurchaseDetails>> _subscription;
@@ -116,11 +121,21 @@ class SubscriptionService {
 
   bool _isInitialized = false;
   bool _isPro = false;
+  bool _isTrial = false;
+  bool _trialUsed = false;
   List<ProductDetails> _products = [];
 
   bool get isPro => _isPro;
   bool get isInitialized => _isInitialized;
+  bool get isTrial => _isTrial;
+  bool get trialUsed => _trialUsed;
+  bool get canStartTrial => !_trialUsed;
   List<ProductDetails> get products => _products;
+
+  // Геттеры для конкретных продуктов
+  ProductDetails? get yearlyProduct => _products.where((p) => p.id == _yearlyProductId).firstOrNull;
+  ProductDetails? get monthlyProduct => _products.where((p) => p.id == _monthlyProductId).firstOrNull;
+  ProductDetails? get lifetimeProduct => _products.where((p) => p.id == _lifetimeProductId).firstOrNull;
 
   /// Проверяет, является ли текущий пользователь тестовым
   bool _isTestAccount() {
@@ -133,13 +148,7 @@ class SubscriptionService {
     return false;
   }
 
-  /// Добавить тестовый аккаунт в рантайме (только для debug)
-  static void addTestAccount(String email) {
-    if (kDebugMode && !_runtimeTestAccounts.contains(email)) {
-      _runtimeTestAccounts.add(email);
-      print('🧪 Added test account: $email');
-    }
-  }
+  // RELEASE: Test account methods removed for production
 
   /// Получить список всех тестовых аккаунтов
   static List<String> getTestAccounts() {
@@ -155,7 +164,8 @@ class SubscriptionService {
     // Проверяем доступность покупок
     final bool isAvailable = await _inAppPurchase.isAvailable();
     if (!isAvailable) {
-      if (kDebugMode) {
+      // RELEASE: Debug mode disabled
+      if (false) {
         print('❌ In-app purchases not available');
       }
       _isInitialized = true;
@@ -167,7 +177,8 @@ class SubscriptionService {
       _onPurchaseUpdate,
       onDone: () => _subscription.cancel(),
       onError: (error) {
-        if (kDebugMode) {
+        // RELEASE: Debug mode disabled
+      if (false) {
           print('❌ Purchase stream error: $error');
         }
       },
@@ -178,7 +189,8 @@ class SubscriptionService {
 
     _isInitialized = true;
 
-    if (kDebugMode) {
+    // RELEASE: Debug mode disabled
+    if (false) {
       print('✅ SubscriptionService initialized');
       print('🔒 PRO status: $_isPro');
       print('📦 Products loaded: ${_products.length}');
@@ -188,35 +200,65 @@ class SubscriptionService {
   Future<void> _restoreFromStorage() async {
     final prefs = await SharedPreferences.getInstance();
     final storedIsPro = prefs.getBool(_isProKey) ?? false;
+    final storedIsTrial = prefs.getBool(_isTrialKey) ?? false;
+    final storedTrialUsed = prefs.getBool(_trialUsedKey) ?? false;
     final expiryIso = prefs.getString(_proExpiresAtKey);
     DateTime? expiry;
+
+    _trialUsed = storedTrialUsed;
 
     if (expiryIso != null) {
       expiry = DateTime.tryParse(expiryIso);
     }
 
-    if (storedIsPro && expiry != null) {
-      if (DateTime.now().isBefore(expiry)) {
+    if (storedIsPro) {
+      if (expiry != null && DateTime.now().isBefore(expiry)) {
+        // Активная подписка с датой истечения
         _isPro = true;
+        _isTrial = storedIsTrial;
+        // RELEASE: Debug mode disabled
+      if (false) {
+          print('✅ Активная подписка найдена, истекает: ${expiry.toIso8601String()}');
+        }
+        return;
+      } else if (expiry != null && DateTime.now().isAfter(expiry)) {
+        // Подписка истекла — чистим флаги
+        // RELEASE: Debug mode disabled
+      if (false) {
+          print('⏰ Подписка истекла: ${expiry.toIso8601String()}');
+        }
+        await prefs.remove(_isProKey);
+        await prefs.remove(_proExpiresAtKey);
+        await prefs.remove(_isTrialKey);
+        _isPro = false;
+        _isTrial = false;
+        return;
+      } else if (expiry == null) {
+        // Legacy подписка без даты истечения
+        _isPro = true;
+        _isTrial = false;
+        // RELEASE: Debug mode disabled
+      if (false) {
+          print('✅ Legacy подписка без даты истечения');
+        }
         return;
       }
-
-      // Подписка истекла — чистим флаги
-      await prefs.remove(_isProKey);
-      await prefs.remove(_proExpiresAtKey);
     }
 
-    _isPro = storedIsPro && expiry == null;
+    // Нет активной подписки
+    _isPro = false;
+    _isTrial = false;
   }
 
   /// Загрузка продуктов подписки из Google Play
   Future<void> _loadProducts() async {
     try {
-      final Set<String> productIds = {_yearlyProductId, _monthlyProductId};
+      final Set<String> productIds = {_yearlyProductId, _monthlyProductId, _lifetimeProductId};
       final ProductDetailsResponse response = await _inAppPurchase.queryProductDetails(productIds);
 
       if (response.error != null) {
-        if (kDebugMode) {
+        // RELEASE: Debug mode disabled
+      if (false) {
           print('❌ Failed to load products: ${response.error}');
         }
         return;
@@ -224,14 +266,16 @@ class SubscriptionService {
 
       _products = response.productDetails;
 
-      if (kDebugMode) {
+      // RELEASE: Debug mode disabled
+      if (false) {
         print('📦 Loaded ${_products.length} products:');
         for (final product in _products) {
           print('   - ${product.id}: ${product.price}');
         }
       }
     } catch (e) {
-      if (kDebugMode) {
+      // RELEASE: Debug mode disabled
+      if (false) {
         print('❌ Error loading products: $e');
       }
     }
@@ -254,7 +298,10 @@ class SubscriptionService {
       );
 
       Duration billingPeriod;
-      if (purchaseDetails.productID == _yearlyProductId) {
+      if (purchaseDetails.productID == _lifetimeProductId) {
+        // Lifetime покупка - никогда не истекает (100 лет)
+        billingPeriod = const Duration(days: 36500);
+      } else if (purchaseDetails.productID == _yearlyProductId) {
         billingPeriod = const Duration(days: 365);
       } else {
         billingPeriod = const Duration(days: 30);
@@ -270,11 +317,13 @@ class SubscriptionService {
         isTrial: false, // Для реальных покупок это всегда false
       );
 
-      if (kDebugMode) {
+      // RELEASE: Debug mode disabled
+      if (false) {
         print('✅ Purchase completed: ${purchaseDetails.productID}');
       }
     } else if (purchaseDetails.status == PurchaseStatus.error) {
-      if (kDebugMode) {
+      // RELEASE: Debug mode disabled
+      if (false) {
         print('❌ Purchase failed: ${purchaseDetails.error}');
       }
     }
@@ -309,7 +358,8 @@ class SubscriptionService {
     }
 
     try {
-      if (kDebugMode) {
+      // RELEASE: Debug mode disabled
+      if (false) {
         print('🛍️ Starting purchase for: ${product.id}');
         print('💰 Price: ${product.price}');
       }
@@ -320,13 +370,15 @@ class SubscriptionService {
       // Инициируем покупку
       final bool purchaseResult = await _inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam);
 
-      if (kDebugMode) {
+      // RELEASE: Debug mode disabled
+      if (false) {
         print('🔄 Purchase initiated: $purchaseResult');
       }
 
       return purchaseResult;
     } catch (e) {
-      if (kDebugMode) {
+      // RELEASE: Debug mode disabled
+      if (false) {
         print('❌ Purchase error: $e');
       }
       rethrow;
@@ -340,7 +392,8 @@ class SubscriptionService {
     }
 
     try {
-      if (kDebugMode) {
+      // RELEASE: Debug mode disabled
+      if (false) {
         print('🔄 Restoring purchases...');
       }
 
@@ -350,13 +403,15 @@ class SubscriptionService {
       // Также загружаем из локального хранилища
       await _restoreFromStorage();
 
-      if (kDebugMode) {
+      // RELEASE: Debug mode disabled
+      if (false) {
         print('✅ Restore completed. PRO: $_isPro');
       }
 
       return _isPro;
     } catch (e) {
-      if (kDebugMode) {
+      // RELEASE: Debug mode disabled
+      if (false) {
         print('❌ Restore error: $e');
       }
       rethrow;
@@ -364,12 +419,60 @@ class SubscriptionService {
   }
 
   /// Обновление статуса подписки
-  Future<void> _activatePro(Duration billingPeriod) async {
+  Future<void> _activatePro(Duration billingPeriod, {bool isTrial = false}) async {
     _isPro = true;
+    _isTrial = isTrial;
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_isProKey, true);
+    await prefs.setBool(_isTrialKey, isTrial);
+
+    if (isTrial) {
+      await prefs.setBool(_trialUsedKey, true);
+      _trialUsed = true;
+    }
+
     final expiryDate = DateTime.now().add(billingPeriod);
     await prefs.setString(_proExpiresAtKey, expiryDate.toIso8601String());
+
+    // RELEASE: Debug mode disabled
+    if (false) {
+      print('✅ PRO активирован до: ${expiryDate.toIso8601String()}');
+      print('   Trial: $isTrial');
+    }
+
+    // Уведомляем слушателей об изменении статуса подписки
+    notifyListeners();
+  }
+
+  /// Начать бесплатный пробный период (7 дней)
+  Future<bool> startFreeTrial() async {
+    if (_trialUsed || _isPro) {
+      return false; // Уже использован или уже есть подписка
+    }
+
+    try {
+      await _activatePro(const Duration(days: 7), isTrial: true);
+
+      // Логируем начало trial
+      await _analytics.logTrialStarted(
+        product: _yearlyProductId,
+        trialDuration: 7,
+      );
+
+      // RELEASE: Debug mode disabled
+      if (false) {
+        print('🎯 7-дневный пробный период начат!');
+      }
+
+      return true;
+    } catch (e) {
+      // RELEASE: Debug mode disabled
+      if (false) {
+        print('❌ Ошибка запуска пробного периода: $e');
+      }
+      return false;
+    }
   }
 
   /// Проверка доступности PRO функции
@@ -450,10 +553,7 @@ class SubscriptionService {
     await prefs.remove(_proExpiresAtKey);
   }
 
-  /// Мок-покупка для тестирования — годовая подписка
-  Future<void> mockPurchase() async {
-    await purchaseSubscription(_yearlyProductId);
-  }
+  // RELEASE: Mock purchase method removed for production
 
   /// Очистка ресурсов
   void dispose() {
@@ -471,22 +571,28 @@ class SubscriptionService {
 
       final currency = product.priceText.contains('₽') ? 'RUB' : 'USD';
 
-      if (kDebugMode) {
+      // RELEASE: Debug mode disabled
+      if (false) {
         print('💰 AppsFlyer IAP Validation for ${product.identifier}');
         print('   Price: $price $currency');
       }
 
-      // Отправляем базовое событие покупки в AppsFlyer
-      await _appsFlyer.logPurchase(
+      // AppsFlyer Purchase Connector автоматически отправляет:
+      // - af_ars_trial_started (для триальных подписок)
+      // - af_ars_subscription_started (для обычных подписок)
+      // - af_ars_trial_converted (когда триал конвертится в подписку)
+      // - af_ars_subscription_renewed (при продлении)
+      // Отправка этих событий вручную приведет к дублированию revenue
+
+      // Определяем триальную подписку по ID
+      final isTrialProduct = product.identifier.contains('trial');
+
+      // Отправляем стандартное событие подписки во все аналитические системы
+      await _analytics.logSubscriptionStarted(
         product: product.identifier,
-        revenue: price,
+        isTrial: isTrialProduct,
+        price: price,
         currency: currency,
-        orderId: 'mock_order_${DateTime.now().millisecondsSinceEpoch}',
-        additionalParams: {
-          'billing_period': product.billingPeriod.inDays.toString(),
-          'product_title': product.title,
-          'purchase_source': 'mock',
-        },
       );
 
       // TODO: Когда будет реальный IAP, добавить платформо-специфичную валидацию:
@@ -508,7 +614,8 @@ class SubscriptionService {
       // );
 
     } catch (error) {
-      if (kDebugMode) {
+      // RELEASE: Debug mode disabled
+      if (false) {
         print('❌ Ошибка валидации покупки через AppsFlyer: $error');
       }
     }
@@ -520,6 +627,9 @@ class SubscriptionProvider extends ChangeNotifier {
 
   bool get isPro => _subscriptionService.isPro;
   bool get isInitialized => _subscriptionService.isInitialized;
+  bool get isTrial => _subscriptionService.isTrial;
+  bool get trialUsed => _subscriptionService.trialUsed;
+  bool get canStartTrial => _subscriptionService.canStartTrial;
 
   List<SubscriptionProduct> _availableProducts = const [];
   List<SubscriptionProduct> get availableProducts => _availableProducts;
@@ -545,7 +655,8 @@ class SubscriptionProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      if (kDebugMode) {
+      // RELEASE: Debug mode disabled
+      if (false) {
         print('❌ Ошибка загрузки продуктов: $e');
       }
     }
@@ -575,19 +686,22 @@ class SubscriptionProvider extends ChangeNotifier {
     return success;
   }
 
-  Future<void> mockPurchase() async {
+  /// Начать бесплатный пробный период
+  Future<bool> startFreeTrial() async {
     _isLoading = true;
     notifyListeners();
 
-    await _subscriptionService.mockPurchase();
-
-    _isLoading = false;
-    notifyListeners();
-
-    if (kDebugMode) {
-      print('✅ Mock purchase completed - PRO activated');
+    try {
+      final success = await _subscriptionService.startFreeTrial();
+      notifyListeners();
+      return success;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
+
+  // RELEASE: Mock purchase method removed for production
 
   bool hasFeatureAccess(String featureName) {
     return _subscriptionService.hasFeatureAccess(featureName);

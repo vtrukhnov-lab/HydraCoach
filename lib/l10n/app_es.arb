@@ -607,6 +607,14 @@
   },
   "weatherUnavailable": "Clima no disponible",
   "checkLocationPermissions": "Verifica permisos de ubicación e internet",
+  "recommendedNormLabel": "Norma recomendada",
+  "waterAdjustment300": "+300 ml",
+  "waterAdjustment400": "+400 ml",
+  "waterAdjustment200": "+200 ml",
+  "waterAdjustmentNormal": "Normal",
+  "waterAdjustment500": "+500 ml",
+  "waterAdjustment250": "+250 ml",
+  "waterAdjustment750": "+750 ml",
   "currentLocation": "Ubicación actual",
   "weatherClear": "despejado",
   "weatherCloudy": "nublado",
@@ -2297,5 +2305,134 @@
       "example": "1750"
     }
   }
+},
+
+"proWelcomeTitle": "¡Bienvenido a HydraCoach PRO!",
+"@proWelcomeTitle": {
+  "description": "PRO welcome screen title"
+},
+"proTrialActivated": "¡Tu prueba de 7 días activada!",
+"@proTrialActivated": {
+  "description": "PRO trial activation subtitle"
+},
+"proFeaturePersonalizedRecommendations": "Recomendaciones personalizadas",
+"@proFeaturePersonalizedRecommendations": {
+  "description": "PRO feature: personalized hydration advice"
+},
+"proFeatureAdvancedAnalytics": "Análisis avanzado",
+"@proFeatureAdvancedAnalytics": {
+  "description": "PRO feature: detailed charts and statistics"
+},
+"proFeatureWorkoutTracking": "Seguimiento de entrenamientos",
+"@proFeatureWorkoutTracking": {
+  "description": "PRO feature: fluid loss tracking during sports"
+},
+"proFeatureElectrolyteControl": "Control de electrolitos",
+"@proFeatureElectrolyteControl": {
+  "description": "PRO feature: sodium, potassium, magnesium monitoring"
+},
+"proFeatureSmartReminders": "Recordatorios inteligentes",
+"@proFeatureSmartReminders": {
+  "description": "PRO feature: personalized notifications"
+},
+"proFeatureHriIndex": "Índice HRI",
+"@proFeatureHriIndex": {
+  "description": "PRO feature: real-time hydration risk index"
+},
+"proFeatureAchievements": "Logros PRO",
+"@proFeatureAchievements": {
+  "description": "PRO feature: exclusive rewards and goals"
+},
+"proFeaturePersonalizedDescription": "Consejos individuales de hidratación",
+"@proFeaturePersonalizedDescription": {
+  "description": "PRO feature description: personalized recommendations"
+},
+"proFeatureAdvancedDescription": "Gráficos detallados y estadísticas",
+"@proFeatureAdvancedDescription": {
+  "description": "PRO feature description: advanced analytics"
+},
+"proFeatureWorkoutDescription": "Seguimiento de pérdida de líquidos durante el deporte",
+"@proFeatureWorkoutDescription": {
+  "description": "PRO feature description: workout tracking"
+},
+"proFeatureElectrolyteDescription": "Monitoreo de sodio, potasio, magnesio",
+"@proFeatureElectrolyteDescription": {
+  "description": "PRO feature description: electrolyte control"
+},
+"proFeatureSmartDescription": "Notificaciones personalizadas",
+"proFeatureNoMoreAds": "¡No más anuncios!",
+"proFeatureNoMoreAdsDescription": "Disfruta del seguimiento de hidratación sin interrupciones de publicidad",
+"@proFeatureSmartDescription": {
+  "description": "PRO feature description: smart reminders"
+},
+"proFeatureHriDescription": "Índice de riesgo de hidratación en tiempo real",
+"@proFeatureHriDescription": {
+  "description": "PRO feature description: HRI index"
+},
+"proFeatureAchievementsDescription": "Recompensas y objetivos exclusivos",
+"@proFeatureAchievementsDescription": {
+  "description": "PRO feature description: PRO achievements"
+},
+"startUsing": "Comenzar a usar",
+"@startUsing": {
+  "description": "Button to start using PRO features"
+},
+
+"sayGoodbyeToAds": "Dile adiós a los anuncios. Hazte Premium.",
+"@sayGoodbyeToAds": {
+  "description": "Text below MREC ad encouraging premium upgrade"
+},
+"goPremium": "HAZTE PREMIUM",
+"@goPremium": {
+  "description": "Button text to upgrade to premium"
+},
+"removeAdsForever": "Eliminar anuncios para siempre",
+"@removeAdsForever": {
+  "description": "Text for premium fallback content"
+},
+"upgrade": "ACTUALIZAR",
+"@upgrade": {
+  "description": "Upgrade button text"
+},
+
+"support": "Soporte",
+"@support": {
+  "description": "Support section title"
+},
+"companyWebsite": "Sitio web de la empresa",
+"@companyWebsite": {
+  "description": "Company website menu item"
+},
+"appStoreOpened": "App Store abierto",
+"@appStoreOpened": {
+  "description": "Message when App Store opens successfully"
+},
+"linkCopiedToClipboard": "Enlace copiado al portapapeles",
+"@linkCopiedToClipboard": {
+  "description": "Message when link is copied as fallback"
+},
+"shareDialogOpened": "Diálogo de compartir abierto",
+"@shareDialogOpened": {
+  "description": "Message when share dialog opens successfully"
+},
+"linkForSharingCopied": "Enlace para compartir copiado",
+"@linkForSharingCopied": {
+  "description": "Message when share link is copied as fallback"
+},
+"websiteOpenedInBrowser": "Sitio web abierto en el navegador",
+"@websiteOpenedInBrowser": {
+  "description": "Message when website opens successfully"
+},
+"emailClientOpened": "Cliente de email abierto",
+"@emailClientOpened": {
+  "description": "Message when email client opens successfully"
+},
+"emailCopiedToClipboard": "Email copiado al portapapeles",
+"@emailCopiedToClipboard": {
+  "description": "Message when email is copied as fallback"
+},
+"privacyPolicyOpened": "Política de privacidad abierta",
+"@privacyPolicyOpened": {
+  "description": "Message when privacy policy opens successfully"
 }
 }

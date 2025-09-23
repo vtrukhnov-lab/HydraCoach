@@ -3,7 +3,7 @@ description: "Smart hydration tracking with electrolyte balance"
 publish_to: 'none'
 
 # Версия приложения: 2.0.0 (major notification system overhaul) + номер сборки 1
-version: 2.0.4+20 # версия+номер_сборки
+version: 2.0.7+23 # версия+номер_сборки
 
 environment:
   sdk: ^3.9.0
@@ -60,9 +60,13 @@ dependencies:
 
   # 📊 ATTRIBUTION & MONETIZATION
   appsflyer_sdk: ^6.17.5
+  applovin_max: ^4.5.2
 
   # 💰 IN-APP PURCHASES
   in_app_purchase: ^3.2.0
+
+  # 🔗 URL LAUNCHER
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:

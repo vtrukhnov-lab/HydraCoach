@@ -13,6 +13,7 @@ import '../services/achievement_tracker.dart';
 
 // Providers
 import '../providers/hydration_provider.dart';
+import '../services/subscription_service.dart';
 
 // Screens
 import '../screens/achievements_screen.dart';
@@ -22,6 +23,8 @@ import '../widgets/home/home_header.dart';
 import '../widgets/home/weather_card.dart';
 import '../widgets/home/main_progress_card.dart';
 import '../widgets/home/electrolytes_card.dart';
+import '../widgets/home/ad_mrec_card.dart';
+import '../widgets/home/ad_banner_card.dart';
 import '../widgets/home/hri_status_card.dart';
 import '../widgets/home/sugar_intake_card.dart';
 import '../widgets/home/food_intake_card.dart';
@@ -35,7 +38,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   String _fastingSchedule = '16:8';
   bool _isInitialized = false;
   int _currentIndex = 0;
@@ -229,7 +232,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context); // Обязательно для AutomaticKeepAliveClientMixin
     if (!_isInitialized) {
       return const Scaffold(
         backgroundColor: Color(0xFFF8F9FA),
@@ -238,13 +245,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
 
     final provider = Provider.of<HydrationProvider>(context);
+    final subscription = Provider.of<SubscriptionProvider>(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    
+
     final List<Widget> cards = [
       MainProgressCard(onUpdate: _onIntakeUpdated),
       const ElectrolytesCard(),
+      // MREC реклама только для free пользователей
+      if (!subscription.isPro) const AdMrecCard(),
       const WeatherCard(),
       const SugarIntakeCard(),
       const FoodIntakeCard(),
@@ -252,6 +262,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -363,6 +374,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ],
       ),
       body: SafeArea(
+        top: true,
         bottom: false,
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
@@ -432,7 +444,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 ],
               ),
             ),
-            
+
+            // Тонкий баннер выше HRI статуса для free пользователей
+            if (!subscription.isPro)
+              const SliverToBoxAdapter(
+                child: AdBannerCard(),
+              ),
+
             SliverToBoxAdapter(
               child: HRIStatusCard(
                 isFasting: _isCurrentlyFasting(provider),
@@ -440,9 +458,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
             ),
             
-            const SliverPadding(
-              padding: EdgeInsets.only(bottom: 80),
-              sliver: SliverToBoxAdapter(child: SizedBox.shrink()),
+            SliverPadding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 80),
+              sliver: const SliverToBoxAdapter(child: SizedBox.shrink()),
             ),
           ],
         ),

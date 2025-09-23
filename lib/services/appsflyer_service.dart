@@ -310,6 +310,48 @@ class AppsFlyerService {
     );
   }
 
+  /// Логирование доходов от рекламы (Ad Revenue)
+  /// Интегрируется с AppLovin MAX для отслеживания доходов от показов рекламы
+  Future<void> logAdRevenue({
+    required String mediationNetwork, // 'AppLovin MAX'
+    required String currencyCode, // 'USD'
+    required double revenue,
+    required Map<String, dynamic> additionalParams,
+  }) async {
+    if (!_isInitialized || _appsflyerSdk == null) {
+      if (kDebugMode) {
+        print('⚠️ AppsFlyer не инициализирован, Ad Revenue событие пропущено');
+      }
+      return;
+    }
+
+    try {
+      // Используем AppsFlyer Ad Revenue API с правильными параметрами
+      final adRevenueData = {
+        'af_mediation_network': mediationNetwork,
+        'af_currency': currencyCode,
+        'af_revenue': revenue,
+        ...additionalParams,
+      };
+
+      await logEvent(
+        eventName: 'af_ad_revenue',
+        eventValues: adRevenueData,
+      );
+
+      if (kDebugMode) {
+        print('💰 AppsFlyer Ad Revenue logged:');
+        print('   Network: $mediationNetwork');
+        print('   Revenue: $revenue $currencyCode');
+        print('   Additional params: $additionalParams');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Ошибка отправки Ad Revenue: $error');
+      }
+    }
+  }
+
   // ==================== ВНУТРЕННИЕ МЕТОДЫ ====================
 
   AppsFlyerConfig _resolveConfig() {

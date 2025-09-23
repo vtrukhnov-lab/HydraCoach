@@ -69,7 +69,7 @@ class NotificationInitializer {
   Future<void> _initializeLocalNotifications() async {
     print('📱 Initializing local notifications (without permission request)...');
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings('@drawable/notification_icon');
 
     // КРИТИЧНО: Отключаем автоматический запрос разрешений на iOS
     const iosSettings = DarwinInitializationSettings(

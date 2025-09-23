@@ -202,10 +202,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   
   @override
   Widget build(BuildContext context) {
+    // Устанавливаем цвет системных панелей
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
+
     final l10n = AppLocalizations.of(context);
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
+      extendBody: true,
+      extendBodyBehindAppBar: true,
       body: SafeArea(
         child: Column(
           children: [

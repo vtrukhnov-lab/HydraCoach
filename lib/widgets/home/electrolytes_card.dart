@@ -245,7 +245,7 @@ class ElectrolytesCard extends StatelessWidget {
                   _buildAdjustmentRow(
                     icon: Icons.local_drink,
                     label: l10n.water,
-                    value: _getWaterAdjustment(totalPercent),
+                    value: _getWaterAdjustment(totalPercent, l10n),
                   ),
                 ],
               ),
@@ -557,9 +557,9 @@ class ElectrolytesCard extends StatelessWidget {
   }
 
   // Корректировка воды
-  String _getWaterAdjustment(double percent) {
-    if (percent < 30) return '+500 ml';
-    if (percent < 60) return '+250 ml';
-    return 'Normal';
+  String _getWaterAdjustment(double percent, AppLocalizations l10n) {
+    if (percent < 30) return l10n.waterAdjustment500;
+    if (percent < 60) return l10n.waterAdjustment250;
+    return l10n.waterAdjustmentNormal;
   }
 }

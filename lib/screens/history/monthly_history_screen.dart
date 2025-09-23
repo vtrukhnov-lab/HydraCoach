@@ -377,7 +377,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                   Icon(Icons.filter_alt, color: Colors.purple.shade600, size: 16),
                   const SizedBox(width: 8),
                   Text(
-                    'Статистика до ${_selectedDate!.day}.${_selectedDate!.month}.${_selectedDate!.year}',
+                    l10n.statisticsTo(_selectedDate!),
                     style: TextStyle(
                       color: Colors.purple.shade700,
                       fontSize: 12,
@@ -875,7 +875,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                   l10n.cupsToday,
                   '$totalCoffeeCups',
                   Colors.orange,
-                  '$avgCupsPerDay в день',
+                  l10n.coffeeAverage(avgCupsPerDay),
                 ),
               ),
             ],
@@ -895,10 +895,10 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildStatCard(
-                  'Среднее/день',
+                  l10n.averagePerDayShort,
                   '$avgCaffeine ${l10n.mg}',
                   Colors.deepOrange,
-                  maxDailyCaffeine > 400 ? '⚠️ Высокое' : '✅ Норма',
+                  maxDailyCaffeine > 400 ? '⚠️ ${l10n.highWarning}' : '✅ ${l10n.normalStatus}',
                 ),
               ),
             ],
@@ -919,7 +919,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Были дни с превышением безопасной дозы (400мг)',
+                      l10n.caffeineWarning,
                       style: TextStyle(
                         color: Colors.orange.shade800,
                         fontSize: 13,
@@ -985,7 +985,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
               const Icon(Icons.cake, color: Colors.pink),
               const SizedBox(width: 8),
               Text(
-                'Сахар', // TODO: Add to localization
+                l10n.sugar,
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ],
@@ -999,16 +999,16 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                   l10n.total,
                   '${totalSugar.toStringAsFixed(0)}g',
                   Colors.pink,
-                  'За месяц',
+                  l10n.forMonth,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: _buildStatCard(
-                  'Среднее',
+                  l10n.average,
                   '${avgSugar}g',
                   Colors.red,
-                  'В день',
+                  l10n.perDay,
                 ),
               ),
             ],
@@ -1019,19 +1019,19 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
             children: [
               Expanded(
                 child: _buildStatCard(
-                  'Дней с превышением',
+                  l10n.daysOver,
                   '$daysOverLimit',
                   Colors.deepOrange,
-                  'Лимит 50г/день',
+                  l10n.whoLimit,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: _buildStatCard(
-                  'Максимум',
+                  l10n.maximum,
                   '${maxDailySugar.toStringAsFixed(0)}g',
                   Colors.purple,
-                  'В день',
+                  l10n.perDay,
                 ),
               ),
             ],
@@ -1052,7 +1052,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Частое превышение нормы сахара влияет на гидратацию',
+                      l10n.sugarFrequentExcess,
                       style: TextStyle(
                         color: Colors.red.shade800,
                         fontSize: 13,
@@ -1241,7 +1241,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
               Expanded(
                 child: _buildStatCard(
                   l10n.waterLoss,
-                  '${(totalMinutes * 10).round()} ml',
+                  '${(totalMinutes * 10).round()} ${l10n.ml}',
                   Colors.cyan,
                   l10n.sweatLoss,
                 ),
@@ -1370,10 +1370,10 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildStatCard(
-                  'Баланс',
+                  l10n.balance,
                   '$perfectElectrolyteDays дней',
                   Colors.green,
-                  'Все в норме',
+                  l10n.allNormal,
                 ),
               ),
             ],
@@ -1395,7 +1395,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Электролитный баланс требует внимания',
+                      l10n.electrolyteBalance,
                       style: TextStyle(
                         color: Colors.amber.shade800,
                         fontSize: 13,
@@ -1448,7 +1448,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
               ),
               const SizedBox(width: 12),
               Text(
-                'Месячные инсайты', // TODO: Add to localization
+                l10n.monthlyInsights,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -1722,7 +1722,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Индекс: 50', // TODO: Get actual HRI
+                                '${l10n.index}: 50', // TODO: Get actual HRI
                                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 4),
@@ -2005,7 +2005,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Сводка дня',
+                                l10n.daySummary,
                                 style: TextStyle(
                                   color: Colors.grey.shade700,
                                   fontWeight: FontWeight.bold,
@@ -2013,16 +2013,16 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                '• Записей: ${data.intakeCount}',
+                                '• ${l10n.records}: ${data.intakeCount}',
                                 style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                               ),
                               Text(
-                                '• Достижение цели воды: ${data.waterPercent.toInt()}%',
+                                l10n.waterGoalAchievement(data.waterPercent.toInt()),
                                 style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                               ),
                               if (data.hasWorkouts)
                                 Text(
-                                  '• Тренировки: ${data.workoutCount} сессий',
+                                  l10n.workoutSessions(data.workoutCount),
                                   style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                                 ),
                             ],

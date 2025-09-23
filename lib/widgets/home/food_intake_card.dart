@@ -237,7 +237,7 @@ class FoodIntakeCard extends StatelessWidget {
                   _buildAdjustmentRow(
                     icon: Icons.local_drink,
                     label: l10n.water,
-                    value: _getWaterAdjustment(foodData),
+                    value: _getWaterAdjustment(foodData, l10n),
                   ),
                   const SizedBox(height: 6),
                   // Гидратационный баланс
@@ -562,15 +562,15 @@ class FoodIntakeCard extends StatelessWidget {
     }
   }
 
-  String _getWaterAdjustment(Map<String, dynamic> foodData) {
+  String _getWaterAdjustment(Map<String, dynamic> foodData, AppLocalizations l10n) {
     final sodium = foodData['sodium'] as double;
     final waterContent = foodData['waterContent'] as double;
     final foodCount = foodData['foodCount'] as int;
 
-    if (sodium > 1500) return '+300 ml';
-    if (foodCount > 2 && waterContent < 100) return '+400 ml';
-    if (waterContent > 300) return 'Normal';
-    return '+200 ml';
+    if (sodium > 1500) return l10n.waterAdjustment300;
+    if (foodCount > 2 && waterContent < 100) return l10n.waterAdjustment400;
+    if (waterContent > 300) return l10n.waterAdjustmentNormal;
+    return l10n.waterAdjustment200;
   }
 
   String _getHydrationBalance(Map<String, dynamic> foodData) {

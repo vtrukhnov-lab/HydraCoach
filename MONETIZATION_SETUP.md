@@ -25,11 +25,13 @@
 - Interstitial: `ceab74e2fb53cbe2`
 - Rewarded: `916df6209beb8007`
 - Banner: `93ba29d40d0c9ed1`
+- MREC: `356d0deda25f54dd`
 
 **iOS:**
 - Interstitial: `9fad30996e03b5b8`
 - Rewarded: `60795c12dadfad1e`
 - Banner: `637af50c7df33543`
+- MREC: `0612cee9830f108e`
 
 ### 3. MAX SDK
 - ✅ Базовая структура создана в `lib/services/max_sdk_service.dart`

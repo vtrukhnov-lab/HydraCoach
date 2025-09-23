@@ -118,7 +118,7 @@ class CaloriesIntakeCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${foodProgress['totalWaterFromFood'].round()}ml',
+                          '${foodProgress['totalWaterFromFood'].round()}${l10n.ml}',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,

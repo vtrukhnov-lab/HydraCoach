@@ -280,7 +280,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           _buildDivider(),
                           _buildListTile(
                             l10n.reminderFrequency,
-                            isPro ? l10n.unlimitedReminders : l10n.maxTimesPerDay(_reminderFrequency),
+                            isPro ? l10n.timesPerDay(_reminderFrequency) : l10n.maxTimesPerDay(_reminderFrequency),
                             Icons.access_time,
                             () => isPro ? _showFrequencyDialog(l10n) : _showPaywall(),
                             isPro: !isPro,
@@ -462,7 +462,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             final success = await UrlLauncherService.openAppStore();
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(success ? 'Ссылка на магазин скопирована' : 'Ошибка открытия магазина')),
+                                SnackBar(content: Text(success ? l10n.appStoreOpened : l10n.linkCopiedToClipboard)),
                               );
                             }
                           },
@@ -476,34 +476,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             final success = await UrlLauncherService.shareApp();
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(success ? 'Ссылка для шаринга скопирована' : 'Ошибка при шаринге')),
+                                SnackBar(content: Text(success ? l10n.shareDialogOpened : l10n.linkForSharingCopied)),
                               );
                             }
                           },
                         ),
                         _buildDivider(),
                         _buildListTile(
-                          'Сайт компании',
+                          l10n.companyWebsite,
                           'playcus.com',
                           Icons.language_outlined,
                           () async {
                             final success = await UrlLauncherService.openWebsite();
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Ссылка скопирована в буфер обмена')),
+                                SnackBar(content: Text(success ? l10n.websiteOpenedInBrowser : l10n.linkCopiedToClipboard)),
                               );
                             }
                           },
                         ),
                         _buildListTile(
-                          'Поддержка',
+                          l10n.support,
                           'support@playcus.com',
                           Icons.support_agent_outlined,
                           () async {
                             final success = await UrlLauncherService.openSupportEmail();
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Email скопирован в буфер обмена')),
+                                SnackBar(content: Text(success ? l10n.emailClientOpened : l10n.emailCopiedToClipboard)),
                               );
                             }
                           },
@@ -516,7 +516,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             final success = await UrlLauncherService.openPrivacyPolicy();
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Ссылка скопирована в буфер обмена')),
+                                SnackBar(content: Text(success ? l10n.privacyPolicyOpened : l10n.linkCopiedToClipboard)),
                               );
                             }
                           },

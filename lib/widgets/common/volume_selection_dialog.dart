@@ -1200,7 +1200,6 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                 decoration: BoxDecoration(
                   color: Colors.brown.shade50,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.brown.shade200),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -1275,7 +1274,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                 label: Text(l10n.saveToFavorites),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.amber[700],
-                  side: BorderSide(color: Colors.amber[600]!, width: 1.5),
+                  side: BorderSide(color: Colors.amber[300]!, width: 1),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

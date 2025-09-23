@@ -86,7 +86,7 @@ class WeightPage extends StatelessWidget {
         : weight.round();              // остаемся в кг
     
     // Единица измерения
-    final String weightUnit = isImperial ? 'lb' : 'кг';
+    final String weightUnit = isImperial ? l10n.lb : l10n.kg;
 
     
     // Границы слайдера всегда в килограммах для внутреннего хранения
@@ -191,7 +191,7 @@ class WeightPage extends StatelessWidget {
         ? (maxWaterMl / 29.5735).round()  // мл в унции
         : maxWaterMl;                      // остаемся в мл
 
-    final String waterUnit = isImperial ? 'oz' : 'мл';
+    final String waterUnit = isImperial ? l10n.oz : l10n.ml;
 
     // Расчет калорий (базовый метаболизм + активность)
     // Формула Харриса-Бенедикта (упрощенная): BMR = 22 * вес_в_кг для среднего человека
@@ -216,7 +216,7 @@ class WeightPage extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  '${l10n.recommendedNorm(minWater, maxWater).split(':')[0]}: $minWater-$maxWater $waterUnit',
+                  '${l10n.recommendedNormLabel}: $minWater-$maxWater $waterUnit',
                   style: const TextStyle(
                     fontSize: 13,
                     color: Color(0xFF2EC5FF),

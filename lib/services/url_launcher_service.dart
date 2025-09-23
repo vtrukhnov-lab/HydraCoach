@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Сервис для открытия внешних ссылок и email
 class UrlLauncherService {
-  static const MethodChannel _channel = MethodChannel('hydracoach.url_launcher');
 
   /// Константы ссылок приложения
   static const String privacyPolicyUrl = 'https://www.playcus.com/privacy-policy';
@@ -25,14 +25,30 @@ class UrlLauncherService {
         print('🔗 Открываем ссылку: $url');
       }
 
-      // Для Windows/Desktop - копируем в буфер обмена и показываем сообщение
-      await Clipboard.setData(ClipboardData(text: url));
+      final Uri uri = Uri.parse(url);
 
-      if (kDebugMode) {
-        print('📋 Ссылка скопирована в буфер обмена: $url');
+      // Пробуем открыть ссылку нативно
+      if (await canLaunchUrl(uri)) {
+        final launched = await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication, // Открыть в браузере/внешнем приложении
+        );
+
+        if (launched) {
+          if (kDebugMode) {
+            print('✅ Ссылка открыта в браузере: $url');
+          }
+          return true;
+        }
       }
 
-      return true;
+      // Fallback - копируем в буфер обмена если не удалось открыть
+      await Clipboard.setData(ClipboardData(text: url));
+      if (kDebugMode) {
+        print('📋 Fallback: Ссылка скопирована в буфер обмена: $url');
+      }
+
+      return false; // Возвращаем false чтобы показать сообщение о копировании
     } catch (e) {
       if (kDebugMode) {
         print('❌ Ошибка открытия ссылки: $e');
@@ -70,14 +86,30 @@ class UrlLauncherService {
       final shareUrl = defaultTargetPlatform == TargetPlatform.iOS ? appStoreUrl : googlePlayUrl;
       final fullShareText = '$shareText\n$shareUrl';
 
-      // Копируем в буфер обмена
+      // Пробуем открыть нативный Share dialog
+      final Uri shareUri = Uri(
+        scheme: 'mailto',
+        query: Uri.encodeFull('subject=Check out HydraCoach&body=$fullShareText'),
+      );
+
+      if (await canLaunchUrl(shareUri)) {
+        final launched = await launchUrl(shareUri);
+        if (launched) {
+          if (kDebugMode) {
+            print('✅ Share dialog открыт');
+          }
+          return true;
+        }
+      }
+
+      // Fallback - копируем в буфер обмена
       await Clipboard.setData(ClipboardData(text: fullShareText));
 
       if (kDebugMode) {
-        print('📋 Ссылка для шаринга скопирована: $fullShareText');
+        print('📋 Fallback: Ссылка для шаринга скопирована: $fullShareText');
       }
 
-      return true;
+      return false; // Возвращаем false чтобы показать сообщение о копировании
     } catch (e) {
       if (kDebugMode) {
         print('❌ Ошибка при шаринге: $e');

@@ -692,7 +692,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get totalSD => 'Всего SD';
 
   @override
-  String get forMonth => 'за месяц';
+  String get forMonth => 'За месяц';
 
   @override
   String get daysWithAlcohol => 'Дней с алкоголем';
@@ -1050,6 +1050,30 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get checkLocationPermissions =>
       'Проверьте разрешения геолокации и интернет';
+
+  @override
+  String get recommendedNormLabel => 'Рекомендуемая норма';
+
+  @override
+  String get waterAdjustment300 => '+300 мл';
+
+  @override
+  String get waterAdjustment400 => '+400 мл';
+
+  @override
+  String get waterAdjustment200 => '+200 мл';
+
+  @override
+  String get waterAdjustmentNormal => 'Норма';
+
+  @override
+  String get waterAdjustment500 => '+500 мл';
+
+  @override
+  String get waterAdjustment250 => '+250 мл';
+
+  @override
+  String get waterAdjustment750 => '+750 мл';
 
   @override
   String get currentLocation => 'Текущее местоположение';
@@ -4093,5 +4117,244 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String recommendedCalories(int calories) {
     return 'Рекомендуемые калории: ~$calories ккал/день';
+  }
+
+  @override
+  String get proWelcomeTitle => 'Добро пожаловать в HydraCoach PRO!';
+
+  @override
+  String get proTrialActivated => 'Ваш 7-дневный триал активирован!';
+
+  @override
+  String get proFeaturePersonalizedRecommendations =>
+      'Персональные рекомендации';
+
+  @override
+  String get proFeatureAdvancedAnalytics => 'Расширенная аналитика';
+
+  @override
+  String get proFeatureWorkoutTracking => 'Трекинг тренировок';
+
+  @override
+  String get proFeatureElectrolyteControl => 'Контроль электролитов';
+
+  @override
+  String get proFeatureSmartReminders => 'Умные напоминания';
+
+  @override
+  String get proFeatureHriIndex => 'HRI индекс';
+
+  @override
+  String get proFeatureAchievements => 'Достижения PRO';
+
+  @override
+  String get proFeaturePersonalizedDescription =>
+      'Индивидуальные советы по гидратации';
+
+  @override
+  String get proFeatureAdvancedDescription => 'Детальные графики и статистика';
+
+  @override
+  String get proFeatureWorkoutDescription =>
+      'Учет потери жидкости во время спорта';
+
+  @override
+  String get proFeatureElectrolyteDescription =>
+      'Мониторинг натрия, калия, магния';
+
+  @override
+  String get proFeatureSmartDescription => 'Персонализированные уведомления';
+
+  @override
+  String get proFeatureNoMoreAds => 'Никакой рекламы!';
+
+  @override
+  String get proFeatureNoMoreAdsDescription =>
+      'Наслаждайтесь отслеживанием гидратации без любых рекламных объявлений';
+
+  @override
+  String get proFeatureHriDescription =>
+      'Индекс риска гидратации в реальном времени';
+
+  @override
+  String get proFeatureAchievementsDescription => 'Эксклюзивные награды и цели';
+
+  @override
+  String get startUsing => 'Начать использование';
+
+  @override
+  String get sayGoodbyeToAds => 'Попрощайтесь с рекламой. Станьте Premium.';
+
+  @override
+  String get goPremium => 'СТАТЬ PREMIUM';
+
+  @override
+  String get removeAdsForever => 'Убрать рекламу навсегда';
+
+  @override
+  String get upgrade => 'ОБНОВИТЬ';
+
+  @override
+  String get support => 'Поддержка';
+
+  @override
+  String get companyWebsite => 'Сайт компании';
+
+  @override
+  String get appStoreOpened => 'App Store открыт';
+
+  @override
+  String get linkCopiedToClipboard => 'Ссылка скопирована в буфер обмена';
+
+  @override
+  String get shareDialogOpened => 'Диалог поделиться открыт';
+
+  @override
+  String get linkForSharingCopied => 'Ссылка для поделиться скопирована';
+
+  @override
+  String get websiteOpenedInBrowser => 'Сайт открыт в браузере';
+
+  @override
+  String get emailClientOpened => 'Email клиент открыт';
+
+  @override
+  String get emailCopiedToClipboard => 'Email скопирован в буфер обмена';
+
+  @override
+  String get privacyPolicyOpened => 'Политика конфиденциальности открыта';
+
+  @override
+  String statisticsTo(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Статистика до $dateString';
+  }
+
+  @override
+  String get monthlyInsights => 'Месячные инсайты';
+
+  @override
+  String get average => 'Среднее';
+
+  @override
+  String get daysOver => 'Дней с превышением';
+
+  @override
+  String get maximum => 'Максимум';
+
+  @override
+  String get balance => 'Баланс';
+
+  @override
+  String get allNormal => 'Все в норме';
+
+  @override
+  String get excellentConsistency => 'Отличная консистентность';
+
+  @override
+  String get goodResults => 'Хорошие результаты';
+
+  @override
+  String get positiveImprovement => 'Положительный тренд';
+
+  @override
+  String get physicalActivity => 'Физическая активность';
+
+  @override
+  String get coffeeConsumption => 'Потребление кофе';
+
+  @override
+  String get excellentSobriety => 'Отличная трезвость';
+
+  @override
+  String get excellentMonth => 'Отличный месяц';
+
+  @override
+  String get keepGoingMotivation => 'Продолжайте в том же духе!';
+
+  @override
+  String get daysNormal => 'дней в норме';
+
+  @override
+  String get electrolyteBalance => 'Электролитный баланс требует внимания';
+
+  @override
+  String get caffeineWarning =>
+      'Были дни с превышением безопасной дозы (400мг)';
+
+  @override
+  String get sugarFrequentExcess =>
+      'Частое превышение нормы сахара влияет на гидратацию';
+
+  @override
+  String get averagePerDayShort => 'в день';
+
+  @override
+  String get highWarning => 'Высокое';
+
+  @override
+  String get normalStatus => 'Норма';
+
+  @override
+  String improvementToEnd(int percent) {
+    return 'Улучшение к концу месяца на $percent%';
+  }
+
+  @override
+  String workoutActivity(int percent, String hours) {
+    return '$percent% дней с тренировками ($hoursч)';
+  }
+
+  @override
+  String coffeeAverage(String avg) {
+    return 'В среднем $avg чашек/день';
+  }
+
+  @override
+  String sobrietyPercent(int percent) {
+    return '$percent% дней без алкоголя';
+  }
+
+  @override
+  String get daySummary => 'Сводка дня';
+
+  @override
+  String get records => 'Записей';
+
+  @override
+  String waterGoalAchievement(int percent) {
+    return 'Достижение цели воды: $percent%';
+  }
+
+  @override
+  String workoutSessions(int count) {
+    return 'Тренировки: $count сессий';
+  }
+
+  @override
+  String get index => 'Индекс';
+
+  @override
+  String get status => 'Статус';
+
+  @override
+  String get moderateRisk => 'Умеренный риск';
+
+  @override
+  String get excess => 'Превышение';
+
+  @override
+  String get whoLimit => 'Лимит ВОЗ: 50г/день';
+
+  @override
+  String stability(int percent) {
+    return 'Стабильность в $percent% дней';
+  }
+
+  @override
+  String goodHydration(int percent) {
+    return '$percent% дней с хорошей гидратацией';
   }
 }

@@ -84,7 +84,7 @@ const AdMobConfig adMobAndroidConfig = AdMobConfig(
   ),
   bannerId: String.fromEnvironment(
     'ADMOB_ANDROID_BANNER_ID',
-    defaultValue: '93ba29d40d0c9ed1',
+    defaultValue: '356d0deda25f54dd',
   ),
 );
 
@@ -104,7 +104,7 @@ const AdMobConfig adMobIosConfig = AdMobConfig(
   ),
   bannerId: String.fromEnvironment(
     'ADMOB_IOS_BANNER_ID',
-    defaultValue: '637af50c7df33543',
+    defaultValue: '0612cee9830f108e',
   ),
 );
 
