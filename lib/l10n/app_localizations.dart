@@ -1321,7 +1321,7 @@ abstract class AppLocalizations {
   /// No description provided for @perfectDays.
   ///
   /// In en, this message translates to:
-  /// **'Days with perfect goal: {count}'**
+  /// **'{count} days'**
   String perfectDays(int count);
 
   /// No description provided for @currentStreak.
@@ -5035,7 +5035,7 @@ abstract class AppLocalizations {
   /// No description provided for @keepGoing.
   ///
   /// In en, this message translates to:
-  /// **'Keep going'**
+  /// **'Keep going!'**
   String get keepGoing;
 
   /// No description provided for @startDrinking.
@@ -7378,6 +7378,12 @@ abstract class AppLocalizations {
   /// **'Celery'**
   String get foodCelery;
 
+  /// Potato vegetable
+  ///
+  /// In en, this message translates to:
+  /// **'Potato'**
+  String get foodPotato;
+
   /// Chicken soup
   ///
   /// In en, this message translates to:
@@ -7593,6 +7599,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Whopper'**
   String get foodBurgerKing;
+
+  /// Sausage
+  ///
+  /// In en, this message translates to:
+  /// **'Sausage'**
+  String get foodSausage;
+
+  /// Kefir
+  ///
+  /// In en, this message translates to:
+  /// **'Kefir'**
+  String get foodKefir;
+
+  /// Baked fermented milk
+  ///
+  /// In en, this message translates to:
+  /// **'Ryazhenka'**
+  String get foodRyazhenka;
+
+  /// Döner kebab
+  ///
+  /// In en, this message translates to:
+  /// **'Döner'**
+  String get foodDoner;
+
+  /// Shawarma wrap
+  ///
+  /// In en, this message translates to:
+  /// **'Shawarma'**
+  String get foodShawarma;
+
+  /// Beet soup
+  ///
+  /// In en, this message translates to:
+  /// **'Borscht'**
+  String get foodBorscht;
+
+  /// Japanese noodle soup
+  ///
+  /// In en, this message translates to:
+  /// **'Ramen'**
+  String get foodRamen;
+
+  /// Cabbage
+  ///
+  /// In en, this message translates to:
+  /// **'Cabbage'**
+  String get foodCabbage;
+
+  /// Pea soup
+  ///
+  /// In en, this message translates to:
+  /// **'Pea Soup'**
+  String get foodPeaSoup;
+
+  /// Russian soup with pickles and meat
+  ///
+  /// In en, this message translates to:
+  /// **'Solyanka'**
+  String get foodSolyanka;
 
   /// Meals counter
   ///
@@ -7993,13 +8059,13 @@ abstract class AppLocalizations {
   /// No description provided for @excellentConsistency.
   ///
   /// In en, this message translates to:
-  /// **'Excellent consistency'**
+  /// **'⭐ Excellent consistency'**
   String get excellentConsistency;
 
   /// No description provided for @goodResults.
   ///
   /// In en, this message translates to:
-  /// **'Good results'**
+  /// **'📊 Good results'**
   String get goodResults;
 
   /// No description provided for @positiveImprovement.
@@ -8011,25 +8077,25 @@ abstract class AppLocalizations {
   /// No description provided for @physicalActivity.
   ///
   /// In en, this message translates to:
-  /// **'Physical activity'**
+  /// **'💪 Physical activity'**
   String get physicalActivity;
 
   /// No description provided for @coffeeConsumption.
   ///
   /// In en, this message translates to:
-  /// **'Coffee consumption'**
+  /// **'☕ Coffee consumption'**
   String get coffeeConsumption;
 
   /// No description provided for @excellentSobriety.
   ///
   /// In en, this message translates to:
-  /// **'Excellent sobriety'**
+  /// **'🎯 Excellent sobriety'**
   String get excellentSobriety;
 
   /// No description provided for @excellentMonth.
   ///
   /// In en, this message translates to:
-  /// **'Excellent month'**
+  /// **'✨ Excellent month'**
   String get excellentMonth;
 
   /// No description provided for @keepGoingMotivation.
@@ -8169,6 +8235,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{percent}% days with good hydration'**
   String goodHydration(int percent);
+
+  /// No description provided for @daysInNorm.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days in norm'**
+  String daysInNorm(int count);
+
+  /// No description provided for @consistencyDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% days with good hydration'**
+  String consistencyDays(int percent);
+
+  /// No description provided for @stabilityDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Stability in {percent}% of days'**
+  String stabilityDays(int percent);
+
+  /// No description provided for @monthEndImprovement.
+  ///
+  /// In en, this message translates to:
+  /// **'End-of-month improvement by {percent}%'**
+  String monthEndImprovement(int percent);
+
+  /// No description provided for @workoutDaysPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% days with workouts ({hours}h)'**
+  String workoutDaysPercent(int percent, String hours);
+
+  /// No description provided for @averageCupsPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Average {avgCups} cups/day'**
+  String averageCupsPerDay(String avgCups);
+
+  /// No description provided for @soberDaysPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% days without alcohol'**
+  String soberDaysPercent(int percent);
+
+  /// No description provided for @moderateRiskStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status: Moderate risk'**
+  String get moderateRiskStatus;
+
+  /// No description provided for @high.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get high;
+
+  /// No description provided for @whoLimitPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'WHO limit: 50g/day'**
+  String get whoLimitPerDay;
 }
 
 class _AppLocalizationsDelegate

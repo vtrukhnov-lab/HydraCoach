@@ -584,27 +584,24 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
     );
   }
 
-  // Компоновка для планшетов (с фиксированной шириной карточек)
+  // Компоновка для планшетов (адаптивная ширина карточек)
   Widget _buildTabletLayout(List<QuickFavorite?> favorites, bool isPro, bool isDarkMode, AppLocalizations l10n, double cardHeight, double cardSpacing) {
-    const double cardWidth = 200.0; // Фиксированная ширина карточки для планшетов
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: List.generate(3, (index) {
         final isLocked = !isPro && index > 0;
-        final favorite = favorites[index];
+        final favorite = favorites.length > index ? favorites[index] : null;
 
-        return Container(
-          width: cardWidth,
-          margin: EdgeInsets.only(
-            left: index == 0 ? 0 : cardSpacing,
-            right: index == 2 ? 0 : cardSpacing,
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: cardSpacing / 2),
+            child: isLocked
+                ? _buildProLockedSlot(isDarkMode, l10n, cardHeight)
+                : favorite != null
+                    ? _buildFilledSlot(favorite, index, isDarkMode, cardHeight)
+                    : _buildEmptySlot(l10n, isDarkMode, cardHeight),
           ),
-          child: isLocked
-              ? _buildProLockedSlot(isDarkMode, l10n, cardHeight)
-              : favorite != null
-                  ? _buildFilledSlot(favorite, index, isDarkMode, cardHeight)
-                  : _buildEmptySlot(l10n, isDarkMode, cardHeight),
         );
       }),
     );

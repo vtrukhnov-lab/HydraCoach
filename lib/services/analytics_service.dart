@@ -424,7 +424,7 @@ class AnalyticsService {
       name: 'paywall_trial_toggled',
       parameters: {
         'source': source,
-        'enabled': enabled,
+        'enabled': enabled ? 'true' : 'false',
       },
     );
   }
@@ -469,49 +469,11 @@ class AnalyticsService {
       parameters: {
         'product': product,
         'source': source,
-        'trial_enabled': trialEnabled,
+        'trial_enabled': trialEnabled ? 'true' : 'false',
       },
     );
   }
 
-  /// Subscription started - CRITICAL FOR APPSFLYER ROI360
-  Future<void> logSubscriptionStarted({
-    required String product,
-    required bool isTrial,
-    double? price,
-    String? currency,
-  }) async {
-    await logEvent(
-      name: 'subscription_started',
-      parameters: {
-        'product': product, // 'monthly', 'annual', 'lifetime'
-        'is_trial': isTrial,
-        'timestamp': DateTime.now().toIso8601String(),
-        if (price != null) 'price': price,
-        if (currency != null) 'currency': currency,
-      },
-    );
-
-    // Дополнительно логируем в AppsFlyer как конверсионное событие
-    if (price != null && currency != null && !isTrial) {
-      await _appsFlyer.logPurchase(
-        product: product,
-        revenue: price,
-        currency: currency,
-        orderId: 'sub_${DateTime.now().millisecondsSinceEpoch}',
-        additionalParams: {
-          'subscription_type': product,
-          'is_trial': isTrial,
-          'analytics_source': 'subscription_started',
-        },
-      );
-    }
-
-    // Также отправляем завершение регистрации, если это первая подписка
-    if (!isTrial) {
-      await _appsFlyer.logCompleteRegistration(method: 'subscription');
-    }
-  }
 
   /// Результат покупки подписки
   Future<void> logSubscriptionPurchaseResult({
@@ -526,8 +488,8 @@ class AnalyticsService {
       parameters: {
         'product': product,
         'source': source,
-        'success': success,
-        'trial_enabled': trialEnabled,
+        'success': success ? 'true' : 'false',
+        'trial_enabled': trialEnabled ? 'true' : 'false',
         if (error != null && error.isNotEmpty)
           'error': error.substring(0, 80),
       },
@@ -555,7 +517,7 @@ class AnalyticsService {
       name: 'subscription_restore_result',
       parameters: {
         'source': source,
-        'success': success,
+        'success': success ? 'true' : 'false',
       },
     );
   }

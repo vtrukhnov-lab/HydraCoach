@@ -663,7 +663,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String perfectDays(int count) {
-    return 'Days with perfect goal: $count';
+    return '$count days';
   }
 
   @override
@@ -2678,7 +2678,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get halfwayThere => 'Halfway there';
 
   @override
-  String get keepGoing => 'Keep going';
+  String get keepGoing => 'Keep going!';
 
   @override
   String get startDrinking => 'Start drinking';
@@ -3918,6 +3918,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get foodCelery => 'Celery';
 
   @override
+  String get foodPotato => 'Potato';
+
+  @override
   String get foodChickenSoup => 'Chicken Soup';
 
   @override
@@ -4024,6 +4027,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get foodBurgerKing => 'Whopper';
+
+  @override
+  String get foodSausage => 'Sausage';
+
+  @override
+  String get foodKefir => 'Kefir';
+
+  @override
+  String get foodRyazhenka => 'Ryazhenka';
+
+  @override
+  String get foodDoner => 'Döner';
+
+  @override
+  String get foodShawarma => 'Shawarma';
+
+  @override
+  String get foodBorscht => 'Borscht';
+
+  @override
+  String get foodRamen => 'Ramen';
+
+  @override
+  String get foodCabbage => 'Cabbage';
+
+  @override
+  String get foodPeaSoup => 'Pea Soup';
+
+  @override
+  String get foodSolyanka => 'Solyanka';
 
   @override
   String get meals => 'meals';
@@ -4237,25 +4270,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get allNormal => 'All normal';
 
   @override
-  String get excellentConsistency => 'Excellent consistency';
+  String get excellentConsistency => '⭐ Excellent consistency';
 
   @override
-  String get goodResults => 'Good results';
+  String get goodResults => '📊 Good results';
 
   @override
   String get positiveImprovement => 'Positive improvement';
 
   @override
-  String get physicalActivity => 'Physical activity';
+  String get physicalActivity => '💪 Physical activity';
 
   @override
-  String get coffeeConsumption => 'Coffee consumption';
+  String get coffeeConsumption => '☕ Coffee consumption';
 
   @override
-  String get excellentSobriety => 'Excellent sobriety';
+  String get excellentSobriety => '🎯 Excellent sobriety';
 
   @override
-  String get excellentMonth => 'Excellent month';
+  String get excellentMonth => '✨ Excellent month';
 
   @override
   String get keepGoingMotivation => 'Keep it up!';
@@ -4341,4 +4374,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String goodHydration(int percent) {
     return '$percent% days with good hydration';
   }
+
+  @override
+  String daysInNorm(int count) {
+    return '$count days in norm';
+  }
+
+  @override
+  String consistencyDays(int percent) {
+    return '$percent% days with good hydration';
+  }
+
+  @override
+  String stabilityDays(int percent) {
+    return 'Stability in $percent% of days';
+  }
+
+  @override
+  String monthEndImprovement(int percent) {
+    return 'End-of-month improvement by $percent%';
+  }
+
+  @override
+  String workoutDaysPercent(int percent, String hours) {
+    return '$percent% days with workouts (${hours}h)';
+  }
+
+  @override
+  String averageCupsPerDay(String avgCups) {
+    return 'Average $avgCups cups/day';
+  }
+
+  @override
+  String soberDaysPercent(int percent) {
+    return '$percent% days without alcohol';
+  }
+
+  @override
+  String get moderateRiskStatus => 'Status: Moderate risk';
+
+  @override
+  String get high => 'High';
+
+  @override
+  String get whoLimitPerDay => 'WHO limit: 50g/day';
 }

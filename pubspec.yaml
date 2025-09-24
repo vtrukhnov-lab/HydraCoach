@@ -2,8 +2,8 @@ name: hydracoach
 description: "Smart hydration tracking with electrolyte balance"
 publish_to: 'none'
 
-# Версия приложения: 2.0.8 (settings cleanup and imperial system fixes) + номер сборки 1
-version: 2.0.8+30 # версия+номер_сборки
+# Версия приложения: 2.0.9 (food cards PRO lock and BigMac fixes) + номер сборки 31
+version: 2.0.9+31 # версия+номер_сборки
 
 environment:
   sdk: ^3.9.0

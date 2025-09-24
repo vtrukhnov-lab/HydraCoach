@@ -74,7 +74,7 @@ class HotDrinkItems {
         getName: (l10n) => l10n.cappuccino,
         icon: '☕',
         properties: {
-          'type': 'cappuccino',
+          'type': 'coffee',
           'defaultVolume': {'metric': 180, 'imperial': 6},
           'caffeineMgPer100ml': 42,
           'sugar': 10.0,  // ~10g from milk (180ml drink, ~120ml milk)
@@ -87,7 +87,7 @@ class HotDrinkItems {
         getName: (l10n) => l10n.latte,
         icon: '☕',
         properties: {
-          'type': 'latte',
+          'type': 'coffee',
           'defaultVolume': {'metric': 250, 'imperial': 8},
           'caffeineMgPer100ml': 30,
           'sugar': 17.0,  // ~17g from milk (250ml drink, ~200ml milk)
@@ -100,7 +100,7 @@ class HotDrinkItems {
         getName: (l10n) => 'Flat White',
         icon: '☕',
         properties: {
-          'type': 'flat_white',
+          'type': 'coffee',
           'defaultVolume': {'metric': 160, 'imperial': 5},
           'caffeineMgPer100ml': 50,
           'sugar': 9.0,  // ~9g from milk (160ml drink, ~110ml milk)
@@ -113,7 +113,7 @@ class HotDrinkItems {
         getName: (l10n) => 'Macchiato',
         icon: '☕',
         properties: {
-          'type': 'macchiato',
+          'type': 'coffee',
           'defaultVolume': {'metric': 60, 'imperial': 2},
           'caffeineMgPer100ml': 150,
           'sugar': 2.0,  // ~2g from small amount of milk foam
@@ -126,7 +126,7 @@ class HotDrinkItems {
         getName: (l10n) => 'Mocha',
         icon: '☕',
         properties: {
-          'type': 'mocha',
+          'type': 'coffee',
           'defaultVolume': {'metric': 250, 'imperial': 8},
           'caffeineMgPer100ml': 35,
           'sugar': 20.0,  // Mocha contains chocolate/sugar + milk
@@ -139,7 +139,7 @@ class HotDrinkItems {
         getName: (l10n) => 'Turkish Coffee',
         icon: '☕',
         properties: {
-          'type': 'turkish_coffee',
+          'type': 'coffee',
           'defaultVolume': {'metric': 60, 'imperial': 2},
           'caffeineMgPer100ml': 80,
         },
@@ -151,7 +151,7 @@ class HotDrinkItems {
         getName: (l10n) => 'Decaf Coffee',
         icon: '☕',
         properties: {
-          'type': 'decaf_coffee',
+          'type': 'coffee',
           'defaultVolume': {'metric': 200, 'imperial': 8},
           'caffeineMgPer100ml': 2,
         },

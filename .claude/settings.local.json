@@ -64,7 +64,14 @@
       "Bash(nc localhost 52445)",
       "Bash(emulator:*)",
       "Bash(printf \"R\\n\")",
-      "Bash(nc localhost 53032)"
+      "Bash(nc localhost 53032)",
+      "Bash(nc localhost 57274)",
+      "Bash(nc localhost 51290)",
+      "Bash(copy:*)",
+      "Bash(nc localhost 62659)",
+      "Bash(printf \"r\\n\")",
+      "Bash(nc localhost 56079)",
+      "Bash(del nul)"
     ],
     "deny": [],
     "ask": []

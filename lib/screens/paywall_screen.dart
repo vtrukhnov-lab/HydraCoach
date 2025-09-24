@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:hydracoach/l10n/app_localizations.dart';
 import '../services/analytics_service.dart';
 import '../services/remote_config_service.dart';
 import '../services/subscription_service.dart';
+import '../services/url_launcher_service.dart';
 import '../widgets/ion_character.dart';
 import 'pro_welcome_screen.dart';
 
@@ -56,6 +58,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
   bool _trialEnabledSwitch = true;
   bool _showAllFeatures = false;
   bool _dismissLogged = false;
+  bool _waitingForPurchase = false; // Флаг ожидания результата покупки
+  Timer? _purchaseCheckTimer; // Таймер для проверки статуса покупки
 
   // pricing loaded from Google Play Store
   Map<Plan, PricingPack> _pricing = {};
@@ -69,6 +73,70 @@ class _PaywallScreenState extends State<PaywallScreen> {
       source: widget.source,
       variant: widget.variant,
     );
+
+    // Слушаем изменения PRO статуса для обработки результата покупки
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+      subscriptionProvider.addListener(_onProStatusChanged);
+    });
+  }
+
+
+  // Обработчик изменения PRO статуса
+  void _onProStatusChanged() {
+    print('🔔 PRO status changed - waiting: $_waitingForPurchase');
+    if (!_waitingForPurchase) return;
+
+    final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+    print('🔔 PRO status: ${subscriptionProvider.isPro}');
+    if (subscriptionProvider.isPro) {
+      print('✅ Purchase successful! Showing ProWelcomeScreen');
+      _waitingForPurchase = false;
+      _handlePurchaseSuccess();
+    }
+  }
+
+  // Запуск таймера для проверки PRO статуса (backup на случай если listener не сработает)
+  void _startPurchaseCheckTimer() {
+    _purchaseCheckTimer?.cancel();
+    _purchaseCheckTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!_waitingForPurchase || !mounted) {
+        timer.cancel();
+        return;
+      }
+
+      final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+      print('⏰ Timer check - PRO status: ${subscriptionProvider.isPro}');
+      if (subscriptionProvider.isPro) {
+        timer.cancel();
+        _waitingForPurchase = false;
+        _handlePurchaseSuccess();
+      }
+
+      // Остановить через 30 секунд если статус не изменился
+      if (timer.tick >= 30) {
+        print('⏰ Timer expired - stopping purchase check');
+        timer.cancel();
+        setState(() => _waitingForPurchase = false);
+      }
+    });
+  }
+
+  // Обработка успешной покупки
+  Future<void> _handlePurchaseSuccess() async {
+    if (!mounted) return;
+
+    print('🎉 Showing ProWelcomeScreen');
+    // Показываем экран приветствия
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const ProWelcomeScreen(),
+        fullscreenDialog: true,
+      ),
+    );
+
+    _logPaywallDismiss('purchase_success');
+    Navigator.of(context).pop(true);
   }
 
   @override
@@ -76,6 +144,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
     if (!_dismissLogged) {
       _logPaywallDismiss('dispose');
     }
+    // Убираем listener и таймер
+    _purchaseCheckTimer?.cancel();
+    final subscriptionProvider = Provider.of<SubscriptionProvider>(context, listen: false);
+    subscriptionProvider.removeListener(_onProStatusChanged);
     super.dispose();
   }
 
@@ -770,75 +842,39 @@ class _PaywallScreenState extends State<PaywallScreen> {
           productId = 'hydracoach_pro_lifetime'; // отдельный one-time purchase продукт
           break;
         case Plan.annual:
-          productId = 'hydracoach_pro_yearly';
+          // Выбираем правильный продукт в зависимости от переключателя trial
+          productId = (_showTrialSwitch && _trialEnabledSwitch)
+              ? 'hydracoach_pro_yearly'
+              : 'hydracoach_pro_yearly_no_trial';
           break;
         case Plan.monthly:
           productId = 'hydracoach_pro_monthly';
           break;
       }
 
-      bool success = false;
+      // Всегда инициируем покупку через Google Play
+      print('🛍️ Initiating purchase for plan: ${_selected.name}');
+      print('📦 Product ID: $productId');
 
-      // Проверяем нужно ли запустить trial вместо покупки
-      if (trialEnabledForAnalytics && subscriptionProvider.canStartTrial && _selected == Plan.annual) {
-        print('🎯 Starting free trial instead of purchase');
-
-        _analytics.logSubscriptionPurchaseAttempt(
-          product: 'trial_${_selected.name}',
-          source: widget.source,
-          trialEnabled: true,
-        );
-
-        success = await subscriptionProvider.startFreeTrial();
-      } else {
-        // Обычная покупка через Google Play
-        print('🛍️ Initiating purchase for plan: ${_selected.name}');
-        print('📦 Product ID: $productId');
-
-        _analytics.logSubscriptionPurchaseAttempt(
-          product: _selected.name,
-          source: widget.source,
-          trialEnabled: false,
-        );
-
-        success = await subscriptionProvider.purchaseSubscription(productId);
-      }
-
-      _analytics.logSubscriptionPurchaseResult(
+      _analytics.logSubscriptionPurchaseAttempt(
         product: _selected.name,
         source: widget.source,
-        success: success,
         trialEnabled: trialEnabledForAnalytics,
       );
 
-      if (!mounted) return;
+      // Устанавливаем флаг ожидания покупки
+      print('🛍️ Setting _waitingForPurchase = true for $productId');
+      setState(() => _waitingForPurchase = true);
 
-      if (success) {
-        // Покупка успешна - показываем экран приветствия и закрываем paywall
-        await Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => const ProWelcomeScreen(),
-            fullscreenDialog: true,
-          ),
-        );
+      // Инициируем покупку - результат придет через purchaseStream
+      await subscriptionProvider.purchaseSubscription(productId);
 
-        _logPaywallDismiss('purchase_success');
-        Navigator.of(context).pop(true);
-        print('✅ Purchase completed successfully!');
-      } else {
-        // Покупка не удалась
-        if (kDebugMode) {
-          print('❌ Purchase was not successful');
-        }
-        // Показываем сообщение об ошибке пользователю
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.purchaseFailed('Purchase was not completed')),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
+      // Запускаем таймер как дополнительную защиту на случай если listener не сработает
+      _startPurchaseCheckTimer();
+
+      // Не проверяем success сразу - ждем результата из purchaseStream
+      // purchaseSubscription только инициирует покупку, реальный результат асинхронный
+      return; // Выходим из метода, результат обработается в _onProStatusChanged
     } catch (e) {
       if (!mounted) return;
       print('❌ Purchase error: $e');
@@ -922,13 +958,38 @@ class _PaywallScreenState extends State<PaywallScreen> {
     }
   }
 
-  void _openPrivacy() {
-    // TODO: open privacy URL
+  Future<void> _openPrivacy() async {
     print('📄 Opening Privacy Policy...');
+    final success = await UrlLauncherService.openPrivacyPolicy();
+
+    if (!mounted) return;
+
+    if (!success) {
+      final l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.linkCopiedToClipboard),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
-  void _openTerms() {
-    // TODO: open terms URL
-    print('📄 Opening Terms of Use...');
+  Future<void> _openTerms() async {
+    print('📄 Opening Terms of Service...');
+    final success = await UrlLauncherService.openTermsOfService();
+
+    if (!mounted) return;
+
+    if (!success) {
+      final l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.linkCopiedToClipboard),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
+
 }

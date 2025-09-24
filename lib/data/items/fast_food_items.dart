@@ -30,9 +30,9 @@ class FastFoodItems {
       properties: {
         'type': 'fast_food',
         'defaultWeight': {'metric': 150, 'imperial': 5.3}, // g/oz (medium burger)
-        'waterPercentage': 0.49, // 49% water
+        'waterPercentage': 0.15, // 15% water - фастфуд обезвоживает, не увлажняет
         'caloriesPer100g': 295,
-        'sugarPer100g': 3.3,
+        'sugarPer100g': 8.5, // Больше сахара из булочки и соуса Big Mac
         'sodium': 396, // Высокое содержание натрия
         'potassium': 267,
         'magnesium': 21,
@@ -167,7 +167,7 @@ class FastFoodItems {
   static CatalogItem _doner() {
     return CatalogItem(
       id: 'fastfood_doner',
-      getName: (l10n) => l10n.foodDonut,
+      getName: (l10n) => l10n.foodDoner,
       icon: '🥙',
       properties: {
         'type': 'fast_food',
@@ -187,7 +187,7 @@ class FastFoodItems {
   static CatalogItem _shawarma() {
     return CatalogItem(
       id: 'fastfood_shawarma',
-      getName: (l10n) => l10n.foodBurgerKing,
+      getName: (l10n) => l10n.foodShawarma,
       icon: '🌯',
       properties: {
         'type': 'fast_food',

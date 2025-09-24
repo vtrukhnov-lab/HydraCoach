@@ -127,7 +127,7 @@ class MeatItems {
   static CatalogItem _sausage() {
     return CatalogItem(
       id: 'meat_sausage',
-      getName: (l10n) => l10n.foodTuna,
+      getName: (l10n) => l10n.foodSausage,
       icon: '🌭',
       properties: {
         'type': 'processed_meat',

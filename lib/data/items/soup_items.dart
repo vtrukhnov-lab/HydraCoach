@@ -87,7 +87,7 @@ class SoupItems {
   static CatalogItem _borscht() {
     return CatalogItem(
       id: 'soup_borscht',
-      getName: (l10n) => l10n.foodMinestrone,
+      getName: (l10n) => l10n.foodBorscht,
       icon: '🥬',
       properties: {
         'type': 'soup',
@@ -107,7 +107,7 @@ class SoupItems {
   static CatalogItem _ramen() {
     return CatalogItem(
       id: 'soup_ramen',
-      getName: (l10n) => l10n.foodBeefStew,
+      getName: (l10n) => l10n.foodRamen,
       icon: '🍜',
       properties: {
         'type': 'soup',
@@ -167,8 +167,8 @@ class SoupItems {
   static CatalogItem _peaSoup() {
     return CatalogItem(
       id: 'soup_pea',
-      getName: (l10n) => l10n.foodLentilSoup,
-      icon: '🟢',
+      getName: (l10n) => l10n.foodPeaSoup,
+      icon: '🫛',
       properties: {
         'type': 'soup',
         'defaultWeight': {'metric': 240, 'imperial': 8.5}, // g/oz (1 cup)
@@ -187,8 +187,8 @@ class SoupItems {
   static CatalogItem _solyanka() {
     return CatalogItem(
       id: 'soup_solyanka',
-      getName: (l10n) => l10n.foodOnionSoup,
-      icon: '🥒',
+      getName: (l10n) => l10n.foodSolyanka,
+      icon: '🧅',
       properties: {
         'type': 'soup',
         'defaultWeight': {'metric': 240, 'imperial': 8.5}, // g/oz (1 cup)

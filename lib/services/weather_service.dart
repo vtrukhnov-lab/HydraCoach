@@ -30,7 +30,7 @@ class WeatherService extends ChangeNotifier {
 
   WeatherService() {
     _loadCachedWeather();
-    loadWeather();
+    // loadWeather(); // Убрали автоматическую загрузку - теперь вызывается только при клике на weather card
   }
 
   /// Load cached weather data immediately for consistent HRI calculation

@@ -87,7 +87,7 @@ class VegetableItems {
   static CatalogItem _cabbage() {
     return CatalogItem(
       id: 'vegetable_cabbage',
-      getName: (l10n) => l10n.foodSpinach,
+      getName: (l10n) => l10n.foodCabbage,
       icon: '🥬',
       properties: {
         'type': 'vegetable',
@@ -187,7 +187,7 @@ class VegetableItems {
   static CatalogItem _potato() {
     return CatalogItem(
       id: 'vegetable_potato',
-      getName: (l10n) => l10n.foodCelery,
+      getName: (l10n) => l10n.foodPotato,
       icon: '🥔',
       properties: {
         'type': 'vegetable',

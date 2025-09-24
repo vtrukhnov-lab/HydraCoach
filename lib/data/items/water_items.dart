@@ -168,7 +168,7 @@ class WaterItems {
       CatalogItem(
         id: 'water_lime',
         getName: (l10n) => l10n.limeWater,
-        icon: '🈯',
+        icon: '🟢',
         properties: {
           'defaultVolume': {'metric': 250, 'imperial': 8},
           'hydration': 1.0,

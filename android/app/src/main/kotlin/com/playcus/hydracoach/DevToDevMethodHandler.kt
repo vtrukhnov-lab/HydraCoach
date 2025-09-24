@@ -127,31 +127,60 @@ class DevToDevMethodHandler(private val context: Context) {
                 method.invoke(instance, eventName)
                 Log.d(TAG, "DevToDev event logged successfully: $eventName")
             } else {
-                // Create DTDCustomEventParameters
-                val paramClass = Class.forName("com.devtodev.analytics.external.DTDCustomEventParameters")
-                val paramInstance = paramClass.getDeclaredConstructor().newInstance()
+                // Try different parameter class names for different SDK versions (correct order based on v2.5.1)
+                val paramClassNames = listOf(
+                    "com.devtodev.analytics.external.analytics.DTDCustomEventParameters",
+                    "com.devtodev.analytics.external.DTDCustomEventParameters",
+                    "com.devtodev.analytics.DTDCustomEventParameters",
+                    "com.devtodev.DTDCustomEventParameters"
+                )
 
-                // Add parameters
-                for ((key, value) in parameters) {
-                    when (value) {
-                        is String -> {
-                            val method = paramClass.getDeclaredMethod("add", String::class.java, String::class.java)
-                            method.invoke(paramInstance, key, value)
+                var success = false
+                for (paramClassName in paramClassNames) {
+                    try {
+                        val paramClass = Class.forName(paramClassName)
+                        val paramInstance = paramClass.getDeclaredConstructor().newInstance()
+
+                        // Add parameters
+                        for ((key, value) in parameters) {
+                            when (value) {
+                                is String -> {
+                                    val method = paramClass.getDeclaredMethod("add", String::class.java, String::class.java)
+                                    method.invoke(paramInstance, key, value)
+                                }
+                                is Number -> {
+                                    // Try both Long and Int variants
+                                    try {
+                                        val method = paramClass.getDeclaredMethod("add", String::class.java, Long::class.java)
+                                        method.invoke(paramInstance, key, value.toLong())
+                                    } catch (e: Exception) {
+                                        val method = paramClass.getDeclaredMethod("add", String::class.java, Int::class.java)
+                                        method.invoke(paramInstance, key, value.toInt())
+                                    }
+                                }
+                                is Boolean -> {
+                                    val method = paramClass.getDeclaredMethod("add", String::class.java, Boolean::class.java)
+                                    method.invoke(paramInstance, key, value)
+                                }
+                            }
                         }
-                        is Number -> {
-                            val method = paramClass.getDeclaredMethod("add", String::class.java, Long::class.java)
-                            method.invoke(paramInstance, key, value.toLong())
-                        }
-                        is Boolean -> {
-                            val method = paramClass.getDeclaredMethod("add", String::class.java, Boolean::class.java)
-                            method.invoke(paramInstance, key, value)
-                        }
+
+                        val method = clazz.getDeclaredMethod("customEvent", String::class.java, paramClass)
+                        method.invoke(instance, eventName, paramInstance)
+                        Log.d(TAG, "DevToDev event with params logged successfully: $eventName using $paramClassName")
+                        success = true
+                        break
+                    } catch (e: Exception) {
+                        Log.v(TAG, "Failed with param class $paramClassName: ${e.message}")
                     }
                 }
 
-                val method = clazz.getDeclaredMethod("customEvent", String::class.java, paramClass)
-                method.invoke(instance, eventName, paramInstance)
-                Log.d(TAG, "DevToDev event with params logged successfully: $eventName")
+                if (!success) {
+                    // Fallback: log event without parameters
+                    Log.w(TAG, "Could not create parameters object, logging event without params")
+                    val method = clazz.getDeclaredMethod("customEvent", String::class.java)
+                    method.invoke(instance, eventName)
+                }
             }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to log DevToDev event: ${e.message}")

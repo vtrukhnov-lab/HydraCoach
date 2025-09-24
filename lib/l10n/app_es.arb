@@ -2035,6 +2035,10 @@
 "@foodCelery": {
   "description": "Celery vegetable"
 },
+"foodPotato": "Papa",
+"@foodPotato": {
+  "description": "Potato vegetable"
+},
 
 "foodChickenSoup": "Sopa de Pollo",
 "@foodChickenSoup": {
@@ -2182,6 +2186,46 @@
 "foodBurgerKing": "Whopper",
 "@foodBurgerKing": {
   "description": "Burger King Whopper"
+},
+"foodSausage": "Salchicha",
+"@foodSausage": {
+  "description": "Sausage"
+},
+"foodKefir": "Kéfir",
+"@foodKefir": {
+  "description": "Kefir"
+},
+"foodRyazhenka": "Ryazhenka",
+"@foodRyazhenka": {
+  "description": "Baked fermented milk"
+},
+"foodDoner": "Döner",
+"@foodDoner": {
+  "description": "Döner kebab"
+},
+"foodShawarma": "Shawarma",
+"@foodShawarma": {
+  "description": "Shawarma wrap"
+},
+"foodBorscht": "Borscht",
+"@foodBorscht": {
+  "description": "Beet soup"
+},
+"foodRamen": "Ramen",
+"@foodRamen": {
+  "description": "Japanese noodle soup"
+},
+"foodCabbage": "Repollo",
+"@foodCabbage": {
+  "description": "Cabbage"
+},
+"foodPeaSoup": "Sopa de Guisantes",
+"@foodPeaSoup": {
+  "description": "Pea soup"
+},
+"foodSolyanka": "Solyanka",
+"@foodSolyanka": {
+  "description": "Russian soup with pickles and meat"
 },
 "meals": "comidas",
 "@meals": {
@@ -2434,5 +2478,83 @@
 "privacyPolicyOpened": "Política de privacidad abierta",
 "@privacyPolicyOpened": {
   "description": "Message when privacy policy opens successfully"
-}
+},
+"daysInNorm": "{count} días en norma",
+"@daysInNorm": {
+  "placeholders": {
+    "count": {
+      "type": "int"
+    }
+  }
+},
+"perfectDays": "{count} días",
+"@perfectDays": {
+  "placeholders": {
+    "count": {
+      "type": "int"
+    }
+  }
+},
+"excellentConsistency": "⭐ Excelente consistencia",
+"consistencyDays": "{percent}% días con buena hidratación",
+"@consistencyDays": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"goodResults": "📊 Buenos resultados",
+"stabilityDays": "Estabilidad en {percent}% de días",
+"@stabilityDays": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"positiveTrend": "📈 Tendencia positiva",
+"monthEndImprovement": "Mejora a fin de mes del {percent}%",
+"@monthEndImprovement": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"physicalActivity": "💪 Actividad física",
+"workoutDaysPercent": "{percent}% días con entrenamientos ({hours}h)",
+"@workoutDaysPercent": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    },
+    "hours": {
+      "type": "String"
+    }
+  }
+},
+"coffeeConsumption": "☕ Consumo de café",
+"averageCupsPerDay": "Promedio {avgCups} tazas/día",
+"@averageCupsPerDay": {
+  "placeholders": {
+    "avgCups": {
+      "type": "String"
+    }
+  }
+},
+"excellentSobriety": "🎯 Excelente sobriedad",
+"soberDaysPercent": "{percent}% días sin alcohol",
+"@soberDaysPercent": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"excellentMonth": "✨ Excelente mes",
+"keepGoing": "¡Sigue así!",
+"moderateRiskStatus": "Estado: Riesgo moderado",
+"high": "Alto",
+"whoLimitPerDay": "Límite OMS: 50g/día"
 }

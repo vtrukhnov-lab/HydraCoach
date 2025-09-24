@@ -46,7 +46,7 @@ class DairyItems {
     return CatalogItem(
       id: 'dairy_yogurt',
       getName: (l10n) => l10n.foodYogurt,
-      icon: '🧈',
+      icon: '🥣',
       properties: {
         'type': 'dairy',
         'defaultWeight': {'metric': 170, 'imperial': 6.0}, // g/oz (3/4 cup)
@@ -87,7 +87,7 @@ class DairyItems {
   static CatalogItem _kefir() {
     return CatalogItem(
       id: 'dairy_kefir',
-      getName: (l10n) => l10n.foodMozzarella,
+      getName: (l10n) => l10n.foodKefir,
       icon: '🥛',
       properties: {
         'type': 'dairy',
@@ -187,7 +187,7 @@ class DairyItems {
   static CatalogItem _ryazhenka() {
     return CatalogItem(
       id: 'dairy_ryazhenka',
-      getName: (l10n) => l10n.foodParmesan,
+      getName: (l10n) => l10n.foodRyazhenka,
       icon: '🥛',
       properties: {
         'type': 'dairy',

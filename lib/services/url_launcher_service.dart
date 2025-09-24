@@ -7,6 +7,7 @@ class UrlLauncherService {
 
   /// Константы ссылок приложения
   static const String privacyPolicyUrl = 'https://www.playcus.com/privacy-policy';
+  static const String termsOfServiceUrl = 'https://www.playcus.com/terms-of-service';
   static const String websiteUrl = 'https://www.playcus.com';
   static const String supportEmail = 'support@playcus.com';
   static const String companyAddress = 'Thiseos 9, Flat/Office C1, Aglantzia, P.C. 2121, Nicosia, Cyprus';
@@ -65,6 +66,7 @@ class UrlLauncherService {
 
   /// Быстрые методы для основных ссылок приложения
   static Future<bool> openPrivacyPolicy() => openUrl(privacyPolicyUrl);
+  static Future<bool> openTermsOfService() => openUrl(termsOfServiceUrl);
   static Future<bool> openWebsite() => openUrl(websiteUrl);
   static Future<bool> openSupportEmail() => openEmail(supportEmail, subject: 'HydraCoach Support');
   static Future<bool> openDataSafetyGP() => openUrl(dataSafetyGPUrl);

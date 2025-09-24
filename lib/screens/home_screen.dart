@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
     
     final weather = Provider.of<WeatherService>(context, listen: false);
     weather.addListener(_onWeatherChanged);
-    await weather.loadWeather();
+    // Убрали автоматическую загрузку погоды - теперь загружается только при клике на weather card
     
     final hydrationProvider = Provider.of<HydrationProvider>(context, listen: false);
     

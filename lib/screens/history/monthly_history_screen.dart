@@ -1340,7 +1340,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                   l10n.sodium,
                   '$avgSodium ${l10n.mg}',
                   Colors.blue,
-                  '$daysWithGoodSodium дней в норме',
+                  l10n.daysInNorm(daysWithGoodSodium),
                 ),
               ),
               const SizedBox(width: 12),
@@ -1349,7 +1349,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                   l10n.potassium,
                   '$avgPotassium ${l10n.mg}',
                   Colors.orange,
-                  '$daysWithGoodPotassium дней в норме',
+                  l10n.daysInNorm(daysWithGoodPotassium),
                 ),
               ),
             ],
@@ -1364,14 +1364,14 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                   l10n.magnesium,
                   '$avgMagnesium ${l10n.mg}',
                   Colors.purple,
-                  '$daysWithGoodMagnesium дней в норме',
+                  l10n.daysInNorm(daysWithGoodMagnesium),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: _buildStatCard(
                   l10n.balance,
-                  '$perfectElectrolyteDays дней',
+                  l10n.perfectDays(perfectElectrolyteDays),
                   Colors.green,
                   l10n.allNormal,
                 ),
@@ -1497,13 +1497,13 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
     
     if (consistencyPercent >= 80) {
       insights.add(_buildInsight(
-        '⭐ Отличная консистентность',
-        '$consistencyPercent% дней с хорошей гидратацией',
+        l10n.excellentConsistency,
+        l10n.consistencyDays(consistencyPercent),
       ));
     } else if (consistencyPercent >= 60) {
       insights.add(_buildInsight(
-        '📊 Хорошие результаты',
-        'Стабильность в $consistencyPercent% дней',
+        l10n.goodResults,
+        l10n.stabilityDays(consistencyPercent),
       ));
     }
 
@@ -1514,8 +1514,8 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
       
       if (lastWeek > firstWeek + 10) {
         insights.add(_buildInsight(
-          '📈 Положительный тренд',
-          'Улучшение к концу месяца на ${(lastWeek - firstWeek).toInt()}%',
+          l10n.positiveTrend,
+          l10n.monthEndImprovement((lastWeek - firstWeek).toInt()),
         ));
       }
     }
@@ -1527,8 +1527,8 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
       final totalMinutes = sorted.fold(0, (sum, d) => sum + d.workoutMinutes);
       
       insights.add(_buildInsight(
-        '💪 Физическая активность',
-        '$workoutPercent% дней с тренировками (${(totalMinutes/60).toStringAsFixed(1)}ч)',
+        l10n.physicalActivity,
+        l10n.workoutDaysPercent(workoutPercent, (totalMinutes/60).toStringAsFixed(1)),
       ));
     }
 
@@ -1537,8 +1537,8 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
     if (totalCoffee > 0) {
       final avgCoffee = (totalCoffee / sorted.length).toStringAsFixed(1);
       insights.add(_buildInsight(
-        '☕ Потребление кофе',
-        'В среднем $avgCoffee чашек/день',
+        l10n.coffeeConsumption,
+        l10n.averageCupsPerDay(avgCoffee),
       ));
     }
 
@@ -1549,15 +1549,15 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
       
       if (soberPercent >= 80) {
         insights.add(_buildInsight(
-          '🎯 Отличная трезвость',
-          '$soberPercent% дней без алкоголя',
+          l10n.excellentSobriety,
+          l10n.soberDaysPercent(soberPercent),
         ));
       }
     }
 
     return insights.isNotEmpty
         ? insights
-        : [_buildInsight('✨ Отличный месяц', 'Продолжайте в том же духе!')];
+        : [_buildInsight(l10n.excellentMonth, l10n.keepGoing)];
   }
 
   Widget _buildInsight(String title, String description) {
@@ -1727,7 +1727,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Статус: Умеренный риск',
+                                l10n.moderateRiskStatus,
                                 style: TextStyle(color: Colors.grey.shade600),
                               ),
                             ],
@@ -1891,7 +1891,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                                           borderRadius: BorderRadius.circular(12),
                                         ),
                                         child: Text(
-                                          '⚠️ Высокое',
+                                          '⚠️ ${l10n.high}',
                                           style: TextStyle(
                                             color: Colors.orange.shade700,
                                             fontSize: 12,
@@ -1909,7 +1909,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                         // Sugar if any
                         if (data.sugarTotal > 0) ...[
                           _buildDayDetailCard(
-                            title: 'Сахар',
+                            title: l10n.sugar,
                             icon: Icons.cake,
                             color: Colors.pink,
                             content: Column(
@@ -1930,7 +1930,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                                           borderRadius: BorderRadius.circular(12),
                                         ),
                                         child: Text(
-                                          'Превышение',
+                                          l10n.excess,
                                           style: TextStyle(
                                             color: Colors.red.shade700,
                                             fontSize: 12,
@@ -1942,7 +1942,7 @@ class _MonthlyHistoryScreenState extends State<MonthlyHistoryScreen> {
                                 if (data.sugarTotal > 25) ...[
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Лимит ВОЗ: 50г/день',
+                                    l10n.whoLimitPerDay,
                                     style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                                   ),
                                 ],

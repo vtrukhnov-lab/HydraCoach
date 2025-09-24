@@ -238,6 +238,7 @@ class NotificationService {
           channelDescription: NotificationTexts.channelDescDefault,
           importance: Importance.high,
           priority: Priority.high,
+          icon: 'notification_icon',
           enableVibration: true,
           playSound: true,
         );
@@ -278,8 +279,13 @@ class NotificationService {
   Future<void> _createComponents() async {
     print('🔧 [NotificationService] Creating components...');
 
-    // Создание helpers
-    _limitsHelper = NotificationLimitsHelper(_remoteConfig);
+    // Создание helpers - проверяем что компоненты еще не созданы
+    if (!_areComponentsCreated()) {
+      _limitsHelper = NotificationLimitsHelper(_remoteConfig);
+    } else {
+      print('🔧 [NotificationService] Components already created, skipping');
+      return;
+    }
 
     // Создание основных компонентов
     _initializer = NotificationInitializer(
@@ -428,19 +434,20 @@ class NotificationService {
   /// Вызывается ТОЛЬКО когда пользователь нажимает кнопку
   Future<void> requestPermissions({bool exactAlarms = false}) async {
     await _ensureInitialized();
-    
+
     print('🔐 [NotificationService] Requesting notification permissions...');
-    
+
     try {
-      // Вызываем новый метод из инициализатора
+      // ОТКЛЮЧАЕМ запрос EXACT_ALARM для Google Play Store compliance
+      // Используем только inexact алармы для всех уведомлений
       await _initializer.requestSystemNotificationPermissions(
-        requestExactAlarms: exactAlarms,
+        requestExactAlarms: false, // Принудительно отключаем
       );
       
       // Логируем в аналитику
       await _analytics.logEvent(
         name: 'notification_permission_request',
-        parameters: {'exact_alarms': exactAlarms},
+        parameters: {'exact_alarms': false}, // Всегда false
       );
       
       // Проверяем итоговый статус
@@ -654,6 +661,17 @@ $notificationsList
       print('✅ [NotificationService] Cleanup completed');
     } catch (e) {
       print('❌ Error during cleanup: $e');
+    }
+  }
+
+  /// Проверяет, созданы ли уже компоненты
+  bool _areComponentsCreated() {
+    try {
+      // Проверяем инициализацию late final полей
+      _limitsHelper.toString();
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 }

@@ -110,18 +110,19 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
                 offset: Offset(0, _slideAnimation.value),
                 child: Opacity(
                   opacity: _fadeAnimation.value,
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      left: isTablet ? screenWidth * 0.15 : screenWidth * 0.06,
-                      right: isTablet ? screenWidth * 0.15 : screenWidth * 0.06,
-                      top: MediaQuery.of(context).padding.top + screenHeight * 0.03,
-                      bottom: MediaQuery.of(context).padding.bottom + screenHeight * 0.03,
-                    ),
-                    child: Column(
-                      children: [
+                  child: SafeArea(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.only(
+                        left: isTablet ? screenWidth * 0.15 : screenWidth * 0.06,
+                        right: isTablet ? screenWidth * 0.15 : screenWidth * 0.06,
+                        top: screenHeight * 0.03,
+                        bottom: screenHeight * 0.03,
+                      ),
+                      child: Column(
+                        children: [
                         // Большая радостная иконка с пульсацией
-                        Expanded(
-                          flex: isTablet ? 1 : 2, // Уменьшаем на планшете
+                        SizedBox(
+                          height: isTablet ? screenHeight * 0.2 : screenHeight * 0.25,
                           child: Center(
                             child: AnimatedBuilder(
                               animation: _pulseAnimation,
@@ -158,8 +159,8 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
                         ),
 
                         // Заголовок и подзаголовок
-                        Expanded(
-                          flex: isTablet ? 1 : 1, // Оставляем как есть
+                        SizedBox(
+                          height: screenHeight * 0.15,
                           child: Column(
                             children: [
                               Text(
@@ -188,15 +189,12 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
                         ),
 
                         // Список фич
-                        Expanded(
-                          flex: isTablet ? 6 : 5, // Больше места на планшете
-                          child: Container(
-                            margin: EdgeInsets.only(
-                              top: screenHeight * 0.025,
-                              bottom: screenHeight * 0.015,
-                            ),
-                            child: SingleChildScrollView(
-                              child: Column(
+                        Container(
+                          margin: EdgeInsets.only(
+                            top: screenHeight * 0.025,
+                            bottom: screenHeight * 0.015,
+                          ),
+                          child: Column(
                                 children: [
                                   _buildFeatureCard(
                                     '🚫',
@@ -255,14 +253,12 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
                                     screenWidth,
                                   ),
                                 ],
-                              ),
-                            ),
                           ),
                         ),
 
                         // Кнопка
-                        Expanded(
-                          flex: 1,
+                        SizedBox(
+                          height: screenHeight * 0.12,
                           child: Center(
                             child: Container(
                               width: double.infinity,
@@ -293,6 +289,7 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
                           ),
                         ),
                       ],
+                      ),
                     ),
                   ),
                 ),

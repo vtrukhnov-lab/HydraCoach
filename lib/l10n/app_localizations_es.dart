@@ -665,7 +665,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String perfectDays(int count) {
-    return 'Días con objetivo perfecto: $count';
+    return '$count días';
   }
 
   @override
@@ -2699,7 +2699,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get halfwayThere => 'A mitad de camino';
 
   @override
-  String get keepGoing => 'Sigue adelante';
+  String get keepGoing => '¡Sigue así!';
 
   @override
   String get startDrinking => 'Empieza a beber';
@@ -3954,6 +3954,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get foodCelery => 'Apio';
 
   @override
+  String get foodPotato => 'Papa';
+
+  @override
   String get foodChickenSoup => 'Sopa de Pollo';
 
   @override
@@ -4060,6 +4063,36 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get foodBurgerKing => 'Whopper';
+
+  @override
+  String get foodSausage => 'Salchicha';
+
+  @override
+  String get foodKefir => 'Kéfir';
+
+  @override
+  String get foodRyazhenka => 'Ryazhenka';
+
+  @override
+  String get foodDoner => 'Döner';
+
+  @override
+  String get foodShawarma => 'Shawarma';
+
+  @override
+  String get foodBorscht => 'Borscht';
+
+  @override
+  String get foodRamen => 'Ramen';
+
+  @override
+  String get foodCabbage => 'Repollo';
+
+  @override
+  String get foodPeaSoup => 'Sopa de Guisantes';
+
+  @override
+  String get foodSolyanka => 'Solyanka';
 
   @override
   String get meals => 'comidas';
@@ -4280,25 +4313,25 @@ class AppLocalizationsEs extends AppLocalizations {
   String get allNormal => 'All normal';
 
   @override
-  String get excellentConsistency => 'Excellent consistency';
+  String get excellentConsistency => '⭐ Excelente consistencia';
 
   @override
-  String get goodResults => 'Good results';
+  String get goodResults => '📊 Buenos resultados';
 
   @override
   String get positiveImprovement => 'Positive improvement';
 
   @override
-  String get physicalActivity => 'Physical activity';
+  String get physicalActivity => '💪 Actividad física';
 
   @override
-  String get coffeeConsumption => 'Coffee consumption';
+  String get coffeeConsumption => '☕ Consumo de café';
 
   @override
-  String get excellentSobriety => 'Excellent sobriety';
+  String get excellentSobriety => '🎯 Excelente sobriedad';
 
   @override
-  String get excellentMonth => 'Excellent month';
+  String get excellentMonth => '✨ Excelente mes';
 
   @override
   String get keepGoingMotivation => 'Keep it up!';
@@ -4384,4 +4417,48 @@ class AppLocalizationsEs extends AppLocalizations {
   String goodHydration(int percent) {
     return '$percent% days with good hydration';
   }
+
+  @override
+  String daysInNorm(int count) {
+    return '$count días en norma';
+  }
+
+  @override
+  String consistencyDays(int percent) {
+    return '$percent% días con buena hidratación';
+  }
+
+  @override
+  String stabilityDays(int percent) {
+    return 'Estabilidad en $percent% de días';
+  }
+
+  @override
+  String monthEndImprovement(int percent) {
+    return 'Mejora a fin de mes del $percent%';
+  }
+
+  @override
+  String workoutDaysPercent(int percent, String hours) {
+    return '$percent% días con entrenamientos (${hours}h)';
+  }
+
+  @override
+  String averageCupsPerDay(String avgCups) {
+    return 'Promedio $avgCups tazas/día';
+  }
+
+  @override
+  String soberDaysPercent(int percent) {
+    return '$percent% días sin alcohol';
+  }
+
+  @override
+  String get moderateRiskStatus => 'Estado: Riesgo moderado';
+
+  @override
+  String get high => 'Alto';
+
+  @override
+  String get whoLimitPerDay => 'Límite OMS: 50g/día';
 }

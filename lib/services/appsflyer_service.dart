@@ -171,31 +171,6 @@ class AppsFlyerService {
 
   // ==================== CONVERSION EVENTS ====================
 
-  /// Завершенная покупка подписки с IAP валидацией
-  Future<void> logPurchase({
-    required String product,
-    required double revenue,
-    required String currency,
-    String? orderId,
-    String? purchaseToken,
-    String? transactionId,
-    Map<String, dynamic>? additionalParams,
-  }) async {
-    final eventValues = {
-      'af_revenue': revenue,
-      'af_currency': currency,
-      'af_product_id': product,
-      if (orderId != null) 'af_order_id': orderId,
-      if (purchaseToken != null) 'af_purchase_token': purchaseToken,
-      if (transactionId != null) 'af_transaction_id': transactionId,
-      ...?additionalParams,
-    };
-
-    await logEvent(
-      eventName: 'af_purchase',
-      eventValues: eventValues,
-    );
-  }
 
   /// Валидация покупки через AppsFlyer (Android)
   /// DEPRECATED: Используется Purchase Connector для автоматической валидации

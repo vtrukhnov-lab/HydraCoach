@@ -16,7 +16,7 @@ import 'onboarding/pages/weight_page.dart';
 import 'onboarding/pages/diet_page.dart';
 import 'onboarding/pages/complete_page.dart';
 import 'onboarding/pages/notification_examples_page.dart';
-import 'onboarding/pages/location_examples_page.dart';
+// import 'onboarding/pages/location_examples_page.dart'; // Removed - location permission now requested from weather card
 import 'onboarding/widgets/first_intake_tutorial.dart';
 import 'main_shell.dart';
 import 'paywall_screen.dart';
@@ -160,11 +160,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _trackStepCompleted(6);
     _completeStep(5);
 
-    _pageController.animateToPage(
-      7,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+    // Complete onboarding since notifications is now the last step
+    _completeOnboarding();
   }
 
   void _advanceFromLocation({
@@ -325,9 +322,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onBack: _goToPreviousPage,
                   ),
                   
-                  // 5 - Notification Examples
+                  // 5 - Notification Examples (last page)
                   NotificationExamplesPage(
-                    onSkip: () => _pageController.jumpToPage(6),
+                    onSkip: _completeOnboarding,
                     onBack: () {
                       _pageController.animateToPage(
                         4,
@@ -338,18 +335,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onPermissionResult: _handleNotificationPermissionResult,
                   ),
                   
-                  // 6 - Location Examples
-                  LocationExamplesPage(
-                    onSkip: _completeOnboarding,
-                    onBack: () {
-                      _pageController.animateToPage(
-                        5,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                    },
-                    onPermissionResult: _handleLocationPermissionResult,
-                  ),
+                  // 6 - Skip Location Examples (permission will be requested from weather card)
+                  // LocationExamplesPage removed - permission requested contextually
                 ],
               ),
             ),
@@ -541,9 +528,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
   
   Future<void> _completeOnboarding() async {
-    // Запрашиваем разрешение на геолокацию
-    await _requestLocationPermission();
-    
     // Сохраняем данные перед завершением
     await _saveBasicData();
 
@@ -565,9 +549,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       );
       
       if (mounted) {
-        // Показываем туториал первого глотка
+        // Продолжаем независимо от результата покупки
+        // purchased == true: пользователь купил PRO
+        // purchased == false/null: пользователь закрыл paywall по крестику - продолжаем без PRO
         final shouldShowTutorial = prefs.getBool('tutorialCompleted') != true;
-        
+
         if (shouldShowTutorial) {
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (_) => const _MainShellWithTutorial()),

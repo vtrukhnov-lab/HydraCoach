@@ -69,7 +69,7 @@ class NotificationInitializer {
   Future<void> _initializeLocalNotifications() async {
     print('📱 Initializing local notifications (without permission request)...');
 
-    const androidSettings = AndroidInitializationSettings('@drawable/notification_icon');
+    const androidSettings = AndroidInitializationSettings('notification_icon');
 
     // КРИТИЧНО: Отключаем автоматический запрос разрешений на iOS
     const iosSettings = DarwinInitializationSettings(
@@ -253,6 +253,8 @@ class NotificationInitializer {
 
   /// НОВЫЙ МЕТОД: Явный запрос разрешений на уведомления
   /// Вызывается ТОЛЬКО когда пользователь нажимает кнопку
+  /// Запрашивает базовые разрешения на уведомления
+  /// НЕ запрашивает SCHEDULE_EXACT_ALARM для Google Play Store compliance
   Future<void> requestSystemNotificationPermissions({bool requestExactAlarms = false}) async {
     print('🔐 Explicitly requesting notification permissions...');
 
@@ -281,10 +283,11 @@ class NotificationInitializer {
         final granted = await androidPlugin.requestNotificationsPermission();
         print('🤖 Android notifications permission: ${granted == true ? "granted" : "denied"}');
         
-        // Точные будильники (Android 12+)
+        // УДАЛЕНО: Точные будильники (Android 12+)
+        // НЕ запрашиваем SCHEDULE_EXACT_ALARM для Google Play Store compliance
+        // Используем только AndroidScheduleMode.inexactAllowWhileIdle
         if (requestExactAlarms) {
-          final exactGranted = await androidPlugin.requestExactAlarmsPermission();
-          print('🤖 Android exact alarms permission: ${exactGranted == true ? "granted" : "denied"}');
+          print('🤖 Exact alarms не запрашиваются - используем inexact scheduling');
         }
         
         print('🤖 Android permissions requested (prompted)');
@@ -361,10 +364,9 @@ class NotificationInitializer {
       
       if (androidPlugin != null) {
         result['notifications'] = await androidPlugin.areNotificationsEnabled() ?? false;
-        // Проверяем поддержку exact alarms на Android 12+
-        if (await androidPlugin.canScheduleExactNotifications() != null) {
-          result['exactAlarms'] = await androidPlugin.canScheduleExactNotifications() ?? false;
-        }
+        // УДАЛЕНО: Проверка exact alarms для Google Play Store compliance
+        // Используем только inexact scheduling, поэтому проверка не нужна
+        result['exactAlarms'] = false; // Всегда false, так как не используем
       }
     }
 

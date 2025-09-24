@@ -40,8 +40,8 @@ android {
         applicationId = "com.playcus.hydracoach"
         minSdk = flutter.minSdkVersion
         targetSdk = 35
-        versionCode = 23
-        versionName = "2.0.7"
+        versionCode = 31
+        versionName = "2.0.9"
         multiDexEnabled = true
     }
 

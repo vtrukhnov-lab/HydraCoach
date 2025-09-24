@@ -662,7 +662,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String perfectDays(int count) {
-    return 'Дней с идеальной целью: $count';
+    return '$count дней';
   }
 
   @override
@@ -739,7 +739,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get positiveTrend => '📈 Позитивная тенденция';
+  String get positiveTrend => '📈 Положительный тренд';
 
   @override
   String get positiveTrendMessage =>
@@ -2684,7 +2684,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get halfwayThere => 'Половина пути';
 
   @override
-  String get keepGoing => 'Продолжайте';
+  String get keepGoing => 'Продолжайте в том же духе!';
 
   @override
   String get startDrinking => 'Начните пить';
@@ -3929,6 +3929,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get foodCelery => 'Сельдерей';
 
   @override
+  String get foodPotato => 'Картофель';
+
+  @override
   String get foodChickenSoup => 'Куриный суп';
 
   @override
@@ -4035,6 +4038,36 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get foodBurgerKing => 'Воппер';
+
+  @override
+  String get foodSausage => 'Колбаса';
+
+  @override
+  String get foodKefir => 'Кефир';
+
+  @override
+  String get foodRyazhenka => 'Ряженка';
+
+  @override
+  String get foodDoner => 'Дёнер';
+
+  @override
+  String get foodShawarma => 'Шаурма';
+
+  @override
+  String get foodBorscht => 'Борщ';
+
+  @override
+  String get foodRamen => 'Рамен';
+
+  @override
+  String get foodCabbage => 'Капуста';
+
+  @override
+  String get foodPeaSoup => 'Гороховый суп';
+
+  @override
+  String get foodSolyanka => 'Солянка';
 
   @override
   String get meals => 'приемов пищи';
@@ -4251,25 +4284,25 @@ class AppLocalizationsRu extends AppLocalizations {
   String get allNormal => 'Все в норме';
 
   @override
-  String get excellentConsistency => 'Отличная консистентность';
+  String get excellentConsistency => '⭐ Отличная консистентность';
 
   @override
-  String get goodResults => 'Хорошие результаты';
+  String get goodResults => '📊 Хорошие результаты';
 
   @override
   String get positiveImprovement => 'Положительный тренд';
 
   @override
-  String get physicalActivity => 'Физическая активность';
+  String get physicalActivity => '💪 Физическая активность';
 
   @override
-  String get coffeeConsumption => 'Потребление кофе';
+  String get coffeeConsumption => '☕ Потребление кофе';
 
   @override
-  String get excellentSobriety => 'Отличная трезвость';
+  String get excellentSobriety => '🎯 Отличная трезвость';
 
   @override
-  String get excellentMonth => 'Отличный месяц';
+  String get excellentMonth => '✨ Отличный месяц';
 
   @override
   String get keepGoingMotivation => 'Продолжайте в том же духе!';
@@ -4357,4 +4390,48 @@ class AppLocalizationsRu extends AppLocalizations {
   String goodHydration(int percent) {
     return '$percent% дней с хорошей гидратацией';
   }
+
+  @override
+  String daysInNorm(int count) {
+    return '$count дней в норме';
+  }
+
+  @override
+  String consistencyDays(int percent) {
+    return '$percent% дней с хорошей гидратацией';
+  }
+
+  @override
+  String stabilityDays(int percent) {
+    return 'Стабильность в $percent% дней';
+  }
+
+  @override
+  String monthEndImprovement(int percent) {
+    return 'Улучшение к концу месяца на $percent%';
+  }
+
+  @override
+  String workoutDaysPercent(int percent, String hours) {
+    return '$percent% дней с тренировками ($hoursч)';
+  }
+
+  @override
+  String averageCupsPerDay(String avgCups) {
+    return 'В среднем $avgCups чашек/день';
+  }
+
+  @override
+  String soberDaysPercent(int percent) {
+    return '$percent% дней без алкоголя';
+  }
+
+  @override
+  String get moderateRiskStatus => 'Статус: Умеренный риск';
+
+  @override
+  String get high => 'Высокое';
+
+  @override
+  String get whoLimitPerDay => 'Лимит ВОЗ: 50г/день';
 }

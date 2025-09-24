@@ -2257,6 +2257,10 @@
 "@foodCelery": {
   "description": "Celery vegetable"
 },
+"foodPotato": "Potato",
+"@foodPotato": {
+  "description": "Potato vegetable"
+},
 
 "foodChickenSoup": "Chicken Soup",
 "@foodChickenSoup": {
@@ -2404,6 +2408,46 @@
 "foodBurgerKing": "Whopper",
 "@foodBurgerKing": {
   "description": "Burger King Whopper"
+},
+"foodSausage": "Sausage",
+"@foodSausage": {
+  "description": "Sausage"
+},
+"foodKefir": "Kefir",
+"@foodKefir": {
+  "description": "Kefir"
+},
+"foodRyazhenka": "Ryazhenka",
+"@foodRyazhenka": {
+  "description": "Baked fermented milk"
+},
+"foodDoner": "Döner",
+"@foodDoner": {
+  "description": "Döner kebab"
+},
+"foodShawarma": "Shawarma",
+"@foodShawarma": {
+  "description": "Shawarma wrap"
+},
+"foodBorscht": "Borscht",
+"@foodBorscht": {
+  "description": "Beet soup"
+},
+"foodRamen": "Ramen",
+"@foodRamen": {
+  "description": "Japanese noodle soup"
+},
+"foodCabbage": "Cabbage",
+"@foodCabbage": {
+  "description": "Cabbage"
+},
+"foodPeaSoup": "Pea Soup",
+"@foodPeaSoup": {
+  "description": "Pea soup"
+},
+"foodSolyanka": "Solyanka",
+"@foodSolyanka": {
+  "description": "Russian soup with pickles and meat"
 },
 "meals": "meals",
 "@meals": {
@@ -2768,6 +2812,84 @@
       "type": "int"
     }
   }
-}
+},
+"daysInNorm": "{count} days in norm",
+"@daysInNorm": {
+  "placeholders": {
+    "count": {
+      "type": "int"
+    }
+  }
+},
+"perfectDays": "{count} days",
+"@perfectDays": {
+  "placeholders": {
+    "count": {
+      "type": "int"
+    }
+  }
+},
+"excellentConsistency": "⭐ Excellent consistency",
+"consistencyDays": "{percent}% days with good hydration",
+"@consistencyDays": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"goodResults": "📊 Good results",
+"stabilityDays": "Stability in {percent}% of days",
+"@stabilityDays": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"positiveTrend": "📈 Positive trend",
+"monthEndImprovement": "End-of-month improvement by {percent}%",
+"@monthEndImprovement": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"physicalActivity": "💪 Physical activity",
+"workoutDaysPercent": "{percent}% days with workouts ({hours}h)",
+"@workoutDaysPercent": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    },
+    "hours": {
+      "type": "String"
+    }
+  }
+},
+"coffeeConsumption": "☕ Coffee consumption",
+"averageCupsPerDay": "Average {avgCups} cups/day",
+"@averageCupsPerDay": {
+  "placeholders": {
+    "avgCups": {
+      "type": "String"
+    }
+  }
+},
+"excellentSobriety": "🎯 Excellent sobriety",
+"soberDaysPercent": "{percent}% days without alcohol",
+"@soberDaysPercent": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"excellentMonth": "✨ Excellent month",
+"keepGoing": "Keep going!",
+"moderateRiskStatus": "Status: Moderate risk",
+"high": "High",
+"whoLimitPerDay": "WHO limit: 50g/day"
 }
 

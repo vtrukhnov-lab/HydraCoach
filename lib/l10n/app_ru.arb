@@ -2021,6 +2021,10 @@
 "@foodCelery": {
   "description": "Celery vegetable"
 },
+"foodPotato": "Картофель",
+"@foodPotato": {
+  "description": "Potato vegetable"
+},
 
 "foodChickenSoup": "Куриный суп",
 "@foodChickenSoup": {
@@ -2168,6 +2172,46 @@
 "foodBurgerKing": "Воппер",
 "@foodBurgerKing": {
   "description": "Burger King Whopper"
+},
+"foodSausage": "Колбаса",
+"@foodSausage": {
+  "description": "Sausage"
+},
+"foodKefir": "Кефир",
+"@foodKefir": {
+  "description": "Kefir"
+},
+"foodRyazhenka": "Ряженка",
+"@foodRyazhenka": {
+  "description": "Baked fermented milk"
+},
+"foodDoner": "Дёнер",
+"@foodDoner": {
+  "description": "Döner kebab"
+},
+"foodShawarma": "Шаурма",
+"@foodShawarma": {
+  "description": "Shawarma wrap"
+},
+"foodBorscht": "Борщ",
+"@foodBorscht": {
+  "description": "Beet soup"
+},
+"foodRamen": "Рамен",
+"@foodRamen": {
+  "description": "Japanese noodle soup"
+},
+"foodCabbage": "Капуста",
+"@foodCabbage": {
+  "description": "Cabbage"
+},
+"foodPeaSoup": "Гороховый суп",
+"@foodPeaSoup": {
+  "description": "Pea soup"
+},
+"foodSolyanka": "Солянка",
+"@foodSolyanka": {
+  "description": "Russian soup with pickles and meat"
 },
 "meals": "приемов пищи",
 "@meals": {
@@ -2526,5 +2570,83 @@
       "type": "int"
     }
   }
-}
+},
+"daysInNorm": "{count} дней в норме",
+"@daysInNorm": {
+  "placeholders": {
+    "count": {
+      "type": "int"
+    }
+  }
+},
+"perfectDays": "{count} дней",
+"@perfectDays": {
+  "placeholders": {
+    "count": {
+      "type": "int"
+    }
+  }
+},
+"excellentConsistency": "⭐ Отличная консистентность",
+"consistencyDays": "{percent}% дней с хорошей гидратацией",
+"@consistencyDays": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"goodResults": "📊 Хорошие результаты",
+"stabilityDays": "Стабильность в {percent}% дней",
+"@stabilityDays": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"positiveTrend": "📈 Положительный тренд",
+"monthEndImprovement": "Улучшение к концу месяца на {percent}%",
+"@monthEndImprovement": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"physicalActivity": "💪 Физическая активность",
+"workoutDaysPercent": "{percent}% дней с тренировками ({hours}ч)",
+"@workoutDaysPercent": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    },
+    "hours": {
+      "type": "String"
+    }
+  }
+},
+"coffeeConsumption": "☕ Потребление кофе",
+"averageCupsPerDay": "В среднем {avgCups} чашек/день",
+"@averageCupsPerDay": {
+  "placeholders": {
+    "avgCups": {
+      "type": "String"
+    }
+  }
+},
+"excellentSobriety": "🎯 Отличная трезвость",
+"soberDaysPercent": "{percent}% дней без алкоголя",
+"@soberDaysPercent": {
+  "placeholders": {
+    "percent": {
+      "type": "int"
+    }
+  }
+},
+"excellentMonth": "✨ Отличный месяц",
+"keepGoing": "Продолжайте в том же духе!",
+"moderateRiskStatus": "Статус: Умеренный риск",
+"high": "Высокое",
+"whoLimitPerDay": "Лимит ВОЗ: 50г/день"
 }

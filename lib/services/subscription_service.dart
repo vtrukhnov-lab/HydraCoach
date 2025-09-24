@@ -77,6 +77,7 @@ class SubscriptionService extends ChangeNotifier {
 
   // Google Play subscription product IDs
   static const String _yearlyProductId = 'hydracoach_pro_yearly';
+  static const String _yearlyNoTrialProductId = 'hydracoach_pro_yearly_no_trial';
   static const String _monthlyProductId = 'hydracoach_pro_monthly';
 
   // Google Play one-time purchase (lifetime)
@@ -133,7 +134,12 @@ class SubscriptionService extends ChangeNotifier {
   List<ProductDetails> get products => _products;
 
   // Геттеры для конкретных продуктов
-  ProductDetails? get yearlyProduct => _products.where((p) => p.id == _yearlyProductId).firstOrNull;
+  ProductDetails? get yearlyProduct {
+    final products = _products.where((p) => p.id == _yearlyProductId);
+    // Prefer non-free products to handle Google Play test products
+    return products.where((p) => p.price != 'Free').firstOrNull ?? products.firstOrNull;
+  }
+  ProductDetails? get yearlyNoTrialProduct => _products.where((p) => p.id == _yearlyNoTrialProductId).firstOrNull;
   ProductDetails? get monthlyProduct => _products.where((p) => p.id == _monthlyProductId).firstOrNull;
   ProductDetails? get lifetimeProduct => _products.where((p) => p.id == _lifetimeProductId).firstOrNull;
 
@@ -253,7 +259,7 @@ class SubscriptionService extends ChangeNotifier {
   /// Загрузка продуктов подписки из Google Play
   Future<void> _loadProducts() async {
     try {
-      final Set<String> productIds = {_yearlyProductId, _monthlyProductId, _lifetimeProductId};
+      final Set<String> productIds = {_yearlyProductId, _yearlyNoTrialProductId, _monthlyProductId, _lifetimeProductId};
       final ProductDetailsResponse response = await _inAppPurchase.queryProductDetails(productIds);
 
       if (response.error != null) {
@@ -290,7 +296,7 @@ class SubscriptionService extends ChangeNotifier {
 
   /// Обработка конкретной покупки
   Future<void> _handlePurchase(PurchaseDetails purchaseDetails) async {
-    if (purchaseDetails.status == PurchaseStatus.purchased) {
+    if (purchaseDetails.status == PurchaseStatus.purchased || purchaseDetails.status == PurchaseStatus.restored) {
       // Покупка успешна - активируем PRO
       final product = _products.firstWhere(
         (p) => p.id == purchaseDetails.productID,
@@ -301,7 +307,7 @@ class SubscriptionService extends ChangeNotifier {
       if (purchaseDetails.productID == _lifetimeProductId) {
         // Lifetime покупка - никогда не истекает (100 лет)
         billingPeriod = const Duration(days: 36500);
-      } else if (purchaseDetails.productID == _yearlyProductId) {
+      } else if (purchaseDetails.productID == _yearlyProductId || purchaseDetails.productID == _yearlyNoTrialProductId) {
         billingPeriod = const Duration(days: 365);
       } else {
         billingPeriod = const Duration(days: 30);
@@ -309,17 +315,16 @@ class SubscriptionService extends ChangeNotifier {
 
       await _activatePro(billingPeriod);
 
-      // Логируем аналитику
-      await _analytics.logSubscriptionStarted(
-        product: purchaseDetails.productID,
-        price: double.tryParse(product.price.replaceAll(RegExp(r'[^\d.]'), '')) ?? 0.0,
-        currency: product.currencyCode,
-        isTrial: false, // Для реальных покупок это всегда false
-      );
+      // Purchase events теперь обрабатываются Purchase Connector автоматически
+      // Удалены кастомные события во избежание дублирования с S2S событиями
+      // if (purchaseDetails.status == PurchaseStatus.purchased) {
+      //   await _analytics.logSubscriptionStarted(...);
+      // }
 
       // RELEASE: Debug mode disabled
-      if (false) {
-        print('✅ Purchase completed: ${purchaseDetails.productID}');
+      if (true) {
+        final action = purchaseDetails.status == PurchaseStatus.restored ? 'restored' : 'completed';
+        print('✅ Purchase $action: ${purchaseDetails.productID}');
       }
     } else if (purchaseDetails.status == PurchaseStatus.error) {
       // RELEASE: Debug mode disabled
@@ -339,6 +344,12 @@ class SubscriptionService extends ChangeNotifier {
     return List.unmodifiable(_defaultProducts);
   }
 
+  /// Покупка годовой подписки с учетом trial переключателя
+  Future<bool> purchaseYearlySubscription({required bool withTrial}) async {
+    final productId = withTrial ? _yearlyProductId : _yearlyNoTrialProductId;
+    return purchaseSubscription(productId);
+  }
+
   /// Покупка подписки через Google Play Billing
   Future<bool> purchaseSubscription(String productId) async {
     if (!_isInitialized) {
@@ -352,17 +363,18 @@ class SubscriptionService extends ChangeNotifier {
     }
 
     // Находим продукт
+    print('🔍 Looking for product: $productId');
+    print('🔍 Available products: ${_products.map((p) => p.id).join(', ')}');
     final ProductDetails? product = _products.where((p) => p.id == productId).firstOrNull;
     if (product == null) {
+      print('❌ Product not found: $productId');
       throw Exception('Product not found: $productId');
     }
 
     try {
-      // RELEASE: Debug mode disabled
-      if (false) {
-        print('🛍️ Starting purchase for: ${product.id}');
-        print('💰 Price: ${product.price}');
-      }
+      // Временно включаем логирование для отладки
+      print('🛍️ Starting purchase for: ${product.id}');
+      print('💰 Price: ${product.price}');
 
       // Создаем параметры покупки
       final PurchaseParam purchaseParam = PurchaseParam(productDetails: product);
@@ -375,7 +387,9 @@ class SubscriptionService extends ChangeNotifier {
         print('🔄 Purchase initiated: $purchaseResult');
       }
 
-      return purchaseResult;
+      // Возвращаем false - реальный результат придет через purchaseStream
+      // Это предотвращает преждевременную активацию PRO статуса
+      return false;
     } catch (e) {
       // RELEASE: Debug mode disabled
       if (false) {
@@ -393,19 +407,36 @@ class SubscriptionService extends ChangeNotifier {
 
     try {
       // RELEASE: Debug mode disabled
-      if (false) {
-        print('🔄 Restoring purchases...');
+      if (true) {
+        print('🔄 Starting restore purchases...');
+        print('🔄 Current PRO status before restore: $_isPro');
+      }
+
+      // DEBUG: Симуляция successful restore для тестирования без реальных покупок
+      if (kDebugMode && false) { // Включи `true` для тестирования
+        print('🧪 DEBUG: Simulating successful restore...');
+        await _activatePro(const Duration(days: 365), isTrial: false);
+        print('✅ DEBUG: Simulated restore completed. PRO status: $_isPro');
+        return true;
       }
 
       // Восстанавливаем покупки через Google Play
       await _inAppPurchase.restorePurchases();
 
+      // RELEASE: Debug mode disabled
+      if (true) {
+        print('🔄 restorePurchases() called, waiting for purchaseStream updates...');
+      }
+
+      // Ждем немного чтобы purchaseStream успел обработать восстановленные покупки
+      await Future.delayed(const Duration(milliseconds: 500));
+
       // Также загружаем из локального хранилища
       await _restoreFromStorage();
 
       // RELEASE: Debug mode disabled
-      if (false) {
-        print('✅ Restore completed. PRO: $_isPro');
+      if (true) {
+        print('✅ Restore completed. PRO status: $_isPro');
       }
 
       return _isPro;
@@ -587,13 +618,14 @@ class SubscriptionService extends ChangeNotifier {
       // Определяем триальную подписку по ID
       final isTrialProduct = product.identifier.contains('trial');
 
-      // Отправляем стандартное событие подписки во все аналитические системы
-      await _analytics.logSubscriptionStarted(
-        product: product.identifier,
-        isTrial: isTrialProduct,
-        price: price,
-        currency: currency,
-      );
+      // Purchase events теперь обрабатываются Purchase Connector автоматически
+      // Удалены кастомные события во избежание дублирования с S2S событиями
+      // await _analytics.logSubscriptionStarted(
+      //   product: product.identifier,
+      //   isTrial: isTrialProduct,
+      //   price: price,
+      //   currency: currency,
+      // );
 
       // TODO: Когда будет реальный IAP, добавить платформо-специфичную валидацию:
       //

@@ -422,6 +422,13 @@ class FoodStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final subscription = context.watch<SubscriptionProvider>();
+
+    // Check PRO status first
+    if (!subscription.isPro) {
+      return _buildProLockedCard(context, l10n);
+    }
+
     final theme = Theme.of(context);
     final calories = intake['calories'] as int;
     final count = intake['count'] as int;
@@ -431,8 +438,8 @@ class FoodStatusCard extends StatelessWidget {
     final magnesium = intake['magnesium'] as int;
     final sugar = intake['sugar'] as double;
 
-    // Get today's food intakes for additional info
-    final provider = Provider.of<HydrationProvider>(context, listen: false);
+    // Get today's food intakes for additional info - now with listen: true for updates
+    final provider = Provider.of<HydrationProvider>(context);
     final todayFood = provider.todayFoodIntakes;
 
     // Calculate daily progress (assume 2000 kcal daily goal)
@@ -743,6 +750,143 @@ class FoodStatusCard extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  // PRO-locked food intake card
+  Widget _buildProLockedCard(BuildContext context, AppLocalizations l10n) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const PaywallScreen(source: 'food_intake_card'),
+            fullscreenDialog: true,
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.grey.shade700,
+              Colors.grey.shade800,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Colors.grey.withValues(alpha: 0.3),
+            width: 1.5,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // PRO icon
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.amber.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.amber,
+                  width: 2,
+                ),
+              ),
+              child: const Icon(
+                Icons.restaurant,
+                color: Colors.amber,
+                size: 28,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // PRO label
+            Text(
+              'PRO',
+              style: TextStyle(
+                color: Colors.amber.shade600,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2,
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            // Feature name
+            Text(
+              l10n.todaysFoodIntake,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: 12),
+
+            // Description
+            Text(
+              "Track calories, sugar, sodium & nutritional impact on hydration goals",
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.8),
+                fontSize: 13,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+
+            const SizedBox(height: 16),
+
+            // Unlock button
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 10,
+              ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.amber.shade600, Colors.orange.shade600],
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.amber.withValues(alpha: 0.3),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.lock_open,
+                    color: Colors.white,
+                    size: 14,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    l10n.unlock,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ).animate().fadeIn(delay: 200.ms);
   }
 }
 

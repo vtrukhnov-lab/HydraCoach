@@ -36,7 +36,12 @@ class WeatherCard extends StatelessWidget {
         : null;
 
     // Вся карточка с градиентом
-    return Container(
+    return GestureDetector(
+      onTap: () {
+        // Запрашиваем данные о погоде при клике на карточку
+        weather.loadWeather();
+      },
+      child: Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -239,7 +244,8 @@ class WeatherCard extends StatelessWidget {
           ],
         ),
       ),
-    ).animate().fadeIn(delay: 200.ms);
+      ), // Закрытие child: Container
+    ).animate().fadeIn(delay: 200.ms); // Закрытие GestureDetector
   }
 
   // PRO-заблокированная карточка
