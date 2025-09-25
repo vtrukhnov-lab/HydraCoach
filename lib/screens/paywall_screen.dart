@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:provider/provider.dart';
 
 import 'package:hydracoach/l10n/app_localizations.dart';
@@ -159,22 +160,32 @@ class _PaywallScreenState extends State<PaywallScreen> {
     final yearlyProduct = subscriptionService.yearlyProduct;
     final monthlyProduct = subscriptionService.monthlyProduct;
 
+    // Handle Google Play test products that return "Free" as price
+    String _getProductPrice(ProductDetails? product, String fallbackPrice) {
+      if (product == null) return fallbackPrice;
+      // Skip "Free" test products and use fallback price
+      if (product.price == 'Free' || product.price.toLowerCase().contains('free')) {
+        return fallbackPrice;
+      }
+      return product.price;
+    }
+
     _pricing = {
       Plan.lifetime: PricingPack(
         plan: Plan.lifetime,
-        price: lifetimeProduct?.price ?? '\$49.99',
+        price: _getProductPrice(lifetimeProduct, '\$49.99'),
         periodLabel: 'one-time',
       ),
       Plan.annual: PricingPack(
         plan: Plan.annual,
-        price: yearlyProduct?.price ?? '\$23.99',
+        price: _getProductPrice(yearlyProduct, '\$23.99'),
         originalPrice: null, // Remove hardcoded original price
         periodLabel: '/year',
         isBestValue: true,
       ),
       Plan.monthly: PricingPack(
         plan: Plan.monthly,
-        price: monthlyProduct?.price ?? '\$4.99',
+        price: _getProductPrice(monthlyProduct, '\$4.99'),
         periodLabel: '/month',
       ),
     };

@@ -135,11 +135,26 @@ class SubscriptionService extends ChangeNotifier {
   ProductDetails? get yearlyProduct {
     final products = _products.where((p) => p.id == _yearlyProductId);
     // Prefer non-free products to handle Google Play test products
-    return products.where((p) => p.price != 'Free').firstOrNull ?? products.firstOrNull;
+    return products.where((p) => p.price != 'Free' && !p.price.toLowerCase().contains('free')).firstOrNull ?? products.firstOrNull;
   }
-  ProductDetails? get yearlyNoTrialProduct => _products.where((p) => p.id == _yearlyNoTrialProductId).firstOrNull;
-  ProductDetails? get monthlyProduct => _products.where((p) => p.id == _monthlyProductId).firstOrNull;
-  ProductDetails? get lifetimeProduct => _products.where((p) => p.id == _lifetimeProductId).firstOrNull;
+
+  ProductDetails? get yearlyNoTrialProduct {
+    final products = _products.where((p) => p.id == _yearlyNoTrialProductId);
+    // Prefer non-free products to handle Google Play test products
+    return products.where((p) => p.price != 'Free' && !p.price.toLowerCase().contains('free')).firstOrNull ?? products.firstOrNull;
+  }
+
+  ProductDetails? get monthlyProduct {
+    final products = _products.where((p) => p.id == _monthlyProductId);
+    // Prefer non-free products to handle Google Play test products
+    return products.where((p) => p.price != 'Free' && !p.price.toLowerCase().contains('free')).firstOrNull ?? products.firstOrNull;
+  }
+
+  ProductDetails? get lifetimeProduct {
+    final products = _products.where((p) => p.id == _lifetimeProductId);
+    // Prefer non-free products to handle Google Play test products
+    return products.where((p) => p.price != 'Free' && !p.price.toLowerCase().contains('free')).firstOrNull ?? products.firstOrNull;
+  }
 
   /// Проверяет, является ли текущий пользователь тестовым
   bool _isTestAccount() {
