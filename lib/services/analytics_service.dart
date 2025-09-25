@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 
 import 'devtodev_analytics_service.dart';
 import 'appsflyer_service.dart';
+import 'purchase_connector_service.dart';
 
 /// Сервис для работы с аналитикой (Firebase + DevToDev).
 /// Централизует все события и параметры для отслеживания
@@ -37,18 +38,84 @@ class AnalyticsService {
     }
 
     _isInitialized = true;
+
+    // Логируем AppsFlyer UID для отладки
+    if (kDebugMode) {
+      await _logDebugIds();
+    }
+  }
+
+  /// Логирование ID для отладки в AppsFlyer
+  Future<void> _logDebugIds() async {
+    try {
+      final appsFlyerUID = await _appsFlyer.getAppsFlyerUID();
+      if (appsFlyerUID != null) {
+        print('📱 AppsFlyer UID: $appsFlyerUID');
+        print('🔍 Используйте этот ID в SDK Integration Test:');
+        print('   https://dev.appsflyer.com/hc/docs/testing-flutter#sdk-integration-test');
+      }
+
+      // Для Android также пытаемся получить Advertising ID
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        print('💡 Для поиска событий в Raw Data Export:');
+        print('   1. Откройте настройки Android → Google → Реклама');
+        print('   2. Скопируйте Advertising ID (GAID)');
+        print('   3. Используйте его для фильтрации в Raw Data Export');
+      }
+    } catch (e) {
+      print('❌ Ошибка получения debug IDs: $e');
+    }
   }
 
   Future<void> checkAndEnableAppsFlyer() async {
+    if (kDebugMode) {
+      print('🔧 НАЧИНАЕМ checkAndEnableAppsFlyer()...');
+    }
+
     try {
+      // 🔥 КРИТИЧЕСКАЯ ПОСЛЕДОВАТЕЛЬНОСТЬ для Purchase Connector:
+      // 1. initialize() - инициализирует SDK с manualStart: true (НЕ запускает!)
+      if (kDebugMode) {
+        print('🔧 Шаг 1: Инициализация AppsFlyer SDK...');
+      }
       await _appsFlyer.initialize();
       if (kDebugMode) {
-        print('✅ AppsFlyer enabled and initialized');
+        print('✅ AppsFlyer инициализирован (но НЕ запущен из-за manualStart: true)');
       }
-    } catch (e) {
+
+      // 2. startSDK() - запускает SDK ПОСЛЕ обработки согласий пользователя
+      if (kDebugMode) {
+        print('🔧 Шаг 2: Запуск AppsFlyer SDK...');
+      }
+      await _appsFlyer.startSDK();
+      if (kDebugMode) {
+        print('🚀 AppsFlyer SDK запущен после согласий пользователя');
+        print('✅ КРИТИЧЕСКАЯ ПОСЛЕДОВАТЕЛЬНОСТЬ для Purchase Connector выполнена успешно!');
+      }
+
+      // 3. Инициализируем Purchase Connector для автоматической генерации af_ars_ событий
+      if (kDebugMode) {
+        print('🔧 Шаг 3: Инициализация Purchase Connector...');
+      }
+
+      // Ждем 1 секунду после запуска SDK (рекомендация AppsFlyer)
+      await Future.delayed(const Duration(seconds: 1));
+
+      final purchaseConnector = PurchaseConnectorService();
+      await purchaseConnector.initializeAndStart();
+
+      if (kDebugMode) {
+        print('🎯 Purchase Connector запущен - события af_ars_ будут генерироваться автоматически');
+      }
+    } catch (e, stackTrace) {
       if (kDebugMode) {
         print('❌ Error enabling AppsFlyer: $e');
+        print('❌ StackTrace: $stackTrace');
       }
+    }
+
+    if (kDebugMode) {
+      print('🔧 ЗАВЕРШИЛИ checkAndEnableAppsFlyer()');
     }
   }
 
@@ -187,6 +254,50 @@ class AnalyticsService {
       if (parameters != null) {
         print('   Parameters: $parameters');
       }
+    }
+  }
+
+  // ==================== SUBSCRIPTION EVENTS ====================
+
+  /// Log subscription purchase - CRITICAL FOR APPSFLYER LIVE EVENTS
+  Future<void> logSubscriptionPurchased({
+    required String productId,
+    required double price,
+    required String currency,
+    required String transactionId,
+  }) async {
+    // Определяем тип события в зависимости от продукта
+    final eventName = productId.contains('trial') ? 'af_start_trial' : 'af_subscribe';
+
+    // Отправляем через AppsFlyer SDK для отображения в Live Events
+    await _appsFlyer.logEvent(
+      eventName: eventName,
+      eventValues: {
+        'af_revenue': price,
+        'af_currency': currency,
+        'af_quantity': 1,
+        'af_content_id': productId,
+        'af_order_id': transactionId,
+        'af_validation_method': 'purchase_connector',
+      },
+    );
+
+    // Также логируем в Firebase для аналитики
+    await logEvent(
+      name: eventName,
+      parameters: {
+        'product_id': productId,
+        'price': price,
+        'currency': currency,
+        'transaction_id': transactionId,
+      },
+    );
+
+    if (kDebugMode) {
+      print('💰 Subscription purchased: $productId');
+      print('   Event: $eventName');
+      print('   Price: $price $currency');
+      print('   Transaction: $transactionId');
     }
   }
 

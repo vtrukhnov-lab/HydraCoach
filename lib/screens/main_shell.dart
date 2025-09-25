@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
 import '../services/analytics_service.dart';
+import '../services/consent_service.dart';
 
 // Экраны
 import 'home_screen.dart';
@@ -40,11 +42,14 @@ class _MainShellState extends State<MainShell> {
       Container(), // Пустой контейнер вместо текста
       const SettingsScreen(),
     ];
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       _analytics.logScreenView(
         screenName: 'main_${_tabKeys[_currentIndex]}',
         screenClass: 'MainShell',
       );
+
+      // 🔥 КРИТИЧНО: При запуске MainShell проверяем согласие и запускаем AppsFlyer SDK
+      await _checkConsentAndStartAppsFlyer();
     });
   }
 
@@ -83,6 +88,37 @@ class _MainShellState extends State<MainShell> {
       backgroundColor: Colors.transparent,
       builder: (context) => const _AddMenuSheet(),
     );
+  }
+
+  /// Проверяет согласие и запускает AppsFlyer SDK если согласие было дано
+  Future<void> _checkConsentAndStartAppsFlyer() async {
+    try {
+      // Импортируем ConsentService
+      final ConsentService consentService = ConsentService();
+
+      // Проверяем текущий статус согласия из кеша для быстрого доступа
+      final bool hasConsent = await consentService.getCachedConsent();
+
+      if (kDebugMode) {
+        print('🔧 MainShell: Проверка согласия из кеша = $hasConsent');
+      }
+
+      // Если согласие есть, запускаем AppsFlyer SDK
+      if (hasConsent) {
+        if (kDebugMode) {
+          print('✅ MainShell: Согласие найдено в кеше, запускаем AppsFlyer SDK...');
+        }
+        await _analytics.checkAndEnableAppsFlyer();
+      } else {
+        if (kDebugMode) {
+          print('⚠️ MainShell: Согласие НЕ найдено в кеше - AppsFlyer остается неактивным');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ MainShell: Ошибка проверки согласия: $e');
+      }
+    }
   }
 
   @override

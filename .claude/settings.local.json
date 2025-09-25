@@ -71,7 +71,9 @@
       "Bash(nc localhost 62659)",
       "Bash(printf \"r\\n\")",
       "Bash(nc localhost 56079)",
-      "Bash(del nul)"
+      "Bash(del nul)",
+      "Bash(ncat:*)",
+      "Bash(nc localhost 54811)"
     ],
     "deny": [],
     "ask": []

@@ -24,9 +24,30 @@
 -keep class com.google.firebase.** { *; }
 -keep class com.google.android.gms.** { *; }
 
-# Keep AppsFlyer classes
+# Keep AppsFlyer classes (including Purchase Connector)
 -keep class com.appsflyer.** { *; }
 -dontwarn com.appsflyer.**
+
+# Additional Purchase Connector rules - all possible package structures
+-keep class com.appsflyer.purchase.** { *; }
+-dontwarn com.appsflyer.purchase.**
+-keep class com.appsflyer.purchaseconnector.** { *; }
+-dontwarn com.appsflyer.purchaseconnector.**
+-keep class com.appsflyer.sdk.purchase.** { *; }
+-dontwarn com.appsflyer.sdk.purchase.**
+-keep class com.appsflyer.connector.** { *; }
+-dontwarn com.appsflyer.connector.**
+
+# Keep all AppsFlyer Purchase Connector interface classes and methods
+-keep class * extends com.appsflyer.** { *; }
+-keepclassmembers class * {
+    @com.appsflyer.** *;
+}
+
+# Prevent obfuscation of Purchase Connector configuration and builder classes
+-keepnames class **PurchaseConnector* { *; }
+-keepnames class **PurchaseConnectorConfig* { *; }
+-keepnames class **LogLevel* { *; }
 
 # Keep Flutter classes
 -keep class io.flutter.** { *; }

@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'dart:async';
 import 'analytics_service.dart';
-import 'appsflyer_service.dart';
 
 /*
 🧪 НАСТРОЙКА ТЕСТОВЫХ ПОКУПОК В GOOGLE PLAY CONSOLE:
@@ -101,7 +100,6 @@ class SubscriptionService extends ChangeNotifier {
   static final List<String> _runtimeTestAccounts = [];
 
   final AnalyticsService _analytics = AnalyticsService();
-  final AppsFlyerService _appsFlyer = AppsFlyerService();
 
   static const List<SubscriptionProduct> _defaultProducts = [
     SubscriptionProduct(
@@ -315,11 +313,51 @@ class SubscriptionService extends ChangeNotifier {
 
       await _activatePro(billingPeriod);
 
-      // Purchase events теперь обрабатываются Purchase Connector автоматически
-      // Удалены кастомные события во избежание дублирования с S2S событиями
-      // if (purchaseDetails.status == PurchaseStatus.purchased) {
-      //   await _analytics.logSubscriptionStarted(...);
-      // }
+      // 🔥 Purchase Connector автоматически отправит af_ars_ события
+      // Дополнительно отправляем стандартные события AppsFlyer для Live Events
+      if (purchaseDetails.status == PurchaseStatus.purchased) {
+        try {
+          // Получаем цену и валюту из продукта
+          double price = 0.0;
+          String currency = 'USD';
+
+          // В Android rawPrice и currencyCode могут быть недоступны, используем price
+          if (product.price.isNotEmpty) {
+            // Парсим цену из строки (например "$35.99" -> 35.99)
+            final priceString = product.price.replaceAll(RegExp(r'[^\d.]'), '');
+            price = double.tryParse(priceString) ?? 0.0;
+
+            // Пытаемся определить валюту из символа
+            if (product.price.contains('€')) {
+              currency = 'EUR';
+            } else if (product.price.contains('£')) {
+              currency = 'GBP';
+            } else if (product.price.contains('\$')) {
+              currency = 'USD';
+            }
+          }
+
+          // НЕ НУЖНО! Purchase Connector автоматически отправляет af_ars_subscribe через S2S
+          // SDK событие af_subscribe не нужно - это дублирование
+          // final eventName = purchaseDetails.productID.contains('trial') ? 'af_start_trial' : 'af_subscribe';
+          // await _analytics.logSubscriptionPurchased(
+          //   productId: purchaseDetails.productID,
+          //   price: price,
+          //   currency: currency,
+          //   transactionId: purchaseDetails.purchaseID ?? '',
+          // );
+
+          if (kDebugMode) {
+            print('💰 Subscription purchased: ${purchaseDetails.productID}');
+            print('   Purchase Connector отправит S2S событие: af_ars_sandbox_s2s');
+            print('   SDK событие af_subscribe НЕ отправляется (избегаем дублирования)');
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('⚠️ Ошибка отправки события подписки: $e');
+          }
+        }
+      }
 
       // RELEASE: Debug mode disabled
       if (true) {
@@ -591,67 +629,8 @@ class SubscriptionService extends ChangeNotifier {
     _subscription.cancel();
   }
 
-  /// Валидация покупки через AppsFlyer SDK Connector
-  Future<void> _validatePurchaseWithAppsFlyer(SubscriptionProduct product) async {
-    try {
-      // Получаем цену из priceText (парсим "2 290 ₽ / год" -> 2290.0)
-      final priceMatch = RegExp(r'(\d[\d\s]*\d|\d+)').firstMatch(product.priceText);
-      final price = priceMatch != null
-          ? double.tryParse(priceMatch.group(1)!.replaceAll(' ', '')) ?? 0.0
-          : 0.0;
-
-      final currency = product.priceText.contains('₽') ? 'RUB' : 'USD';
-
-      // RELEASE: Debug mode disabled
-      if (false) {
-        print('💰 AppsFlyer IAP Validation for ${product.identifier}');
-        print('   Price: $price $currency');
-      }
-
-      // AppsFlyer Purchase Connector автоматически отправляет:
-      // - af_ars_trial_started (для триальных подписок)
-      // - af_ars_subscription_started (для обычных подписок)
-      // - af_ars_trial_converted (когда триал конвертится в подписку)
-      // - af_ars_subscription_renewed (при продлении)
-      // Отправка этих событий вручную приведет к дублированию revenue
-
-      // Определяем триальную подписку по ID
-      final isTrialProduct = product.identifier.contains('trial');
-
-      // Purchase events теперь обрабатываются Purchase Connector автоматически
-      // Удалены кастомные события во избежание дублирования с S2S событиями
-      // await _analytics.logSubscriptionStarted(
-      //   product: product.identifier,
-      //   isTrial: isTrialProduct,
-      //   price: price,
-      //   currency: currency,
-      // );
-
-      // TODO: Когда будет реальный IAP, добавить платформо-специфичную валидацию:
-      //
-      // Android:
-      // await _appsFlyer.validateAndLogAndroidPurchase(
-      //   productId: product.identifier,
-      //   purchaseToken: realPurchaseToken,
-      //   price: price,
-      //   currency: currency,
-      // );
-      //
-      // iOS:
-      // await _appsFlyer.validateAndLogIOSPurchase(
-      //   productId: product.identifier,
-      //   transactionId: realTransactionId,
-      //   price: price,
-      //   currency: currency,
-      // );
-
-    } catch (error) {
-      // RELEASE: Debug mode disabled
-      if (false) {
-        print('❌ Ошибка валидации покупки через AppsFlyer: $error');
-      }
-    }
-  }
+  // 🔥 УДАЛЕНЫ legacy методы валидации - Purchase Connector делает это автоматически!
+  // Теперь события af_ars_* генерируются автоматически через Purchase Connector
 }
 
 class SubscriptionProvider extends ChangeNotifier {

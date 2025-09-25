@@ -2,8 +2,6 @@ import 'package:appsflyer_sdk/appsflyer_sdk.dart';
 import 'package:flutter/foundation.dart';
 
 import 'appsflyer_config.dart';
-import 'purchase_connector_service.dart';
-
 /// Сервис для работы с AppsFlyer SDK.
 /// Отслеживает атрибуцию, conversion события и интеграцию с кампаниями.
 class AppsFlyerService {
@@ -13,9 +11,10 @@ class AppsFlyerService {
 
   AppsflyerSdk? _appsflyerSdk;
   bool _isInitialized = false;
-  final PurchaseConnectorService _purchaseConnector = PurchaseConnectorService();
+  bool _isStarted = false;
 
   bool get isInitialized => _isInitialized;
+  bool get isStarted => _isStarted;
 
   /// Инициализация AppsFlyer SDK
   Future<void> initialize() async {
@@ -37,9 +36,10 @@ class AppsFlyerService {
         afDevKey: config.devKey,
         appId: config.appId ?? '', // только для iOS, пустая строка для Android
         showDebug: kDebugMode,
-        timeToWaitForATTUserAuthorization: 15, // iOS 14.5+ ATT
+        timeToWaitForATTUserAuthorization: 60, // iOS 14.5+ ATT - увеличено до 60 сек
         disableAdvertisingIdentifier: false,
         disableCollectASA: false, // Apple Search Ads
+        manualStart: true, // 🔥 КРИТИЧНО для Purchase Connector!
       );
 
       _appsflyerSdk = AppsflyerSdk(options);
@@ -55,6 +55,13 @@ class AppsFlyerService {
       _appsflyerSdk!.onInstallConversionData((data) {
         if (kDebugMode) {
           print('📊 AppsFlyer onInstallConversionData: $data');
+          print('📊 Install Conversion Data:');
+          print('  status: ${data['status']}');
+          print('  payload: ${data['payload']}');
+          if (data['payload'] != null) {
+            final payload = data['payload'] as Map<dynamic, dynamic>;
+            print('📊 User Type: ${payload['af_status'] == 'Organic' ? 'Organic' : 'Non-Organic'}');
+          }
         }
         _handleInstallConversion(data);
       });
@@ -66,7 +73,7 @@ class AppsFlyerService {
         _handleDeepLink(data.deepLink?.clickEvent);
       });
 
-      // Инициализируем SDK
+      // Инициализируем SDK (НЕ запускаем из-за manualStart: true)
       await _appsflyerSdk!.initSdk(
         registerConversionDataCallback: true,
         registerOnAppOpenAttributionCallback: true,
@@ -76,31 +83,50 @@ class AppsFlyerService {
       _isInitialized = true;
 
       if (kDebugMode) {
-        print('✅ AppsFlyer SDK инициализирован');
+        print('✅ AppsFlyer SDK инициализирован (но не запущен из-за manualStart: true)');
         print('   Dev Key: ${config.devKey}');
         print('   Bundle ID: ${config.bundleId}');
         if (config.appId != null) {
           print('   App ID: ${config.appId}');
         }
+        print('ℹ️ Используйте startSDK() для запуска после настройки согласий');
       }
-
-      // Запускаем Purchase Connector с задержкой 1 секунда после AppsFlyer SDK
-      // Это критически важно для корректной работы Purchase Connector
-      Future.delayed(const Duration(seconds: 1), () async {
-        try {
-          await _purchaseConnector.initializeAndStart();
-          if (kDebugMode) {
-            print('🎯 Purchase Connector запущен успешно');
-          }
-        } catch (e) {
-          if (kDebugMode) {
-            print('❌ Ошибка запуска Purchase Connector: $e');
-          }
-        }
-      });
     } catch (error, stackTrace) {
       if (kDebugMode) {
         print('❌ Ошибка инициализации AppsFlyer: $error');
+        print(stackTrace);
+      }
+    }
+  }
+
+  /// Запуск AppsFlyer SDK после настройки согласий
+  /// КРИТИЧНО: должен вызываться ПОСЛЕ configure consent и ДО Purchase Connector
+  Future<void> startSDK() async {
+    if (!_isInitialized || _appsflyerSdk == null) {
+      if (kDebugMode) {
+        print('❌ AppsFlyer не инициализирован, невозможно запустить SDK');
+      }
+      return;
+    }
+
+    if (_isStarted) {
+      if (kDebugMode) {
+        print('⚠️ AppsFlyer SDK уже запущен');
+      }
+      return;
+    }
+
+    try {
+      _appsflyerSdk!.startSDK();
+      _isStarted = true;
+
+      if (kDebugMode) {
+        print('🚀 AppsFlyer SDK запущен успешно');
+        print('✅ Теперь можно инициализировать Purchase Connector');
+      }
+    } catch (error, stackTrace) {
+      if (kDebugMode) {
+        print('❌ Ошибка запуска AppsFlyer SDK: $error');
         print(stackTrace);
       }
     }
@@ -172,8 +198,8 @@ class AppsFlyerService {
   // ==================== CONVERSION EVENTS ====================
 
 
-  /// Валидация покупки через AppsFlyer (Android)
-  /// DEPRECATED: Используется Purchase Connector для автоматической валидации
+  /// Валидация покупки через AppsFlyer (Android) - LEGACY режим
+  /// Используется когда Purchase Connector недоступен для Flutter
   Future<void> validateAndLogAndroidPurchase({
     required String productId,
     required String purchaseToken,
@@ -181,13 +207,56 @@ class AppsFlyerService {
     required String currency,
     Map<String, dynamic>? additionalData,
   }) async {
-    if (kDebugMode) {
-      print('⚠️ validateAndLogAndroidPurchase deprecated - используйте Purchase Connector');
-      print('   Product: $productId, Price: $price $currency');
+    if (!_isInitialized || _appsflyerSdk == null) {
+      if (kDebugMode) {
+        print('⚠️ AppsFlyer не инициализирован, пропускаем валидацию покупки');
+      }
+      return;
     }
 
-    // Purchase Connector автоматически обрабатывает валидацию
-    // Этот метод оставлен для совместимости, но не используется
+    try {
+      if (kDebugMode) {
+        print('🔥 AppsFlyer LEGACY валидация Android подписки:');
+        print('   Product: $productId');
+        print('   Token: ***${purchaseToken.length > 4 ? purchaseToken.substring(purchaseToken.length - 4) : purchaseToken}');
+        print('   Price: $price $currency');
+        print('   Event: ${productId.contains('trial') ? 'af_start_trial' : 'af_subscribe'}');
+      }
+
+      // Логируем событие подписки вручную через стандартный AppsFlyer event
+      final eventData = {
+        'af_revenue': price,
+        'af_currency': currency,
+        'af_quantity': 1,
+        'af_content_id': productId,  // Для подписок используется af_content_id
+        'af_purchase_token': purchaseToken,
+        'af_validation_method': 'legacy_android',
+        ...?additionalData,
+      };
+
+      // Определяем тип события в зависимости от продукта
+      String eventName = 'af_subscribe'; // По умолчанию для подписок
+
+      // Если это триал, используем специальное событие
+      if (productId.contains('trial') || (additionalData?['subscription_type'] == 'trial')) {
+        eventName = 'af_start_trial';
+      }
+
+      // Отправляем событие подписки
+      await logEvent(
+        eventName: eventName,
+        eventValues: eventData,
+      );
+
+      if (kDebugMode) {
+        print('✅ AppsFlyer Legacy Android валидация отправлена: $eventName');
+      }
+
+    } catch (error) {
+      if (kDebugMode) {
+        print('❌ Ошибка AppsFlyer Legacy Android валидации: $error');
+      }
+    }
   }
 
   /// Валидация покупки через AppsFlyer (iOS)
@@ -344,9 +413,8 @@ class AppsFlyerService {
     // Обработка данных о конверсии установки
     if (kDebugMode) {
       print('📊 Install Conversion Data:');
-      data.forEach((key, value) {
-        print('  $key: $value');
-      });
+      print('  status: ${data['status']}');
+      print('  payload: ${data['payload']}');
     }
 
     // Здесь можно добавить логику для обработки органического vs. неорганического трафика

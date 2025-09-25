@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -118,7 +119,7 @@ void main() async {
 
   // Log app open event with AppsFlyer
   await AnalyticsService().log('app_open', {
-    'app_version': '2.0.8',
+    'app_version': '2.1.1',
     'locale': LocaleService.instance.currentLocale.toString(),
     'tz': DateTime.now().timeZoneName,
     'onboarding_completed': onboardingCompleted.toString(),  // преобразуем в строку
@@ -428,16 +429,30 @@ class _SplashScreenState extends State<SplashScreen> {
   // Show consent banner
   Future<void> _showConsentBanner() async {
     try {
+      // 🔥 КРИТИЧНО: Настраиваем callback для AppsFlyer startSDK() ПОСЛЕ согласия
+      _consentService.onConsentChanged = (hasConsent) async {
+        if (kDebugMode) {
+          print('🔧 Consent изменён: $hasConsent');
+        }
+        if (hasConsent) {
+          if (kDebugMode) {
+            print('🚀 Согласие получено! Запускаем AppsFlyer SDK...');
+          }
+          await AnalyticsService().checkAndEnableAppsFlyer();
+        } else {
+          if (kDebugMode) {
+            print('⚠️ Согласие НЕ получено - AppsFlyer остается неактивным');
+          }
+        }
+      };
+
       await _consentService.showConsentBanner(context);
-      
+
       // Log consent banner shown
       await AnalyticsService().log('consent_banner_shown', {
         'location': 'app_start',
       });
-      
-      // After consent is given/denied, check if AppsFlyer needs to be enabled
-      await AnalyticsService().checkAndEnableAppsFlyer();
-      
+
     } catch (e) {
       // RELEASE: Debug logging disabled
       // debugPrint('Error showing consent banner: $e');

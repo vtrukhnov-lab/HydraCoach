@@ -21,6 +21,10 @@ allprojects {
         maven {
             url = uri("https://maven.devtodev.com/public")
         }
+        // AppsFlyer Purchase Connector artifacts are hosted on the AppsFlyer Maven repo
+        maven {
+            url = uri("https://maven.appsflyer.com")
+        }
     }
 }
 

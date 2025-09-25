@@ -1,0 +1,56 @@
+{
+  "water_reminder_title": "💧 Time to hydrate",
+  "water_reminder_morning": "Start your day with a glass of water",
+  "water_reminder_low_progress": "You've drunk only {progress}% of the norm. Time to catch up!",
+  "water_reminder_good_progress": "Excellent progress! Keep going",
+  "water_reminder_maintain": "Maintain water balance",
+  "water_reminder_body": "You have {progress}% of your goal. Keep going!",
+  
+  "post_coffee_title": "☕ After coffee",
+  "post_coffee_body": "Drink 250-300 ml water to restore balance",
+  
+  "daily_report_title": "📊 Daily report ready",
+  "daily_report_body": "See how your hydration day went",
+  
+  "alcohol_counter_title": "🍺 Recovery time",
+  "alcohol_counter_body": "Drink {amount} ml water with a pinch of salt",
+  
+  "heat_warning_title": "🌡️ Heat warning",
+  "heat_warning_extreme": "Extreme heat! +15% water and +1g salt",
+  "heat_warning_hot": "Hot! +10% water and electrolytes",
+  "heat_warning_warm": "Warm. Monitor your hydration",
+  
+  "workout_title": "💪 Workout",
+  "workout_body": "Don't forget water and electrolytes",
+  
+  "post_workout_title": "💪 After workout",
+  "post_workout_body": "500 ml water + electrolytes for recovery",
+  
+  "fasting_electrolyte_title": "⚡ Electrolyte time",
+  "fasting_electrolyte_body": "Add a pinch of salt to water or drink broth",
+  
+  "alcohol_recovery_step_title": "💧 Recovery {hour}h",
+  "alcohol_recovery_step_body": "Drink {amount} ml water",
+  "alcohol_recovery_step_body_with_electrolytes": "Drink {amount} ml water + electrolytes (Na/K/Mg)",
+  
+  "morning_checkin_title": "☀️ Morning check-in",
+  "morning_checkin_body": "How are you feeling? Rate your condition and get a plan for the day",
+  
+  "test_notification_title": "🧪 Test notification",
+  "test_notification_body": "If you see this - notifications work!",
+  
+  "test_scheduled_title": "⏰ Scheduled test",
+  "test_scheduled_body": "This notification was scheduled 1 minute ago",
+  
+  "channel_name_default": "Hydration Reminders",
+  "channel_desc_default": "Water and electrolyte reminders",
+  
+  "channel_name_urgent": "Important Notifications",
+  "channel_desc_urgent": "Heat warnings and critical hydration alerts",
+  
+  "channel_name_report": "Reports",
+  "channel_desc_report": "Daily and weekly reports",
+
+  "channel_name_silent": "Silent notifications", 
+  "channel_desc_silent": "Quiet reminders without sound or vibration"
+}

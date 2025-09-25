@@ -16,7 +16,7 @@ import 'onboarding/pages/weight_page.dart';
 import 'onboarding/pages/diet_page.dart';
 import 'onboarding/pages/complete_page.dart';
 import 'onboarding/pages/notification_examples_page.dart';
-// import 'onboarding/pages/location_examples_page.dart'; // Removed - location permission now requested from weather card
+import 'onboarding/pages/location_examples_page.dart';
 import 'onboarding/widgets/first_intake_tutorial.dart';
 import 'main_shell.dart';
 import 'paywall_screen.dart';
@@ -160,8 +160,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _trackStepCompleted(6);
     _completeStep(5);
 
-    // Complete onboarding since notifications is now the last step
-    _completeOnboarding();
+    // Navigate to Location Examples page (page 6)
+    _pageController.animateToPage(
+      6,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   void _advanceFromLocation({
@@ -322,9 +326,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onBack: _goToPreviousPage,
                   ),
                   
-                  // 5 - Notification Examples (last page)
+                  // 5 - Notification Examples
                   NotificationExamplesPage(
-                    onSkip: _completeOnboarding,
+                    onSkip: () {
+                      // Переходим к Location Examples
+                      _pageController.animateToPage(
+                        6,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    },
                     onBack: () {
                       _pageController.animateToPage(
                         4,
@@ -334,9 +345,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     },
                     onPermissionResult: _handleNotificationPermissionResult,
                   ),
-                  
-                  // 6 - Skip Location Examples (permission will be requested from weather card)
-                  // LocationExamplesPage removed - permission requested contextually
+
+                  // 6 - Location Examples (last page)
+                  LocationExamplesPage(
+                    onSkip: _completeOnboarding,
+                    onBack: () {
+                      _pageController.animateToPage(
+                        5,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                    onPermissionResult: _handleLocationPermissionResult,
+                  ),
                 ],
               ),
             ),
