@@ -259,14 +259,16 @@ class ElectrolytesCard extends StatelessWidget {
   // PRO-заблокированная карточка
   Widget _buildProLockedCard(BuildContext context, AppLocalizations l10n) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        final result = await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => const PaywallScreen(source: 'home_electrolytes_card'),
             fullscreenDialog: true,
           ),
         );
+        // После покупки PRO виджет автоматически перестроится
+        // благодаря context.watch<SubscriptionProvider>()
       },
       child: Container(
         decoration: BoxDecoration(

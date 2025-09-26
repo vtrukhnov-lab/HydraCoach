@@ -2,8 +2,8 @@ name: hydracoach
 description: "Smart hydration tracking with electrolyte balance"
 publish_to: 'none'
 
-# Версия приложения: 2.1.1 (AppsFlyer Purchase Connector fix) + номер сборки 33
-version: 2.1.1+33 # версия+номер_сборки
+# Версия приложения: 2.1.2 (iOS build) + номер сборки 34
+version: 2.1.2+34 # версия+номер_сборки
 
 environment:
   sdk: ^3.9.0

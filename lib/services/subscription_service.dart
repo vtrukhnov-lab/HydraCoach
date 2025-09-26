@@ -663,6 +663,22 @@ class SubscriptionProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  SubscriptionProvider() {
+    // Слушаем изменения от SubscriptionService
+    _subscriptionService.addListener(_onServiceChanged);
+  }
+
+  void _onServiceChanged() {
+    // Когда SubscriptionService обновляется, уведомляем наших слушателей
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _subscriptionService.removeListener(_onServiceChanged);
+    super.dispose();
+  }
+
   Future<void> initialize() async {
     _isLoading = true;
 

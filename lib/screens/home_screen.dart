@@ -363,10 +363,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
                   size: 20,
                 ),
               ),
-              onPressed: () {
+              onPressed: () async {
                 HapticFeedback.lightImpact();
-                // Navigate to PRO screen
-                Navigator.pushNamed(context, '/pro');
+                // Navigate to PRO screen (paywall)
+                final result = await Navigator.pushNamed(context, '/paywall');
+                // Если пользователь купил PRO, обновляем UI
+                if (result == true && mounted) {
+                  setState(() {
+                    // Принудительное обновление UI после покупки
+                  });
+                }
               },
               tooltip: l10n.getPro,
             ),
