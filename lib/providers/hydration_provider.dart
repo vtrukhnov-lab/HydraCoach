@@ -846,14 +846,16 @@ class HydrationProvider extends ChangeNotifier {
   void _checkAndResetDaily() {
     final now = DateTime.now();
     const lastResetKey = 'lastReset';
-    
+
     SharedPreferences.getInstance().then((prefs) async {
       final lastResetStr = prefs.getString(lastResetKey);
       if (lastResetStr != null) {
         final lastReset = DateTime.parse(lastResetStr);
-        if (lastReset.day != now.day) {
+        // Проверяем что это действительно новый день (год, месяц и день)
+        if (!_isSameDay(lastReset, now)) {
           todayIntakes.clear();
-          
+          todayFoodIntakes.clear(); // Очищаем также записи о еде
+
           // NEW: Reset workout adjustments for new day
           workoutWaterAdjustment = 0;
           workoutSodiumAdjustment = 0;
@@ -1381,6 +1383,13 @@ class HydrationProvider extends ChangeNotifier {
     return math.min(baseHRI, 100);
   }
   
+  /// Проверка одинаковый ли день
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+           date1.month == date2.month &&
+           date1.day == date2.day;
+  }
+
   @override
   void dispose() {
     // Clean up achievement service when provider is disposed
