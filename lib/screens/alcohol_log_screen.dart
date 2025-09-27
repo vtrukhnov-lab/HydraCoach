@@ -15,6 +15,7 @@ import '../services/subscription_service.dart';
 import '../services/notification_service.dart';
 import '../services/units_service.dart';
 import '../screens/paywall_screen.dart';
+import '../widgets/home/ad_banner_card.dart';
 
 // Import common widgets
 import '../widgets/common/volume_selection_dialog.dart';
@@ -378,8 +379,13 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
           ).animate()
             .fadeIn(duration: 300.ms)
             .slideY(begin: -0.1, end: 0),
-          
-          const SizedBox(height: 24),
+
+          const SizedBox(height: 16),
+
+          // Баннер для бесплатных пользователей
+          if (!_isPro) const AdBannerCard(),
+
+          const SizedBox(height: 16),
           
           // Type selector
           Container(

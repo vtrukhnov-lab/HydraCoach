@@ -38,6 +38,28 @@ target 'Runner' do
 
   # DevToDev Analytics SDK
   pod 'DevToDev', '~> 2.6.0'
+
+  # AppLovin MAX медиированные рекламные сети
+  # Основной SDK AppLovin уже включен через Flutter плагин
+
+  # Приоритет 1 - Основные сети
+  pod 'AppLovinMediationGoogleAdapter'           # Google AdMob
+  pod 'AppLovinMediationGoogleAdManagerAdapter'  # Google Ad Manager
+  pod 'AppLovinMediationFacebookAdapter'         # Meta (Facebook)
+
+  # Приоритет 2 - Дополнительные сети с высоким eCPM
+  pod 'AppLovinMediationMintegralAdapter'        # Mintegral
+  pod 'AppLovinMediationUnityAdsAdapter'         # Unity Ads
+  pod 'AppLovinMediationIronSourceAdapter'       # IronSource
+  pod 'AppLovinMediationChartboostAdapter'       # Chartboost
+
+  # Приоритет 3 - Дополнительные сети для максимального fill rate
+  pod 'AppLovinMediationFyberAdapter'            # DT Exchange
+  pod 'AppLovinMediationVungleAdapter'           # Liftoff Monetize
+  pod 'AppLovinMediationBidMachineAdapter'       # BidMachine
+  pod 'AppLovinMediationOguryPresageAdapter'     # Ogury
+  pod 'AppLovinMediationMobileFuseAdapter'       # MobileFuse
+  pod 'AppLovinMediationMolocoAdapter'           # Moloco
 end
 
 post_install do |installer|

@@ -76,3 +76,7 @@ project_code.txt
 build*
 .flutter-plugins*
 
+
+# Release builds
+docs/release_notes/**/*.apk
+docs/release_notes/**/*.aab

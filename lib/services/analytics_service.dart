@@ -464,6 +464,47 @@ class AnalyticsService {
     );
   }
 
+  /// Water goal milestone events - ВАЖНЫЕ СОБЫТИЯ ДЛЯ КОГОРТНОГО АНАЛИЗА
+  /// Отправляются ОДИН РАЗ при первом достижении milestone
+  Future<void> logWaterGoalMilestone({
+    required int totalDays,
+  }) async {
+    // Определяем название события в зависимости от количества дней
+    String eventName;
+    switch (totalDays) {
+      case 1:
+        eventName = 'water_goal_100_first'; // Первый раз достиг 100%
+        break;
+      case 2:
+        eventName = 'water_goal_100_2days'; // 2 дня с 100%
+        break;
+      case 3:
+        eventName = 'water_goal_100_3days'; // 3 дня с 100%
+        break;
+      case 5:
+        eventName = 'water_goal_100_5days'; // 5 дней с 100%
+        break;
+      case 7:
+        eventName = 'water_goal_100_7days'; // 7 дней с 100%
+        break;
+      case 10:
+        eventName = 'water_goal_100_10days'; // 10 дней с 100%
+        break;
+      case 14:
+        eventName = 'water_goal_100_14days'; // 14 дней с 100%
+        break;
+      default:
+        return; // Не логируем промежуточные значения
+    }
+
+    await logEvent(
+      name: eventName,
+      parameters: {
+        'total_days_with_100_percent': totalDays,
+      },
+    );
+  }
+
   /// HRI status change
   Future<void> logHRIStatusChange({
     required int fromValue,
@@ -761,6 +802,10 @@ class AnalyticsService {
   /// Onboarding complete
   Future<void> logOnboardingComplete() async {
     await logEvent(name: 'onboarding_complete');
+
+    // Отправляем событие завершения туториала в DevToDev
+    // -2 означает что туториал успешно завершен
+    await _devToDev.tutorial(-2);
   }
 
   /// Onboarding skip

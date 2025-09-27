@@ -155,6 +155,101 @@ class DevToDevAnalyticsService {
     }
   }
 
+  /// Отправка события о реальном платеже (подписка или покупка)
+  Future<void> realCurrencyPayment({
+    required String orderId,
+    required double price,
+    required String productId,
+    required String currencyCode,
+  }) async {
+    if (!_isInitialized) {
+      return;
+    }
+
+    try {
+      await _channel.invokeMethod<void>('realCurrencyPayment', {
+        'orderId': orderId,
+        'price': price,
+        'productId': productId,
+        'currencyCode': currencyCode,
+      });
+    } catch (error) {
+      _logError('realCurrencyPayment', error);
+    }
+  }
+
+  /// Отправка события о подписке
+  Future<void> subscriptionPayment({
+    required String orderId,
+    required double price,
+    required String productId,
+    required String currencyCode,
+  }) async {
+    if (!_isInitialized) {
+      return;
+    }
+
+    try {
+      await _channel.invokeMethod<void>('subscriptionPayment', {
+        'orderId': orderId,
+        'price': price,
+        'productId': productId,
+        'currencyCode': currencyCode,
+      });
+    } catch (error) {
+      _logError('subscriptionPayment', error);
+    }
+  }
+
+  /// Отправка события о прохождении туториала/онбординга
+  Future<void> tutorial(int step) async {
+    if (!_isInitialized) {
+      return;
+    }
+
+    try {
+      await _channel.invokeMethod<void>('tutorial', {
+        'step': step,
+      });
+    } catch (error) {
+      _logError('tutorial', error);
+    }
+  }
+
+  /// Отправка события о повышении уровня пользователя
+  Future<void> levelUp({
+    required int level,
+    Map<String, double>? balances,
+  }) async {
+    if (!_isInitialized) {
+      return;
+    }
+
+    try {
+      await _channel.invokeMethod<void>('levelUp', {
+        'level': level,
+        'balances': balances,
+      });
+    } catch (error) {
+      _logError('levelUp', error);
+    }
+  }
+
+  /// Отправка текущего баланса пользователя
+  Future<void> currentBalance(Map<String, double> balance) async {
+    if (!_isInitialized) {
+      return;
+    }
+
+    try {
+      await _channel.invokeMethod<void>('currentBalance', {
+        'balance': balance,
+      });
+    } catch (error) {
+      _logError('currentBalance', error);
+    }
+  }
+
   DevToDevCredentials _resolveCredentials() {
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:

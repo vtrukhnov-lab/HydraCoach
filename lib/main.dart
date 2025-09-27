@@ -119,7 +119,7 @@ void main() async {
 
   // Log app open event with AppsFlyer
   await AnalyticsService().log('app_open', {
-    'app_version': '2.1.1',
+    'app_version': '2.1.3',
     'locale': LocaleService.instance.currentLocale.toString(),
     'tz': DateTime.now().timeZoneName,
     'onboarding_completed': onboardingCompleted.toString(),  // преобразуем в строку

@@ -19,6 +19,7 @@ import '../services/hri_service.dart';
 import '../screens/paywall_screen.dart';
 import '../data/items_catalog.dart';
 import '../data/catalog_item.dart';
+import '../widgets/home/ad_banner_card.dart';
 
 // Import common widgets
 import '../widgets/common/volume_selection_dialog.dart';
@@ -485,8 +486,14 @@ Future<void> _showHotDrinkDialog(CatalogItem item) async {
           ).animate()
             .fadeIn(duration: 300.ms)
             .slideY(begin: -0.1, end: 0),
-          
-          const SizedBox(height: 24),
+
+          const SizedBox(height: 16),
+
+          // Баннер для бесплатных пользователей
+          if (!isPro) const AdBannerCard(),
+          if (!isPro) const SizedBox(height: 16),
+
+          const SizedBox(height: 8),
           
           // Type selector
           HotDrinkTypeSelector(

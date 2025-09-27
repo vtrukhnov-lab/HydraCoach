@@ -10,6 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../l10n/app_localizations.dart';
 import '../services/analytics_service.dart';
 import '../services/units_service.dart';
+import '../services/water_milestone_tracker.dart';
 import 'onboarding/pages/welcome_page.dart';
 import 'onboarding/pages/units_page.dart';
 import 'onboarding/pages/weight_page.dart';
@@ -555,7 +556,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboardingCompleted', true);
 
-    await _analytics.logOnboardingComplete();
+    // Логируем milestone событие onboarding_complete (один раз)
+    final milestoneTracker = WaterMilestoneTracker();
+    await milestoneTracker.logOnboardingComplete();
 
     if (mounted) {
       // Показываем paywall

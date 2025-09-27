@@ -47,5 +47,56 @@
 	<true/>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-5658037951569538~8820120029</string>
+	<key>AppLovinSdkKey</key>
+	<string>5AAhiuFzwRBZXL6NRkfMQIFE9TpJ-fX4qinXb1VVTh4_1ANSv1qJJ3TSWLnV_Jaq1LLcMr7rXCqTMC0FDqZXu6</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This app uses tracking to provide personalized ads and improve your experience</string>
+	<key>SKAdNetworkItems</key>
+	<array>
+		<!-- AppLovin -->
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>ludvb6z3bs.skadnetwork</string>
+		</dict>
+		<!-- Google AdMob -->
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>cstr6suwn9.skadnetwork</string>
+		</dict>
+		<!-- Meta (Facebook) -->
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>v9wttpbfk9.skadnetwork</string>
+		</dict>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>n38lu8286q.skadnetwork</string>
+		</dict>
+		<!-- Unity Ads -->
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>4dzt52r2t5.skadnetwork</string>
+		</dict>
+		<!-- IronSource -->
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>su67r6k2v3.skadnetwork</string>
+		</dict>
+		<!-- Mintegral -->
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>kbd757ywx3.skadnetwork</string>
+		</dict>
+		<!-- Chartboost -->
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>f38h382jlk.skadnetwork</string>
+		</dict>
+		<!-- Vungle/Liftoff -->
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>gta9lk7p23.skadnetwork</string>
+		</dict>
+	</array>
 </dict>
 </plist>

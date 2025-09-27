@@ -13,6 +13,7 @@ import '../services/hri_service.dart';
 import '../services/notification_service.dart';
 import '../services/remote_config_service.dart';
 import '../screens/paywall_screen.dart';
+import '../widgets/home/ad_banner_card.dart';
 
 // Import common widgets
 import '../widgets/common/favorite_slot_selector.dart';
@@ -409,7 +410,11 @@ class _SportsScreenState extends State<SportsScreen> {
           
           if (stats['workoutCount'] > 0)
             const SizedBox(height: 16),
-          
+
+          // Баннер для бесплатных пользователей
+          if (!_isPro) const AdBannerCard(),
+          if (!_isPro) const SizedBox(height: 16),
+
           // Category selector
           Container(
             padding: const EdgeInsets.all(4),

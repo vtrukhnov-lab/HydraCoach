@@ -25,6 +25,26 @@ allprojects {
         maven {
             url = uri("https://maven.appsflyer.com")
         }
+        // Mintegral/Mbridge SDK repository
+        maven {
+            url = uri("https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea")
+        }
+        // Chartboost SDK repository
+        maven {
+            url = uri("https://cboost.jfrog.io/artifactory/chartboost-ads/")
+        }
+        // BidMachine repository
+        maven {
+            url = uri("https://artifactory.bidmachine.io/bidmachine")
+        }
+        // Ogury repository
+        maven {
+            url = uri("https://maven.ogury.co")
+        }
+        // Unity Ads repository
+        maven {
+            url = uri("https://maven.unity.com/repository/public")
+        }
     }
 }
 

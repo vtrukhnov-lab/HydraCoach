@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'dart:async';
 import 'analytics_service.dart';
+import 'devtodev_analytics_service.dart';
 
 /*
 🧪 НАСТРОЙКА ТЕСТОВЫХ ПОКУПОК В GOOGLE PLAY CONSOLE:
@@ -100,6 +101,7 @@ class SubscriptionService extends ChangeNotifier {
   static final List<String> _runtimeTestAccounts = [];
 
   final AnalyticsService _analytics = AnalyticsService();
+  final DevToDevAnalyticsService _devToDev = DevToDevAnalyticsService();
 
   static const List<SubscriptionProduct> _defaultProducts = [
     SubscriptionProduct(
@@ -347,6 +349,8 @@ class SubscriptionService extends ChangeNotifier {
               currency = 'EUR';
             } else if (product.price.contains('£')) {
               currency = 'GBP';
+            } else if (product.price.contains('₽')) {
+              currency = 'RUB';
             } else if (product.price.contains('\$')) {
               currency = 'USD';
             }
@@ -362,10 +366,19 @@ class SubscriptionService extends ChangeNotifier {
           //   transactionId: purchaseDetails.purchaseID ?? '',
           // );
 
+          // 📊 Отправляем событие платежа в DevToDev
+          await _devToDev.subscriptionPayment(
+            orderId: purchaseDetails.purchaseID ?? DateTime.now().millisecondsSinceEpoch.toString(),
+            price: price,
+            productId: purchaseDetails.productID,
+            currencyCode: currency,
+          );
+
           if (kDebugMode) {
             print('💰 Subscription purchased: ${purchaseDetails.productID}');
             print('   Purchase Connector отправит S2S событие: af_ars_sandbox_s2s');
             print('   SDK событие af_subscribe НЕ отправляется (избегаем дублирования)');
+            print('📊 DevToDev: subscriptionPayment отправлено (${purchaseDetails.productID}, $price $currency)');
           }
         } catch (e) {
           if (kDebugMode) {

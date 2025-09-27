@@ -11,8 +11,10 @@ import '../../services/history_service.dart';
 import '../../services/hri_service.dart';
 import '../../services/alcohol_service.dart';
 import '../../services/units_service.dart';
+import '../../services/subscription_service.dart';
 import '../../services/feature_gate_service.dart';
 import '../../services/remote_config_service.dart';
+import '../../widgets/home/ad_banner_card.dart';
 import '../../models/intake.dart';
 import '../../models/alcohol_intake.dart';
 import '../../models/food_intake.dart';
@@ -231,7 +233,23 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
 
                   if (!_isLoading) ...[
                     _buildDayOverviewCard(l10n, hydrationProvider, hriService, alcoholService),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
+
+                    // Баннер для бесплатных пользователей
+                    Consumer<SubscriptionProvider>(
+                      builder: (context, subscriptionProvider, child) {
+                        if (!subscriptionProvider.isPro) {
+                          return const Column(
+                            children: [
+                              AdBannerCard(),
+                              SizedBox(height: 16),
+                            ],
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+
                     _buildFilters(l10n, alcoholService),
                     const SizedBox(height: 20),
                     _buildEventsList(l10n, hydrationProvider, alcoholService),

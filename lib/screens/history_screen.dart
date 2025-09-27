@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../services/subscription_service.dart';
 import '../screens/paywall_screen.dart';
+import '../widgets/home/ad_banner_card.dart';
 import 'history/daily_history_screen.dart';
 import 'history/weekly_history_screen.dart';
 import 'history/monthly_history_screen.dart';
@@ -135,29 +136,39 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
               ),
             ),
           ),
-          body: TabBarView(
-            controller: _tabController,
+          body: Column(
             children: [
-              // Дневная история - доступна всем
-              const DailyHistoryScreen(),
-              
-              // Недельная история - только PRO
-              isPro 
-                ? const WeeklyHistoryScreen()
-                : _buildProPlaceholder(
-                    title: l10n.weeklyHistory,
-                    description: l10n.weeklyHistoryDesc,
-                    icon: Icons.calendar_view_week,
-                  ),
-              
-              // Месячная история - только PRO
-              isPro
-                ? const MonthlyHistoryScreen()
-                : _buildProPlaceholder(
-                    title: l10n.monthlyHistory,
-                    description: l10n.monthlyHistoryDesc,
-                    icon: Icons.calendar_month,
-                  ),
+              // Баннер для бесплатных пользователей
+              if (!isPro) const AdBannerCard(),
+
+              // TabBarView
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    // Дневная история - доступна всем
+                    const DailyHistoryScreen(),
+
+                    // Недельная история - только PRO
+                    isPro
+                      ? const WeeklyHistoryScreen()
+                      : _buildProPlaceholder(
+                          title: l10n.weeklyHistory,
+                          description: l10n.weeklyHistoryDesc,
+                          icon: Icons.calendar_view_week,
+                        ),
+
+                    // Месячная история - только PRO
+                    isPro
+                      ? const MonthlyHistoryScreen()
+                      : _buildProPlaceholder(
+                          title: l10n.monthlyHistory,
+                          description: l10n.monthlyHistoryDesc,
+                          icon: Icons.calendar_month,
+                        ),
+                  ],
+                ),
+              ),
             ],
           ),
         );

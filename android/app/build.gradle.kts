@@ -48,8 +48,8 @@ android {
         applicationId = "com.playcus.hydracoach"
         minSdk = flutter.minSdkVersion
         targetSdk = 35
-        versionCode = 33
-        versionName = "2.1.1"
+        versionCode = 34
+        versionName = "2.1.3"
         multiDexEnabled = true
     }
 
@@ -116,4 +116,26 @@ dependencies {
     // DevToDev Analytics SDK v2 (stable version)
     implementation("com.devtodev:android-analytics:2.5.1")
     implementation("com.devtodev:android-google:1.0.1")
+
+    // AppLovin MAX SDK (основной SDK уже включен через Flutter плагин)
+    // Медиированные рекламные сети для AppLovin MAX
+
+    // Приоритет 1 - Основные сети
+    implementation("com.applovin.mediation:google-adapter:+")           // Google AdMob
+    implementation("com.applovin.mediation:google-ad-manager-adapter:+") // Google Ad Manager
+    implementation("com.applovin.mediation:facebook-adapter:+")         // Meta (Facebook)
+
+    // Приоритет 2 - Дополнительные сети с высоким eCPM
+    implementation("com.applovin.mediation:mintegral-adapter:+")        // Mintegral
+    implementation("com.applovin.mediation:unityads-adapter:+")         // Unity Ads
+    implementation("com.applovin.mediation:ironsource-adapter:+")       // IronSource
+    implementation("com.applovin.mediation:chartboost-adapter:+")       // Chartboost
+
+    // Приоритет 3 - Дополнительные сети для максимального fill rate
+    implementation("com.applovin.mediation:fyber-adapter:+")            // DT Exchange (Fyber)
+    implementation("com.applovin.mediation:vungle-adapter:+")           // Liftoff Monetize (Vungle)
+    implementation("com.applovin.mediation:bidmachine-adapter:+")       // BidMachine
+    implementation("com.applovin.mediation:ogury-presage-adapter:+")    // Ogury
+    implementation("com.applovin.mediation:mobilefuse-adapter:+")       // MobileFuse
+    implementation("com.applovin.mediation:moloco-adapter:+")           // Moloco
 }

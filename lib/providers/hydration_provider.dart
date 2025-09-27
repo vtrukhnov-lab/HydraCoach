@@ -31,6 +31,7 @@ import '../models/food_intake.dart';
 import '../data/catalog_item.dart'; // Added for CatalogItem
 import '../widgets/home/sugar_intake_card.dart'; // Added for SugarIntakeData
 import '../services/achievement_tracker.dart';
+import '../services/water_milestone_tracker.dart';
 
 
 
@@ -68,8 +69,9 @@ class HydrationProvider extends ChangeNotifier {
   
   // Store BuildContext for AchievementService
   BuildContext? _context;
-  
+
   final AchievementTracker _achievementTracker = AchievementTracker();
+  final WaterMilestoneTracker _milestoneTracker = WaterMilestoneTracker();
 
   late DailyGoals goals;
 
@@ -856,11 +858,19 @@ class HydrationProvider extends ChangeNotifier {
           todayIntakes.clear();
           todayFoodIntakes.clear(); // Очищаем также записи о еде
 
-          // NEW: Reset workout adjustments for new day
+          // Reset all adjustments for new day
           workoutWaterAdjustment = 0;
           workoutSodiumAdjustment = 0;
           workoutPotassiumAdjustment = 0;
           workoutMagnesiumAdjustment = 0;
+
+          // Reset alcohol adjustments
+          alcoholWaterAdjustment = 0;
+          alcoholSodiumAdjustment = 0;
+
+          // Reset weather adjustments
+          weatherWaterAdjustment = 0;
+          weatherSodiumAdjustment = 0;
           
           await prefs.setString(lastResetKey, now.toIso8601String());
           
@@ -1002,6 +1012,11 @@ class HydrationProvider extends ChangeNotifier {
           addedVolume: volume,
           formattedVolume: formattedVolume,
         );
+
+        // Проверяем milestone события при достижении 100%
+        if (newPercent >= 100.0 && oldPercent < 100.0) {
+          _milestoneTracker.checkAndLogWaterGoalAchieved();
+        }
       }
     }
 
