@@ -1,0 +1,3179 @@
+{
+  "@@locale": "ja",
+
+  "appTitle": "ハイドロコーチ",
+  "@appTitle": {
+    "description": "アプリケーション名"
+  },
+
+  "getPro": "PROを取得",
+  "@getPro": {
+    "description": "PROのツールチップ"
+  },
+
+  "sunday": "日曜日",
+  "monday": "月曜日",
+  "tuesday": "火曜日",
+  "wednesday": "水曜日",
+  "thursday": "木曜日",
+  "friday": "金曜日",
+  "saturday": "土曜日",
+
+  "january": "1月",
+  "february": "2月",
+  "march": "3月",
+  "april": "4月",
+  "may": "5月",
+  "june": "6月",
+  "july": "7月",
+  "august": "8月",
+  "september": "9月",
+  "october": "10月",
+  "november": "11月",
+  "december": "12月",
+
+  "dateFormat": "{weekday}、{day}日 {month}",
+  "@dateFormat": {
+    "description": "日付フォーマット",
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+
+  "loading": "読み込み中...",
+  "loadingWeather": "天気を読み込んでいます...",
+
+  "heatIndex": "熱中症指数",
+  "humidity": "湿度: {value}%",
+  "@humidity": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+
+  "water": "水",
+  "liquids": "飲料",
+  "sodium": "ナトリウム",
+  "potassium": "カリウム",
+  "magnesium": "マグネシウム",
+  "electrolyte": "電解質",
+  "broth": "スープ",
+  "coffee": "コーヒー",
+  "alcohol": "アルコール",
+  "drink": "飲み物",
+  "ml": "ml",
+  "mg": "mg",
+  "kg": "kg",
+
+  "valueWithUnit": "{value} {unit}",
+  "@valueWithUnit": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+
+  "goalFormat": "{current}/{goal} {unit}",
+  "@goalFormat": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+
+  "heatAdjustment": "暑さ +{percent}%",
+  "@heatAdjustment": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+
+  "alcoholAdjustment": "アルコール +{amount} ml",
+  "@alcoholAdjustment": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+
+  "smartAdviceTitle": "現在のアドバイス",
+  "smartAdviceDefault": "水と電解質のバランスを保ちましょう。",
+
+  "adviceOverhydrationSevere": "水の過剰摂取（目標の200％以上）",
+  "adviceOverhydrationSevereBody": "60-90分間休止してください。電解質を追加：300-500 mlに500-1000 mgのナトリウムを加えてください。",
+
+  "adviceOverhydration": "水の過剰摂取",
+  "adviceOverhydrationBody": "30-60分間水を控え、約500 mgのナトリウム（電解質/スープ）を追加してください。",
+
+  "adviceAlcoholRecovery": "アルコール：回復",
+  "adviceAlcoholRecoveryBody": "今日はこれ以上アルコールを控えてください。少量ずつ300-500 mlの水を飲み、ナトリウムを追加してください。",
+
+  "adviceLowSodium": "低ナトリウム",
+  "adviceLowSodiumBody": "約{amount} mgのナトリウムを追加してください。適度に飲んでください。",
+  "@adviceLowSodiumBody": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+
+  "adviceDehydration": "水分不足",
+  "adviceDehydrationBody": "300-500 ml の{type}を飲んでください。",
+  "@adviceDehydrationBody": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+
+  "adviceHighRisk": "高リスク（HRI）",
+  "adviceHighRiskBody": "至急、水と電解質を（300-500 ml）飲み、活動を減らしてください。",
+
+  "adviceHeat": "暑さと失水",
+  "adviceHeatBody": "水分を5-8％増やし、300-500 mgのナトリウムを追加してください。",
+
+  "adviceAllGood": "順調です",
+  "adviceAllGoodBody": "このペースを保ってください。目標まであと約{amount} mlです。",
+  "@adviceAllGoodBody": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+
+  "home": "ホーム",
+  "history": "履歴",
+  "settings": "設定",
+  "cancel": "キャンセル",
+  "save": "保存",
+  "reset": "リセット",
+
+  "ok": "OK",
+
+  "addWater": "水を追加",
+  "todayGoal": "本日の目標",
+  "statistics": "統計",
+  "waterAmount": "{amount} ml",
+
+  "greetingTime": "{timeOfDay}こんにちは！",
+
+  "goalAchieved": "🎉 目標達成！",
+  "keepGoing": "続けましょう！",
+
+  "notifications": "通知",
+  "notificationsEnabled": "通知が有効",
+  "notificationsDisabled": "通知が無効",
+
+  "premiumFeatures": "プレミアム機能",
+  "upgradeToPremium": "プレミアムにアップグレード",
+  "alreadyPremium": "プレミアム会員です！",
+
+  "subscriptionMonthly": "月額 - {price}",
+  "subscriptionYearly": "年額 - {price}",
+  "subscriptionLifetime": "永久 - {price}",
+
+  "restorePurchases": "購入を復元",
+
+  "hydrationStatus": "水分状態",
+  "hydrationStatusNormal": "正常",
+  "hydrationStatusDiluted": "薄い",
+  "hydrationStatusDehydrated": "不足",
+  "hydrationStatusLowSalt": "塩分不足",
+
+  "hydrationRiskIndex": "水分リスク指数",
+
+  "quickAdd": "クイック追加",
+  "add": "追加",
+  "delete": "削除",
+
+  "todaysDrinks": "今日の飲み物",
+  "allRecords": "全記録 →",
+
+  "itemDeleted": "{item} を削除",
+  "@itemDeleted": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+
+  "undo": "元に戻す",
+
+  "dailyReportReady": "日報準備完了！",
+  "viewDayResults": "結果を見る",
+  "dailyReportComingSoon": "日報は次版で利用可能",
+
+  "settingsTitle": "設定",
+
+  "languageSection": "言語",
+  "languageSettings": "言語",
+  "selectLanguage": "言語を選択",
+
+  "profileSection": "プロフィール",
+  "weight": "体重",
+  "dietMode": "食事モード",
+  "activityLevel": "活動レベル",
+  "changeWeight": "体重を変更",
+
+  "dietModeNormal": "通常食",
+  "dietModeKeto": "ケト/低炭水化物",
+  "dietModeFasting": "断続的断食",
+
+  "activityLow": "低活動",
+  "activityMedium": "中活動",
+  "activityHigh": "高活動",
+
+  "activityLowDesc": "デスクワーク、少ない運動",
+  "activityMediumDesc": "30-60分/日の運動",
+  "activityHighDesc": "1時間以上の運動",
+
+  "notificationsSection": "通知",
+  "notificationLimit": "通知制限 (FREE)",
+  "notificationUsage": "使用: {used}/{limit}",
+  "@notificationUsage": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+
+  "waterReminders": "水分リマインダー",
+  "waterRemindersDesc": "1日を通じた定期リマインダー",
+
+  "reminderFrequency": "頻度",
+  "timesPerDay": "1日{count}回",
+  "@timesPerDay": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "maxTimesPerDay": "1日{count}回 (最大4)",
+  "@maxTimesPerDay": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "unlimitedReminders": "無制限",
+  "startOfDay": "開始時刻",
+  "endOfDay": "終了時刻",
+
+  "postCoffeeReminders": "コーヒー後",
+  "postCoffeeRemindersDesc": "20分後に水分補給を通知",
+
+  "heatWarnings": "暑熱警告",
+  "heatWarningsDesc": "高温時の通知",
+
+  "postAlcoholReminders": "飲酒後",
+  "postAlcoholRemindersDesc": "6-12時間の回復計画",
+
+  "proFeaturesSection": "PRO機能",
+  "unlockPro": "PROを解除",
+  "unlockProDesc": "無制限の通知とスマートリマインダー",
+  "noNotificationLimit": "通知制限なし",
+
+  "unitsSection": "単位",
+  "metricSystem": "メートル法",
+  "metricUnits": "ml, kg, °C",
+  "imperialSystem": "ヤード・ポンド法",
+  "imperialUnits": "fl oz, lb, °F",
+
+  "aboutSection": "について",
+  "version": "バージョン",
+  "rateApp": "評価する",
+  "share": "共有",
+  "privacyPolicy": "プライバシー",
+  "termsOfUse": "利用規約",
+  "resetAllData": "全データ削除",
+
+  "resetDataTitle": "全データを削除？",
+  "resetDataMessage": "履歴を削除し設定をリセットします。",
+
+  "back": "戻る",
+  "next": "次へ",
+  "start": "開始",
+
+  "welcomeTitle": "HydroCoachへ\nようこそ",
+  "welcomeSubtitle": "ケト、断食、活動的な\n生活のための水分と電解質管理",
+
+  "weightPageTitle": "体重",
+  "weightPageSubtitle": "最適な水分量を計算",
+
+  "weightUnit": "{weight} kg",
+  "@weightUnit": {
+    "placeholders": {
+      "weight": {
+        "type": "int"
+      }
+    }
+  },
+
+  "recommendedNorm": "推奨: 1日{min}-{max} ml",
+  "@recommendedNorm": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+
+  "dietPageTitle": "食事モード",
+  "dietPageSubtitle": "電解質の必要量に影響",
+
+  "normalDiet": "通常食",
+  "normalDietDesc": "標準推奨",
+  "ketoDiet": "ケト/低炭水化物",
+  "ketoDietDesc": "塩分必要量増加",
+  "fastingDiet": "断続的断食",
+  "fastingDietDesc": "特別な電解質管理",
+
+  "fastingSchedule": "断食スケジュール:",
+  "fasting16_8": "16:8",
+  "fasting16_8Desc": "8時間の食事時間",
+  "fastingOMAD": "OMAD",
+  "fastingOMADDesc": "1日1食",
+  "fastingADF": "ADF",
+  "fastingADFDesc": "隔日断食",
+
+  "activityPageTitle": "活動レベル",
+  "activityPageSubtitle": "水分必要量に影響",
+
+  "lowActivity": "低活動",
+  "lowActivityDesc": "デスクワーク、少ない運動",
+  "lowActivityWater": "+0 ml",
+
+  "mediumActivity": "中活動",
+  "mediumActivityDesc": "30-60分/日の運動",
+  "mediumActivityWater": "+350-700 ml",
+
+  "highActivity": "高活動",
+  "highActivityDesc": "1時間以上の運動",
+  "highActivityWater": "+700-1200 ml",
+
+  "activityAdjustmentNote": "運動に基づき目標を調整",
+
+  "day": "日",
+  "week": "週",
+  "month": "月",
+
+  "today": "今日",
+  "yesterday": "昨日",
+
+  "noData": "データなし",
+  "noRecordsToday": "今日の記録なし",
+  "noRecordsThisDay": "この日の記録なし",
+  "loadingData": "読込中...",
+
+  "deleteRecord": "記録を削除？",
+  "deleteRecordMessage": "{type} {volume} ml を削除？",
+  "@deleteRecordMessage": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "volume": {
+        "type": "int"
+      }
+    }
+  },
+
+  "recordDeleted": "削除完了",
+
+  "waterConsumption": "💧 水分摂取",
+  "alcoholWeek": "🍺 今週の飲酒",
+  "electrolytes": "⚡ 電解質",
+  "weeklyAverages": "📊 週平均",
+  "monthStatistics": "📊 月統計",
+  "alcoholStatistics": "🍺 飲酒統計",
+  "alcoholStatisticsTitle": "飲酒統計",
+  "weeklyInsights": "💡 週の洞察",
+
+  "waterPerDay": "1日の水分",
+  "sodiumPerDay": "1日のNa",
+  "potassiumPerDay": "1日のK",
+  "magnesiumPerDay": "1日のMg",
+
+  "goal": "目標",
+
+  "daysWithGoalAchieved": "✅ 達成日数",
+  "recordsPerDay": "📝 記録/日",
+  "insufficientDataForAnalysis": "分析データ不足",
+
+  "totalVolume": "総量",
+  "averagePerDay": "平均 {amount} ml/日",
+  "@averagePerDay": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+
+  "activeDays": "活動日",
+  "perfectDays": "完璧な日: {count}",
+  "@perfectDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "currentStreak": "連続: {days}日",
+  "@currentStreak": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+
+  "soberDaysRow": "連続休酒: {days}日",
+  "@soberDaysRow": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+
+  "keepItUp": "続けよう！",
+
+  "waterAmount": "水: {amount} ml ({percent}%)",
+  "@waterAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+
+  "alcoholAmount": "飲酒: {amount} SD",
+  "@alcoholAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+
+  "totalSD": "総SD",
+  "forMonth": "月間",
+  "daysWithAlcohol": "飲酒日",
+  "fromDays": "{days}日中",
+  "@fromDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+
+  "soberDays": "休酒日",
+  "excellent": "素晴らしい！",
+
+  "averageSD": "平均SD",
+  "inDrinkingDays": "飲酒日",
+
+  "bestDay": "🏆 最高の日",
+  "bestDayMessage": "{day} - {percent}%",
+  "@bestDayMessage": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+
+  "weekends": "📅 週末",
+  "weekdays": "📅 平日",
+
+  "drinkLessOnWeekends": "週末は{percent}%少ない",
+  "@drinkLessOnWeekends": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+
+  "drinkLessOnWeekdays": "平日は{percent}%少ない",
+  "@drinkLessOnWeekdays": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+
+  "positiveTrend": "📈 良い傾向",
+  "positiveTrendMessage": "水分摂取が週末に向上",
+
+  "decliningActivity": "📉 減少傾向",
+  "decliningActivityMessage": "週末に水分摂取が減少",
+
+  "lowSalt": "⚠️ 塩分不足",
+  "lowSaltMessage": "{days}日のみ正常なNaレベル",
+  "@lowSaltMessage": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+
+  "frequentAlcohol": "🍺 頻繁な飲酒",
+  "frequentAlcoholMessage": "7日中{days}日の飲酒は水分に影響",
+  "@frequentAlcoholMessage": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+
+  "excellentWeek": "✅ 素晴らしい週",
+  "continueMessage": "続けましょう！",
+
+  "all": "全て",
+
+  "addAlcohol": "飲酒を追加",
+  "minimumHarm": "最小限の害",
+
+  "additionalWaterNeeded": "+{amount} ml必要",
+  "@additionalWaterNeeded": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+
+  "additionalSodiumNeeded": "+{amount} mg Na追加",
+  "@additionalSodiumNeeded": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+
+  "goToBedEarly": "早く就寝",
+
+  "todayConsumed": "今日の摂取:",
+  "alcoholToday": "今日の飲酒",
+
+  "beer": "ビール",
+  "wine": "ワイン",
+  "spirits": "スピリッツ",
+  "cocktail": "カクテル",
+
+  "selectDrinkType": "種類を選択:",
+
+  "volume": "量",
+  "enterVolume": "ml を入力",
+
+  "strength": "度数 (%):",
+
+  "standardDrinks": "標準ドリンク:",
+
+  "additionalWater": "追加水分",
+  "additionalSodium": "追加Na",
+
+  "hriRisk": "HRIリスク",
+
+  "enterValidVolume": "有効な量を入力",
+
+  "weeklyHistory": "週履歴",
+  "weeklyHistoryDesc": "週の傾向分析と洞察",
+
+  "monthlyHistory": "月履歴",
+  "monthlyHistoryDesc": "長期パターンと詳細分析",
+
+  "proFunction": "PRO機能",
+  "unlockProHistory": "PROを解除",
+  "unlimitedHistory": "無制限履歴",
+  "dataExportCSV": "CSV出力",
+  "detailedAnalytics": "詳細分析",
+  "periodComparison": "期間比較",
+
+  "shareResult": "結果を共有",
+  "retry": "再試行",
+
+  "welcomeToPro": "PROへようこそ！",
+  "allFeaturesUnlocked": "全機能が解除されました",
+  "testMode": "テストモード: モック購入",
+  "proStatusNote": "PROステータスはアプリ再起動まで継続",
+  "startUsingPro": "PROを使い始める",
+
+  "lifetimeAccess": "永久アクセス",
+  "bestValueAnnual": "最高の価値 — 年額",
+  "monthly": "月額",
+  "oneTime": "1回",
+  "perYear": "/年",
+  "perMonth": "/月",
+
+  "approximatelyPerMonth": "≈ {amount}/月",
+  "@approximatelyPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+
+  "startFreeTrial": "7日間無料",
+  "continueWithPrice": "続行 — {price}",
+  "@continueWithPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+
+  "unlockForPrice": "{price}で解除 (1回)",
+  "@unlockForPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+
+  "enableFreeTrial": "7日間無料を有効",
+  "noChargeToday": "今日は請求なし。7日後にキャンセルしない限り自動更新。",
+  "cancelAnytime": "いつでも設定からキャンセル可能。",
+
+  "everythingInPro": "PROの全機能",
+
+  "smartReminders": "スマートリマインダー",
+  "smartRemindersDesc": "暑さ、運動、断食 — スパムなし。",
+
+  "weeklyReports": "週次レポート",
+  "weeklyReportsDesc": "深い洞察 + CSV出力。",
+
+  "healthIntegrations": "ヘルス連携",
+  "healthIntegrationsDesc": "Apple Health & Google Fit。",
+
+  "alcoholProtocols": "飲酒プロトコル",
+  "alcoholProtocolsDesc": "事前準備と回復ロードマップ。",
+
+  "fullSync": "完全同期",
+  "fullSyncDesc": "デバイス間で無制限履歴。",
+
+  "personalCalibrations": "個人調整",
+  "personalCalibrationsDesc": "発汗テスト、尿色スケール。",
+
+  "showAllFeatures": "全機能を表示",
+  "showLess": "少なく表示",
+
+  "restorePurchases": "購入を復元",
+  "proSubscriptionRestored": "PRO復元完了！",
+  "noPurchasesToRestore": "復元する購入なし",
+
+  "drinkMoreWaterToday": "今日は水を多く (+20%)",
+  "addElectrolytesToWater": "各水分に電解質追加",
+  "limitCoffeeOneCup": "コーヒーを1杯に制限",
+  "increaseWater10": "水を10%増加",
+  "dontForgetElectrolytes": "電解質を忘れずに",
+  "startDayWithWater": "朝の水で1日を開始",
+  "dontForgetElectrolytesReminder": "⚡ 電解質を忘れずに",
+  "startDayWithWaterReminder": "朝の水で良好な健康",
+  "takeElectrolytesMorning": "朝に電解質を摂取",
+
+  "purchaseFailed": "購入失敗: {error}",
+  "@purchaseFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "restoreFailed": "復元失敗: {error}",
+  "@restoreFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "trustedByUsers": "⭐️ 4.9 — 12,000人が信頼",
+
+  "bestValue": "最高の価値",
+  "percentOff": "-{percent}% 最高の価値",
+  "@percentOff": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+
+  "weatherUnavailable": "天気データなし",
+  "checkLocationPermissions": "位置情報とネット接続を確認",
+
+  "recommendedNormLabel": "推奨基準",
+
+  "waterAdjustment300": "+300 ml",
+  "waterAdjustment400": "+400 ml",
+  "waterAdjustment200": "+200 ml",
+  "waterAdjustmentNormal": "通常",
+  "waterAdjustment500": "+500 ml",
+  "waterAdjustment250": "+250 ml",
+  "waterAdjustment750": "+750 ml",
+
+  "currentLocation": "現在地",
+
+  "weatherClear": "晴れ",
+  "weatherCloudy": "曇り",
+  "weatherOvercast": "どんより",
+  "weatherRain": "雨",
+  "weatherSnow": "雪",
+  "weatherStorm": "嵐",
+  "weatherFog": "霧",
+  "weatherDrizzle": "霧雨",
+  "weatherSunny": "快晴",
+
+  "heatWarningExtreme": "☀️ 極暑！最大の水分補給",
+  "heatWarningVeryHot": "🌡️ 猛暑！脱水リスク",
+  "heatWarningHot": "🔥 暑い！水を多く",
+  "heatWarningElevated": "⚠️ 高温",
+  "heatWarningComfortable": "快適な温度",
+
+  "adjustmentWater": "+{percent}% 水",
+  "@adjustmentWater": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+
+  "adjustmentSodium": "+{amount} mg Na",
+  "@adjustmentSodium": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+
+  "heatWarningCold": "❄️ 寒い！温かい飲み物",
+
+  "notificationChannelName": "HydroCoachリマインダー",
+  "@notificationChannelName": {
+    "description": "通知チャンネル名"
+  },
+
+  "notificationChannelDescription": "水と電解質のリマインダー",
+  "@notificationChannelDescription": {
+    "description": "通知チャンネル説明"
+  },
+
+  "urgentNotificationChannelName": "緊急リマインダー",
+  "@urgentNotificationChannelName": {
+    "description": "緊急通知チャンネル名"
+  },
+
+  "urgentNotificationChannelDescription": "重要な水分通知",
+  "@urgentNotificationChannelDescription": {
+    "description": "緊急通知チャンネル説明"
+  },
+
+  "goodMorning": "☀️ おはよう！",
+  "startDayWithWaterReminder": "朝の水で良好な健康",
+
+  "timeToHydrate": "💧 水分補給の時間",
+  "dontForgetElectrolytesReminder": "⚡ 電解質を忘れずに",
+
+  "eveningHydration": "💧 夜の水分補給",
+
+  "dailyReportTitle": " 日報準備完了",
+  "dailyReportBody": "今日の水分状態を確認",
+
+  "maintainWaterBalance": "1日を通じて水分バランスを維持",
+  "electrolytesTime": "電解質の時間: 水に一つまみの塩",
+
+  "catchUpHydration": "{percent}%のみ達成。補給の時間！",
+  "@catchUpHydration": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+
+  "excellentProgress": "素晴らしい進捗！もう少し",
+
+  "postCoffeeTitle": " コーヒー後",
+  "postCoffeeBody": "250-300 mlの水でバランス回復",
+
+  "postWorkoutTitle": " 運動後",
+  "postWorkoutBody": "電解質を回復: 500 ml水 + 一つまみの塩",
+
+  "heatWarningPro": "🌡️ PRO暑熱警告",
+  "extremeHeatWarning": "極暑！水を15%増加し塩1g追加",
+  "hotWeatherWarning": "暑い！水を10%多く、電解質を忘れずに",
+  "warmWeatherWarning": "温暖。水分補給を監視",
+
+  "alcoholRecoveryTitle": "🍺 回復時間",
+  "alcoholRecoveryBody": "300 mlの水に一つまみの塩でバランス",
+
+  "continueHydration": "💧 水分補給を継続",
+  "alcoholRecoveryBody2": "さらに500 mlの水で早い回復",
+
+  "morningRecoveryTitle": "☀️ 朝の回復",
+  "morningRecoveryBody": "500 mlの水と電解質で1日を開始",
+
+  "testNotificationTitle": "🧪 テスト通知",
+  "testNotificationBody": "これが見えれば即時通知が機能！",
+
+  "scheduledTestTitle": "⏰ スケジュールテスト (1分)",
+  "scheduledTestBody": "この通知は1分前にスケジュール。機能中！",
+
+  "notificationServiceInitialized": "✅ 通知サービス初期化",
+  "localNotificationsInitialized": "✅ ローカル通知初期化",
+  "androidChannelsCreated": "📢 Androidチャンネル作成",
+
+  "notificationsPermissionGranted": "📝 通知権限: {granted}",
+  "@notificationsPermissionGranted": {
+    "placeholders": {
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+
+  "exactAlarmsPermissionGranted": "📝 正確なアラーム権限: {granted}",
+  "@exactAlarmsPermissionGranted": {
+    "placeholders": {
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+
+  "fcmPermissions": "📱 FCM権限: {status}",
+  "@fcmPermissions": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+
+  "fcmTokenReceived": "🔑 FCMトークン受信",
+  "fcmTokenSaved": "✅ FCMトークンをFirestoreに保存 {userId}",
+  "@fcmTokenSaved": {
+    "placeholders": {
+      "userId": {
+        "type": "String"
+      }
+    }
+  },
+
+  "topicSubscriptionComplete": "✅ トピック購読完了",
+
+  "foregroundMessage": "📨 フォアグラウンドメッセージ: {title}",
+  "@foregroundMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+
+  "notificationOpened": "📱 通知を開く: {messageId}",
+  "@notificationOpened": {
+    "placeholders": {
+      "messageId": {
+        "type": "String"
+      }
+    }
+  },
+
+  "dailyLimitReached": "⚠️ 1日の通知上限 (4/日 FREE)",
+
+  "schedulingError": "❌ 通知スケジュールエラー: {error}",
+  "@schedulingError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "showingImmediatelyAsFallback": "即座に通知を表示",
+
+  "instantNotificationShown": "📬 即時通知表示: {title}",
+  "@instantNotificationShown": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+
+  "smartRemindersScheduled": "🧠 スマートリマインダー設定中...",
+  "smartRemindersComplete": "✅ {count}件のリマインダー設定完了",
+  "@smartRemindersComplete": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "proPostCoffeeScheduled": "☕ PRO: コーヒー後リマインダー設定",
+  "postWorkoutScheduled": "💪 運動後リマインダー設定",
+  "proHeatWarningPro": "🌡️ PRO: 暑熱警告送信",
+  "proAlcoholRecoveryPlan": "🍺 PRO: 飲酒回復計画設定",
+
+  "eveningReportScheduled": "📊 夜間レポート設定 {day}.{month} 21:00",
+  "@eveningReportScheduled": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+
+  "notificationCancelled": "🚫 通知{id}キャンセル",
+  "@notificationCancelled": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+
+  "allNotificationsCancelled": "🗑️ 全通知キャンセル",
+  "reminderSettingsSaved": "✅ リマインダー設定保存",
+
+  "testNotificationScheduledFor": "⏰ テスト通知設定: {time}",
+  "@testNotificationScheduledFor": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+
+  "tomorrowRecommendations": "明日への推奨",
+  "recommendationExcellent": "素晴らしい！朝に水を飲み均等に摂取を。",
+  "recommendationDiluted": "水が多く電解質が少ない。明日は塩を追加。",
+  "recommendationDehydrated": "水不足。明日は2時間ごとにリマインダーを設定。",
+  "recommendationLowSalt": "Naが低いと疲労。水に塩を追加またはスープ。",
+  "recommendationGeneral": "水と電解質のバランスを目指す。1日を通じて均等に。",
+
+  "category_water": "水",
+  "category_hot_drinks": "温かい飲み物",
+  "category_juice": "ジュース",
+  "category_sports": "スポーツ",
+  "category_dairy": "乳製品",
+  "category_alcohol": "アルコール",
+  "category_supplements": "サプリ",
+  "category_other": "その他",
+
+  "drink_water": "水",
+  "drink_sparkling_water": "炭酸水",
+  "drink_mineral_water": "ミネラル水",
+  "drink_coconut_water": "ココナッツ水",
+  "drink_coffee": "コーヒー",
+  "drink_espresso": "エスプレッソ",
+  "drink_americano": "アメリカーノ",
+  "drink_cappuccino": "カプチーノ",
+  "drink_latte": "ラテ",
+  "drink_black_tea": "紅茶",
+  "drink_green_tea": "緑茶",
+  "drink_herbal_tea": "ハーブティー",
+  "drink_matcha": "抹茶",
+  "drink_hot_chocolate": "ホットチョコ",
+  "drink_orange_juice": "オレンジジュース",
+  "drink_apple_juice": "アップルジュース",
+  "drink_grapefruit_juice": "グレープフルーツ",
+  "drink_tomato_juice": "トマトジュース",
+  "drink_vegetable_juice": "野菜ジュース",
+  "drink_smoothie": "スムージー",
+  "drink_lemonade": "レモネード",
+  "drink_isotonic": "アイソトニック",
+  "drink_electrolyte": "電解質ドリンク",
+  "drink_protein_shake": "プロテインシェイク",
+  "drink_bcaa": "BCAA",
+  "drink_energy": "エナジー",
+  "drink_milk": "牛乳",
+  "drink_kefir": "ケフィア",
+  "drink_yogurt": "飲むヨーグルト",
+  "drink_almond_milk": "アーモンドミルク",
+  "drink_soy_milk": "豆乳",
+  "drink_oat_milk": "オーツミルク",
+  "drink_beer_light": "ライトビール",
+  "drink_beer_regular": "ビール",
+  "drink_beer_strong": "濃いビール",
+  "drink_wine_red": "赤ワイン",
+  "drink_wine_white": "白ワイン",
+  "drink_champagne": "シャンパン",
+  "drink_vodka": "ウォッカ",
+  "drink_whiskey": "ウイスキー",
+  "drink_rum": "ラム",
+  "drink_gin": "ジン",
+  "drink_tequila": "テキーラ",
+  "drink_mojito": "モヒート",
+  "drink_margarita": "マルガリータ",
+  "drink_kombucha": "コンブチャ",
+  "drink_kvass": "クワス",
+  "drink_bone_broth": "骨スープ",
+  "drink_vegetable_broth": "野菜スープ",
+  "drink_soda": "ソーダ",
+  "drink_diet_soda": "ダイエットソーダ",
+
+  "addedToFavorites": "お気に入りに追加",
+  "favoriteLimitReached": "上限到達 (FREE 3, PRO 20)",
+  "addFavorite": "お気に入り追加",
+
+  "hotAndSupplements": "温かい飲み物&サプリ",
+  "quickVolumes": "クイック量:",
+  "type": "種類:",
+  "regular": "通常",
+  "coconut": "ココナッツ",
+  "sparkling": "炭酸",
+  "mineral": "ミネラル",
+
+  "hotDrinks": "温かい飲み物",
+  "supplements": "サプリ",
+  "tea": "お茶",
+  "salt": "塩 (1/4 tsp)",
+  "electrolyteMix": "電解質ミックス",
+  "boneBroth": "骨スープ",
+
+  "favoriteAssignmentComingSoon": "お気に入り割当は近日公開",
+  "longPressToEditComingSoon": "長押しで編集 - 近日公開",
+  "proSubscriptionRequired": "PRO購読が必要",
+
+  "saveToFavorites": "お気に入りに保存",
+  "@saveToFavorites": {
+    "description": "お気に入りに保存ボタン"
+  },
+
+  "savedToFavorites": "お気に入りに保存完了",
+  "@savedToFavorites": {
+    "description": "保存成功メッセージ"
+  },
+
+  "selectFavoriteSlot": "スロット選択",
+  "@selectFavoriteSlot": {
+    "description": "スロット選択ダイアログタイトル"
+  },
+
+  "slot": "スロット",
+  "@slot": {
+    "description": "スロットラベル"
+  },
+
+  "emptySlot": "空きスロット",
+  "@emptySlot": {
+    "description": "空きスロットラベル"
+  },
+
+  "upgradeToUnlock": "PROで解除",
+  "@upgradeToUnlock": {
+    "description": "ロックされたPROスロットメッセージ"
+  },
+
+  "changeFavorite": "お気に入り変更",
+  "@changeFavorite": {
+    "description": "お気に入り変更オプション"
+  },
+
+  "removeFavorite": "お気に入り削除",
+  "@removeFavorite": {
+    "description": "お気に入り削除オプション"
+  },
+
+  "mineralWater": "ミネラル水",
+  "@mineralWater": {
+    "description": "ミネラル水タイプ"
+  },
+
+  "coconutWater": "ココナッツ水",
+  "@coconutWater": {
+    "description": "ココナッツ水タイプ"
+  },
+
+  "lemonWater": "レモン水",
+  "@lemonWater": {
+    "description": "レモン水タイプ"
+  },
+
+  "greenTea": "緑茶",
+  "@greenTea": {
+    "description": "緑茶タイプ"
+  },
+
+  "amount": "量",
+  "@amount": {
+    "description": "量ラベル"
+  },
+
+  "createFavoriteHint": "お気に入り追加は飲み物画面で「お気に入りに保存」をタップ。",
+
+  "sparklingWater": "炭酸水",
+  "@sparklingWater": {
+    "description": "炭酸水タイプ"
+  },
+
+  "cola": "コーラ",
+  "@cola": {
+    "description": "コーラタイプ"
+  },
+
+  "juice": "ジュース",
+  "@juice": {
+    "description": "ジュースタイプ"
+  },
+
+  "energyDrink": "エナジー",
+  "@energyDrink": {
+    "description": "エナジードリンクタイプ"
+  },
+
+  "sportsDrink": "スポーツ",
+  "@sportsDrink": {
+    "description": "スポーツドリンクタイプ"
+  },
+
+  "selectElectrolyteType": "電解質タイプを選択:",
+  "@selectElectrolyteType": {
+    "description": "電解質タイプ選択プロンプト"
+  },
+
+  "saltQuarterTsp": "塩 (1/4 tsp)",
+  "@saltQuarterTsp": {
+    "description": "小さじ1/4の塩"
+  },
+
+  "pinkSalt": "ピンク塩",
+  "@pinkSalt": {
+    "description": "ヒマラヤ塩タイプ"
+  },
+
+  "seaSalt": "海塩",
+  "@seaSalt": {
+    "description": "海塩タイプ"
+  },
+
+  "potassiumCitrate": "クエン酸K",
+  "@potassiumCitrate": {
+    "description": "クエン酸カリウムサプリ"
+  },
+
+  "magnesiumGlycinate": "グリシン酸Mg",
+  "@magnesiumGlycinate": {
+    "description": "グリシン酸マグネシウムサプリ"
+  },
+
+  "coconutWaterElectrolyte": "ココナッツ水",
+  "@coconutWaterElectrolyte": {
+    "description": "電解質源としてのココナッツ水"
+  },
+
+  "sportsDrinkElectrolyte": "スポーツドリンク",
+  "@sportsDrinkElectrolyte": {
+    "description": "電解質源としてのスポーツドリンク"
+  },
+
+  "electrolyteContent": "電解質含有量:",
+  "@electrolyteContent": {
+    "description": "電解質含有量ラベル"
+  },
+
+  "sodiumContent": "Na: {amount} mg",
+  "@sodiumContent": {
+    "description": "Na含有量表示",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+
+  "potassiumContent": "K: {amount} mg",
+  "@potassiumContent": {
+    "description": "K含有量表示",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+
+  "magnesiumContent": "Mg: {amount} mg",
+  "@magnesiumContent": {
+    "description": "Mg含有量表示",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+
+  "servings": "回分",
+  "@servings": {
+    "description": "回分ラベル"
+  },
+
+  "enterServings": "回分を入力",
+  "@enterServings": {
+    "description": "回分入力プロンプト"
+  },
+
+  "servingsUnit": "回分",
+  "@servingsUnit": {
+    "description": "回分単位"
+  },
+
+  "noElectrolytes": "電解質なし",
+  "@noElectrolytes": {
+    "description": "電解質なしメッセージ"
+  },
+
+  "enterValidAmount": "有効な量を入力",
+  "@enterValidAmount": {
+    "description": "無効な量エラーメッセージ"
+  },
+
+  "lmntMix": "LMNTミックス",
+  "pickleJuice": "ピクルス汁",
+  "tomatoSalt": "トマト+塩",
+  "ketorade": "Ketorade",
+  "alkalineWater": "アルカリ水",
+  "celticSalt": "ケルト塩水",
+  "soleWater": "ソール水",
+  "mineralDrops": "ミネラルドロップ",
+  "bakingSoda": "重曹水",
+  "creamTartar": "酒石酸",
+
+  "selectSupplementType": "サプリタイプを選択:",
+  "multivitamin": "マルチビタミン",
+  "magnesiumCitrate": "クエン酸Mg",
+  "magnesiumThreonate": "L-トレオン酸Mg",
+  "calciumCitrate": "クエン酸Ca",
+  "zincGlycinate": "グリシン酸Zn",
+  "vitaminD3": "ビタミンD3",
+  "vitaminC": "ビタミンC",
+  "bComplex": "Bコンプレックス",
+  "omega3": "オメガ3",
+  "ironBisglycinate": "ビスグリシン酸Fe",
+
+  "dosage": "用量",
+  "enterDosage": "用量を入力",
+  "noElectrolyteContent": "電解質含有なし",
+
+  "blackTea": "紅茶",
+  "herbalTea": "ハーブティー",
+  "espresso": "エスプレッソ",
+  "cappuccino": "カプチーノ",
+  "latte": "ラテ",
+  "matcha": "抹茶",
+  "hotChocolate": "ホットチョコ",
+  "caffeine": "カフェイン",
+
+  "sports": "スポーツ",
+  "walking": "ウォーキング",
+  "running": "ランニング",
+  "gym": "ジム",
+  "cycling": "サイクリング",
+  "swimming": "水泳",
+  "yoga": "ヨガ",
+  "hiit": "HIIT",
+  "crossfit": "CrossFit",
+  "boxing": "ボクシング",
+  "dancing": "ダンス",
+  "tennis": "テニス",
+  "teamSports": "チームスポーツ",
+
+  "selectActivityType": "活動タイプを選択:",
+  "duration": "時間",
+  "minutes": "分",
+  "enterDuration": "時間を入力",
+
+  "lowIntensity": "低強度",
+  "mediumIntensity": "中強度",
+  "highIntensity": "高強度",
+
+  "recommendedIntake": "推奨摂取:",
+  "basedOnWeight": "体重基準",
+
+  "logActivity": "活動を記録",
+  "activityLogged": "活動を記録完了",
+  "enterValidDuration": "有効な時間を入力",
+
+  "sauna": "サウナ",
+  "veryHighIntensity": "超高強度",
+
+  "hriStatusExcellent": "優秀",
+  "hriStatusGood": "良好",
+  "hriStatusModerate": "中リスク",
+  "hriStatusHighRisk": "高リスク",
+  "hriStatusCritical": "危険",
+
+  "hriComponentWater": "水分バランス",
+  "hriComponentSodium": "Naレベル",
+  "hriComponentPotassium": "Kレベル",
+  "hriComponentMagnesium": "Mgレベル",
+  "hriComponentHeat": "暑熱ストレス",
+  "hriComponentWorkout": "身体活動",
+  "hriComponentCaffeine": "カフェイン影響",
+  "hriComponentAlcohol": "アルコール影響",
+  "hriComponentTime": "摂取からの時間",
+  "hriComponentMorning": "朝の要因",
+
+  "hriBreakdownTitle": "リスク要因の内訳",
+  "hriComponentValue": "{component}: {value}/{max} pt",
+
+  "fastingModeActive": "断食モード有効",
+  "fastingSuppressionNote": "断食中は時間要因を抑制",
+
+  "morningCheckInTitle": "朝のチェックイン",
+  "howAreYouFeeling": "体調は？",
+
+  "feelingScale1": "悪い",
+  "feelingScale2": "平均以下",
+  "feelingScale3": "普通",
+  "feelingScale4": "良い",
+  "feelingScale5": "最高",
+
+  "weightChange": "昨日からの体重変化",
+  "urineColorScale": "尿の色 (1-8スケール)",
+
+  "urineColor1": "1 - 非常に薄い",
+  "urineColor2": "2 - 薄い",
+  "urineColor3": "3 - 薄黄",
+  "urineColor4": "4 - 黄",
+  "urineColor5": "5 - 濃黄",
+  "urineColor6": "6 - 琥珀",
+  "urineColor7": "7 - 濃琥珀",
+  "urineColor8": "8 - 褐色",
+
+  "alcoholWithDecay": "アルコール影響 (減衰中)",
+  "standardDrinksToday": "今日の標準ドリンク: {count}",
+  "activeCaffeineLevel": "活性カフェイン: {amount} mg",
+
+  "hriDebugInfo": "HRIデバッグ情報",
+  "hriNormalized": "HRI (正規化): {value}/100",
+
+  "fastingWindowActive": "断食時間有効",
+  "eatingWindowActive": "食事時間有効",
+  "nextFastingWindow": "次の断食: {time}",
+  "nextEatingWindow": "次の食事: {time}",
+
+  "todaysWorkouts": "今日の運動",
+  "@todaysWorkouts": {
+    "description": "今日の運動セクションタイトル"
+  },
+
+  "hoursAgo": "時間前",
+  "@hoursAgo": {
+    "description": "時間前サフィックス"
+  },
+
+  "onboardingWelcomeTitle": "HydroCoach — 毎日のスマート水分補給",
+  "@onboardingWelcomeTitle": {
+    "description": "ION付きメインウェルカムタイトル"
+  },
+
+  "onboardingWelcomeSubtitle": "スマートに飲もう、多くではなく\n天候、電解質、習慣を考慮\n明快な思考と安定エネルギーを維持",
+  "@onboardingWelcomeSubtitle": {
+    "description": "ウェルカムサブタイトル"
+  },
+
+  "onboardingBullet1": "天候とあなたに基づく個人の水と塩の基準",
+  "@onboardingBullet1": {
+    "description": "第1の利点"
+  },
+
+  "onboardingBullet2": "生のグラフではなく「今何をすべきか」のヒント",
+  "@onboardingBullet2": {
+    "description": "第2の利点"
+  },
+
+  "onboardingBullet3": "安全な限度での標準用量でのアルコール",
+  "@onboardingBullet3": {
+    "description": "第3の利点"
+  },
+
+  "onboardingBullet4": "スパムなしのスマートリマインダー",
+  "@onboardingBullet4": {
+    "description": "第4の利点"
+  },
+
+  "onboardingStartButton": "開始",
+  "@onboardingStartButton": {
+    "description": "ウェルカム画面のメイン開始ボタン"
+  },
+
+  "onboardingHaveAccount": "既にアカウントあり",
+  "@onboardingHaveAccount": {
+    "description": "既存ユーザー向けリンク"
+  },
+
+  "onboardingPracticeFasting": "断続的断食を実践",
+  "@onboardingPracticeFasting": {
+    "description": "断食チェックボックスタイトル"
+  },
+
+  "onboardingPracticeFastingDesc": "断食時間用の特別な電解質管理",
+  "@onboardingPracticeFastingDesc": {
+    "description": "断食チェックボックス説明"
+  },
+
+  "onboardingProfileReady": "プロフィール準備完了！",
+  "@onboardingProfileReady": {
+    "description": "完了画面タイトル"
+  },
+
+  "onboardingWaterNorm": "水分基準",
+  "@onboardingWaterNorm": {
+    "description": "要約の水分基準ラベル"
+  },
+
+  "onboardingIonWillHelp": "IONが毎日のバランス維持を支援",
+  "@onboardingIonWillHelp": {
+    "description": "完了時のIONヘルパーテキスト"
+  },
+
+  "onboardingContinue": "続行",
+  "@onboardingContinue": {
+    "description": "続行ボタンテキスト"
+  },
+
+  "onboardingLocationTitle": "天候は水分補給に重要",
+  "@onboardingLocationTitle": {
+    "description": "位置情報権限タイトル"
+  },
+
+  "onboardingLocationSubtitle": "天候と湿度を考慮。体重だけの公式より正確",
+  "@onboardingLocationSubtitle": {
+    "description": "位置情報権限サブタイトル"
+  },
+
+  "onboardingWeatherExample": "今日は暑い！+15%水",
+  "@onboardingWeatherExample": {
+    "description": "天候例タイトル"
+  },
+
+  "onboardingWeatherExampleDesc": "暑さ用+500 mg Na",
+  "@onboardingWeatherExampleDesc": {
+    "description": "天候例説明"
+  },
+
+  "onboardingEnablePermission": "有効にする",
+  "@onboardingEnablePermission": {
+    "description": "権限有効化ボタン"
+  },
+
+  "onboardingEnableLater": "後で有効化",
+  "@onboardingEnableLater": {
+    "description": "権限スキップボタン"
+  },
+
+  "onboardingNotificationTitle": "スマートリマインダー",
+  "@onboardingNotificationTitle": {
+    "description": "通知権限タイトル"
+  },
+
+  "onboardingNotificationSubtitle": "適切な瞬間の短いヒント。頻度はワンタップで変更可能",
+  "@onboardingNotificationSubtitle": {
+    "description": "通知権限サブタイトル"
+  },
+
+  "onboardingNotifExample1": "水分補給の時間",
+  "@onboardingNotifExample1": {
+    "description": "第1通知例"
+  },
+
+  "onboardingNotifExample2": "電解質を忘れずに",
+  "@onboardingNotifExample2": {
+    "description": "第2通知例"
+  },
+
+  "onboardingNotifExample3": "暑い！水を多く",
+  "@onboardingNotifExample3": {
+    "description": "第3通知例"
+  },
+
+  "sportRecoveryProtocols": "スポーツ回復プロトコル",
+  "@sportRecoveryProtocols": {
+    "description": "PRO機能 - スポーツ回復"
+  },
+
+  "allDrinksAndSupplements": "全飲料&サプリ",
+  "@allDrinksAndSupplements": {
+    "description": "PRO機能 - 拡張カタログ"
+  },
+
+  "notificationChannelDefault": "水分リマインダー",
+  "@notificationChannelDefault": {
+    "description": "デフォルト通知チャンネル名"
+  },
+
+  "notificationChannelDefaultDesc": "水と電解質のリマインダー",
+  "@notificationChannelDefaultDesc": {
+    "description": "デフォルト通知チャンネル説明"
+  },
+
+  "notificationChannelUrgent": "重要通知",
+  "@notificationChannelUrgent": {
+    "description": "緊急通知チャンネル名"
+  },
+
+  "notificationChannelUrgentDesc": "暑熱警告と重要な水分アラート",
+  "@notificationChannelUrgentDesc": {
+    "description": "緊急通知チャンネル説明"
+  },
+
+  "notificationChannelReport": "レポート",
+  "@notificationChannelReport": {
+    "description": "レポート通知チャンネル名"
+  },
+
+  "notificationChannelReportDesc": "日次と週次レポート",
+  "@notificationChannelReportDesc": {
+    "description": "レポート通知チャンネル説明"
+  },
+
+  "notificationWaterTitle": "💧 水分補給の時間",
+  "notificationWaterBody": "水を忘れずに",
+
+  "notificationPostCoffeeTitle": "☕ コーヒー後",
+  "notificationPostCoffeeBody": "250-300 mlの水でバランス回復",
+
+  "notificationDailyReportTitle": "📊 日報準備完了",
+  "notificationDailyReportBody": "今日の水分状態を確認",
+
+  "notificationAlcoholCounterTitle": "🍺 回復時間",
+  "notificationAlcoholCounterBody": "{ml} mlの水に塩を一つまみ",
+  "@notificationAlcoholCounterBody": {
+    "placeholders": {
+      "ml": {
+        "type": "int"
+      }
+    }
+  },
+
+  "notificationHeatWarningTitle": "🌡️ 暑熱警告",
+  "notificationHeatWarningExtremeBody": "極暑！+15%水と塩1g",
+  "notificationHeatWarningHotBody": "暑い！+10%水と電解質",
+  "notificationHeatWarningWarmBody": "温暖。水分補給を監視",
+
+  "notificationWorkoutTitle": "💪 運動",
+  "notificationWorkoutBody": "水と電解質を忘れずに",
+  "notificationPostWorkoutTitle": "💪 運動後",
+  "notificationPostWorkoutBody": "500 ml水 + 電解質で回復",
+
+  "notificationFastingElectrolyteTitle": "⚡ 電解質の時間",
+  "notificationFastingElectrolyteBody": "水に塩を一つまみまたはスープ",
+
+  "notificationAlcoholRecoveryStepTitle": "💧 回復{hours}h",
+  "@notificationAlcoholRecoveryStepTitle": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+
+  "notificationAlcoholRecoveryStepBody": "{ml} mlの水を飲む",
+  "@notificationAlcoholRecoveryStepBody": {
+    "placeholders": {
+      "ml": {
+        "type": "int"
+      }
+    }
+  },
+
+  "notificationAlcoholRecoveryMidBody": "電解質追加: Na/K/Mg",
+  "notificationAlcoholRecoveryFinalBody": "明朝 - 管理チェックイン",
+
+  "notificationMorningCheckInTitle": "☀️ 朝のチェックイン",
+  "notificationMorningCheckInBody": "体調は？条件を評価し1日の計画を取得",
+
+  "notificationMorningWaterBody": "朝の水で1日を開始",
+
+  "notificationLowProgressBody": "{percent}%のみ達成。補給の時間！",
+  "@notificationLowProgressBody": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+
+  "notificationGoodProgressBody": "素晴らしい進捗！続けよう",
+  "notificationMaintainBalanceBody": "水分バランスを維持",
+
+  "notificationTestTitle": "🧪 テスト通知",
+  "notificationTestBody": "見えれば通知機能中！",
+  "notificationTestScheduledTitle": "⏰ スケジュールテスト",
+  "notificationTestScheduledBody": "この通知は1分前にスケジュール",
+
+  "onboardingUnitsTitle": "単位を選択",
+  "@onboardingUnitsTitle": {
+    "description": "単位選択ページタイトル"
+  },
+
+  "onboardingUnitsSubtitle": "後で変更不可",
+  "@onboardingUnitsSubtitle": {
+    "description": "単位選択警告"
+  },
+
+  "onboardingUnitsWarning": "この選択は永久で後から変更不可",
+  "@onboardingUnitsWarning": {
+    "description": "単位の永久選択警告"
+  },
+
+  "oz": "oz",
+  "fl_oz": "fl oz",
+  "gallons": "gal",
+  "lb": "lb",
+
+  "target": "目標",
+  "humidity": "湿度",
+  "wind": "風",
+  "pressure": "気圧",
+  "highHeatIndexWarning": "高熱中症指数！水分摂取を増加",
+  "weatherCondition": "状態",
+
+  "feelsLike": "体感",
+  "humidityLabel": "湿度",
+  "waterNormal": "通常",
+  "sodiumNormal": "標準",
+  "addedSuccessfully": "追加成功",
+
+  "sugarIntake": "砂糖摂取",
+  "sugarToday": "今日の砂糖消費",
+  "totalSugar": "総砂糖",
+  "dailyLimit": "1日の上限",
+  "addedSugar": "添加砂糖",
+  "naturalSugar": "天然砂糖",
+  "hiddenSugar": "隠れた砂糖",
+  "sugarFromDrinks": "飲料",
+  "sugarFromFood": "食品",
+  "sugarFromSnacks": "スナック",
+
+  "sugarNormal": "通常",
+  "sugarModerate": "中程度",
+  "sugarHigh": "高",
+  "sugarCritical": "危険",
+
+  "sugarRecommendationNormal": "素晴らしい！砂糖摂取は健康な範囲内",
+  "sugarRecommendationModerate": "甘い飲料とスナックを減らす検討を",
+  "sugarRecommendationHigh": "砂糖摂取高！甘い飲料とデザートを制限",
+  "sugarRecommendationCritical": "砂糖超過！今日は甘い飲料とお菓子を避けて",
+
+  "noSugarIntake": "今日の砂糖追跡なし",
+  "hriImpact": "HRI影響",
+  "hri_component_sugar": "砂糖",
+  "hri_sugar_description": "高砂糖摂取は水分補給と全体的な健康に影響",
+
+  "tip_reduce_sweet_drinks": "甘い飲料を水または無糖茶に置換",
+  "tip_avoid_added_sugar": "ラベルを確認し添加砂糖製品を避ける",
+  "tip_check_labels": "ソースと加工食品の隠れた砂糖に注意",
+  "tip_replace_soda": "ソーダを炭酸水とレモンに置換",
+
+  "sugarSources": "砂糖源",
+  "drinks": "飲料",
+  "food": "食品",
+  "snacks": "スナック",
+  "recommendedLimit": "推奨",
+  "points": "ポイント",
+
+  "drinkLightBeer": "ライトビール",
+  "drinkLager": "ラガー",
+  "drinkIPA": "IPA",
+  "drinkStout": "スタウト",
+  "drinkWheatBeer": "小麦ビール",
+  "drinkCraftBeer": "クラフトビール",
+  "drinkNonAlcoholic": "ノンアルコール",
+  "drinkRadler": "ラドラー",
+  "drinkPilsner": "ピルスナー",
+  "drinkRedWine": "赤ワイン",
+  "drinkWhiteWine": "白ワイン",
+  "drinkProsecco": "プロセッコ",
+  "drinkPort": "ポートワイン",
+  "drinkRose": "ロゼ",
+  "drinkDessertWine": "デザートワイン",
+  "drinkSangria": "サングリア",
+  "drinkSherry": "シェリー",
+  "drinkVodkaShot": "ウォッカショット",
+  "drinkCognac": "コニャック",
+  "drinkLiqueur": "リキュール",
+  "drinkAbsinthe": "アブサン",
+  "drinkBrandy": "ブランデー",
+  "drinkLongIsland": "ロングアイランド",
+  "drinkGinTonic": "ジントニック",
+  "drinkPinaColada": "ピニャコラーダ",
+  "drinkCosmopolitan": "コスモポリタン",
+  "drinkMaiTai": "マイタイ",
+  "drinkBloodyMary": "ブラッディマリー",
+  "drinkDaiquiri": "ダイキリ",
+
+  "popularDrinks": "人気の{type}",
+  "standardDrinksUnit": "SD",
+  "gramsSugar": "g 砂糖",
+  "moderateConsumption": "適度な消費",
+  "aboveRecommendations": "推奨以上",
+  "highConsumption": "高消費",
+  "veryHighConsider": "超高 - 停止検討を",
+  "noAlcoholToday": "今日の飲酒なし",
+  "drinkWaterNow": "今すぐ300-500 mlの水",
+  "addPinchSalt": "塩を一つまみ追加",
+  "avoidLateCoffee": "遅いコーヒーを避ける",
+  "abvPercent": "{percent}% ABV",
+
+  "todaysElectrolytes": "今日の電解質",
+  "greatBalance": "素晴らしいバランス！",
+  "gettingThere": "近づいている",
+  "needMoreElectrolytes": "電解質をもっと必要",
+  "lowElectrolyteLevels": "電解質レベル低",
+
+  "electrolyteTips": "電解質のヒント",
+  "takeWithWater": "たっぷりの水と一緒に",
+  "bestBetweenMeals": "食間が最適",
+  "startSmallAmounts": "少量から開始",
+  "extraDuringExercise": "運動中は追加必要",
+
+  "electrolytesBasic": "基本",
+  "electrolytesMixes": "ミックス",
+  "electrolytesPills": "錠剤",
+
+  "popularSalts": "人気の塩&スープ",
+  "popularMixes": "人気の電解質ミックス",
+  "popularSupplements": "人気のサプリ",
+
+  "electrolyteSaltWater": "塩水",
+  "electrolytePinkSalt": "ピンク塩",
+  "electrolyteSeaSalt": "海塩",
+  "electrolyteNuun": "Nuun",
+  "electrolyteLiquidIV": "Liquid IV",
+  "electrolyteUltima": "Ultima",
+  "electrolytePropel": "Propel",
+  "electrolytePedialyte": "Pedialyte",
+  "electrolyteGatoradeZero": "Gatorade Zero",
+  "electrolytePotassiumChloride": "塩化K",
+  "electrolyteMagThreonate": "Mg トレオネート",
+  "electrolyteTraceMinerals": "微量ミネラル",
+  "electrolyteZMAComplex": "ZMA複合",
+  "electrolyteMultiMineral": "マルチミネラル",
+  "electrolyteLMNT": "LMNT",
+
+  "hydration": "水分補給",
+  "todayHydration": "今日の水分補給",
+  "currentIntake": "摂取済",
+  "dailyGoal": "目標",
+  "toGo": "残り",
+  "goalReached": "目標達成！",
+  "almostThere": "もうすぐ！",
+  "halfwayThere": "半分",
+  "keepGoing": "続けよう",
+  "startDrinking": "飲み始めよう",
+
+  "plainWater": "プレーン",
+  "enhancedWater": "強化",
+  "beverages": "飲料",
+  "sodas": "ソーダ",
+
+  "popularPlainWater": "人気の水タイプ",
+  "popularEnhancedWater": "強化&注入",
+  "popularBeverages": "人気の飲料",
+  "popularSodas": "人気のソーダ&エナジー",
+
+  "hydrationTips": "水分補給のヒント",
+  "drinkRegularly": "少量を定期的に",
+  "roomTemperature": "室温の水が吸収良好",
+  "addLemon": "レモンで味向上",
+  "limitSugary": "甘い飲料を制限 - 脱水",
+
+  "warmWater": "温水",
+  "iceWater": "氷水",
+  "filteredWater": "濾過水",
+  "distilledWater": "蒸留水",
+  "springWater": "湧水",
+  "hydrogenWater": "水素水",
+  "oxygenatedWater": "酸素水",
+  "cucumberWater": "きゅうり水",
+  "limeWater": "ライム水",
+  "berryWater": "ベリー水",
+  "mintWater": "ミント水",
+  "gingerWater": "生姜水",
+
+  "caffeineStatusNone": "今日のカフェインなし",
+  "caffeineStatusModerate": "中程度: {amount}mg",
+  "caffeineStatusHigh": "高: {amount}mg",
+  "caffeineStatusVeryHigh": "超高: {amount}mg！",
+  "caffeineDailyLimit": "1日の上限: 400mg",
+
+  "caffeineWarningTitle": "カフェイン警告",
+  "caffeineWarning400": "今日400mgカフェイン超過",
+  "caffeineTipWater": "補償のため追加の水を",
+  "caffeineTipAvoid": "今日はカフェインを避けて",
+  "caffeineTipSleep": "睡眠の質に影響する可能性",
+
+  "total": "合計",
+  "cupsToday": "今日のカップ",
+  "metabolizeTime": "代謝時間",
+
+  "aboutCaffeine": "カフェインについて",
+  "caffeineInfo1": "コーヒーには覚醒を高める天然カフェインが含まれる",
+  "caffeineInfo2": "1日の安全上限はほとんどの成人で400mg",
+  "caffeineInfo3": "カフェイン半減期は5-6時間",
+  "caffeineInfo4": "カフェインの利尿作用を補う追加の水を",
+  "caffeineWarningPregnant": "妊婦はカフェインを200mg/日に制限すべき",
+
+  "gotIt": "了解",
+
+  "consumed": "摂取済",
+  "remaining": "残り",
+  "todaysCaffeine": "今日のカフェイン",
+  "alreadyInFavorites": "既にお気に入り",
+  "ofRecommendedLimit": "推奨上限の",
+
+  "aboutAlcohol": "アルコールについて",
+  "alcoholInfo1": "1標準ドリンク = 純アルコール10g",
+  "alcoholInfo2": "アルコールは脱水 — ドリンクごとに250ml追加の水",
+  "alcoholInfo3": "飲酒後にNaを追加して体液保持を支援",
+  "alcoholInfo4": "各標準ドリンクはHRIを3-5ポイント増加",
+  "alcoholWarningHealth": "過度のアルコール消費は健康に有害。推奨上限は男性2 SD、女性1 SD/日。",
+
+  "supplements": "サプリ",
+  "supplementsInfo1": "サプリは電解質バランス維持を支援",
+  "supplementsInfo2": "食事と共に摂取が吸収に最適",
+  "supplementsInfo3": "常にたっぷりの水と一緒に",
+  "supplementsInfo4": "MgとKは水分補給の鍵",
+  "supplementsWarning": "サプリ開始前に医療提供者に相談",
+
+  "fromSupplementsToday": "今日のサプリから",
+  "minerals": "ミネラル",
+  "vitamins": "ビタミン",
+  "essentialMinerals": "必須ミネラル",
+  "otherSupplements": "その他のサプリ",
+
+  "supplementTip1": "吸収向上のため食事と共に",
+  "supplementTip2": "サプリと共にたっぷりの水",
+  "supplementTip3": "複数のサプリは1日を通じて間隔を空ける",
+  "supplementTip4": "効果を追跡",
+
+  "calciumCarbonate": "炭酸Ca",
+  "traceMinerals": "微量ミネラル",
+  "vitaminA": "ビタミンA",
+  "vitaminE": "ビタミンE",
+  "vitaminK2": "ビタミンK2",
+  "folate": "葉酸",
+  "biotin": "ビオチン",
+  "probiotics": "プロバイオティクス",
+  "melatonin": "メラトニン",
+  "collagen": "コラーゲン",
+  "glucosamine": "グルコサミン",
+  "turmeric": "ターメリック",
+  "coq10": "CoQ10",
+  "creatine": "クレアチン",
+  "ashwagandha": "アシュワガンダ",
+
+  "selectCardioActivity": "有酸素活動を選択",
+  "selectStrengthActivity": "筋力活動を選択",
+  "selectSportsActivity": "スポーツを選択",
+
+  "sessions": "セッション",
+  "totalTime": "総時間",
+  "waterLoss": "水分損失",
+  "intensity": "強度",
+
+  "drinkWaterAfterWorkout": "運動後に水",
+  "replenishElectrolytes": "電解質を補充",
+  "restAndRecover": "休息と回復",
+  "avoidSugaryDrinks": "甘いスポーツドリンクを避ける",
+
+  "elliptical": "エリプティカル",
+  "rowing": "ローイング",
+  "jumpRope": "縄跳び",
+  "stairClimbing": "階段昇り",
+  "bodyweight": "自重",
+  "powerlifting": "パワーリフティング",
+  "calisthenics": "カリステニクス",
+  "resistanceBands": "レジスタンスバンド",
+  "kettlebell": "ケトルベル",
+  "trx": "TRX",
+  "strongman": "ストロングマン",
+  "pilates": "ピラティス",
+  "basketball": "バスケ",
+  "soccerFootball": "サッカー",
+  "golf": "ゴルフ",
+  "martialArts": "格闘技",
+  "rockClimbing": "ロッククライミング",
+
+  "needsToReplenish": "補充が必要",
+
+  "electrolyteTrackingPro": "Na、K、Mg目標を詳細な進捗バーで追跡",
+  "unlock": "解除",
+
+  "weather": "天候",
+  "weatherTrackingPro": "熱中症指数、湿度、天候が水分補給目標に与える影響を追跡",
+
+  "sugarTracking": "砂糖追跡",
+  "sugarTrackingPro": "天然、添加、隠れた砂糖摂取をHRI影響分析で監視",
+
+  "dayOverview": "日の概要",
+  "tapForDetails": "タップで詳細",
+  "noDataForDay": "この日のデータなし",
+  "sweatLoss": "発汗損失",
+  "cardio": "有酸素",
+  "strength": "筋力",
+  "workout": "運動",
+
+  "noWaterToday": "今日の水記録なし",
+  "noElectrolytesToday": "今日の電解質記録なし",
+  "noCoffeeToday": "今日のコーヒー記録なし",
+  "noWorkoutsToday": "今日の運動なし",
+  "noWaterThisDay": "この日の水記録なし",
+  "noElectrolytesThisDay": "この日の電解質記録なし",
+  "noCoffeeThisDay": "この日のコーヒー記録なし",
+  "noWorkoutsThisDay": "この日の運動なし",
+
+  "weeklyReport": "週次レポート",
+  "weeklyReportSubtitle": "深い洞察と傾向分析",
+
+  "workouts": "運動",
+  "workoutHydration": "運動水分補給",
+  "workoutHydrationMessage": "運動日は{percent}%多く水を飲む",
+  "weeklyActivity": "週の活動",
+  "weeklyActivityMessage": "{days}日で{minutes}分運動",
+  "workoutMinutesPerDay": "1日の運動分",
+  "daysWithWorkouts": "運動日",
+  "noWorkoutsThisWeek": "今週の運動なし",
+  "noAlcoholThisWeek": "今週の飲酒なし",
+
+  "csvExported": "CSVへ出力完了",
+
+  "mondayShort": "月",
+  "tuesdayShort": "火",
+  "wednesdayShort": "水",
+  "thursdayShort": "木",
+  "fridayShort": "金",
+  "saturdayShort": "土",
+  "sundayShort": "日",
+
+  "achievements": "達成",
+  "achievementsTabAll": "全て",
+  "achievementsTabHydration": "水分",
+  "achievementsTabElectrolytes": "電解質",
+  "achievementsTabSugar": "砂糖管理",
+  "achievementsTabAlcohol": "アルコール",
+  "achievementsTabWorkout": "運動",
+  "achievementsTabHRI": "HRI",
+  "achievementsTabStreaks": "連続",
+  "achievementsTabSpecial": "特別",
+  "achievementUnlocked": "達成解除！",
+  "achievementProgress": "進捗",
+  "achievementPoints": "ポイント",
+  "achievementRarityCommon": "一般",
+  "achievementRarityUncommon": "珍しい",
+  "achievementRarityRare": "レア",
+  "achievementRarityEpic": "エピック",
+  "achievementRarityLegendary": "伝説",
+  "achievementStatsUnlocked": "解除済",
+  "achievementStatsTotal": "総ポイント",
+  "achievementFilterAll": "全て",
+  "achievementFilterUnlocked": "解除済",
+  "achievementSortProgress": "進捗",
+  "achievementSortName": "名前",
+  "achievementSortRarity": "レアリティ",
+  "achievementNoAchievements": "達成なし",
+  "achievementKeepUsing": "アプリ使用で達成を解除！",
+  "achievementFirstGlass": "最初の一滴",
+  "achievementFirstGlassDesc": "最初の水を飲む",
+  "achievementHydrationGoal1": "水分補給",
+  "achievementHydrationGoal1Desc": "1日の目標達成",
+  "achievementHydrationGoal7": "1週間水分補給",
+  "achievementHydrationGoal7Desc": "7日連続目標達成",
+  "achievementHydrationGoal30": "水分マスター",
+  "achievementHydrationGoal30Desc": "30日連続目標達成",
+  "achievementPerfectHydration": "完璧バランス",
+  "achievementPerfectHydrationDesc": "目標の90-110%達成",
+  "achievementEarlyBird": "早起き",
+  "achievementEarlyBirdDesc": "9時前に最初の水",
+  "achievementEarlyBirdTemplate": "{volume}を9時前",
+  "@achievementEarlyBirdTemplate": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementNightOwl": "夜更かし",
+  "achievementNightOwlDesc": "18時前に目標完了",
+  "achievementLiterLegend": "リットル伝説",
+  "achievementLiterLegendDesc": "総水分マイルストーン",
+  "achievementLiterLegendTemplate": "{volume}総量達成",
+  "@achievementLiterLegendTemplate": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementSaltStarter": "塩スターター",
+  "achievementSaltStarterDesc": "最初の電解質追加",
+  "achievementElectrolyteBalance": "バランス",
+  "achievementElectrolyteBalanceDesc": "1日で全電解質目標達成",
+  "achievementSodiumMaster": "Naマスター",
+  "achievementSodiumMasterDesc": "7日連続Na目標達成",
+  "achievementPotassiumPro": "Kプロ",
+  "achievementPotassiumProDesc": "7日連続K目標達成",
+  "achievementMagnesiumMaven": "Mg達人",
+  "achievementMagnesiumMavenDesc": "7日連続Mg目標達成",
+  "achievementElectrolyteExpert": "電解質専門家",
+  "achievementElectrolyteExpertDesc": "30日完璧電解質",
+  "achievementSugarAwareness": "砂糖認識",
+  "achievementSugarAwarenessDesc": "初回砂糖追跡",
+  "achievementSugarUnder25": "甘味管理",
+  "achievementSugarUnder25Desc": "1日低砂糖維持",
+  "achievementSugarUnder25Template": "{weight}以下で1日",
+  "@achievementSugarUnder25Template": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementSugarWeekControl": "砂糖規律",
+  "achievementSugarWeekControlDesc": "1週間低砂糖維持",
+  "achievementSugarWeekControlTemplate": "{weight}以下で7日",
+  "@achievementSugarWeekControlTemplate": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementSugarFreeDay": "砂糖ゼロ",
+  "achievementSugarFreeDayDesc": "添加砂糖0gで1日完了",
+  "achievementSugarDetective": "砂糖探偵",
+  "achievementSugarDetectiveDesc": "隠れ砂糖10回追跡",
+  "achievementSugarMaster": "砂糖マスター",
+  "achievementSugarMasterDesc": "1ヶ月超低砂糖維持",
+  "achievementNoSodaWeek": "ソーダなし1週",
+  "achievementNoSodaWeekDesc": "7日ソーダなし",
+  "achievementNoSodaMonth": "ソーダなし1月",
+  "achievementNoSodaMonthDesc": "30日ソーダなし",
+  "achievementSweetToothTamed": "甘党克服",
+  "achievementSweetToothTamedDesc": "1週で砂糖50%削減",
+  "achievementAlcoholTracker": "認識",
+  "achievementAlcoholTrackerDesc": "飲酒追跡",
+  "achievementModerateDay": "節度",
+  "achievementModerateDayDesc": "1日2SD以下維持",
+  "achievementSoberDay": "禁酒日",
+  "achievementSoberDayDesc": "飲酒なし1日完了",
+  "achievementSoberWeek": "禁酒1週",
+  "achievementSoberWeekDesc": "7日飲酒なし",
+  "achievementSoberMonth": "禁酒1月",
+  "achievementSoberMonthDesc": "30日飲酒なし",
+  "achievementRecoveryProtocol": "回復プロ",
+  "achievementRecoveryProtocolDesc": "飲酒後回復完了",
+  "achievementFirstWorkout": "始動",
+  "achievementFirstWorkoutDesc": "初回運動記録",
+  "achievementWorkoutWeek": "活動週",
+  "achievementWorkoutWeekDesc": "週3回運動",
+  "achievementCenturySweat": "百汗",
+  "achievementCenturySweatDesc": "運動で大量水分損失",
+  "achievementCenturySweatTemplate": "{volume}運動損失",
+  "@achievementCenturySweatTemplate": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementCardioKing": "有酸素王",
+  "achievementCardioKingDesc": "有酸素10回完了",
+  "achievementStrengthWarrior": "筋力戦士",
+  "achievementStrengthWarriorDesc": "筋力10回完了",
+  "achievementHRIGreen": "緑ゾーン",
+  "achievementHRIGreenDesc": "HRI緑で1日維持",
+  "achievementHRIWeekGreen": "安全週",
+  "achievementHRIWeekGreenDesc": "HRI緑で7日維持",
+  "achievementHRIPerfect": "完璧スコア",
+  "achievementHRIPerfectDesc": "HRI 20以下達成",
+  "achievementHRIRecovery": "迅速回復",
+  "achievementHRIRecoveryDesc": "1日でHRI赤→緑",
+  "achievementHRIMaster": "HRIマスター",
+  "achievementHRIMasterDesc": "30日HRI 30以下維持",
+  "achievementStreak3": "開始",
+  "achievementStreak3Desc": "3日連続",
+  "achievementStreak7": "週戦士",
+  "achievementStreak7Desc": "7日連続",
+  "achievementStreak30": "継続王",
+  "achievementStreak30Desc": "30日連続",
+  "achievementStreak100": "百日会",
+  "achievementStreak100Desc": "100日連続",
+  "achievementFirstWeek": "初週",
+  "achievementFirstWeekDesc": "7日使用",
+  "achievementProMember": "PRO会員",
+  "achievementProMemberDesc": "PRO登録",
+  "achievementDataExport": "分析家",
+  "achievementDataExportDesc": "CSV出力",
+  "achievementAllCategories": "万能",
+  "achievementAllCategoriesDesc": "全カテゴリで達成解除",
+  "achievementHunter": "達成ハンター",
+  "achievementHunterDesc": "50%達成解除",
+  "achievementDetailsUnlockedOn": "解除日",
+  "achievementNewUnlocked": "新達成解除！",
+  "achievementViewAll": "全達成表示",
+  "achievementCloseNotification": "閉じる",
+  "before": "前",
+  "after": "後",
+  "lose": "損失",
+  "through": "経由",
+  "throughWorkouts": "運動経由",
+  "reach": "達成",
+  "daysInRow": "日連続",
+  "completeHydrationGoal": "水分目標完了",
+  "stayUnder": "以下維持",
+  "inADay": "1日で",
+  "alcoholFree": "飲酒なし",
+  "complete": "完了",
+  "achieve": "達成",
+  "keep": "維持",
+  "for30Days": "30日間",
+  "liters": "リットル",
+  "gallons": "ガロン",
+  "completed": "完了",
+  "notCompleted": "未完了",
+  "days": "日",
+  "hours": "時間",
+  "minutes": "分",
+  "sessions": "回",
+  "times": "回",
+  "row": "連続",
+  "total": "総計",
+  "ofTotal": "総計の",
+  "remaining": "残り",
+  "perDay": "/日",
+  "perWeek": "/週",
+  "streak": "連続",
+  "tapToDismiss": "タップで閉じる",
+  "tutorialStep1": "こんにちは！最適な水分補給の旅を始めます。最初の{volume}を飲みましょう！",
+  "@tutorialStep1": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "tutorialStep2": "素晴らしい！もう{volume}追加して仕組みを感じましょう。",
+  "@tutorialStep2": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "tutorialStep3": "優秀！HydroCoachを独立して使用する準備完了。完璧な水分補給達成を支援します！",
+  "tutorialComplete": "使用開始",
+
+  "onboardingNotificationExamplesTitle": "スマート通知",
+  "onboardingNotificationExamplesSubtitle": "必要な時を知っています",
+  "onboardingLocationExamplesTitle": "個人助言",
+  "onboardingLocationExamplesSubtitle": "天候考慮で正確推奨",
+  "onboardingAllowNotifications": "通知許可",
+  "onboardingAllowLocation": "位置情報許可",
+
+  "foodCatalog": "食品カタログ",
+  "@foodCatalog": {
+    "description": "Food catalog screen title"
+  },
+  "todaysFoodIntake": "今日の食事",
+  "@todaysFoodIntake": {
+    "description": "Title for today's food intake summary"
+  },
+  "noFoodToday": "今日の食事記録なし",
+  "@noFoodToday": {
+    "description": "Message when no food has been logged today"
+  },
+  "foodItemsCount": "{count}品目",
+  "@foodItemsCount": {
+    "description": "Count of food items logged today",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "waterFromFood": "食品から水分",
+  "@waterFromFood": {
+    "description": "Label for water content from food"
+  },
+  "last": "最終",
+  "@last": {
+    "description": "Label for last item"
+  },
+  "categoryFruits": "果物",
+  "@categoryFruits": {
+    "description": "Fruits category"
+  },
+  "categoryVegetables": "野菜",
+  "@categoryVegetables": {
+    "description": "Vegetables category"
+  },
+  "categorySoups": "スープ",
+  "@categorySoups": {
+    "description": "Soups category"
+  },
+  "categoryDairy": "乳製品",
+  "@categoryDairy": {
+    "description": "Dairy category"
+  },
+  "categoryMeat": "肉",
+  "@categoryMeat": {
+    "description": "Meat category"
+  },
+  "categoryFastFood": "ファストフード",
+  "@categoryFastFood": {
+    "description": "Fast food category"
+  },
+  "weightGrams": "重量(グラム)",
+  "@weightGrams": {
+    "description": "Weight in grams label"
+  },
+  "enterWeight": "重量入力",
+  "@enterWeight": {
+    "description": "Enter weight prompt"
+  },
+  "grams": "g",
+  "@grams": {
+    "description": "Grams unit"
+  },
+  "calories": "カロリー",
+  "@calories": {
+    "description": "Calories label"
+  },
+  "waterContent": "水分含有",
+  "@waterContent": {
+    "description": "Water content label"
+  },
+  "sugar": "砂糖",
+  "@sugar": {
+    "description": "Sugar label"
+  },
+  "nutritionalInfo": "栄養情報",
+  "@nutritionalInfo": {
+    "description": "Nutritional information label"
+  },
+  "caloriesPerWeight": "{weight}gあたり{calories} kcal",
+  "@caloriesPerWeight": {
+    "description": "Calories per weight format",
+    "placeholders": {
+      "calories": {
+        "type": "int"
+      },
+      "weight": {
+        "type": "int"
+      }
+    }
+  },
+  "waterPerWeight": "{weight}gあたり{water} ml水",
+  "@waterPerWeight": {
+    "description": "Water per weight format",
+    "placeholders": {
+      "water": {
+        "type": "int"
+      },
+      "weight": {
+        "type": "int"
+      }
+    }
+  },
+  "sugarPerWeight": "{weight}gあたり{sugar}g砂糖",
+  "@sugarPerWeight": {
+    "description": "Sugar per weight format",
+    "placeholders": {
+      "sugar": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "int"
+      }
+    }
+  },
+  "addFood": "食品追加",
+  "@addFood": {
+    "description": "Add food button"
+  },
+  "foodAdded": "食品追加成功",
+  "@foodAdded": {
+    "description": "Food added success message"
+  },
+  "enterValidWeight": "有効な重量を入力",
+  "@enterValidWeight": {
+    "description": "Invalid weight error message"
+  },
+  "proOnlyFood": "PROのみ",
+  "@proOnlyFood": {
+    "description": "PRO only food label"
+  },
+  "unlockProForFood": "PRO解除で全食品利用",
+  "@unlockProForFood": {
+    "description": "PRO unlock message for food"
+  },
+  "foodTracker": "食品追跡",
+  "@foodTracker": {
+    "description": "Food tracker title"
+  },
+  "todaysFoodSummary": "今日の食事要約",
+  "@todaysFoodSummary": {
+    "description": "Today's food summary title"
+  },
+  "kcal": "kcal",
+  "@kcal": {
+    "description": "Kilocalories unit"
+  },
+  "per100g": "100gあたり",
+  "@per100g": {
+    "description": "Per 100 grams"
+  },
+  "addToFavorites": "お気に入り追加",
+  "@addToFavorites": {
+    "description": "Add to favorites checkbox"
+  },
+  "favoritesFeatureComingSoon": "お気に入り機能近日公開！",
+  "@favoritesFeatureComingSoon": {
+    "description": "Favorites feature not yet available message"
+  },
+  "foodAddedSuccess": "{food}追加！+{calories} kcal, +{water}",
+  "@foodAddedSuccess": {
+    "description": "Success message when food is added",
+    "placeholders": {
+      "food": {
+        "type": "String"
+      },
+      "calories": {
+        "type": "int"
+      },
+      "water": {
+        "type": "String"
+      }
+    }
+  },
+  "selectWeight": "重量選択",
+  "@selectWeight": {
+    "description": "Select weight dialog title"
+  },
+  "weight": "重量",
+  "@weight": {
+    "description": "Weight label"
+  },
+  "ounces": "oz",
+  "@ounces": {
+    "description": "Ounces unit"
+  },
+  "items": "品",
+  "@items": {
+    "description": "Items count"
+  },
+  "tapToAddFood": "タップで食品追加",
+  "@tapToAddFood": {
+    "description": "Add food prompt"
+  },
+  "noFoodLoggedToday": "今日の食品記録なし",
+  "@noFoodLoggedToday": {
+    "description": "No food logged message"
+  },
+  "lightEatingDay": "軽食日",
+  "@lightEatingDay": {
+    "description": "Light eating day status"
+  },
+  "moderateIntake": "中程度摂取",
+  "@moderateIntake": {
+    "description": "Moderate intake status"
+  },
+  "goodCalorieIntake": "良好カロリー",
+  "@goodCalorieIntake": {
+    "description": "Good calorie intake status"
+  },
+  "substantialMeals": "充実食事",
+  "@substantialMeals": {
+    "description": "Substantial meals status"
+  },
+  "highCalorieDay": "高カロリー日",
+  "@highCalorieDay": {
+    "description": "High calorie day status"
+  },
+  "veryHighIntake": "超高摂取",
+  "@veryHighIntake": {
+    "description": "Very high intake status"
+  },
+  "caloriesTracker": "カロリー追跡",
+  "@caloriesTracker": {
+    "description": "Calories tracker title"
+  },
+  "trackYourDailyCalorieIntake": "1日カロリー摂取追跡",
+  "@trackYourDailyCalorieIntake": {
+    "description": "Calories tracker description"
+  },
+  "unlockFoodTrackingFeatures": "食品追跡機能解除",
+  "@unlockFoodTrackingFeatures": {
+    "description": "Unlock food tracking features message"
+  },
+  "selectFoodType": "食品種類選択",
+  "@selectFoodType": {
+    "description": "Select food type title"
+  },
+
+  "foodApple": "リンゴ",
+  "@foodApple": {
+    "description": "Apple fruit"
+  },
+  "foodBanana": "バナナ",
+  "@foodBanana": {
+    "description": "Banana fruit"
+  },
+  "foodOrange": "オレンジ",
+  "@foodOrange": {
+    "description": "Orange fruit"
+  },
+  "foodWatermelon": "スイカ",
+  "@foodWatermelon": {
+    "description": "Watermelon fruit"
+  },
+  "foodStrawberry": "イチゴ",
+  "@foodStrawberry": {
+    "description": "Strawberry fruit"
+  },
+  "foodGrapes": "ブドウ",
+  "@foodGrapes": {
+    "description": "Grapes fruit"
+  },
+  "foodPineapple": "パイナップル",
+  "@foodPineapple": {
+    "description": "Pineapple fruit"
+  },
+  "foodMango": "マンゴー",
+  "@foodMango": {
+    "description": "Mango fruit"
+  },
+  "foodPear": "梨",
+  "@foodPear": {
+    "description": "Pear fruit"
+  },
+
+  "foodCarrot": "ニンジン",
+  "@foodCarrot": {
+    "description": "Carrot vegetable"
+  },
+  "foodBroccoli": "ブロッコリー",
+  "@foodBroccoli": {
+    "description": "Broccoli vegetable"
+  },
+  "foodSpinach": "ホウレン草",
+  "@foodSpinach": {
+    "description": "Spinach vegetable"
+  },
+  "foodTomato": "トマト",
+  "@foodTomato": {
+    "description": "Tomato vegetable"
+  },
+  "foodCucumber": "キュウリ",
+  "@foodCucumber": {
+    "description": "Cucumber vegetable"
+  },
+  "foodBellPepper": "ピーマン",
+  "@foodBellPepper": {
+    "description": "Bell pepper vegetable"
+  },
+  "foodLettuce": "レタス",
+  "@foodLettuce": {
+    "description": "Lettuce vegetable"
+  },
+  "foodOnion": "玉ねぎ",
+  "@foodOnion": {
+    "description": "Onion vegetable"
+  },
+  "foodCelery": "セロリ",
+  "@foodCelery": {
+    "description": "Celery vegetable"
+  },
+  "foodPotato": "ジャガイモ",
+  "@foodPotato": {
+    "description": "Potato vegetable"
+  },
+
+  "foodChickenSoup": "チキンスープ",
+  "@foodChickenSoup": {
+    "description": "Chicken soup"
+  },
+  "foodTomatoSoup": "トマトスープ",
+  "@foodTomatoSoup": {
+    "description": "Tomato soup"
+  },
+  "foodVegetableSoup": "野菜スープ",
+  "@foodVegetableSoup": {
+    "description": "Vegetable soup"
+  },
+  "foodMinestrone": "ミネストローネ",
+  "@foodMinestrone": {
+    "description": "Minestrone soup"
+  },
+  "foodMisoSoup": "味噌汁",
+  "@foodMisoSoup": {
+    "description": "Miso soup"
+  },
+  "foodMushroomSoup": "マッシュルームスープ",
+  "@foodMushroomSoup": {
+    "description": "Mushroom soup"
+  },
+  "foodBeefStew": "ビーフシチュー",
+  "@foodBeefStew": {
+    "description": "Beef stew"
+  },
+  "foodLentilSoup": "レンズ豆スープ",
+  "@foodLentilSoup": {
+    "description": "Lentil soup"
+  },
+  "foodOnionSoup": "オニオンスープ",
+  "@foodOnionSoup": {
+    "description": "French onion soup"
+  },
+
+  "foodMilk": "牛乳",
+  "@foodMilk": {
+    "description": "Milk"
+  },
+  "foodYogurt": "ギリシャヨーグルト",
+  "@foodYogurt": {
+    "description": "Greek yogurt"
+  },
+  "foodCheese": "チェダーチーズ",
+  "@foodCheese": {
+    "description": "Cheddar cheese"
+  },
+  "foodCottageCheese": "カッテージチーズ",
+  "@foodCottageCheese": {
+    "description": "Cottage cheese"
+  },
+  "foodButter": "バター",
+  "@foodButter": {
+    "description": "Butter"
+  },
+  "foodCream": "生クリーム",
+  "@foodCream": {
+    "description": "Heavy cream"
+  },
+  "foodIceCream": "アイスクリーム",
+  "@foodIceCream": {
+    "description": "Ice cream"
+  },
+  "foodMozzarella": "モッツァレラ",
+  "@foodMozzarella": {
+    "description": "Mozzarella cheese"
+  },
+  "foodParmesan": "パルメザン",
+  "@foodParmesan": {
+    "description": "Parmesan cheese"
+  },
+
+  "foodChickenBreast": "鶏胸肉",
+  "@foodChickenBreast": {
+    "description": "Chicken breast"
+  },
+  "foodBeef": "挽き肉",
+  "@foodBeef": {
+    "description": "Ground beef"
+  },
+  "foodSalmon": "サーモン",
+  "@foodSalmon": {
+    "description": "Salmon fish"
+  },
+  "foodEggs": "卵",
+  "@foodEggs": {
+    "description": "Chicken eggs"
+  },
+  "foodTuna": "ツナ",
+  "@foodTuna": {
+    "description": "Tuna fish"
+  },
+  "foodPork": "ポークチョップ",
+  "@foodPork": {
+    "description": "Pork chop"
+  },
+  "foodTurkey": "七面鳥",
+  "@foodTurkey": {
+    "description": "Turkey meat"
+  },
+  "foodShrimp": "エビ",
+  "@foodShrimp": {
+    "description": "Shrimp"
+  },
+  "foodBacon": "ベーコン",
+  "@foodBacon": {
+    "description": "Bacon"
+  },
+
+  "foodBigMac": "ビッグマック",
+  "@foodBigMac": {
+    "description": "McDonald's Big Mac"
+  },
+  "foodPizza": "ピザスライス",
+  "@foodPizza": {
+    "description": "Pizza slice"
+  },
+  "foodFrenchFries": "フライドポテト",
+  "@foodFrenchFries": {
+    "description": "French fries"
+  },
+  "foodChickenNuggets": "チキンナゲット",
+  "@foodChickenNuggets": {
+    "description": "Chicken nuggets"
+  },
+  "foodHotDog": "ホットドッグ",
+  "@foodHotDog": {
+    "description": "Hot dog"
+  },
+  "foodTacos": "タコス",
+  "@foodTacos": {
+    "description": "Tacos"
+  },
+  "foodSubway": "サブウェイサンド",
+  "@foodSubway": {
+    "description": "Subway sandwich"
+  },
+  "foodDonut": "ドーナツ",
+  "@foodDonut": {
+    "description": "Donut"
+  },
+  "foodBurgerKing": "ワッパー",
+  "@foodBurgerKing": {
+    "description": "Burger King Whopper"
+  },
+  "foodSausage": "ソーセージ",
+  "@foodSausage": {
+    "description": "Sausage"
+  },
+  "foodKefir": "ケフィア",
+  "@foodKefir": {
+    "description": "Kefir"
+  },
+  "foodRyazhenka": "リャジェンカ",
+  "@foodRyazhenka": {
+    "description": "Baked fermented milk"
+  },
+  "foodDoner": "ドネル",
+  "@foodDoner": {
+    "description": "Döner kebab"
+  },
+  "foodShawarma": "シャワルマ",
+  "@foodShawarma": {
+    "description": "Shawarma wrap"
+  },
+  "foodBorscht": "ボルシチ",
+  "@foodBorscht": {
+    "description": "Beet soup"
+  },
+  "foodRamen": "ラーメン",
+  "@foodRamen": {
+    "description": "Japanese noodle soup"
+  },
+  "foodCabbage": "キャベツ",
+  "@foodCabbage": {
+    "description": "Cabbage"
+  },
+  "foodPeaSoup": "豆スープ",
+  "@foodPeaSoup": {
+    "description": "Pea soup"
+  },
+  "foodSolyanka": "ソリャンカ",
+  "@foodSolyanka": {
+    "description": "Russian soup with pickles and meat"
+  },
+  "meals": "食",
+  "@meals": {
+    "description": "Meals counter"
+  },
+  "dailyProgress": "1日進捗",
+  "@dailyProgress": {
+    "description": "Daily progress label"
+  },
+  "fromFood": "食品から",
+  "@fromFood": {
+    "description": "Water from food label"
+  },
+  "noFoodThisWeek": "今週の食品データなし",
+  "@noFoodThisWeek": {
+    "description": "No food data message for weekly view"
+  },
+  "foodIntake": "食事摂取",
+  "@foodIntake": {
+    "description": "Food intake chart title"
+  },
+  "foodStats": "食品統計",
+  "@foodStats": {
+    "description": "Food statistics title"
+  },
+  "totalCalories": "総カロリー",
+  "@totalCalories": {
+    "description": "Total calories label"
+  },
+  "avgCaloriesPerDay": "平均/日",
+  "@avgCaloriesPerDay": {
+    "description": "Average calories per day label"
+  },
+  "daysWithFood": "食事日",
+  "@daysWithFood": {
+    "description": "Days with food label"
+  },
+  "avgMealsPerDay": "食/日",
+  "@avgMealsPerDay": {
+    "description": "Average meals per day label"
+  },
+  "caloriesPerDay": "カロリー/日",
+  "@caloriesPerDay": {
+    "description": "Calories per day label"
+  },
+  "sugarPerDay": "砂糖/日",
+  "@sugarPerDay": {
+    "description": "Sugar per day label"
+  },
+  "foodTracking": "食品追跡",
+  "@foodTracking": {
+    "description": "Food tracking feature name"
+  },
+  "foodTrackingPro": "食品の水分とHRI影響追跡",
+  "@foodTrackingPro": {
+    "description": "Food tracking pro description"
+  },
+  "hydrationBalance": "水分バランス",
+  "@hydrationBalance": {
+    "description": "Hydration balance label"
+  },
+  "highSodiumFood": "食品から高Na",
+  "@highSodiumFood": {
+    "description": "High sodium food status"
+  },
+  "hydratingFood": "素晴らしい水分選択",
+  "@hydratingFood": {
+    "description": "Hydrating food status"
+  },
+  "dryFood": "低水分食品",
+  "@dryFood": {
+    "description": "Dry food status"
+  },
+  "balancedFood": "バランス栄養",
+  "@balancedFood": {
+    "description": "Balanced food status"
+  },
+  "foodAdviceEmpty": "水分影響追跡のため食事追加",
+  "@foodAdviceEmpty": {
+    "description": "Advice when no food logged"
+  },
+  "foodAdviceHighSodium": "高Na検出。水分増量でバランス",
+  "@foodAdviceHighSodium": {
+    "description": "Advice for high sodium food"
+  },
+  "foodAdviceLowWater": "食品水分低。追加の水を検討",
+  "@foodAdviceLowWater": {
+    "description": "Advice for low water content food"
+  },
+  "foodAdviceGoodHydration": "素晴らしい！食品が水分補助",
+  "@foodAdviceGoodHydration": {
+    "description": "Advice for good hydrating food"
+  },
+  "foodAdviceBalanced": "良い栄養！水を忘れずに",
+  "@foodAdviceBalanced": {
+    "description": "Advice for balanced food choices"
+  },
+  "richInElectrolytes": "電解質豊富",
+  "@richInElectrolytes": {
+    "description": "Status for food rich in electrolytes"
+  },
+
+  "recommendedCalories": "推奨カロリー: 約{calories} kcal/日",
+  "@recommendedCalories": {
+    "description": "Recommended daily calorie intake",
+    "placeholders": {
+      "calories": {
+        "type": "int",
+        "example": "1750"
+      }
+    }
+  },
+
+  "proWelcomeTitle": "HydraCoach PROへようこそ！",
+  "@proWelcomeTitle": {
+    "description": "PRO welcome screen title"
+  },
+  "proTrialActivated": "7日トライアル有効化！",
+  "@proTrialActivated": {
+    "description": "PRO trial activation subtitle"
+  },
+  "proFeaturePersonalizedRecommendations": "個人推奨",
+  "@proFeaturePersonalizedRecommendations": {
+    "description": "PRO feature: personalized hydration advice"
+  },
+  "proFeatureAdvancedAnalytics": "高度分析",
+  "@proFeatureAdvancedAnalytics": {
+    "description": "PRO feature: detailed charts and statistics"
+  },
+  "proFeatureWorkoutTracking": "運動追跡",
+  "@proFeatureWorkoutTracking": {
+    "description": "PRO feature: fluid loss tracking during sports"
+  },
+  "proFeatureElectrolyteControl": "電解質管理",
+  "@proFeatureElectrolyteControl": {
+    "description": "PRO feature: sodium, potassium, magnesium monitoring"
+  },
+  "proFeatureSmartReminders": "スマート通知",
+  "@proFeatureSmartReminders": {
+    "description": "PRO feature: personalized notifications"
+  },
+  "proFeatureHriIndex": "HRI指数",
+  "@proFeatureHriIndex": {
+    "description": "PRO feature: real-time hydration risk index"
+  },
+  "proFeatureAchievements": "PRO達成",
+  "@proFeatureAchievements": {
+    "description": "PRO feature: exclusive rewards and goals"
+  },
+  "proFeaturePersonalizedDescription": "個人水分助言",
+  "@proFeaturePersonalizedDescription": {
+    "description": "PRO feature description: personalized recommendations"
+  },
+  "proFeatureAdvancedDescription": "詳細グラフと統計",
+  "@proFeatureAdvancedDescription": {
+    "description": "PRO feature description: advanced analytics"
+  },
+  "proFeatureWorkoutDescription": "スポーツ中の水分損失追跡",
+  "@proFeatureWorkoutDescription": {
+    "description": "PRO feature description: workout tracking"
+  },
+  "proFeatureElectrolyteDescription": "Na、K、Mg監視",
+  "@proFeatureElectrolyteDescription": {
+    "description": "PRO feature description: electrolyte control"
+  },
+  "proFeatureSmartDescription": "個人通知",
+  "@proFeatureSmartDescription": {
+    "description": "PRO feature description: smart reminders"
+  },
+  "proFeatureNoMoreAds": "広告なし！",
+  "@proFeatureNoMoreAds": {
+    "description": "PRO feature title: no more ads"
+  },
+  "proFeatureNoMoreAdsDescription": "広告なしで水分追跡を楽しむ",
+  "@proFeatureNoMoreAdsDescription": {
+    "description": "PRO feature description: no more ads"
+  },
+  "proFeatureHriDescription": "リアルタイム水分リスク指数",
+  "@proFeatureHriDescription": {
+    "description": "PRO feature description: HRI index"
+  },
+  "proFeatureAchievementsDescription": "専用報酬と目標",
+  "@proFeatureAchievementsDescription": {
+    "description": "PRO feature description: PRO achievements"
+  },
+  "startUsing": "使用開始",
+  "@startUsing": {
+    "description": "Button to start using PRO features"
+  },
+
+  "sayGoodbyeToAds": "広告にさよなら。プレミアムへ。",
+  "@sayGoodbyeToAds": {
+    "description": "Text below MREC ad encouraging premium upgrade"
+  },
+  "goPremium": "プレミアムへ",
+  "@goPremium": {
+    "description": "Button text to upgrade to premium"
+  },
+  "removeAdsForever": "広告永久削除",
+  "@removeAdsForever": {
+    "description": "Text for premium fallback content"
+  },
+  "upgrade": "アップグレード",
+  "@upgrade": {
+    "description": "Upgrade button text"
+  },
+
+  "support": "サポート",
+  "@support": {
+    "description": "Support section title"
+  },
+  "companyWebsite": "会社ウェブサイト",
+  "@companyWebsite": {
+    "description": "Company website menu item"
+  },
+  "appStoreOpened": "ストア開封",
+  "@appStoreOpened": {
+    "description": "Message when App Store opens successfully"
+  },
+  "linkCopiedToClipboard": "リンクコピー",
+  "@linkCopiedToClipboard": {
+    "description": "Message when link is copied as fallback"
+  },
+  "shareDialogOpened": "共有開封",
+  "@shareDialogOpened": {
+    "description": "Message when share dialog opens successfully"
+  },
+  "linkForSharingCopied": "共有リンクコピー",
+  "@linkForSharingCopied": {
+    "description": "Message when share link is copied as fallback"
+  },
+  "websiteOpenedInBrowser": "ブラウザで開封",
+  "@websiteOpenedInBrowser": {
+    "description": "Message when website opens successfully"
+  },
+  "emailClientOpened": "メール開封",
+  "@emailClientOpened": {
+    "description": "Message when email client opens successfully"
+  },
+  "emailCopiedToClipboard": "メールコピー",
+  "@emailCopiedToClipboard": {
+    "description": "Message when email is copied as fallback"
+  },
+  "privacyPolicyOpened": "プライバシー開封",
+  "@privacyPolicyOpened": {
+    "description": "Message when privacy policy opens successfully"
+  },
+  "statisticsTo": "{date}までの統計",
+  "@statisticsTo": {
+    "description": "Statistics up to selected date",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMd"
+      }
+    }
+  },
+  "monthlyInsights": "月間分析",
+  "average": "平均",
+  "daysOver": "超過日",
+  "maximum": "最大",
+  "balance": "バランス",
+  "allNormal": "全て正常",
+  "excellentConsistency": "優秀な一貫性",
+  "goodResults": "良好結果",
+  "positiveImprovement": "良好改善",
+  "physicalActivity": "身体活動",
+  "coffeeConsumption": "コーヒー消費",
+  "excellentSobriety": "優秀禁酒",
+  "excellentMonth": "優秀な月",
+  "keepGoingMotivation": "続けよう！",
+  "daysNormal": "日正常",
+  "electrolyteBalance": "電解質要注意",
+  "caffeineWarning": "安全用量超過日(400mg)",
+  "sugarFrequentExcess": "頻繁超過砂糖が水分影響",
+  "averagePerDayShort": "/日",
+  "highWarning": "高",
+  "normalStatus": "正常",
+  "improvementToEnd": "月末に向け{percent}%改善",
+  "@improvementToEnd": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutActivity": "{percent}%日に運動({hours}h)",
+  "@workoutActivity": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "coffeeAverage": "平均{avg}杯/日",
+  "@coffeeAverage": {
+    "placeholders": {
+      "avg": {
+        "type": "String"
+      }
+    }
+  },
+  "sobrietyPercent": "{percent}%日飲酒なし",
+  "@sobrietyPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "daySummary": "日要約",
+  "records": "記録",
+  "waterGoalAchievement": "水分目標達成: {percent}%",
+  "@waterGoalAchievement": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutSessions": "運動: {count}回",
+  "@workoutSessions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "index": "指数",
+  "status": "状態",
+  "moderateRisk": "中リスク",
+  "excess": "超過",
+  "whoLimit": "WHO上限: 50g/日",
+  "forMonth": "月間",
+  "stability": "{percent}%日で安定",
+  "@stability": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "goodHydration": "{percent}%日良好水分",
+  "@goodHydration": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "daysInNorm": "{count}日正常範囲",
+  "@daysInNorm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "perfectDays": "{count}日",
+  "@perfectDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "excellentConsistency": "⭐ 優秀一貫性",
+  "consistencyDays": "{percent}%日良好水分",
+  "@consistencyDays": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "goodResults": "📊 良好結果",
+  "stabilityDays": "{percent}%日で安定",
+  "@stabilityDays": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "positiveTrend": "📈 良好傾向",
+  "monthEndImprovement": "月末{percent}%改善",
+  "@monthEndImprovement": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "physicalActivity": "💪 身体活動",
+  "workoutDaysPercent": "{percent}%日運動({hours}h)",
+  "@workoutDaysPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "coffeeConsumption": "☕ コーヒー消費",
+  "averageCupsPerDay": "平均{avgCups}杯/日",
+  "@averageCupsPerDay": {
+    "placeholders": {
+      "avgCups": {
+        "type": "String"
+      }
+    }
+  },
+  "excellentSobriety": "🎯 優秀禁酒",
+  "soberDaysPercent": "{percent}%日飲酒なし",
+  "@soberDaysPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "excellentMonth": "✨ 優秀な月",
+  "keepGoing": "続けよう！",
+  "moderateRiskStatus": "状態: 中リスク",
+  "high": "高",
+  "whoLimitPerDay": "WHO上限: 50g/日"
+}

@@ -1,0 +1,2790 @@
+{
+  "@@locale": "pt",
+  "appTitle": "HydroCoach",
+  "@appTitle": {
+    "description": "The application name"
+  },
+  "getPro": "PRO",
+  "@getPro": {
+    "description": "Get PRO tooltip"
+  },
+  "sunday": "Domingo",
+  "monday": "Segunda",
+  "tuesday": "Terça",
+  "wednesday": "Quarta",
+  "thursday": "Quinta",
+  "friday": "Sexta",
+  "saturday": "Sábado",
+  "january": "Janeiro",
+  "february": "Fevereiro",
+  "march": "Março",
+  "april": "Abril",
+  "may": "Maio",
+  "june": "Junho",
+  "july": "Julho",
+  "august": "Agosto",
+  "september": "Setembro",
+  "october": "Outubro",
+  "november": "Novembro",
+  "december": "Dezembro",
+  "dateFormat": "{weekday}, {day} {month}",
+  "@dateFormat": {
+    "description": "Date format pattern",
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "loading": "Carregando...",
+  "loadingWeather": "Carregando clima...",
+  "heatIndex": "Índice de Calor",
+  "humidity": "Umidade: {value}%",
+  "@humidity": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "water": "Água",
+  "liquids": "Líquidos",
+  "sodium": "Sódio",
+  "potassium": "Potássio",
+  "magnesium": "Magnésio",
+  "electrolyte": "Eletrólito",
+  "broth": "Caldo",
+  "coffee": "Café",
+  "alcohol": "Álcool",
+  "drink": "Bebida",
+  "ml": "ml",
+  "mg": "mg",
+  "kg": "kg",
+  "valueWithUnit": "{value} {unit}",
+  "@valueWithUnit": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "goalFormat": "{current}/{goal} {unit}",
+  "@goalFormat": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "heatAdjustment": "Calor +{percent}%",
+  "@heatAdjustment": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "alcoholAdjustment": "Álcool +{amount} ml",
+  "@alcoholAdjustment": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "smartAdviceTitle": "Dica de agora",
+  "smartAdviceDefault": "Mantenha água e eletrólitos balanceados.",
+  "adviceOverhydrationSevere": "Excesso de água (>200% meta)",
+  "adviceOverhydrationSevereBody": "Pause 60-90 min. Adicione eletrólitos: 300-500 ml com 500-1000 mg sódio.",
+  "adviceOverhydration": "Sobre-hidratação",
+  "adviceOverhydrationBody": "Pause água por 30-60 min e adicione ~500 mg sódio (eletrólito/caldo).",
+  "adviceAlcoholRecovery": "Álcool: recuperação",
+  "adviceAlcoholRecoveryBody": "Sem álcool hoje. Beba 300-500 ml água em pequenas porções e adicione sódio.",
+  "adviceLowSodium": "Pouco sódio",
+  "adviceLowSodiumBody": "Adicione ~{amount} mg sódio. Beba moderadamente.",
+  "@adviceLowSodiumBody": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "adviceDehydration": "Sub-hidratado",
+  "adviceDehydrationBody": "Beba 300-500 ml {type}.",
+  "@adviceDehydrationBody": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "adviceHighRisk": "Alto risco (HRI)",
+  "adviceHighRiskBody": "Beba água com eletrólitos urgente (300-500 ml) e reduza atividade.",
+  "adviceHeat": "Calor e perdas",
+  "adviceHeatBody": "Aumente água em +5-8% e adicione 300-500 mg sódio.",
+  "adviceAllGood": "Tudo certo",
+  "adviceAllGoodBody": "Continue assim. Meta: ~{amount} ml até a meta.",
+  "@adviceAllGoodBody": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationStatus": "Status Hidratação",
+  "hydrationStatusNormal": "Normal",
+  "hydrationStatusDiluted": "Diluindo",
+  "hydrationStatusDehydrated": "Sub-hidratado",
+  "hydrationStatusLowSalt": "Pouco sal",
+  "hydrationRiskIndex": "Índice Risco Hidratação",
+  "quickAdd": "Adicionar Rápido",
+  "add": "Adicionar",
+  "delete": "Deletar",
+  "todaysDrinks": "Bebidas de Hoje",
+  "allRecords": "Todos registros →",
+  "itemDeleted": "{item} deletado",
+  "@itemDeleted": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "undo": "Desfazer",
+  "dailyReportReady": "Relatório diário pronto!",
+  "viewDayResults": "Ver resultados do dia",
+  "dailyReportComingSoon": "Relatório diário em breve",
+  "home": "Início",
+  "history": "Histórico",
+  "settings": "Ajustes",
+  "cancel": "Cancelar",
+  "save": "Salvar",
+  "reset": "Resetar",
+  "settingsTitle": "Ajustes",
+  "languageSection": "Idioma",
+  "languageSettings": "Idioma",
+  "selectLanguage": "Selecionar Idioma",
+  "profileSection": "Perfil",
+  "weight": "Peso",
+  "dietMode": "Modo Dieta",
+  "activityLevel": "Nível Atividade",
+  "changeWeight": "Mudar Peso",
+  "dietModeNormal": "Dieta Normal",
+  "dietModeKeto": "Keto / Low-carb",
+  "dietModeFasting": "Jejum Intermitente",
+  "activityLow": "Atividade Baixa",
+  "activityMedium": "Atividade Média",
+  "activityHigh": "Atividade Alta",
+  "activityLowDesc": "Trabalho escritório, pouco movimento",
+  "activityMediumDesc": "30-60 min exercício/dia",
+  "activityHighDesc": "Treinos >1 hora",
+  "notificationsSection": "Notificações",
+  "notificationLimit": "Limite Notificações (FREE)",
+  "notificationUsage": "Usado: {used} de {limit}",
+  "@notificationUsage": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "waterReminders": "Lembretes Água",
+  "waterRemindersDesc": "Lembretes regulares ao longo do dia",
+  "reminderFrequency": "Frequência Lembretes",
+  "timesPerDay": "{count} vezes/dia",
+  "@timesPerDay": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maxTimesPerDay": "{count} vezes/dia (máx 4)",
+  "@maxTimesPerDay": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "unlimitedReminders": "Ilimitado",
+  "startOfDay": "Início do Dia",
+  "endOfDay": "Fim do Dia",
+  "postCoffeeReminders": "Lembretes Pós-Café",
+  "postCoffeeRemindersDesc": "Lembrar de beber água após 20 min",
+  "heatWarnings": "Avisos de Calor",
+  "heatWarningsDesc": "Notificações em altas temperaturas",
+  "postAlcoholReminders": "Lembretes Pós-Álcool",
+  "postAlcoholRemindersDesc": "Plano recuperação por 6-12 horas",
+  "proFeaturesSection": "Recursos PRO",
+  "unlockPro": "Desbloquear PRO",
+  "unlockProDesc": "Notificações ilimitadas e lembretes inteligentes",
+  "noNotificationLimit": "Sem limite notificações",
+  "unitsSection": "Unidades",
+  "metricSystem": "Sistema Métrico",
+  "metricUnits": "ml, kg, °C",
+  "imperialSystem": "Sistema Imperial",
+  "imperialUnits": "fl oz, lb, °F",
+  "aboutSection": "Sobre",
+  "version": "Versão",
+  "rateApp": "Avaliar App",
+  "share": "Compartilhar",
+  "privacyPolicy": "Política Privacidade",
+  "termsOfUse": "Termos de Uso",
+  "resetAllData": "Resetar Todos Dados",
+  "resetDataTitle": "Resetar todos dados?",
+  "resetDataMessage": "Isso vai deletar histórico e restaurar ajustes padrão.",
+  "back": "Voltar",
+  "next": "Próximo",
+  "start": "Iniciar",
+  "welcomeTitle": "Bem-vindo ao\nHydroCoach",
+  "welcomeSubtitle": "Rastreamento inteligente de água e eletrólitos\npara keto, jejum e vida ativa",
+  "weightPageTitle": "Seu peso",
+  "weightPageSubtitle": "Para calcular quantidade ideal de água",
+  "weightUnit": "{weight} kg",
+  "@weightUnit": {
+    "placeholders": {
+      "weight": {
+        "type": "int"
+      }
+    }
+  },
+  "recommendedNorm": "Norma recomendada: {min}-{max} ml água/dia",
+  "@recommendedNorm": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "dietPageTitle": "Modo Dieta",
+  "dietPageSubtitle": "Isso afeta necessidades de eletrólitos",
+  "normalDiet": "Dieta normal",
+  "normalDietDesc": "Recomendações padrão",
+  "ketoDiet": "Keto / Low-carb",
+  "ketoDietDesc": "Mais necessidade de sal",
+  "fastingDiet": "Jejum Intermitente",
+  "fastingDietDesc": "Regime especial eletrólitos",
+  "fastingSchedule": "Horário jejum:",
+  "fasting16_8": "16:8",
+  "fasting16_8Desc": "Janela diária 8 horas",
+  "fastingOMAD": "OMAD",
+  "fastingOMADDesc": "Uma refeição por dia",
+  "fastingADF": "ADF",
+  "fastingADFDesc": "Jejum dia alternado",
+  "activityPageTitle": "Nível Atividade",
+  "activityPageSubtitle": "Afeta necessidades de água",
+  "lowActivity": "Atividade baixa",
+  "lowActivityDesc": "Trabalho escritório, pouco movimento",
+  "lowActivityWater": "+0 ml água",
+  "mediumActivity": "Atividade média",
+  "mediumActivityDesc": "30-60 min exercício/dia",
+  "mediumActivityWater": "+350-700 ml água",
+  "highActivity": "Atividade alta",
+  "highActivityDesc": "Treinos >1h ou trabalho físico",
+  "highActivityWater": "+700-1200 ml água",
+  "activityAdjustmentNote": "Vamos ajustar metas com seus treinos",
+  "day": "Dia",
+  "week": "Semana",
+  "month": "Mês",
+  "today": "Hoje",
+  "yesterday": "Ontem",
+  "noData": "Sem dados",
+  "noRecordsToday": "Sem registros hoje ainda",
+  "noRecordsThisDay": "Sem registros neste dia",
+  "loadingData": "Carregando dados...",
+  "deleteRecord": "Deletar registro?",
+  "deleteRecordMessage": "Deletar {type} {volume} ml?",
+  "@deleteRecordMessage": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "volume": {
+        "type": "int"
+      }
+    }
+  },
+  "recordDeleted": "Registro deletado",
+  "waterConsumption": "💧 Consumo água",
+  "alcoholWeek": "🍺 Álcool nesta semana",
+  "electrolytes": "⚡ Eletrólitos",
+  "weeklyAverages": "📊 Médias semanais",
+  "monthStatistics": "📊 Estatísticas mês",
+  "alcoholStatistics": "🍺 Estatísticas álcool",
+  "alcoholStatisticsTitle": "Estatísticas álcool",
+  "weeklyInsights": "💡 Insights semanais",
+  "waterPerDay": "Água/dia",
+  "sodiumPerDay": "Sódio/dia",
+  "potassiumPerDay": "Potássio/dia",
+  "magnesiumPerDay": "Magnésio/dia",
+  "goal": "Meta",
+  "daysWithGoalAchieved": "✅ Dias com meta alcançada",
+  "recordsPerDay": "📝 Registros/dia",
+  "insufficientDataForAnalysis": "Dados insuficientes pra análise",
+  "totalVolume": "Volume total",
+  "averagePerDay": "Média {amount} ml/dia",
+  "@averagePerDay": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "activeDays": "Dias ativos",
+  "perfectDays": "Dias com meta perfeita: {count}",
+  "@perfectDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "currentStreak": "Sequência atual: {days} dias",
+  "@currentStreak": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "soberDaysRow": "Dias sóbrio em sequência: {days}",
+  "@soberDaysRow": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "keepItUp": "Continue assim!",
+  "waterAmount": "Água: {amount} ml ({percent}%)",
+  "@waterAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "alcoholAmount": "Álcool: {amount} SD",
+  "@alcoholAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "totalSD": "Total SD",
+  "forMonth": "do mês",
+  "daysWithAlcohol": "Dias com álcool",
+  "fromDays": "de {days}",
+  "@fromDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "soberDays": "Dias sóbrio",
+  "excellent": "excelente!",
+  "averageSD": "SD médio",
+  "inDrinkingDays": "em dias c/ bebida",
+  "bestDay": "🏆 Melhor dia",
+  "bestDayMessage": "{day} - {percent}% da meta",
+  "@bestDayMessage": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "weekends": "📅 Fins de semana",
+  "weekdays": "📅 Dias úteis",
+  "drinkLessOnWeekends": "Você bebe {percent}% menos nos fins de semana",
+  "@drinkLessOnWeekends": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "drinkLessOnWeekdays": "Você bebe {percent}% menos nos dias úteis",
+  "@drinkLessOnWeekdays": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "positiveTrend": "📈 Tendência positiva",
+  "positiveTrendMessage": "Sua hidratação melhora no fim da semana",
+  "decliningActivity": "📉 Atividade declinando",
+  "decliningActivityMessage": "Consumo água diminui no fim da semana",
+  "lowSalt": "⚠️ Pouco sal",
+  "lowSaltMessage": "Apenas {days} dias com níveis normais de sódio",
+  "@lowSaltMessage": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "frequentAlcohol": "🍺 Consumo frequente",
+  "frequentAlcoholMessage": "Álcool {days} dias de 7 afeta hidratação",
+  "@frequentAlcoholMessage": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "excellentWeek": "✅ Excelente semana",
+  "continueMessage": "Continue o bom trabalho!",
+  "all": "Tudo",
+  "addAlcohol": "Adicionar álcool",
+  "minimumHarm": "Dano mínimo",
+  "additionalWaterNeeded": "+{amount} ml água necessária",
+  "@additionalWaterNeeded": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "additionalSodiumNeeded": "+{amount} mg sódio pra adicionar",
+  "@additionalSodiumNeeded": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "goToBedEarly": "Vá dormir cedo",
+  "todayConsumed": "Consumido hoje:",
+  "alcoholToday": "Álcool hoje",
+  "beer": "Cerveja",
+  "wine": "Vinho",
+  "spirits": "Destilados",
+  "cocktail": "Coquetel",
+  "selectDrinkType": "Selecionar tipo bebida:",
+  "volume": "Volume",
+  "enterVolume": "Digitar volume em ml",
+  "strength": "Teor (%):",
+  "standardDrinks": "Doses padrão:",
+  "additionalWater": "Água adic.",
+  "additionalSodium": "Sódio adic.",
+  "hriRisk": "Risco HRI",
+  "enterValidVolume": "Digite volume válido",
+  "weeklyHistory": "Histórico semanal",
+  "weeklyHistoryDesc": "Analise tendências semanais, insights e recomendações",
+  "monthlyHistory": "Histórico mensal",
+  "monthlyHistoryDesc": "Padrões longo prazo, comparações e análises profundas",
+  "proFunction": "Função PRO",
+  "unlockProHistory": "Desbloquear PRO",
+  "unlimitedHistory": "Histórico ilimitado",
+  "dataExportCSV": "Exportar dados CSV",
+  "detailedAnalytics": "Análises detalhadas",
+  "periodComparison": "Comparação períodos",
+  "shareResult": "Compartilhar resultado",
+  "retry": "Tentar novamente",
+  "welcomeToPro": "Bem-vindo ao PRO!",
+  "allFeaturesUnlocked": "Todos recursos desbloqueados",
+  "testMode": "Modo Teste: Usando compra fictícia",
+  "proStatusNote": "Status PRO persiste até reiniciar app",
+  "startUsingPro": "Começar usar PRO",
+  "lifetimeAccess": "Acesso vitalício",
+  "bestValueAnnual": "Melhor valor — Anual",
+  "monthly": "Mensal",
+  "oneTime": "único",
+  "perYear": "/ano",
+  "perMonth": "/mês",
+  "approximatelyPerMonth": "≈ {amount}/mês",
+  "@approximatelyPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "startFreeTrial": "Iniciar teste 7 dias grátis",
+  "continueWithPrice": "Continuar — {price}",
+  "@continueWithPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "unlockForPrice": "Desbloquear por {price} (único)",
+  "@unlockForPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "enableFreeTrial": "Habilitar teste 7 dias grátis",
+  "noChargeToday": "Sem cobrança hoje. Após 7 dias, assinatura renova automaticamente a não ser que cancelada.",
+  "cancelAnytime": "Pode cancelar qualquer hora em Ajustes.",
+  "everythingInPro": "Tudo no PRO",
+  "smartReminders": "Lembretes inteligentes",
+  "smartRemindersDesc": "Calor, treinos, jejum — sem spam.",
+  "weeklyReports": "Relatórios semanais",
+  "weeklyReportsDesc": "Insights profundos + export CSV.",
+  "healthIntegrations": "Integrações saúde",
+  "healthIntegrationsDesc": "Apple Health & Google Fit.",
+  "alcoholProtocols": "Protocolos álcool",
+  "alcoholProtocolsDesc": "Preparação pré-bebida & roteiro recuperação.",
+  "fullSync": "Sincronização completa",
+  "fullSyncDesc": "Histórico ilimitado entre dispositivos.",
+  "personalCalibrations": "Calibrações pessoais",
+  "personalCalibrationsDesc": "Teste suor, escala cor urina.",
+  "showAllFeatures": "Mostrar todos recursos",
+  "showLess": "Mostrar menos",
+  "restorePurchases": "Restaurar compras",
+  "proSubscriptionRestored": "Assinatura PRO restaurada!",
+  "noPurchasesToRestore": "Nenhuma compra pra restaurar",
+  "drinkMoreWaterToday": "Beba mais água hoje (+20%)",
+  "addElectrolytesToWater": "Adicione eletrólitos a cada água",
+  "limitCoffeeOneCup": "Limite café a uma xícara",
+  "increaseWater10": "Aumente água em 10%",
+  "dontForgetElectrolytes": "Não esqueça eletrólitos",
+  "startDayWithWater": "Comece dia com copo d'água",
+  "dontForgetElectrolytesReminder": "⚡ Não esqueça eletrólitos",
+  "startDayWithWaterReminder": "Comece dia com copo d'água pra bem-estar",
+  "takeElectrolytesMorning": "Tome eletrólitos pela manhã",
+  "purchaseFailed": "Compra falhou: {error}",
+  "@purchaseFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "restoreFailed": "Restauração falhou: {error}",
+  "@restoreFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "trustedByUsers": "⭐️ 4.9 — confiado por 12.000 usuários",
+  "bestValue": "Melhor valor",
+  "percentOff": "-{percent}% Melhor valor",
+  "@percentOff": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "weatherUnavailable": "Clima indisponível",
+  "checkLocationPermissions": "Verifique permissões localização e internet",
+  "recommendedNormLabel": "Norma recomendada",
+  "waterAdjustment300": "+300 ml",
+  "waterAdjustment400": "+400 ml",
+  "waterAdjustment200": "+200 ml",
+  "waterAdjustmentNormal": "Normal",
+  "waterAdjustment500": "+500 ml",
+  "waterAdjustment250": "+250 ml",
+  "waterAdjustment750": "+750 ml",
+  "currentLocation": "Localização atual",
+  "weatherClear": "limpo",
+  "weatherCloudy": "nublado",
+  "weatherOvercast": "encoberto",
+  "weatherRain": "chuva",
+  "weatherSnow": "neve",
+  "weatherStorm": "tempestade",
+  "weatherFog": "neblina",
+  "weatherDrizzle": "garoa",
+  "weatherSunny": "ensolarado",
+  "heatWarningExtreme": "☀️ Calor extremo! Hidratação máxima",
+  "heatWarningVeryHot": "🌡️ Muito quente! Risco desidratação",
+  "heatWarningHot": "🔥 Quente! Beba mais água",
+  "heatWarningElevated": "⚠️ Temperatura elevada",
+  "heatWarningComfortable": "Temperatura confortável",
+  "adjustmentWater": "+{percent}% água",
+  "@adjustmentWater": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "adjustmentSodium": "+{amount} mg sódio",
+  "@adjustmentSodium": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "heatWarningCold": "❄️ Frio! Aqueça-se e beba líquidos quentes",
+  "notificationChannelName": "Lembretes HydroCoach",
+  "@notificationChannelName": {
+    "description": "Name of the notification channel"
+  },
+  "notificationChannelDescription": "Lembretes água e eletrólitos",
+  "@notificationChannelDescription": {
+    "description": "Description of the notification channel"
+  },
+  "urgentNotificationChannelName": "Lembretes Urgentes",
+  "@urgentNotificationChannelName": {
+    "description": "Name of the urgent notification channel"
+  },
+  "urgentNotificationChannelDescription": "Notificações hidratação importantes",
+  "@urgentNotificationChannelDescription": {
+    "description": "Description of the urgent notification channel"
+  },
+  "goodMorning": "☀️ Bom dia!",
+  "timeToHydrate": "💧 Hora de hidratar",
+  "eveningHydration": "💧 Hidratação noturna",
+  "dailyReportTitle": " Relatório diário pronto",
+  "dailyReportBody": "Veja como foi seu dia de hidratação",
+  "maintainWaterBalance": "Mantenha balanço água ao longo do dia",
+  "electrolytesTime": "Hora eletrólitos: adicione pitada sal à água",
+  "catchUpHydration": "Você bebeu só {percent}% da norma diária. Hora recuperar!",
+  "@catchUpHydration": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "excellentProgress": "Progresso excelente! Mais um pouco pra meta",
+  "postCoffeeTitle": " Após café",
+  "postCoffeeBody": "Beba 250-300 ml água pra restaurar balanço",
+  "postWorkoutTitle": " Após treino",
+  "postWorkoutBody": "Restaure eletrólitos: 500 ml água + pitada sal",
+  "heatWarningPro": "🌡️ Aviso calor PRO",
+  "extremeHeatWarning": "Calor extremo! Aumente consumo água em 15% e adicione 1g sal",
+  "hotWeatherWarning": "Quente! Beba 10% mais água e não esqueça eletrólitos",
+  "warmWeatherWarning": "Clima quente. Monitore sua hidratação",
+  "alcoholRecoveryTitle": "🍺 Hora recuperação",
+  "alcoholRecoveryBody": "Beba 300 ml água com pitada sal pro balanço",
+  "continueHydration": "💧 Continue hidratação",
+  "alcoholRecoveryBody2": "Mais 500 ml água vão ajudar recuperar mais rápido",
+  "morningRecoveryTitle": "☀️ Recuperação matinal",
+  "morningRecoveryBody": "Comece dia com 500 ml água e eletrólitos",
+  "testNotificationTitle": "🧪 Notificação teste",
+  "testNotificationBody": "Se vê isso - notificações instantâneas funcionam!",
+  "scheduledTestTitle": "⏰ Teste agendado (1 min)",
+  "scheduledTestBody": "Esta notificação foi agendada 1 min atrás. Agendamento funciona!",
+  "notificationServiceInitialized": "✅ NotificationService inicializado",
+  "localNotificationsInitialized": "✅ Notificações locais inicializadas",
+  "androidChannelsCreated": "📢 Canais notificação Android criados",
+  "notificationsPermissionGranted": "📝 Permissão notificações: {granted}",
+  "@notificationsPermissionGranted": {
+    "placeholders": {
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+  "exactAlarmsPermissionGranted": "📝 Permissão alarmes exatos: {granted}",
+  "@exactAlarmsPermissionGranted": {
+    "placeholders": {
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+  "fcmPermissions": "📱 Permissões FCM: {status}",
+  "@fcmPermissions": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "fcmTokenReceived": "🔑 Token FCM recebido",
+  "fcmTokenSaved": "✅ Token FCM salvo no Firestore pra usuário {userId}",
+  "@fcmTokenSaved": {
+    "placeholders": {
+      "userId": {
+        "type": "String"
+      }
+    }
+  },
+  "topicSubscriptionComplete": "✅ Inscrição tópico completa",
+  "foregroundMessage": "📨 Mensagem foreground: {title}",
+  "@foregroundMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationOpened": "📱 Notificação aberta: {messageId}",
+  "@notificationOpened": {
+    "placeholders": {
+      "messageId": {
+        "type": "String"
+      }
+    }
+  },
+  "dailyLimitReached": "⚠️ Limite diário notificações atingido (4/dia FREE)",
+  "schedulingError": "❌ Erro agendamento notificação: {error}",
+  "@schedulingError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "showingImmediatelyAsFallback": "Mostrando notificação imediatamente como fallback",
+  "instantNotificationShown": "📬 Notificação instantânea mostrada: {title}",
+  "@instantNotificationShown": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "smartRemindersScheduled": "🧠 Agendando lembretes inteligentes...",
+  "smartRemindersComplete": "✅ Agendados {count} lembretes",
+  "@smartRemindersComplete": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "proPostCoffeeScheduled": "☕ PRO: Lembrete pós-café agendado",
+  "postWorkoutScheduled": "💪 Lembrete pós-treino agendado",
+  "proHeatWarningPro": "🌡️ PRO: Aviso calor enviado",
+  "proAlcoholRecoveryPlan": "🍺 PRO: Plano recuperação álcool agendado",
+  "eveningReportScheduled": "📊 Relatório noturno agendado pra {day}.{month} às 21:00",
+  "@eveningReportScheduled": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationCancelled": "🚫 Notificação {id} cancelada",
+  "@notificationCancelled": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "allNotificationsCancelled": "🗑️ Todas notificações canceladas",
+  "reminderSettingsSaved": "✅ Ajustes lembretes salvos",
+  "testNotificationScheduledFor": "⏰ Notificação teste agendada pra {time}",
+  "@testNotificationScheduledFor": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "tomorrowRecommendations": "Recomendações pra amanhã",
+  "recommendationExcellent": "Trabalho excelente! Continue assim. Tente começar dia com copo d'água e manter consumo uniforme.",
+  "recommendationDiluted": "Você bebe muita água mas poucos eletrólitos. Amanhã adicione mais sal ou beba bebida eletrolítica. Tente começar dia com caldo salgado.",
+  "recommendationDehydrated": "Pouca água hoje. Amanhã ajuste lembretes a cada 2 horas. Mantenha garrafa d'água à vista.",
+  "recommendationLowSalt": "Níveis baixos sódio podem causar fadiga. Adicione pitada sal à água ou beba caldo. Especialmente importante em keto ou jejum.",
+  "recommendationGeneral": "Busque balanço entre água e eletrólitos. Beba uniformemente ao longo do dia e não esqueça sal no calor.",
+  "category_water": "Água",
+  "category_hot_drinks": "Bebidas Quentes",
+  "category_juice": "Sucos",
+  "category_sports": "Esportivas",
+  "category_dairy": "Lácteos",
+  "category_alcohol": "Álcool",
+  "category_supplements": "Suplementos",
+  "category_other": "Outros",
+  "drink_water": "Água",
+  "drink_sparkling_water": "Água com Gás",
+  "drink_mineral_water": "Água Mineral",
+  "drink_coconut_water": "Água de Coco",
+  "drink_coffee": "Café",
+  "drink_espresso": "Espresso",
+  "drink_americano": "Americano",
+  "drink_cappuccino": "Cappuccino",
+  "drink_latte": "Latte",
+  "drink_black_tea": "Chá Preto",
+  "drink_green_tea": "Chá Verde",
+  "drink_herbal_tea": "Chá Ervas",
+  "drink_matcha": "Matcha",
+  "drink_hot_chocolate": "Chocolate Quente",
+  "drink_orange_juice": "Suco Laranja",
+  "drink_apple_juice": "Suco Maçã",
+  "drink_grapefruit_juice": "Suco Toranja",
+  "drink_tomato_juice": "Suco Tomate",
+  "drink_vegetable_juice": "Suco Vegetal",
+  "drink_smoothie": "Smoothie",
+  "drink_lemonade": "Limonada",
+  "drink_isotonic": "Bebida Isotônica",
+  "drink_electrolyte": "Bebida Eletrolítica",
+  "drink_protein_shake": "Shake Proteína",
+  "drink_bcaa": "Bebida BCAA",
+  "drink_energy": "Energético",
+  "drink_milk": "Leite",
+  "drink_kefir": "Kefir",
+  "drink_yogurt": "Bebida Iogurte",
+  "drink_almond_milk": "Leite Amêndoa",
+  "drink_soy_milk": "Leite Soja",
+  "drink_oat_milk": "Leite Aveia",
+  "drink_beer_light": "Cerveja Leve",
+  "drink_beer_regular": "Cerveja Normal",
+  "drink_beer_strong": "Cerveja Forte",
+  "drink_wine_red": "Vinho Tinto",
+  "drink_wine_white": "Vinho Branco",
+  "drink_champagne": "Champagne",
+  "drink_vodka": "Vodka",
+  "drink_whiskey": "Whiskey",
+  "drink_rum": "Rum",
+  "drink_gin": "Gin",
+  "drink_tequila": "Tequila",
+  "drink_mojito": "Mojito",
+  "drink_margarita": "Margarita",
+  "drink_kombucha": "Kombucha",
+  "drink_kvass": "Kvass",
+  "drink_bone_broth": "Caldo Ossos",
+  "drink_vegetable_broth": "Caldo Vegetal",
+  "drink_soda": "Refrigerante",
+  "drink_diet_soda": "Refri Diet",
+  "addedToFavorites": "Adicionado aos favoritos",
+  "favoriteLimitReached": "Limite favoritos atingido (3 FREE, 20 PRO)",
+  "addFavorite": "Adicionar favorito",
+  "hotAndSupplements": "Quentes & Suplementos",
+  "quickVolumes": "Volumes rápidos:",
+  "type": "Tipo:",
+  "regular": "Normal",
+  "coconut": "Coco",
+  "sparkling": "Com gás",
+  "mineral": "Mineral",
+  "hotDrinks": "Bebidas Quentes",
+  "supplements": "Suplementos",
+  "tea": "Chá",
+  "salt": "Sal (1/4 colher chá)",
+  "electrolyteMix": "Mix Eletrólitos",
+  "boneBroth": "Caldo Ossos",
+  "favoriteAssignmentComingSoon": "Atribuição favorito em breve",
+  "longPressToEditComingSoon": "Pressione longo pra editar - em breve",
+  "proSubscriptionRequired": "Assinatura PRO necessária",
+  "saveToFavorites": "Salvar nos favoritos",
+  "@saveToFavorites": {
+    "description": "Button to save current settings as favorite"
+  },
+  "savedToFavorites": "Salvo nos favoritos",
+  "@savedToFavorites": {
+    "description": "Success message when saved to favorites"
+  },
+  "selectFavoriteSlot": "Selecionar slot favorito",
+  "@selectFavoriteSlot": {
+    "description": "Title for favorite slot selection dialog"
+  },
+  "slot": "Slot",
+  "@slot": {
+    "description": "Favorite slot label"
+  },
+  "emptySlot": "Slot vazio",
+  "@emptySlot": {
+    "description": "Label for empty favorite slot"
+  },
+  "upgradeToUnlock": "Atualize pro PRO pra desbloquear",
+  "@upgradeToUnlock": {
+    "description": "Message for locked PRO slots"
+  },
+  "changeFavorite": "Mudar favorito",
+  "@changeFavorite": {
+    "description": "Option to change existing favorite"
+  },
+  "removeFavorite": "Remover favorito",
+  "@removeFavorite": {
+    "description": "Option to remove favorite"
+  },
+  "ok": "OK",
+  "@ok": {
+    "description": "OK button text"
+  },
+  "mineralWater": "Água Mineral",
+  "@mineralWater": {
+    "description": "Mineral water drink type"
+  },
+  "coconutWater": "Água de Coco",
+  "@coconutWater": {
+    "description": "Coconut water drink type"
+  },
+  "lemonWater": "Água com Limão",
+  "@lemonWater": {
+    "description": "Lemon water drink type"
+  },
+  "greenTea": "Chá Verde",
+  "@greenTea": {
+    "description": "Green tea drink type"
+  },
+  "amount": "Quantidade",
+  "@amount": {
+    "description": "Amount label"
+  },
+  "createFavoriteHint": "Pra adicionar favorito, vá a qualquer tela bebida abaixo e toque botão 'Salvar nos favoritos' após configurar sua bebida.",
+  "sparklingWater": "Água com Gás",
+  "@sparklingWater": {
+    "description": "Sparkling water drink type"
+  },
+  "cola": "Cola",
+  "@cola": {
+    "description": "Cola drink type"
+  },
+  "juice": "Suco",
+  "@juice": {
+    "description": "Juice drink type"
+  },
+  "energyDrink": "Energético",
+  "@energyDrink": {
+    "description": "Energy drink type"
+  },
+  "sportsDrink": "Bebida Esportiva",
+  "@sportsDrink": {
+    "description": "Sports drink type"
+  },
+  "selectElectrolyteType": "Selecionar tipo eletrólito:",
+  "@selectElectrolyteType": {
+    "description": "Prompt to select electrolyte type"
+  },
+  "saltQuarterTsp": "Sal (1/4 colher chá)",
+  "@saltQuarterTsp": {
+    "description": "Quarter teaspoon of salt"
+  },
+  "pinkSalt": "Sal Rosa do Himalaia",
+  "@pinkSalt": {
+    "description": "Pink Himalayan salt type"
+  },
+  "seaSalt": "Sal Marinho",
+  "@seaSalt": {
+    "description": "Sea salt type"
+  },
+  "potassiumCitrate": "Citrato Potássio",
+  "@potassiumCitrate": {
+    "description": "Potassium citrate supplement"
+  },
+  "magnesiumGlycinate": "Glicinato Magnésio",
+  "@magnesiumGlycinate": {
+    "description": "Magnesium glycinate supplement"
+  },
+  "coconutWaterElectrolyte": "Água de Coco",
+  "@coconutWaterElectrolyte": {
+    "description": "Coconut water as electrolyte source"
+  },
+  "sportsDrinkElectrolyte": "Bebida Esportiva",
+  "@sportsDrinkElectrolyte": {
+    "description": "Sports drink as electrolyte source"
+  },
+  "electrolyteContent": "Conteúdo eletrólitos:",
+  "@electrolyteContent": {
+    "description": "Label for electrolyte content display"
+  },
+  "sodiumContent": "Sódio: {amount} mg",
+  "@sodiumContent": {
+    "description": "Sodium content display",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "potassiumContent": "Potássio: {amount} mg",
+  "@potassiumContent": {
+    "description": "Potassium content display",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "magnesiumContent": "Magnésio: {amount} mg",
+  "@magnesiumContent": {
+    "description": "Magnesium content display",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "servings": "Porções",
+  "@servings": {
+    "description": "Servings label"
+  },
+  "enterServings": "Digite porções",
+  "@enterServings": {
+    "description": "Prompt to enter number of servings"
+  },
+  "servingsUnit": "porções",
+  "@servingsUnit": {
+    "description": "Unit for servings"
+  },
+  "noElectrolytes": "Sem eletrólitos",
+  "@noElectrolytes": {
+    "description": "Message when no electrolytes present"
+  },
+  "enterValidAmount": "Digite quantidade válida",
+  "@enterValidAmount": {
+    "description": "Error message for invalid amount"
+  },
+  "lmntMix": "Mix LMNT",
+  "pickleJuice": "Suco Picles",
+  "tomatoSalt": "Tomate + Sal",
+  "ketorade": "Ketorade",
+  "alkalineWater": "Água Alcalina",
+  "celticSalt": "Água Sal Celta",
+  "soleWater": "Água Sole",
+  "mineralDrops": "Gotas Minerais",
+  "bakingSoda": "Água Bicarbonato",
+  "creamTartar": "Cremor Tártaro",
+  "selectSupplementType": "Selecionar tipo suplemento:",
+  "multivitamin": "Multivitamínico",
+  "magnesiumCitrate": "Citrato Magnésio",
+  "magnesiumThreonate": "L-Treonato Magnésio",
+  "calciumCitrate": "Citrato Cálcio",
+  "zincGlycinate": "Glicinato Zinco",
+  "vitaminD3": "Vitamina D3",
+  "vitaminC": "Vitamina C",
+  "bComplex": "Complexo B",
+  "omega3": "Omega-3",
+  "ironBisglycinate": "Bisglicinato Ferro",
+  "dosage": "Dosagem",
+  "enterDosage": "Digite dosagem",
+  "noElectrolyteContent": "Sem conteúdo eletrólitos",
+  "blackTea": "Chá Preto",
+  "herbalTea": "Chá Ervas",
+  "espresso": "Espresso",
+  "cappuccino": "Cappuccino",
+  "latte": "Latte",
+  "matcha": "Matcha",
+  "hotChocolate": "Chocolate Quente",
+  "caffeine": "Cafeína",
+  "sports": "Esportes",
+  "walking": "Caminhada",
+  "running": "Corrida",
+  "gym": "Academia",
+  "cycling": "Ciclismo",
+  "swimming": "Natação",
+  "yoga": "Yoga",
+  "hiit": "HIIT",
+  "crossfit": "CrossFit",
+  "boxing": "Boxe",
+  "dancing": "Dança",
+  "tennis": "Tênis",
+  "teamSports": "Esportes Equipe",
+  "selectActivityType": "Selecionar tipo atividade:",
+  "duration": "Duração",
+  "minutes": "minutos",
+  "enterDuration": "Digite duração",
+  "lowIntensity": "Intensidade baixa",
+  "mediumIntensity": "Intensidade média",
+  "highIntensity": "Intensidade alta",
+  "recommendedIntake": "Ingestão recomendada:",
+  "basedOnWeight": "Baseado no peso",
+  "logActivity": "Registrar Atividade",
+  "activityLogged": "Atividade registrada",
+  "enterValidDuration": "Digite duração válida",
+  "sauna": "Sauna",
+  "veryHighIntensity": "Intensidade muito alta",
+  "hriStatusExcellent": "Excelente",
+  "hriStatusGood": "Bom",
+  "hriStatusModerate": "Risco Moderado",
+  "hriStatusHighRisk": "Alto Risco",
+  "hriStatusCritical": "Crítico",
+  "hriComponentWater": "Balanço água",
+  "hriComponentSodium": "Nível sódio",
+  "hriComponentPotassium": "Nível potássio",
+  "hriComponentMagnesium": "Nível magnésio",
+  "hriComponentHeat": "Estresse calor",
+  "hriComponentWorkout": "Atividade física",
+  "hriComponentCaffeine": "Impacto cafeína",
+  "hriComponentAlcohol": "Impacto álcool",
+  "hriComponentTime": "Tempo desde ingestão",
+  "hriComponentMorning": "Fatores matinais",
+  "hriBreakdownTitle": "Fatores risco detalhados",
+  "hriComponentValue": "{component}: {value}/{max} pts",
+  "fastingModeActive": "Modo jejum ativo",
+  "fastingSuppressionNote": "Fator tempo suprimido durante jejum",
+  "morningCheckInTitle": "Check-in Matinal",
+  "howAreYouFeeling": "Como se sente?",
+  "feelingScale1": "Péssimo",
+  "feelingScale2": "Abaixo média",
+  "feelingScale3": "Normal",
+  "feelingScale4": "Bom",
+  "feelingScale5": "Excelente",
+  "weightChange": "Mudança peso desde ontem",
+  "urineColorScale": "Cor urina (escala 1-8)",
+  "urineColor1": "1 - Muito pálido",
+  "urineColor2": "2 - Pálido",
+  "urineColor3": "3 - Amarelo claro",
+  "urineColor4": "4 - Amarelo",
+  "urineColor5": "5 - Amarelo escuro",
+  "urineColor6": "6 - Âmbar",
+  "urineColor7": "7 - Âmbar escuro",
+  "urineColor8": "8 - Marrom",
+  "alcoholWithDecay": "Impacto álcool (decaindo)",
+  "standardDrinksToday": "Doses padrão hoje: {count}",
+  "activeCaffeineLevel": "Cafeína ativa: {amount} mg",
+  "hriDebugInfo": "Info Debug HRI",
+  "hriNormalized": "HRI (normalizado): {value}/100",
+  "fastingWindowActive": "Janela jejum ativa",
+  "eatingWindowActive": "Janela alimentação ativa",
+  "nextFastingWindow": "Próximo jejum: {time}",
+  "nextEatingWindow": "Próxima alimentação: {time}",
+  "todaysWorkouts": "Treinos de Hoje",
+  "@todaysWorkouts": {
+    "description": "Title for today's workouts section"
+  },
+  "hoursAgo": "h atrás",
+  "@hoursAgo": {
+    "description": "Hours ago suffix"
+  },
+  "onboardingWelcomeTitle": "HydroCoach — hidratação inteligente todo dia",
+  "@onboardingWelcomeTitle": {
+    "description": "Main welcome title with ION"
+  },
+  "onboardingWelcomeSubtitle": "Beba mais inteligente, não mais\nO app considera clima, eletrólitos e seus hábitos\nAjuda manter mente clara e energia estável",
+  "@onboardingWelcomeSubtitle": {
+    "description": "Welcome subtitle"
+  },
+  "onboardingBullet1": "Norma pessoal água e sal baseada em clima e você",
+  "@onboardingBullet1": {
+    "description": "First benefit bullet"
+  },
+  "onboardingBullet2": "Dicas \"O que fazer agora\" em vez de gráficos crus",
+  "@onboardingBullet2": {
+    "description": "Second benefit bullet"
+  },
+  "onboardingBullet3": "Álcool em doses padrão com limites seguros",
+  "@onboardingBullet3": {
+    "description": "Third benefit bullet"
+  },
+  "onboardingBullet4": "Lembretes inteligentes sem spam",
+  "@onboardingBullet4": {
+    "description": "Fourth benefit bullet"
+  },
+  "onboardingStartButton": "Iniciar",
+  "@onboardingStartButton": {
+    "description": "Main start button on welcome screen"
+  },
+  "onboardingHaveAccount": "Já tenho conta",
+  "@onboardingHaveAccount": {
+    "description": "Link for existing users"
+  },
+  "onboardingPracticeFasting": "Pratico jejum intermitente",
+  "@onboardingPracticeFasting": {
+    "description": "Fasting checkbox title"
+  },
+  "onboardingPracticeFastingDesc": "Regime especial eletrólitos pra janelas jejum",
+  "@onboardingPracticeFastingDesc": {
+    "description": "Fasting checkbox description"
+  },
+  "onboardingProfileReady": "Perfil pronto!",
+  "@onboardingProfileReady": {
+    "description": "Completion screen title"
+  },
+  "onboardingWaterNorm": "Norma água",
+  "@onboardingWaterNorm": {
+    "description": "Water norm label in summary"
+  },
+  "onboardingIonWillHelp": "ION vai ajudar manter balanço todo dia",
+  "@onboardingIonWillHelp": {
+    "description": "ION helper text on completion"
+  },
+  "onboardingContinue": "Continuar",
+  "@onboardingContinue": {
+    "description": "Continue button text"
+  },
+  "onboardingLocationTitle": "Clima importa pra hidratação",
+  "@onboardingLocationTitle": {
+    "description": "Location permission title"
+  },
+  "onboardingLocationSubtitle": "Vamos considerar clima e umidade. Isso é mais preciso que só fórmula por peso",
+  "@onboardingLocationSubtitle": {
+    "description": "Location permission subtitle"
+  },
+  "onboardingWeatherExample": "Quente hoje! +15% água",
+  "@onboardingWeatherExample": {
+    "description": "Weather example title"
+  },
+  "onboardingWeatherExampleDesc": "+500 mg sódio pro calor",
+  "@onboardingWeatherExampleDesc": {
+    "description": "Weather example description"
+  },
+  "onboardingEnablePermission": "Habilitar",
+  "@onboardingEnablePermission": {
+    "description": "Enable permission button"
+  },
+  "onboardingEnableLater": "Habilitar depois",
+  "@onboardingEnableLater": {
+    "description": "Skip permission button"
+  },
+  "onboardingNotificationTitle": "Lembretes inteligentes",
+  "@onboardingNotificationTitle": {
+    "description": "Notification permission title"
+  },
+  "onboardingNotificationSubtitle": "Dicas curtas no momento certo. Pode mudar frequência em um toque",
+  "@onboardingNotificationSubtitle": {
+    "description": "Notification permission subtitle"
+  },
+  "onboardingNotifExample1": "Hora de hidratar",
+  "@onboardingNotifExample1": {
+    "description": "First notification example"
+  },
+  "onboardingNotifExample2": "Não esqueça eletrólitos",
+  "@onboardingNotifExample2": {
+    "description": "Second notification example"
+  },
+  "onboardingNotifExample3": "Quente! Beba mais água",
+  "@onboardingNotifExample3": {
+    "description": "Third notification example"
+  },
+  "sportRecoveryProtocols": "Protocolos recuperação esportiva",
+  "@sportRecoveryProtocols": {
+    "description": "PRO feature - sport recovery protocols"
+  },
+  "allDrinksAndSupplements": "Todas bebidas & suplementos",
+  "@allDrinksAndSupplements": {
+    "description": "PRO feature - expanded drinks and supplements catalog"
+  },
+  "notificationChannelDefault": "Lembretes Hidratação",
+  "@notificationChannelDefault": {
+    "description": "Default notification channel name"
+  },
+  "notificationChannelDefaultDesc": "Lembretes água e eletrólitos",
+  "@notificationChannelDefaultDesc": {
+    "description": "Default notification channel description"
+  },
+  "notificationChannelUrgent": "Notificações Importantes",
+  "@notificationChannelUrgent": {
+    "description": "Urgent notification channel name"
+  },
+  "notificationChannelUrgentDesc": "Avisos calor e alertas críticos hidratação",
+  "@notificationChannelUrgentDesc": {
+    "description": "Urgent notification channel description"
+  },
+  "notificationChannelReport": "Relatórios",
+  "@notificationChannelReport": {
+    "description": "Report notification channel name"
+  },
+  "notificationChannelReportDesc": "Relatórios diários e semanais",
+  "@notificationChannelReportDesc": {
+    "description": "Report notification channel description"
+  },
+  "notificationWaterTitle": "💧 Hora de hidratar",
+  "notificationWaterBody": "Não esqueça de beber água",
+  "notificationPostCoffeeTitle": "☕ Após café",
+  "notificationPostCoffeeBody": "Beba 250-300 ml água pra restaurar balanço",
+  "notificationDailyReportTitle": "📊 Relatório diário pronto",
+  "notificationDailyReportBody": "Veja como foi seu dia de hidratação",
+  "notificationAlcoholCounterTitle": "🍺 Hora recuperação",
+  "notificationAlcoholCounterBody": "Beba {ml} ml água com pitada sal",
+  "@notificationAlcoholCounterBody": {
+    "placeholders": {
+      "ml": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationHeatWarningTitle": "🌡️ Aviso calor",
+  "notificationHeatWarningExtremeBody": "Calor extremo! +15% água e +1g sal",
+  "notificationHeatWarningHotBody": "Quente! +10% água e eletrólitos",
+  "notificationHeatWarningWarmBody": "Quente. Monitore sua hidratação",
+  "notificationWorkoutTitle": "💪 Treino",
+  "notificationWorkoutBody": "Não esqueça água e eletrólitos",
+  "notificationPostWorkoutTitle": "💪 Após treino",
+  "notificationPostWorkoutBody": "500 ml água + eletrólitos pra recuperação",
+  "notificationFastingElectrolyteTitle": "⚡ Hora eletrólitos",
+  "notificationFastingElectrolyteBody": "Adicione pitada sal à água ou beba caldo",
+  "notificationAlcoholRecoveryStepTitle": "💧 Recuperação {hours}h",
+  "@notificationAlcoholRecoveryStepTitle": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationAlcoholRecoveryStepBody": "Beba {ml} ml água",
+  "@notificationAlcoholRecoveryStepBody": {
+    "placeholders": {
+      "ml": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationAlcoholRecoveryMidBody": "Adicione eletrólitos: Na/K/Mg",
+  "notificationAlcoholRecoveryFinalBody": "Amanhã manhã - check-in controle",
+  "notificationMorningCheckInTitle": "☀️ Check-in matinal",
+  "notificationMorningCheckInBody": "Como se sente? Avalie sua condição e receba plano pro dia",
+  "notificationMorningWaterBody": "Comece dia com copo d'água",
+  "notificationLowProgressBody": "Você bebeu só {percent}% da norma. Hora recuperar!",
+  "@notificationLowProgressBody": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationGoodProgressBody": "Progresso excelente! Continue",
+  "notificationMaintainBalanceBody": "Mantenha balanço água",
+  "notificationTestTitle": "🧪 Notificação teste",
+  "notificationTestBody": "Se vê isso - notificações funcionam!",
+  "notificationTestScheduledTitle": "⏰ Teste agendado",
+  "notificationTestScheduledBody": "Esta notificação foi agendada 1 min atrás",
+  "onboardingUnitsTitle": "Escolha suas unidades",
+  "@onboardingUnitsTitle": {
+    "description": "Units selection page title"
+  },
+  "onboardingUnitsSubtitle": "Não pode mudar depois",
+  "@onboardingUnitsSubtitle": {
+    "description": "Units selection warning"
+  },
+  "onboardingUnitsWarning": "Esta escolha é permanente e não pode ser mudada depois",
+  "@onboardingUnitsWarning": {
+    "description": "Permanent choice warning for units"
+  },
+  "oz": "oz",
+  "fl_oz": "fl oz",
+  "gallons": "gal",
+  "lb": "lb",
+  "target": "Meta",
+  "humidity": "Umidade",
+  "wind": "Vento",
+  "pressure": "Pressão",
+  "highHeatIndexWarning": "Índice calor alto! Aumente ingestão água",
+  "weatherCondition": "Condição",
+  "feelsLike": "Sensação",
+  "humidityLabel": "Umidade",
+  "waterNormal": "Normal",
+  "sodiumNormal": "Padrão",
+  "addedSuccessfully": "Adicionado com sucesso",
+  "sugarIntake": "Ingestão Açúcar",
+  "sugarToday": "Consumo açúcar hoje",
+  "totalSugar": "Açúcar Total",
+  "dailyLimit": "Limite Diário",
+  "addedSugar": "Açúcar Adicionado",
+  "naturalSugar": "Açúcar Natural",
+  "hiddenSugar": "Açúcar Oculto",
+  "sugarFromDrinks": "Bebidas",
+  "sugarFromFood": "Comida",
+  "sugarFromSnacks": "Lanches",
+  "sugarNormal": "Normal",
+  "sugarModerate": "Moderado",
+  "sugarHigh": "Alto",
+  "sugarCritical": "Crítico",
+  "sugarRecommendationNormal": "Ótimo trabalho! Ingestão açúcar dentro limites saudáveis",
+  "sugarRecommendationModerate": "Considere reduzir bebidas doces e lanches",
+  "sugarRecommendationHigh": "Ingestão açúcar alta! Limite bebidas doces e sobremesas",
+  "sugarRecommendationCritical": "Açúcar muito alto! Evite bebidas e doces açucarados hoje",
+  "noSugarIntake": "Nenhum açúcar rastreado hoje",
+  "hriImpact": "Impacto HRI",
+  "hri_component_sugar": "Açúcar",
+  "hri_sugar_description": "Alta ingestão açúcar afeta hidratação e saúde geral",
+  "tip_reduce_sweet_drinks": "Substitua bebidas doces por água ou chá sem açúcar",
+  "tip_avoid_added_sugar": "Verifique rótulos e evite produtos com açúcares adicionados",
+  "tip_check_labels": "Atenção aos açúcares ocultos em molhos e processados",
+  "tip_replace_soda": "Substitua refri por água com gás e limão",
+  "sugarSources": "Fontes Açúcar",
+  "drinks": "Bebidas",
+  "food": "Comida",
+  "snacks": "Lanches",
+  "recommendedLimit": "Recomendado",
+  "points": "pontos",
+  "drinkLightBeer": "Cerveja Leve",
+  "drinkLager": "Lager",
+  "drinkIPA": "IPA",
+  "drinkStout": "Stout",
+  "drinkWheatBeer": "Cerveja Trigo",
+  "drinkCraftBeer": "Cerveja Artesanal",
+  "drinkNonAlcoholic": "Sem Álcool",
+  "drinkRadler": "Radler",
+  "drinkPilsner": "Pilsner",
+  "drinkRedWine": "Vinho Tinto",
+  "drinkWhiteWine": "Vinho Branco",
+  "drinkProsecco": "Prosecco",
+  "drinkPort": "Porto",
+  "drinkRose": "Rosé",
+  "drinkDessertWine": "Vinho Sobremesa",
+  "drinkSangria": "Sangria",
+  "drinkSherry": "Xerez",
+  "drinkVodkaShot": "Shot Vodka",
+  "drinkCognac": "Conhaque",
+  "drinkLiqueur": "Licor",
+  "drinkAbsinthe": "Absinto",
+  "drinkBrandy": "Brandy",
+  "drinkLongIsland": "Long Island",
+  "drinkGinTonic": "Gin & Tônica",
+  "drinkPinaColada": "Piña Colada",
+  "drinkCosmopolitan": "Cosmopolitan",
+  "drinkMaiTai": "Mai Tai",
+  "drinkBloodyMary": "Bloody Mary",
+  "drinkDaiquiri": "Daiquiri",
+  "popularDrinks": "{type} Popular",
+  "standardDrinksUnit": "SD",
+  "gramsSugar": "g açúcar",
+  "moderateConsumption": "Consumo moderado",
+  "aboveRecommendations": "Acima recomendações",
+  "highConsumption": "Consumo alto",
+  "veryHighConsider": "Muito alto - considere parar",
+  "noAlcoholToday": "Sem álcool hoje",
+  "drinkWaterNow": "Beba 300-500 ml água agora",
+  "addPinchSalt": "Adicione pitada sal",
+  "avoidLateCoffee": "Evite café tarde",
+  "abvPercent": "{percent}% ABV",
+  "todaysElectrolytes": "Eletrólitos de Hoje",
+  "greatBalance": "Ótimo balanço!",
+  "gettingThere": "Chegando lá",
+  "needMoreElectrolytes": "Precisa mais eletrólitos",
+  "lowElectrolyteLevels": "Níveis eletrólitos baixos",
+  "electrolyteTips": "Dicas Eletrólitos",
+  "takeWithWater": "Tome com bastante água",
+  "bestBetweenMeals": "Melhor absorção entre refeições",
+  "startSmallAmounts": "Comece com pequenas quantidades",
+  "extraDuringExercise": "Extra necessário durante exercício",
+  "electrolytesBasic": "Básico",
+  "electrolytesMixes": "Mixes",
+  "electrolytesPills": "Pílulas",
+  "popularSalts": "Sais & Caldos Populares",
+  "popularMixes": "Mixes Eletrólitos Populares",
+  "popularSupplements": "Suplementos Populares",
+  "electrolyteSaltWater": "Água com Sal",
+  "electrolytePinkSalt": "Sal Rosa",
+  "electrolyteSeaSalt": "Sal Marinho",
+  "electrolyteNuun": "Nuun",
+  "electrolyteLiquidIV": "Liquid IV",
+  "electrolyteUltima": "Ultima",
+  "electrolytePropel": "Propel",
+  "electrolytePedialyte": "Pedialyte",
+  "electrolyteGatoradeZero": "Gatorade Zero",
+  "electrolytePotassiumChloride": "Cloreto Potássio",
+  "electrolyteMagThreonate": "Mag Treonato",
+  "electrolyteTraceMinerals": "Minerais Traço",
+  "electrolyteZMAComplex": "Complexo ZMA",
+  "electrolyteMultiMineral": "Multi-Mineral",
+  "electrolyteLMNT": "LMNT",
+  "hydration": "Hidratação",
+  "todayHydration": "Hidratação Hoje",
+  "currentIntake": "Consumido",
+  "dailyGoal": "Meta",
+  "toGo": "Faltam",
+  "goalReached": "Meta alcançada!",
+  "almostThere": "Quase lá!",
+  "halfwayThere": "Metade",
+  "keepGoing": "Continue",
+  "startDrinking": "Comece beber",
+  "plainWater": "Normal",
+  "enhancedWater": "Melhorada",
+  "beverages": "Bebidas",
+  "sodas": "Refris",
+  "popularPlainWater": "Tipos Água Populares",
+  "popularEnhancedWater": "Melhorada & Infusão",
+  "popularBeverages": "Bebidas Populares",
+  "popularSodas": "Refris & Energéticos Populares",
+  "hydrationTips": "Dicas Hidratação",
+  "drinkRegularly": "Beba pequenas quantidades regularmente",
+  "roomTemperature": "Água temp ambiente absorve melhor",
+  "addLemon": "Adicione limão pra melhor sabor",
+  "limitSugary": "Limite bebidas doces - desidratam",
+  "warmWater": "Água Morna",
+  "iceWater": "Água Gelada",
+  "filteredWater": "Água Filtrada",
+  "distilledWater": "Água Destilada",
+  "springWater": "Água Nascente",
+  "hydrogenWater": "Água Hidrogenada",
+  "oxygenatedWater": "Água Oxigenada",
+  "cucumberWater": "Água Pepino",
+  "limeWater": "Água Lima",
+  "berryWater": "Água Frutas Vermelhas",
+  "mintWater": "Água Hortelã",
+  "gingerWater": "Água Gengibre",
+  "caffeineStatusNone": "Sem cafeína hoje",
+  "caffeineStatusModerate": "Moderado: {amount}mg",
+  "caffeineStatusHigh": "Alto: {amount}mg",
+  "caffeineStatusVeryHigh": "Muito alto: {amount}mg!",
+  "caffeineDailyLimit": "Limite diário: 400mg",
+  "caffeineWarningTitle": "Aviso Cafeína",
+  "caffeineWarning400": "Você excedeu 400mg cafeína hoje",
+  "caffeineTipWater": "Beba água extra pra compensar",
+  "caffeineTipAvoid": "Evite mais cafeína hoje",
+  "caffeineTipSleep": "Pode afetar qualidade sono",
+  "cupsToday": "Xícaras hoje",
+  "metabolizeTime": "Tempo metabolizar",
+  "aboutCaffeine": "Sobre Cafeína",
+  "caffeineInfo1": "Café contém cafeína natural que aumenta alerta",
+  "caffeineInfo2": "Limite seguro diário é 400mg pra maioria adultos",
+  "caffeineInfo3": "Meia-vida cafeína é 5-6 horas",
+  "caffeineInfo4": "Beba água extra pra compensar efeito diurético da cafeína",
+  "caffeineWarningPregnant": "Grávidas devem limitar cafeína a 200mg/dia",
+  "gotIt": "Entendi",
+  "todaysCaffeine": "Cafeína de Hoje",
+  "alreadyInFavorites": "Já nos favoritos",
+  "ofRecommendedLimit": "do limite recomendado",
+  "aboutAlcohol": "Sobre Álcool",
+  "alcoholInfo1": "Uma dose padrão igual 10g álcool puro",
+  "alcoholInfo2": "Álcool desidrata — beba 250ml água extra por dose",
+  "alcoholInfo3": "Adicione sódio pra ajudar reter fluidos após beber",
+  "alcoholInfo4": "Cada dose padrão aumenta HRI em 3-5 pontos",
+  "alcoholWarningHealth": "Consumo excessivo álcool prejudica saúde. Limite recomendado é 2 SD homens e 1 SD mulheres por dia.",
+  "supplementsInfo1": "Suplementos ajudam manter balanço eletrólitos",
+  "supplementsInfo2": "Melhor tomar com refeições pra absorção",
+  "supplementsInfo3": "Sempre tome com bastante água",
+  "supplementsInfo4": "Magnésio e potássio chave pra hidratação",
+  "supplementsWarning": "Consulte profissional saúde antes iniciar regime suplementos",
+  "fromSupplementsToday": "De Suplementos Hoje",
+  "minerals": "Minerais",
+  "vitamins": "Vitaminas",
+  "essentialMinerals": "Minerais Essenciais",
+  "otherSupplements": "Outros Suplementos",
+  "supplementTip1": "Tome suplementos com comida pra melhor absorção",
+  "supplementTip2": "Beba bastante água com suplementos",
+  "supplementTip3": "Espalhe múltiplos suplementos ao longo do dia",
+  "supplementTip4": "Acompanhe o que funciona pra você",
+  "calciumCarbonate": "Carbonato Cálcio",
+  "traceMinerals": "Minerais Traço",
+  "vitaminA": "Vitamina A",
+  "vitaminE": "Vitamina E",
+  "vitaminK2": "Vitamina K2",
+  "folate": "Folato",
+  "biotin": "Biotina",
+  "probiotics": "Probióticos",
+  "melatonin": "Melatonina",
+  "collagen": "Colágeno",
+  "glucosamine": "Glucosamina",
+  "turmeric": "Cúrcuma",
+  "coq10": "CoQ10",
+  "creatine": "Creatina",
+  "ashwagandha": "Ashwagandha",
+  "selectCardioActivity": "Selecionar Atividade Cardio",
+  "selectStrengthActivity": "Selecionar Atividade Força",
+  "selectSportsActivity": "Selecionar Esporte",
+  "sessions": "Sessões",
+  "totalTime": "Tempo Total",
+  "waterLoss": "Perda Água",
+  "drinkWaterAfterWorkout": "Beba água após treino",
+  "replenishElectrolytes": "Reponha eletrólitos",
+  "restAndRecover": "Descanse e recupere",
+  "avoidSugaryDrinks": "Evite bebidas esportivas açucaradas",
+  "elliptical": "Elíptico",
+  "rowing": "Remo",
+  "jumpRope": "Pular Corda",
+  "stairClimbing": "Escadas",
+  "bodyweight": "Peso Corporal",
+  "powerlifting": "Powerlifting",
+  "calisthenics": "Calistenia",
+  "resistanceBands": "Faixas Resistência",
+  "kettlebell": "Kettlebell",
+  "trx": "TRX",
+  "strongman": "Strongman",
+  "pilates": "Pilates",
+  "basketball": "Basquete",
+  "soccerFootball": "Futebol",
+  "golf": "Golfe",
+  "martialArts": "Artes Marciais",
+  "rockClimbing": "Escalada",
+  "needsToReplenish": "Precisa repor",
+  "electrolyteTrackingPro": "Rastreie sódio, potássio & magnésio com barras progresso detalhadas",
+  "unlock": "Desbloquear",
+  "weather": "Clima",
+  "weatherTrackingPro": "Rastreie índice calor, umidade & impacto clima nas metas hidratação",
+  "sugarTracking": "Rastreamento Açúcar",
+  "sugarTrackingPro": "Monitore ingestão açúcar natural, adicionado & oculto com análise impacto HRI",
+  "dayOverview": "Visão Geral Dia",
+  "tapForDetails": "Toque pra detalhes",
+  "noDataForDay": "Sem dados pra este dia",
+  "sweatLoss": "perda suor",
+  "cardio": "Cardio",
+  "strength": "Força",
+  "workout": "Treino",
+  "noWaterToday": "Nenhuma água registrada hoje",
+  "noElectrolytesToday": "Nenhum eletrólito registrado hoje",
+  "noCoffeeToday": "Nenhum café registrado hoje",
+  "noWorkoutsToday": "Nenhum treino registrado hoje",
+  "noWaterThisDay": "Nenhuma água registrada neste dia",
+  "noElectrolytesThisDay": "Nenhum eletrólito registrado neste dia",
+  "noCoffeeThisDay": "Nenhum café registrado neste dia",
+  "noWorkoutsThisDay": "Nenhum treino registrado neste dia",
+  "weeklyReport": "Relatório Semanal",
+  "weeklyReportSubtitle": "Insights profundos e análise tendências",
+  "workouts": "Treinos",
+  "workoutHydration": "Hidratação Treino",
+  "workoutHydrationMessage": "Em dias treino você bebe {percent}% mais água",
+  "weeklyActivity": "Atividade Semanal",
+  "weeklyActivityMessage": "Você treinou {minutes} minutos em {days} dias",
+  "workoutMinutesPerDay": "Minutos treino por dia",
+  "daysWithWorkouts": "dias com treinos",
+  "noWorkoutsThisWeek": "Nenhum treino esta semana",
+  "noAlcoholThisWeek": "Nenhum álcool esta semana",
+  "csvExported": "Dados exportados pra CSV",
+  "mondayShort": "SEG",
+  "tuesdayShort": "TER",
+  "wednesdayShort": "QUA",
+  "thursdayShort": "QUI",
+  "fridayShort": "SEX",
+  "saturdayShort": "SÁB",
+  "sundayShort": "DOM",
+  "achievements": "Conquistas",
+  "achievementsTabAll": "Todas",
+  "achievementsTabHydration": "Hidratação",
+  "achievementsTabElectrolytes": "Eletrólitos",
+  "achievementsTabSugar": "Controle Açúcar",
+  "achievementsTabAlcohol": "Álcool",
+  "achievementsTabWorkout": "Fitness",
+  "achievementsTabHRI": "HRI",
+  "achievementsTabStreaks": "Sequências",
+  "achievementsTabSpecial": "Especial",
+  "achievementUnlocked": "Conquista Desbloqueada!",
+  "achievementProgress": "Progresso",
+  "achievementPoints": "pontos",
+  "achievementRarityCommon": "Comum",
+  "achievementRarityUncommon": "Incomum",
+  "achievementRarityRare": "Raro",
+  "achievementRarityEpic": "Épico",
+  "achievementRarityLegendary": "Lendário",
+  "achievementStatsUnlocked": "Desbloqueado",
+  "achievementStatsTotal": "Pontos Totais",
+  "achievementFilterAll": "Todas",
+  "achievementFilterUnlocked": "Desbloqueadas",
+  "achievementSortProgress": "Progresso",
+  "achievementSortName": "Nome",
+  "achievementSortRarity": "Raridade",
+  "achievementNoAchievements": "Nenhuma conquista ainda",
+  "achievementKeepUsing": "Continue usando app pra desbloquear conquistas!",
+  "achievementFirstGlass": "Primeira Gota",
+  "achievementFirstGlassDesc": "Beba seu primeiro copo d'água",
+  "achievementHydrationGoal1": "Hidratado",
+  "achievementHydrationGoal1Desc": "Alcance meta água diária",
+  "achievementHydrationGoal7": "Semana Hidratação",
+  "achievementHydrationGoal7Desc": "Alcance meta água por 7 dias seguidos",
+  "achievementHydrationGoal30": "Mestre Hidratação",
+  "achievementHydrationGoal30Desc": "Alcance meta água por 30 dias seguidos",
+  "achievementPerfectHydration": "Balanço Perfeito",
+  "achievementPerfectHydrationDesc": "Alcance 90-110% da meta água",
+  "achievementEarlyBird": "Madrugador",
+  "achievementEarlyBirdDesc": "Beba primeira água antes 9h",
+  "achievementEarlyBirdTemplate": "Beba {volume} antes 9h",
+  "@achievementEarlyBirdTemplate": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementNightOwl": "Coruja Noite",
+  "achievementNightOwlDesc": "Complete meta hidratação antes 18h",
+  "achievementLiterLegend": "Lenda Litro",
+  "achievementLiterLegendDesc": "Alcance marco total hidratação",
+  "achievementLiterLegendTemplate": "Beba {volume} total",
+  "@achievementLiterLegendTemplate": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementSaltStarter": "Iniciante Sal",
+  "achievementSaltStarterDesc": "Adicione primeiros eletrólitos",
+  "achievementElectrolyteBalance": "Balanceado",
+  "achievementElectrolyteBalanceDesc": "Alcance todas metas eletrólitos em um dia",
+  "achievementSodiumMaster": "Mestre Sódio",
+  "achievementSodiumMasterDesc": "Alcance meta sódio 7 dias seguidos",
+  "achievementPotassiumPro": "Pro Potássio",
+  "achievementPotassiumProDesc": "Alcance meta potássio 7 dias seguidos",
+  "achievementMagnesiumMaven": "Expert Magnésio",
+  "achievementMagnesiumMavenDesc": "Alcance meta magnésio 7 dias seguidos",
+  "achievementElectrolyteExpert": "Expert Eletrólitos",
+  "achievementElectrolyteExpertDesc": "Balanço perfeito eletrólitos por 30 dias",
+  "achievementSugarAwareness": "Consciência Açúcar",
+  "achievementSugarAwarenessDesc": "Rastreie açúcar pela primeira vez",
+  "achievementSugarUnder25": "Controle Doce",
+  "achievementSugarUnder25Desc": "Mantenha ingestão açúcar baixa por um dia",
+  "achievementSugarUnder25Template": "Mantenha açúcar abaixo {weight} por um dia",
+  "@achievementSugarUnder25Template": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementSugarWeekControl": "Disciplina Açúcar",
+  "achievementSugarWeekControlDesc": "Mantenha ingestão açúcar baixa por semana",
+  "achievementSugarWeekControlTemplate": "Mantenha açúcar abaixo {weight} por 7 dias",
+  "@achievementSugarWeekControlTemplate": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementSugarFreeDay": "Sem Açúcar",
+  "achievementSugarFreeDayDesc": "Complete dia com 0g açúcar adicionado",
+  "achievementSugarDetective": "Detetive Açúcar",
+  "achievementSugarDetectiveDesc": "Rastreie açúcares ocultos 10 vezes",
+  "achievementSugarMaster": "Mestre Açúcar",
+  "achievementSugarMasterDesc": "Mantenha ingestão açúcar muito baixa por mês",
+  "achievementNoSodaWeek": "Semana Sem Refri",
+  "achievementNoSodaWeekDesc": "Sem refris por 7 dias",
+  "achievementNoSodaMonth": "Mês Sem Refri",
+  "achievementNoSodaMonthDesc": "Sem refris por 30 dias",
+  "achievementSweetToothTamed": "Dente Doce Domado",
+  "achievementSweetToothTamedDesc": "Reduza açúcar diário 50% por semana",
+  "achievementAlcoholTracker": "Consciência",
+  "achievementAlcoholTrackerDesc": "Rastreie consumo álcool",
+  "achievementModerateDay": "Moderação",
+  "achievementModerateDayDesc": "Fique abaixo 2 SD num dia",
+  "achievementSoberDay": "Dia Sóbrio",
+  "achievementSoberDayDesc": "Complete dia sem álcool",
+  "achievementSoberWeek": "Semana Sóbrio",
+  "achievementSoberWeekDesc": "7 dias sem álcool",
+  "achievementSoberMonth": "Mês Sóbrio",
+  "achievementSoberMonthDesc": "30 dias sem álcool",
+  "achievementRecoveryProtocol": "Pro Recuperação",
+  "achievementRecoveryProtocolDesc": "Complete protocolo recuperação após beber",
+  "achievementFirstWorkout": "Mexa-se",
+  "achievementFirstWorkoutDesc": "Registre primeiro treino",
+  "achievementWorkoutWeek": "Semana Ativa",
+  "achievementWorkoutWeekDesc": "Treine 3 vezes numa semana",
+  "achievementCenturySweat": "Século Suor",
+  "achievementCenturySweatDesc": "Perca fluido significativo através treinos",
+  "achievementCenturySweatTemplate": "Perca {volume} através treinos",
+  "@achievementCenturySweatTemplate": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementCardioKing": "Rei Cardio",
+  "achievementCardioKingDesc": "Complete 10 sessões cardio",
+  "achievementStrengthWarrior": "Guerreiro Força",
+  "achievementStrengthWarriorDesc": "Complete 10 sessões força",
+  "achievementHRIGreen": "Zona Verde",
+  "achievementHRIGreenDesc": "Mantenha HRI zona verde por dia",
+  "achievementHRIWeekGreen": "Semana Segura",
+  "achievementHRIWeekGreenDesc": "Mantenha HRI zona verde por 7 dias",
+  "achievementHRIPerfect": "Pontuação Perfeita",
+  "achievementHRIPerfectDesc": "Alcance HRI abaixo 20",
+  "achievementHRIRecovery": "Recuperação Rápida",
+  "achievementHRIRecoveryDesc": "Reduza HRI de vermelho pra verde em um dia",
+  "achievementHRIMaster": "Mestre HRI",
+  "achievementHRIMasterDesc": "Mantenha HRI abaixo 30 por 30 dias",
+  "achievementStreak3": "Começando",
+  "achievementStreak3Desc": "Sequência 3 dias",
+  "achievementStreak7": "Guerreiro Semana",
+  "achievementStreak7Desc": "Sequência 7 dias",
+  "achievementStreak30": "Rei Consistência",
+  "achievementStreak30Desc": "Sequência 30 dias",
+  "achievementStreak100": "Clube Século",
+  "achievementStreak100Desc": "Sequência 100 dias",
+  "achievementFirstWeek": "Primeira Semana",
+  "achievementFirstWeekDesc": "Use app por 7 dias",
+  "achievementProMember": "Membro PRO",
+  "achievementProMemberDesc": "Torne-se assinante PRO",
+  "achievementDataExport": "Analista Dados",
+  "achievementDataExportDesc": "Exporte dados pra CSV",
+  "achievementAllCategories": "Pau Pra Toda Obra",
+  "achievementAllCategoriesDesc": "Desbloqueie pelo menos uma conquista em cada categoria",
+  "achievementHunter": "Caçador Conquistas",
+  "achievementHunterDesc": "Desbloqueie 50% de todas conquistas",
+  "achievementDetailsUnlockedOn": "Desbloqueado em",
+  "achievementNewUnlocked": "Nova conquista desbloqueada!",
+  "achievementViewAll": "Ver todas conquistas",
+  "achievementCloseNotification": "Fechar",
+  "before": "antes",
+  "after": "após",
+  "lose": "Perder",
+  "through": "através",
+  "throughWorkouts": "através treinos",
+  "reach": "Alcançar",
+  "daysInRow": "dias seguidos",
+  "completeHydrationGoal": "Complete meta hidratação",
+  "stayUnder": "Fique abaixo",
+  "inADay": "num dia",
+  "alcoholFree": "sem álcool",
+  "complete": "Complete",
+  "achieve": "Alcance",
+  "keep": "Mantenha",
+  "for30Days": "por 30 dias",
+  "liters": "litros",
+  "completed": "Completado",
+  "notCompleted": "Não completado",
+  "days": "dias",
+  "hours": "horas",
+  "minutes": "minutos",
+  "sessions": "sessões",
+  "times": "vezes",
+  "row": "seguidos",
+  "total": "total",
+  "ofTotal": "do total",
+  "perDay": "por dia",
+  "perWeek": "por semana",
+  "streak": "sequência",
+  "tapToDismiss": "Toque pra dispensar",
+  "tutorialStep1": "Oi! Vou ajudar começar jornada hidratação ideal. Vamos tomar primeiro gole de {volume}!",
+  "@tutorialStep1": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "tutorialStep2": "Excelente! Agora adicione mais {volume} pra sentir como funciona.",
+  "@tutorialStep2": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "tutorialStep3": "Excepcional! Você está pronto pra usar HydroCoach independentemente. Vou estar aqui pra ajudar alcançar hidratação perfeita!",
+  "tutorialComplete": "Começar usar",
+  "onboardingNotificationExamplesTitle": "Lembretes Inteligentes",
+  "onboardingNotificationExamplesSubtitle": "HydroCoach sabe quando precisa água",
+  "onboardingLocationExamplesTitle": "Conselho Pessoal",
+  "onboardingLocationExamplesSubtitle": "Consideramos clima pra recomendações precisas",
+  "onboardingAllowNotifications": "Permitir Notificações",
+  "onboardingAllowLocation": "Permitir Localização",
+  "foodCatalog": "Catálogo Comida",
+  "@foodCatalog": {
+    "description": "Food catalog screen title"
+  },
+  "todaysFoodIntake": "Ingestão Comida Hoje",
+  "@todaysFoodIntake": {
+    "description": "Title for today's food intake summary"
+  },
+  "noFoodToday": "Nenhuma comida registrada hoje",
+  "@noFoodToday": {
+    "description": "Message when no food has been logged today"
+  },
+  "foodItemsCount": "{count} itens comida",
+  "@foodItemsCount": {
+    "description": "Count of food items logged today",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "waterFromFood": "Água de comida",
+  "@waterFromFood": {
+    "description": "Label for water content from food"
+  },
+  "last": "Último",
+  "@last": {
+    "description": "Label for last item"
+  },
+  "categoryFruits": "Frutas",
+  "@categoryFruits": {
+    "description": "Fruits category"
+  },
+  "categoryVegetables": "Vegetais",
+  "@categoryVegetables": {
+    "description": "Vegetables category"
+  },
+  "categorySoups": "Sopas",
+  "@categorySoups": {
+    "description": "Soups category"
+  },
+  "categoryDairy": "Laticínios",
+  "@categoryDairy": {
+    "description": "Dairy category"
+  },
+  "categoryMeat": "Carne",
+  "@categoryMeat": {
+    "description": "Meat category"
+  },
+  "categoryFastFood": "Fast Food",
+  "@categoryFastFood": {
+    "description": "Fast food category"
+  },
+  "weightGrams": "Peso (gramas)",
+  "@weightGrams": {
+    "description": "Weight in grams label"
+  },
+  "enterWeight": "Digite peso",
+  "@enterWeight": {
+    "description": "Enter weight prompt"
+  },
+  "grams": "g",
+  "@grams": {
+    "description": "Grams unit"
+  },
+  "calories": "Calorias",
+  "@calories": {
+    "description": "Calories label"
+  },
+  "waterContent": "Conteúdo Água",
+  "@waterContent": {
+    "description": "Water content label"
+  },
+  "sugar": "Açúcar",
+  "@sugar": {
+    "description": "Sugar label"
+  },
+  "nutritionalInfo": "Info Nutricional",
+  "@nutritionalInfo": {
+    "description": "Nutritional information label"
+  },
+  "caloriesPerWeight": "{calories} kcal por {weight}g",
+  "@caloriesPerWeight": {
+    "description": "Calories per weight format",
+    "placeholders": {
+      "calories": {
+        "type": "int"
+      },
+      "weight": {
+        "type": "int"
+      }
+    }
+  },
+  "waterPerWeight": "{water} ml água por {weight}g",
+  "@waterPerWeight": {
+    "description": "Water per weight format",
+    "placeholders": {
+      "water": {
+        "type": "int"
+      },
+      "weight": {
+        "type": "int"
+      }
+    }
+  },
+  "sugarPerWeight": "{sugar}g açúcar por {weight}g",
+  "@sugarPerWeight": {
+    "description": "Sugar per weight format",
+    "placeholders": {
+      "sugar": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "int"
+      }
+    }
+  },
+  "addFood": "Adicionar Comida",
+  "@addFood": {
+    "description": "Add food button"
+  },
+  "foodAdded": "Comida adicionada com sucesso",
+  "@foodAdded": {
+    "description": "Food added success message"
+  },
+  "enterValidWeight": "Digite peso válido",
+  "@enterValidWeight": {
+    "description": "Invalid weight error message"
+  },
+  "proOnlyFood": "Apenas PRO",
+  "@proOnlyFood": {
+    "description": "PRO only food label"
+  },
+  "unlockProForFood": "Desbloqueie PRO pra acessar todos itens comida",
+  "@unlockProForFood": {
+    "description": "PRO unlock message for food"
+  },
+  "foodTracker": "Rastreador Comida",
+  "@foodTracker": {
+    "description": "Food tracker title"
+  },
+  "todaysFoodSummary": "Resumo Comida Hoje",
+  "@todaysFoodSummary": {
+    "description": "Today's food summary title"
+  },
+  "kcal": "kcal",
+  "@kcal": {
+    "description": "Kilocalories unit"
+  },
+  "per100g": "por 100g",
+  "@per100g": {
+    "description": "Per 100 grams"
+  },
+  "addToFavorites": "Adicionar aos favoritos",
+  "@addToFavorites": {
+    "description": "Add to favorites checkbox"
+  },
+  "favoritesFeatureComingSoon": "Recurso favoritos em breve!",
+  "@favoritesFeatureComingSoon": {
+    "description": "Favorites feature not yet available message"
+  },
+  "foodAddedSuccess": "{food} adicionado! +{calories} kcal, +{water}",
+  "@foodAddedSuccess": {
+    "description": "Success message when food is added",
+    "placeholders": {
+      "food": {
+        "type": "String"
+      },
+      "calories": {
+        "type": "int"
+      },
+      "water": {
+        "type": "String"
+      }
+    }
+  },
+  "selectWeight": "Selecionar Peso",
+  "@selectWeight": {
+    "description": "Select weight dialog title"
+  },
+  "ounces": "oz",
+  "@ounces": {
+    "description": "Ounces unit"
+  },
+  "items": "itens",
+  "@items": {
+    "description": "Items count"
+  },
+  "tapToAddFood": "Toque pra adicionar comida",
+  "@tapToAddFood": {
+    "description": "Add food prompt"
+  },
+  "noFoodLoggedToday": "Nenhuma comida registrada hoje",
+  "@noFoodLoggedToday": {
+    "description": "No food logged message"
+  },
+  "lightEatingDay": "Dia comendo leve",
+  "@lightEatingDay": {
+    "description": "Light eating day status"
+  },
+  "moderateIntake": "Ingestão moderada",
+  "@moderateIntake": {
+    "description": "Moderate intake status"
+  },
+  "goodCalorieIntake": "Boa ingestão calorias",
+  "@goodCalorieIntake": {
+    "description": "Good calorie intake status"
+  },
+  "substantialMeals": "Refeições substanciais",
+  "@substantialMeals": {
+    "description": "Substantial meals status"
+  },
+  "highCalorieDay": "Dia alto calorias",
+  "@highCalorieDay": {
+    "description": "High calorie day status"
+  },
+  "veryHighIntake": "Ingestão muito alta",
+  "@veryHighIntake": {
+    "description": "Very high intake status"
+  },
+  "caloriesTracker": "Rastreador Calorias",
+  "@caloriesTracker": {
+    "description": "Calories tracker title"
+  },
+  "trackYourDailyCalorieIntake": "Rastreie ingestão calorias diária de comida",
+  "@trackYourDailyCalorieIntake": {
+    "description": "Calories tracker description"
+  },
+  "unlockFoodTrackingFeatures": "Desbloqueie recursos rastreamento comida",
+  "@unlockFoodTrackingFeatures": {
+    "description": "Unlock food tracking features message"
+  },
+  "selectFoodType": "Selecionar tipo comida",
+  "@selectFoodType": {
+    "description": "Select food type title"
+  },
+  "foodApple": "Maçã",
+  "@foodApple": {
+    "description": "Apple fruit"
+  },
+  "foodBanana": "Banana",
+  "@foodBanana": {
+    "description": "Banana fruit"
+  },
+  "foodOrange": "Laranja",
+  "@foodOrange": {
+    "description": "Orange fruit"
+  },
+  "foodWatermelon": "Melancia",
+  "@foodWatermelon": {
+    "description": "Watermelon fruit"
+  },
+  "foodStrawberry": "Morango",
+  "@foodStrawberry": {
+    "description": "Strawberry fruit"
+  },
+  "foodGrapes": "Uvas",
+  "@foodGrapes": {
+    "description": "Grapes fruit"
+  },
+  "foodPineapple": "Abacaxi",
+  "@foodPineapple": {
+    "description": "Pineapple fruit"
+  },
+  "foodMango": "Manga",
+  "@foodMango": {
+    "description": "Mango fruit"
+  },
+  "foodPear": "Pera",
+  "@foodPear": {
+    "description": "Pear fruit"
+  },
+  "foodCarrot": "Cenoura",
+  "@foodCarrot": {
+    "description": "Carrot vegetable"
+  },
+  "foodBroccoli": "Brócolis",
+  "@foodBroccoli": {
+    "description": "Broccoli vegetable"
+  },
+  "foodSpinach": "Espinafre",
+  "@foodSpinach": {
+    "description": "Spinach vegetable"
+  },
+  "foodTomato": "Tomate",
+  "@foodTomato": {
+    "description": "Tomato vegetable"
+  },
+  "foodCucumber": "Pepino",
+  "@foodCucumber": {
+    "description": "Cucumber vegetable"
+  },
+  "foodBellPepper": "Pimentão",
+  "@foodBellPepper": {
+    "description": "Bell pepper vegetable"
+  },
+  "foodLettuce": "Alface",
+  "@foodLettuce": {
+    "description": "Lettuce vegetable"
+  },
+  "foodOnion": "Cebola",
+  "@foodOnion": {
+    "description": "Onion vegetable"
+  },
+  "foodCelery": "Aipo",
+  "@foodCelery": {
+    "description": "Celery vegetable"
+  },
+  "foodPotato": "Batata",
+  "@foodPotato": {
+    "description": "Potato vegetable"
+  },
+  "foodChickenSoup": "Sopa Frango",
+  "@foodChickenSoup": {
+    "description": "Chicken soup"
+  },
+  "foodTomatoSoup": "Sopa Tomate",
+  "@foodTomatoSoup": {
+    "description": "Tomato soup"
+  },
+  "foodVegetableSoup": "Sopa Vegetais",
+  "@foodVegetableSoup": {
+    "description": "Vegetable soup"
+  },
+  "foodMinestrone": "Minestrone",
+  "@foodMinestrone": {
+    "description": "Minestrone soup"
+  },
+  "foodMisoSoup": "Sopa Missô",
+  "@foodMisoSoup": {
+    "description": "Miso soup"
+  },
+  "foodMushroomSoup": "Sopa Cogumelos",
+  "@foodMushroomSoup": {
+    "description": "Mushroom soup"
+  },
+  "foodBeefStew": "Ensopado Carne",
+  "@foodBeefStew": {
+    "description": "Beef stew"
+  },
+  "foodLentilSoup": "Sopa Lentilha",
+  "@foodLentilSoup": {
+    "description": "Lentil soup"
+  },
+  "foodOnionSoup": "Sopa Cebola Francesa",
+  "@foodOnionSoup": {
+    "description": "French onion soup"
+  },
+  "foodMilk": "Leite",
+  "@foodMilk": {
+    "description": "Milk"
+  },
+  "foodYogurt": "Iogurte Grego",
+  "@foodYogurt": {
+    "description": "Greek yogurt"
+  },
+  "foodCheese": "Queijo Cheddar",
+  "@foodCheese": {
+    "description": "Cheddar cheese"
+  },
+  "foodCottageCheese": "Queijo Cottage",
+  "@foodCottageCheese": {
+    "description": "Cottage cheese"
+  },
+  "foodButter": "Manteiga",
+  "@foodButter": {
+    "description": "Butter"
+  },
+  "foodCream": "Creme Leite",
+  "@foodCream": {
+    "description": "Heavy cream"
+  },
+  "foodIceCream": "Sorvete",
+  "@foodIceCream": {
+    "description": "Ice cream"
+  },
+  "foodMozzarella": "Mozzarella",
+  "@foodMozzarella": {
+    "description": "Mozzarella cheese"
+  },
+  "foodParmesan": "Parmesão",
+  "@foodParmesan": {
+    "description": "Parmesan cheese"
+  },
+  "foodChickenBreast": "Peito Frango",
+  "@foodChickenBreast": {
+    "description": "Chicken breast"
+  },
+  "foodBeef": "Carne Moída",
+  "@foodBeef": {
+    "description": "Ground beef"
+  },
+  "foodSalmon": "Salmão",
+  "@foodSalmon": {
+    "description": "Salmon fish"
+  },
+  "foodEggs": "Ovos",
+  "@foodEggs": {
+    "description": "Chicken eggs"
+  },
+  "foodTuna": "Atum",
+  "@foodTuna": {
+    "description": "Tuna fish"
+  },
+  "foodPork": "Costeleta Porco",
+  "@foodPork": {
+    "description": "Pork chop"
+  },
+  "foodTurkey": "Peru",
+  "@foodTurkey": {
+    "description": "Turkey meat"
+  },
+  "foodShrimp": "Camarão",
+  "@foodShrimp": {
+    "description": "Shrimp"
+  },
+  "foodBacon": "Bacon",
+  "@foodBacon": {
+    "description": "Bacon"
+  },
+  "foodBigMac": "Big Mac",
+  "@foodBigMac": {
+    "description": "McDonald's Big Mac"
+  },
+  "foodPizza": "Fatia Pizza",
+  "@foodPizza": {
+    "description": "Pizza slice"
+  },
+  "foodFrenchFries": "Batata Frita",
+  "@foodFrenchFries": {
+    "description": "French fries"
+  },
+  "foodChickenNuggets": "Nuggets Frango",
+  "@foodChickenNuggets": {
+    "description": "Chicken nuggets"
+  },
+  "foodHotDog": "Cachorro-Quente",
+  "@foodHotDog": {
+    "description": "Hot dog"
+  },
+  "foodTacos": "Tacos",
+  "@foodTacos": {
+    "description": "Tacos"
+  },
+  "foodSubway": "Sanduíche Subway",
+  "@foodSubway": {
+    "description": "Subway sandwich"
+  },
+  "foodDonut": "Rosquinha",
+  "@foodDonut": {
+    "description": "Donut"
+  },
+  "foodBurgerKing": "Whopper",
+  "@foodBurgerKing": {
+    "description": "Burger King Whopper"
+  },
+  "foodSausage": "Salsicha",
+  "@foodSausage": {
+    "description": "Sausage"
+  },
+  "foodKefir": "Kefir",
+  "@foodKefir": {
+    "description": "Kefir"
+  },
+  "foodRyazhenka": "Ryazhenka",
+  "@foodRyazhenka": {
+    "description": "Baked fermented milk"
+  },
+  "foodDoner": "Döner",
+  "@foodDoner": {
+    "description": "Döner kebab"
+  },
+  "foodShawarma": "Shawarma",
+  "@foodShawarma": {
+    "description": "Shawarma wrap"
+  },
+  "foodBorscht": "Borsch",
+  "@foodBorscht": {
+    "description": "Beet soup"
+  },
+  "foodRamen": "Ramen",
+  "@foodRamen": {
+    "description": "Japanese noodle soup"
+  },
+  "foodCabbage": "Repolho",
+  "@foodCabbage": {
+    "description": "Cabbage"
+  },
+  "foodPeaSoup": "Sopa Ervilha",
+  "@foodPeaSoup": {
+    "description": "Pea soup"
+  },
+  "foodSolyanka": "Solyanka",
+  "@foodSolyanka": {
+    "description": "Russian soup with pickles and meat"
+  },
+  "meals": "refeições",
+  "@meals": {
+    "description": "Meals counter"
+  },
+  "dailyProgress": "Progresso Diário",
+  "@dailyProgress": {
+    "description": "Daily progress label"
+  },
+  "fromFood": "de comida",
+  "@fromFood": {
+    "description": "Water from food label"
+  },
+  "noFoodThisWeek": "Sem dados comida esta semana",
+  "@noFoodThisWeek": {
+    "description": "No food data message for weekly view"
+  },
+  "foodIntake": "Ingestão Comida",
+  "@foodIntake": {
+    "description": "Food intake chart title"
+  },
+  "foodStats": "Estatísticas Comida",
+  "@foodStats": {
+    "description": "Food statistics title"
+  },
+  "totalCalories": "Calorias totais",
+  "@totalCalories": {
+    "description": "Total calories label"
+  },
+  "avgCaloriesPerDay": "Média por dia",
+  "@avgCaloriesPerDay": {
+    "description": "Average calories per day label"
+  },
+  "daysWithFood": "Dias com comida",
+  "@daysWithFood": {
+    "description": "Days with food label"
+  },
+  "avgMealsPerDay": "Refeições por dia",
+  "@avgMealsPerDay": {
+    "description": "Average meals per day label"
+  },
+  "caloriesPerDay": "Calorias por dia",
+  "@caloriesPerDay": {
+    "description": "Calories per day label"
+  },
+  "sugarPerDay": "Açúcar por dia",
+  "@sugarPerDay": {
+    "description": "Sugar per day label"
+  },
+  "foodTracking": "Rastreamento Comida",
+  "@foodTracking": {
+    "description": "Food tracking feature name"
+  },
+  "foodTrackingPro": "Rastreie impacto comida na hidratação e HRI",
+  "@foodTrackingPro": {
+    "description": "Food tracking pro description"
+  },
+  "hydrationBalance": "Balanço Hidratação",
+  "@hydrationBalance": {
+    "description": "Hydration balance label"
+  },
+  "highSodiumFood": "Alto sódio de comida",
+  "@highSodiumFood": {
+    "description": "High sodium food status"
+  },
+  "hydratingFood": "Ótimas escolhas hidratantes",
+  "@hydratingFood": {
+    "description": "Hydrating food status"
+  },
+  "dryFood": "Comida baixo conteúdo água",
+  "@dryFood": {
+    "description": "Dry food status"
+  },
+  "balancedFood": "Nutrição balanceada",
+  "@balancedFood": {
+    "description": "Balanced food status"
+  },
+  "foodAdviceEmpty": "Adicione refeições pra rastrear impacto comida na hidratação.",
+  "@foodAdviceEmpty": {
+    "description": "Advice when no food logged"
+  },
+  "foodAdviceHighSodium": "Alta ingestão sódio detectada. Aumente água pra balancear eletrólitos.",
+  "@foodAdviceHighSodium": {
+    "description": "Advice for high sodium food"
+  },
+  "foodAdviceLowWater": "Sua comida teve baixo conteúdo água. Considere beber água extra.",
+  "@foodAdviceLowWater": {
+    "description": "Advice for low water content food"
+  },
+  "foodAdviceGoodHydration": "Ótimo! Sua comida ajuda hidratação.",
+  "@foodAdviceGoodHydration": {
+    "description": "Advice for good hydrating food"
+  },
+  "foodAdviceBalanced": "Boa nutrição! Lembre de beber água.",
+  "@foodAdviceBalanced": {
+    "description": "Advice for balanced food choices"
+  },
+  "richInElectrolytes": "Rico em eletrólitos",
+  "@richInElectrolytes": {
+    "description": "Status for food rich in electrolytes"
+  },
+  "recommendedCalories": "Calorias recomendadas: ~{calories} kcal/dia",
+  "@recommendedCalories": {
+    "description": "Recommended daily calorie intake",
+    "placeholders": {
+      "calories": {
+        "type": "int",
+        "example": "1750"
+      }
+    }
+  },
+  "proWelcomeTitle": "Bem-vindo ao HydraCoach PRO!",
+  "@proWelcomeTitle": {
+    "description": "PRO welcome screen title"
+  },
+  "proTrialActivated": "Seu teste 7 dias ativado!",
+  "@proTrialActivated": {
+    "description": "PRO trial activation subtitle"
+  },
+  "proFeaturePersonalizedRecommendations": "Recomendações personalizadas",
+  "@proFeaturePersonalizedRecommendations": {
+    "description": "PRO feature: personalized hydration advice"
+  },
+  "proFeatureAdvancedAnalytics": "Análises avançadas",
+  "@proFeatureAdvancedAnalytics": {
+    "description": "PRO feature: detailed charts and statistics"
+  },
+  "proFeatureWorkoutTracking": "Rastreamento treinos",
+  "@proFeatureWorkoutTracking": {
+    "description": "PRO feature: fluid loss tracking during sports"
+  },
+  "proFeatureElectrolyteControl": "Controle eletrólitos",
+  "@proFeatureElectrolyteControl": {
+    "description": "PRO feature: sodium, potassium, magnesium monitoring"
+  },
+  "proFeatureSmartReminders": "Lembretes inteligentes",
+  "@proFeatureSmartReminders": {
+    "description": "PRO feature: personalized notifications"
+  },
+  "proFeatureHriIndex": "Índice HRI",
+  "@proFeatureHriIndex": {
+    "description": "PRO feature: real-time hydration risk index"
+  },
+  "proFeatureAchievements": "Conquistas PRO",
+  "@proFeatureAchievements": {
+    "description": "PRO feature: exclusive rewards and goals"
+  },
+  "proFeaturePersonalizedDescription": "Conselhos hidratação individuais",
+  "@proFeaturePersonalizedDescription": {
+    "description": "PRO feature description: personalized recommendations"
+  },
+  "proFeatureAdvancedDescription": "Gráficos e estatísticas detalhadas",
+  "@proFeatureAdvancedDescription": {
+    "description": "PRO feature description: advanced analytics"
+  },
+  "proFeatureWorkoutDescription": "Rastreamento perda fluido durante esportes",
+  "@proFeatureWorkoutDescription": {
+    "description": "PRO feature description: workout tracking"
+  },
+  "proFeatureElectrolyteDescription": "Monitoramento sódio, potássio, magnésio",
+  "@proFeatureElectrolyteDescription": {
+    "description": "PRO feature description: electrolyte control"
+  },
+  "proFeatureSmartDescription": "Notificações personalizadas",
+  "proFeatureNoMoreAds": "Sem mais ADs!",
+  "@proFeatureNoMoreAds": {
+    "description": "PRO feature title: no more ads"
+  },
+  "proFeatureNoMoreAdsDescription": "Aproveite rastreamento hidratação ininterrupto sem anúncios",
+  "@proFeatureNoMoreAdsDescription": {
+    "description": "PRO feature description: no more ads"
+  },
+  "@proFeatureSmartDescription": {
+    "description": "PRO feature description: smart reminders"
+  },
+  "proFeatureHriDescription": "Índice risco hidratação em tempo real",
+  "@proFeatureHriDescription": {
+    "description": "PRO feature description: HRI index"
+  },
+  "proFeatureAchievementsDescription": "Recompensas e metas exclusivas",
+  "@proFeatureAchievementsDescription": {
+    "description": "PRO feature description: PRO achievements"
+  },
+  "startUsing": "Começar usar",
+  "@startUsing": {
+    "description": "Button to start using PRO features"
+  },
+  "sayGoodbyeToAds": "Diga adeus aos anúncios. Vá Premium.",
+  "@sayGoodbyeToAds": {
+    "description": "Text below MREC ad encouraging premium upgrade"
+  },
+  "goPremium": "VÁ PREMIUM",
+  "@goPremium": {
+    "description": "Button text to upgrade to premium"
+  },
+  "removeAdsForever": "Remova anúncios pra sempre",
+  "@removeAdsForever": {
+    "description": "Text for premium fallback content"
+  },
+  "upgrade": "ATUALIZAR",
+  "@upgrade": {
+    "description": "Upgrade button text"
+  },
+  "support": "Suporte",
+  "@support": {
+    "description": "Support section title"
+  },
+  "companyWebsite": "Site Empresa",
+  "@companyWebsite": {
+    "description": "Company website menu item"
+  },
+  "appStoreOpened": "App Store aberta",
+  "@appStoreOpened": {
+    "description": "Message when App Store opens successfully"
+  },
+  "linkCopiedToClipboard": "Link copiado área transferência",
+  "@linkCopiedToClipboard": {
+    "description": "Message when link is copied as fallback"
+  },
+  "shareDialogOpened": "Diálogo compartilhar aberto",
+  "@shareDialogOpened": {
+    "description": "Message when share dialog opens successfully"
+  },
+  "linkForSharingCopied": "Link pra compartilhar copiado",
+  "@linkForSharingCopied": {
+    "description": "Message when share link is copied as fallback"
+  },
+  "websiteOpenedInBrowser": "Site aberto no navegador",
+  "@websiteOpenedInBrowser": {
+    "description": "Message when website opens successfully"
+  },
+  "emailClientOpened": "Cliente email aberto",
+  "@emailClientOpened": {
+    "description": "Message when email client opens successfully"
+  },
+  "emailCopiedToClipboard": "Email copiado área transferência",
+  "@emailCopiedToClipboard": {
+    "description": "Message when email is copied as fallback"
+  },
+  "privacyPolicyOpened": "Política privacidade aberta",
+  "@privacyPolicyOpened": {
+    "description": "Message when privacy policy opens successfully"
+  },
+  "statisticsTo": "Estatísticas até {date}",
+  "@statisticsTo": {
+    "description": "Statistics up to selected date",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMd"
+      }
+    }
+  },
+  "monthlyInsights": "Insights Mensais",
+  "average": "Média",
+  "daysOver": "Dias acima",
+  "maximum": "Máximo",
+  "balance": "Balanço",
+  "allNormal": "Tudo normal",
+  "excellentConsistency": "Consistência excelente",
+  "goodResults": "Bons resultados",
+  "positiveImprovement": "Melhoria positiva",
+  "physicalActivity": "Atividade física",
+  "coffeeConsumption": "Consumo café",
+  "excellentSobriety": "Sobriedade excelente",
+  "excellentMonth": "Mês excelente",
+  "keepGoingMotivation": "Continue assim!",
+  "daysNormal": "dias normal",
+  "electrolyteBalance": "Balanço eletrólitos precisa atenção",
+  "caffeineWarning": "Dias com overdose dose segura (400mg)",
+  "sugarFrequentExcess": "Excesso açúcar frequente afeta hidratação",
+  "averagePerDayShort": "por dia",
+  "highWarning": "Alto",
+  "normalStatus": "Normal",
+  "improvementToEnd": "Melhoria até fim mês em {percent}%",
+  "@improvementToEnd": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutActivity": "{percent}% dias com treinos ({hours}h)",
+  "@workoutActivity": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "coffeeAverage": "Média {avg} xícaras/dia",
+  "@coffeeAverage": {
+    "placeholders": {
+      "avg": {
+        "type": "String"
+      }
+    }
+  },
+  "sobrietyPercent": "{percent}% dias sem álcool",
+  "@sobrietyPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "daySummary": "Resumo Dia",
+  "records": "Registros",
+  "waterGoalAchievement": "Alcance meta água: {percent}%",
+  "@waterGoalAchievement": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutSessions": "Treinos: {count} sessões",
+  "@workoutSessions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "index": "Índice",
+  "status": "Status",
+  "moderateRisk": "Risco moderado",
+  "excess": "Excesso",
+  "whoLimit": "Limite OMS: 50g/dia",
+  "forMonth": "Do mês",
+  "stability": "Estabilidade em {percent}% dos dias",
+  "@stability": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "goodHydration": "{percent}% dias com boa hidratação",
+  "@goodHydration": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "daysInNorm": "{count} dias na norma",
+  "@daysInNorm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "perfectDays": "{count} dias",
+  "@perfectDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "consistencyDays": "{percent}% dias com boa hidratação",
+  "@consistencyDays": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "stabilityDays": "Estabilidade em {percent}% dos dias",
+  "@stabilityDays": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "positiveTrend": "📈 Tendência positiva",
+  "monthEndImprovement": "Melhoria fim mês em {percent}%",
+  "@monthEndImprovement": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutDaysPercent": "{percent}% dias com treinos ({hours}h)",
+  "@workoutDaysPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "averageCupsPerDay": "Média {avgCups} xícaras/dia",
+  "@averageCupsPerDay": {
+    "placeholders": {
+      "avgCups": {
+        "type": "String"
+      }
+    }
+  },
+  "soberDaysPercent": "{percent}% dias sem álcool",
+  "@soberDaysPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "keepGoing": "Continue!",
+  "moderateRiskStatus": "Status: Risco moderado",
+  "high": "Alto",
+  "whoLimitPerDay": "Limite OMS: 50g/dia"
+}

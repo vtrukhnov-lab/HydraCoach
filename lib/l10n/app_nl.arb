@@ -1,0 +1,2792 @@
+{
+  "@@locale": "nl",
+  "appTitle": "HydroCoach",
+  "@appTitle": {
+    "description": "The application name"
+  },
+  "getPro": "PRO halen",
+  "@getPro": {
+    "description": "Get PRO tooltip"
+  },
+  "sunday": "Zondag",
+  "monday": "Maandag",
+  "tuesday": "Dinsdag",
+  "wednesday": "Woensdag",
+  "thursday": "Donderdag",
+  "friday": "Vrijdag",
+  "saturday": "Zaterdag",
+  "january": "Januari",
+  "february": "Februari",
+  "march": "Maart",
+  "april": "April",
+  "may": "Mei",
+  "june": "Juni",
+  "july": "Juli",
+  "august": "Augustus",
+  "september": "September",
+  "october": "Oktober",
+  "november": "November",
+  "december": "December",
+  "dateFormat": "{weekday}, {day} {month}",
+  "@dateFormat": {
+    "description": "Date format pattern",
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "loading": "Laden...",
+  "loadingWeather": "Weer laden...",
+  "heatIndex": "Hitteindex",
+  "humidity": "Vochtigheid: {value}%",
+  "@humidity": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "water": "Water",
+  "liquids": "Vloeistoffen",
+  "sodium": "Natrium",
+  "potassium": "Kalium",
+  "magnesium": "Magnesium",
+  "electrolyte": "Elektrolyt",
+  "broth": "Bouillon",
+  "coffee": "Koffie",
+  "alcohol": "Alcohol",
+  "drink": "Drank",
+  "ml": "ml",
+  "mg": "mg",
+  "kg": "kg",
+  "valueWithUnit": "{value} {unit}",
+  "@valueWithUnit": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "goalFormat": "{current}/{goal} {unit}",
+  "@goalFormat": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "heatAdjustment": "Hitte +{percent}%",
+  "@heatAdjustment": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "alcoholAdjustment": "Alcohol +{amount} ml",
+  "@alcoholAdjustment": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "smartAdviceTitle": "Tip voor nu",
+  "smartAdviceDefault": "Houd water- en elektrolytenbalans.",
+  "adviceOverhydrationSevere": "Wateroverlast (>200% doel)",
+  "adviceOverhydrationSevereBody": "Pauzeer 60-90 min. Elektrolyten toevoegen: 300-500 ml met 500-1000 mg natrium.",
+  "adviceOverhydration": "Overhydratie",
+  "adviceOverhydrationBody": "Pauzeer water 30-60 min en voeg ~500 mg natrium toe (elektrolyt/bouillon).",
+  "adviceAlcoholRecovery": "Alcohol: herstel",
+  "adviceAlcoholRecoveryBody": "Geen alcohol meer vandaag. Drink 300-500 ml water in kleine porties en voeg natrium toe.",
+  "adviceLowSodium": "Weinig natrium",
+  "adviceLowSodiumBody": "Voeg ~{amount} mg natrium toe. Drink matig.",
+  "@adviceLowSodiumBody": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "adviceDehydration": "Gedehydrateerd",
+  "adviceDehydrationBody": "Drink 300-500 ml {type}.",
+  "@adviceDehydrationBody": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "adviceHighRisk": "Hoog risico (HRI)",
+  "adviceHighRiskBody": "Dringend water met elektrolyten drinken (300-500 ml) en activiteit verminderen.",
+  "adviceHeat": "Hitte en verliezen",
+  "adviceHeatBody": "Verhoog water met +5-8% en voeg 300-500 mg natrium toe.",
+  "adviceAllGood": "Alles op koers",
+  "adviceAllGoodBody": "Houd het tempo. Doel: nog ~{amount} ml.",
+  "@adviceAllGoodBody": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationStatus": "Hydratiestatus",
+  "hydrationStatusNormal": "Normaal",
+  "hydrationStatusDiluted": "Verdunnen",
+  "hydrationStatusDehydrated": "Gedehydrateerd",
+  "hydrationStatusLowSalt": "Weinig zout",
+  "hydrationRiskIndex": "Hydratie-risicoindex",
+  "quickAdd": "Snel toevoegen",
+  "add": "Toevoegen",
+  "delete": "Verwijderen",
+  "todaysDrinks": "Vandaag gedronken",
+  "allRecords": "Alle records →",
+  "itemDeleted": "{item} verwijderd",
+  "@itemDeleted": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "undo": "Ongedaan maken",
+  "dailyReportReady": "Dagrapport klaar!",
+  "viewDayResults": "Bekijk dagresultaten",
+  "dailyReportComingSoon": "Dagrapport komt binnenkort",
+  "home": "Start",
+  "history": "Geschiedenis",
+  "settings": "Instellingen",
+  "cancel": "Annuleren",
+  "save": "Opslaan",
+  "reset": "Resetten",
+  "settingsTitle": "Instellingen",
+  "languageSection": "Taal",
+  "languageSettings": "Taal",
+  "selectLanguage": "Taal selecteren",
+  "profileSection": "Profiel",
+  "weight": "Gewicht",
+  "dietMode": "Dieetmodus",
+  "activityLevel": "Activiteitsniveau",
+  "changeWeight": "Gewicht wijzigen",
+  "dietModeNormal": "Normaal dieet",
+  "dietModeKeto": "Keto / Low-carb",
+  "dietModeFasting": "Intermitterend vasten",
+  "activityLow": "Lage activiteit",
+  "activityMedium": "Gemiddelde activiteit",
+  "activityHigh": "Hoge activiteit",
+  "activityLowDesc": "Kantoorwerk, weinig beweging",
+  "activityMediumDesc": "30-60 min sport per dag",
+  "activityHighDesc": "Training >1 uur",
+  "notificationsSection": "Meldingen",
+  "notificationLimit": "Meldingslimiet (GRATIS)",
+  "notificationUsage": "Gebruikt: {used} van {limit}",
+  "@notificationUsage": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "waterReminders": "Waterherinneringen",
+  "waterRemindersDesc": "Regelmatige herinneringen gedurende de dag",
+  "reminderFrequency": "Herinneringsfrequentie",
+  "timesPerDay": "{count} keer per dag",
+  "@timesPerDay": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maxTimesPerDay": "{count} keer per dag (max 4)",
+  "@maxTimesPerDay": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "unlimitedReminders": "Onbeperkt",
+  "startOfDay": "Begin van de dag",
+  "endOfDay": "Einde van de dag",
+  "postCoffeeReminders": "Na-koffie herinneringen",
+  "postCoffeeRemindersDesc": "Herinnering om na 20 min water te drinken",
+  "heatWarnings": "Hittewaarschuwingen",
+  "heatWarningsDesc": "Meldingen bij hoge temperaturen",
+  "postAlcoholReminders": "Na-alcohol herinneringen",
+  "postAlcoholRemindersDesc": "Herstelplan voor 6-12 uur",
+  "proFeaturesSection": "PRO Functies",
+  "unlockPro": "PRO ontgrendelen",
+  "unlockProDesc": "Onbeperkte meldingen en slimme herinneringen",
+  "noNotificationLimit": "Geen meldingslimiet",
+  "unitsSection": "Eenheden",
+  "metricSystem": "Metrisch systeem",
+  "metricUnits": "ml, kg, °C",
+  "imperialSystem": "Imperiaal systeem",
+  "imperialUnits": "fl oz, lb, °F",
+  "aboutSection": "Over",
+  "version": "Versie",
+  "rateApp": "App beoordelen",
+  "share": "Delen",
+  "privacyPolicy": "Privacybeleid",
+  "termsOfUse": "Gebruiksvoorwaarden",
+  "resetAllData": "Alle gegevens resetten",
+  "resetDataTitle": "Alle gegevens resetten?",
+  "resetDataMessage": "Dit verwijdert alle geschiedenis en herstelt standaardinstellingen.",
+  "back": "Terug",
+  "next": "Volgende",
+  "start": "Starten",
+  "welcomeTitle": "Welkom bij\nHydroCoach",
+  "welcomeSubtitle": "Slimme water- en elektrolytentracking\nvoor keto, vasten en actief leven",
+  "weightPageTitle": "Jouw gewicht",
+  "weightPageSubtitle": "Om optimale waterhoeveelheid te berekenen",
+  "weightUnit": "{weight} kg",
+  "@weightUnit": {
+    "placeholders": {
+      "weight": {
+        "type": "int"
+      }
+    }
+  },
+  "recommendedNorm": "Aanbevolen norm: {min}-{max} ml water per dag",
+  "@recommendedNorm": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "dietPageTitle": "Dieetmodus",
+  "dietPageSubtitle": "Dit beïnvloedt elektrolytenbehoefte",
+  "normalDiet": "Normaal dieet",
+  "normalDietDesc": "Standaardaanbevelingen",
+  "ketoDiet": "Keto / Low-carb",
+  "ketoDietDesc": "Verhoogde zoutbehoefte",
+  "fastingDiet": "Intermitterend vasten",
+  "fastingDietDesc": "Speciaal elektrolytenregime",
+  "fastingSchedule": "Vastenschema:",
+  "fasting16_8": "16:8",
+  "fasting16_8Desc": "Dagelijks 8-uurs venster",
+  "fastingOMAD": "OMAD",
+  "fastingOMADDesc": "Eén maaltijd per dag",
+  "fastingADF": "ADF",
+  "fastingADFDesc": "Afwisselend dagvasten",
+  "activityPageTitle": "Activiteitsniveau",
+  "activityPageSubtitle": "Beïnvloedt waterbehoefte",
+  "lowActivity": "Lage activiteit",
+  "lowActivityDesc": "Kantoorwerk, weinig beweging",
+  "lowActivityWater": "+0 ml water",
+  "mediumActivity": "Gemiddelde activiteit",
+  "mediumActivityDesc": "30-60 min sport per dag",
+  "mediumActivityWater": "+350-700 ml water",
+  "highActivity": "Hoge activiteit",
+  "highActivityDesc": "Training >1 uur of fysiek werk",
+  "highActivityWater": "+700-1200 ml water",
+  "activityAdjustmentNote": "We passen doelen aan op basis van je training",
+  "day": "Dag",
+  "week": "Week",
+  "month": "Maand",
+  "today": "Vandaag",
+  "yesterday": "Gisteren",
+  "noData": "Geen gegevens",
+  "noRecordsToday": "Nog geen records vandaag",
+  "noRecordsThisDay": "Geen records voor deze dag",
+  "loadingData": "Gegevens laden...",
+  "deleteRecord": "Record verwijderen?",
+  "deleteRecordMessage": "{type} {volume} ml verwijderen?",
+  "@deleteRecordMessage": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "volume": {
+        "type": "int"
+      }
+    }
+  },
+  "recordDeleted": "Record verwijderd",
+  "waterConsumption": "💧 Waterverbruik",
+  "alcoholWeek": "🍺 Alcohol deze week",
+  "electrolytes": "⚡ Elektrolyten",
+  "weeklyAverages": "📊 Weekgemiddeldes",
+  "monthStatistics": "📊 Maandstatistieken",
+  "alcoholStatistics": "🍺 Alcoholstatistieken",
+  "alcoholStatisticsTitle": "Alcoholstatistieken",
+  "weeklyInsights": "💡 Weekinzichten",
+  "waterPerDay": "Water per dag",
+  "sodiumPerDay": "Natrium per dag",
+  "potassiumPerDay": "Kalium per dag",
+  "magnesiumPerDay": "Magnesium per dag",
+  "goal": "Doel",
+  "daysWithGoalAchieved": "✅ Dagen met doel behaald",
+  "recordsPerDay": "📝 Records per dag",
+  "insufficientDataForAnalysis": "Onvoldoende gegevens voor analyse",
+  "totalVolume": "Totaal volume",
+  "averagePerDay": "Gemiddeld {amount} ml/dag",
+  "@averagePerDay": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "activeDays": "Actieve dagen",
+  "perfectDays": "Dagen met perfect doel: {count}",
+  "@perfectDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "currentStreak": "Huidige reeks: {days} dagen",
+  "@currentStreak": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "soberDaysRow": "Nuchtere dagen op rij: {days}",
+  "@soberDaysRow": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "keepItUp": "Ga zo door!",
+  "waterAmount": "Water: {amount} ml ({percent}%)",
+  "@waterAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "alcoholAmount": "Alcohol: {amount} SD",
+  "@alcoholAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "totalSD": "Totaal SD",
+  "forMonth": "voor maand",
+  "daysWithAlcohol": "Dagen met alcohol",
+  "fromDays": "van {days}",
+  "@fromDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "soberDays": "Nuchtere dagen",
+  "excellent": "uitstekend!",
+  "averageSD": "Gemiddeld SD",
+  "inDrinkingDays": "op drinkdagen",
+  "bestDay": "🏆 Beste dag",
+  "bestDayMessage": "{day} - {percent}% van doel",
+  "@bestDayMessage": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "weekends": "📅 Weekenden",
+  "weekdays": "📅 Weekdagen",
+  "drinkLessOnWeekends": "Je drinkt {percent}% minder in weekenden",
+  "@drinkLessOnWeekends": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "drinkLessOnWeekdays": "Je drinkt {percent}% minder op weekdagen",
+  "@drinkLessOnWeekdays": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "positiveTrend": "📈 Positieve trend",
+  "positiveTrendMessage": "Je hydratie verbetert tegen het weekend",
+  "decliningActivity": "📉 Afnemende activiteit",
+  "decliningActivityMessage": "Waterverbruik neemt af tegen het weekend",
+  "lowSalt": "⚠️ Weinig zout",
+  "lowSaltMessage": "Slechts {days} dagen met normale natriumwaarden",
+  "@lowSaltMessage": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "frequentAlcohol": "🍺 Frequent verbruik",
+  "frequentAlcoholMessage": "Alcohol {days} dagen van de 7 beïnvloedt hydratie",
+  "@frequentAlcoholMessage": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "excellentWeek": "✅ Uitstekende week",
+  "continueMessage": "Ga zo door!",
+  "all": "Alles",
+  "addAlcohol": "Alcohol toevoegen",
+  "minimumHarm": "Minimale schade",
+  "additionalWaterNeeded": "+{amount} ml water nodig",
+  "@additionalWaterNeeded": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "additionalSodiumNeeded": "+{amount} mg natrium toevoegen",
+  "@additionalSodiumNeeded": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "goToBedEarly": "Vroeg naar bed",
+  "todayConsumed": "Vandaag geconsumeerd:",
+  "alcoholToday": "Alcohol vandaag",
+  "beer": "Bier",
+  "wine": "Wijn",
+  "spirits": "Sterke drank",
+  "cocktail": "Cocktail",
+  "selectDrinkType": "Selecteer dranktype:",
+  "volume": "Volume",
+  "enterVolume": "Voer volume in ml in",
+  "strength": "Sterkte (%):",
+  "standardDrinks": "Standaardglazen:",
+  "additionalWater": "Extra water",
+  "additionalSodium": "Extra natrium",
+  "hriRisk": "HRI risico",
+  "enterValidVolume": "Voer geldig volume in",
+  "weeklyHistory": "Weekgeschiedenis",
+  "weeklyHistoryDesc": "Analyseer wekelijkse trends, krijg inzichten en aanbevelingen",
+  "monthlyHistory": "Maandgeschiedenis",
+  "monthlyHistoryDesc": "Lange-termijn patronen, week vergelijkingen en diepe analytics",
+  "proFunction": "PRO functie",
+  "unlockProHistory": "PRO ontgrendelen",
+  "unlimitedHistory": "Onbeperkte geschiedenis",
+  "dataExportCSV": "Exporteer data naar CSV",
+  "detailedAnalytics": "Gedetailleerde analytics",
+  "periodComparison": "Periode vergelijking",
+  "shareResult": "Resultaat delen",
+  "retry": "Opnieuw proberen",
+  "welcomeToPro": "Welkom bij PRO!",
+  "allFeaturesUnlocked": "Alle functies ontgrendeld",
+  "testMode": "Testmodus: Mock aankoop gebruikt",
+  "proStatusNote": "PRO status blijft tot app herstart",
+  "startUsingPro": "Start met PRO",
+  "lifetimeAccess": "Levenslange toegang",
+  "bestValueAnnual": "Beste waarde — Jaarlijks",
+  "monthly": "Maandelijks",
+  "oneTime": "eenmalig",
+  "perYear": "/jaar",
+  "perMonth": "/maand",
+  "approximatelyPerMonth": "≈ {amount}/mnd",
+  "@approximatelyPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "startFreeTrial": "Start 7-dagen gratis proef",
+  "continueWithPrice": "Doorgaan — {price}",
+  "@continueWithPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "unlockForPrice": "Ontgrendel voor {price} (eenmalig)",
+  "@unlockForPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "enableFreeTrial": "Activeer 7-dagen gratis proef",
+  "noChargeToday": "Geen kosten vandaag. Na 7 dagen vernieuwt abonnement automatisch tenzij geannuleerd.",
+  "cancelAnytime": "Annuleren kan altijd in Instellingen.",
+  "everythingInPro": "Alles in PRO",
+  "smartReminders": "Slimme herinneringen",
+  "smartRemindersDesc": "Hitte, trainingen, vasten — geen spam.",
+  "weeklyReports": "Weekrapporten",
+  "weeklyReportsDesc": "Diepe inzichten + CSV export.",
+  "healthIntegrations": "Gezondheids integraties",
+  "healthIntegrationsDesc": "Apple Health & Google Fit.",
+  "alcoholProtocols": "Alcohol protocollen",
+  "alcoholProtocolsDesc": "Pre-drink prep & herstelplan.",
+  "fullSync": "Volledige sync",
+  "fullSyncDesc": "Onbeperkte geschiedenis op alle apparaten.",
+  "personalCalibrations": "Persoonlijke kalibraties",
+  "personalCalibrationsDesc": "Zweet test, urine kleurschaal.",
+  "showAllFeatures": "Toon alle functies",
+  "showLess": "Toon minder",
+  "restorePurchases": "Herstel aankopen",
+  "proSubscriptionRestored": "PRO abonnement hersteld!",
+  "noPurchasesToRestore": "Geen aankopen gevonden om te herstellen",
+  "drinkMoreWaterToday": "Drink meer water vandaag (+20%)",
+  "addElectrolytesToWater": "Voeg elektrolyten toe aan elke waterinname",
+  "limitCoffeeOneCup": "Beperk koffie tot één kop",
+  "increaseWater10": "Verhoog water met 10%",
+  "dontForgetElectrolytes": "Vergeet elektrolyten niet",
+  "startDayWithWater": "Start je dag met een glas water",
+  "dontForgetElectrolytesReminder": "⚡ Vergeet elektrolyten niet",
+  "startDayWithWaterReminder": "Start je dag met een glas water voor goed welzijn",
+  "takeElectrolytesMorning": "Neem elektrolyten in de ochtend",
+  "purchaseFailed": "Aankoop mislukt: {error}",
+  "@purchaseFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "restoreFailed": "Herstellen mislukt: {error}",
+  "@restoreFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "trustedByUsers": "⭐️ 4.9 — vertrouwd door 12.000 gebruikers",
+  "bestValue": "Beste waarde",
+  "percentOff": "-{percent}% Beste waarde",
+  "@percentOff": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "weatherUnavailable": "Weer niet beschikbaar",
+  "checkLocationPermissions": "Controleer locatie permissies en internet",
+  "recommendedNormLabel": "Aanbevolen norm",
+  "waterAdjustment300": "+300 ml",
+  "waterAdjustment400": "+400 ml",
+  "waterAdjustment200": "+200 ml",
+  "waterAdjustmentNormal": "Normaal",
+  "waterAdjustment500": "+500 ml",
+  "waterAdjustment250": "+250 ml",
+  "waterAdjustment750": "+750 ml",
+  "currentLocation": "Huidige locatie",
+  "weatherClear": "helder",
+  "weatherCloudy": "bewolkt",
+  "weatherOvercast": "zwaar bewolkt",
+  "weatherRain": "regen",
+  "weatherSnow": "sneeuw",
+  "weatherStorm": "storm",
+  "weatherFog": "mist",
+  "weatherDrizzle": "motregen",
+  "weatherSunny": "zonnig",
+  "heatWarningExtreme": "☀️ Extreme hitte! Maximale hydratie",
+  "heatWarningVeryHot": "🌡️ Erg heet! Risico op dehydratie",
+  "heatWarningHot": "🔥 Heet! Drink meer water",
+  "heatWarningElevated": "⚠️ Verhoogde temperatuur",
+  "heatWarningComfortable": "Comfortabele temperatuur",
+  "adjustmentWater": "+{percent}% water",
+  "@adjustmentWater": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "adjustmentSodium": "+{amount} mg natrium",
+  "@adjustmentSodium": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "heatWarningCold": "❄️ Koud! Warm op en drink warme vloeistoffen",
+  "notificationChannelName": "HydroCoach Herinneringen",
+  "@notificationChannelName": {
+    "description": "Name of the notification channel"
+  },
+  "notificationChannelDescription": "Water en elektrolyten herinneringen",
+  "@notificationChannelDescription": {
+    "description": "Description of the notification channel"
+  },
+  "urgentNotificationChannelName": "Urgente Herinneringen",
+  "@urgentNotificationChannelName": {
+    "description": "Name of the urgent notification channel"
+  },
+  "urgentNotificationChannelDescription": "Belangrijke hydratie meldingen",
+  "@urgentNotificationChannelDescription": {
+    "description": "Description of the urgent notification channel"
+  },
+  "goodMorning": "☀️ Goedemorgen!",
+  "timeToHydrate": "💧 Tijd om te hydrateren",
+  "eveningHydration": "💧 Avond hydratie",
+  "dailyReportTitle": "Dagrapport klaar",
+  "dailyReportBody": "Zie hoe je hydratiedag verliep",
+  "maintainWaterBalance": "Houd waterbalans de hele dag",
+  "electrolytesTime": "Tijd voor elektrolyten: voeg snufje zout toe aan water",
+  "catchUpHydration": "Je hebt slechts {percent}% van dagelijkse norm gedronken. Tijd om in te halen!",
+  "@catchUpHydration": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "excellentProgress": "Uitstekende vooruitgang! Nog een beetje tot het doel",
+  "postCoffeeTitle": "Na koffie",
+  "postCoffeeBody": "Drink 250-300 ml water om balans te herstellen",
+  "postWorkoutTitle": "Na training",
+  "postWorkoutBody": "Herstel elektrolyten: 500 ml water + snufje zout",
+  "heatWarningPro": "🌡️ PRO Hittewaarschuwing",
+  "extremeHeatWarning": "Extreme hitte! Verhoog waterverbruik met 15% en voeg 1g zout toe",
+  "hotWeatherWarning": "Heet! Drink 10% meer water en vergeet elektrolyten niet",
+  "warmWeatherWarning": "Warm weer. Monitor je hydratie",
+  "alcoholRecoveryTitle": "🍺 Hersteltijd",
+  "alcoholRecoveryBody": "Drink 300 ml water met snufje zout voor balans",
+  "continueHydration": "💧 Ga door met hydrateren",
+  "alcoholRecoveryBody2": "Nog 500 ml water helpt je sneller herstellen",
+  "morningRecoveryTitle": "☀️ Ochtend herstel",
+  "morningRecoveryBody": "Start de dag met 500 ml water en elektrolyten",
+  "testNotificationTitle": "🧪 Test melding",
+  "testNotificationBody": "Als je dit ziet - instant meldingen werken!",
+  "scheduledTestTitle": "⏰ Geplande test (1 min)",
+  "scheduledTestBody": "Deze melding werd 1 minuut geleden gepland. Planning werkt!",
+  "notificationServiceInitialized": "✅ NotificationService geïnitialiseerd",
+  "localNotificationsInitialized": "✅ Lokale meldingen geïnitialiseerd",
+  "androidChannelsCreated": "📢 Android melding kanalen aangemaakt",
+  "notificationsPermissionGranted": "📝 Meldingen permissie: {granted}",
+  "@notificationsPermissionGranted": {
+    "placeholders": {
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+  "exactAlarmsPermissionGranted": "📝 Exacte alarmen permissie: {granted}",
+  "@exactAlarmsPermissionGranted": {
+    "placeholders": {
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+  "fcmPermissions": "📱 FCM permissies: {status}",
+  "@fcmPermissions": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "fcmTokenReceived": "🔑 FCM Token ontvangen",
+  "fcmTokenSaved": "✅ FCM Token opgeslagen in Firestore voor gebruiker {userId}",
+  "@fcmTokenSaved": {
+    "placeholders": {
+      "userId": {
+        "type": "String"
+      }
+    }
+  },
+  "topicSubscriptionComplete": "✅ Topic abonnement compleet",
+  "foregroundMessage": "📨 Voorgrond bericht: {title}",
+  "@foregroundMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationOpened": "📱 Melding geopend: {messageId}",
+  "@notificationOpened": {
+    "placeholders": {
+      "messageId": {
+        "type": "String"
+      }
+    }
+  },
+  "dailyLimitReached": "⚠️ Dagelijkse meldinglimiet bereikt (4/dag voor FREE)",
+  "schedulingError": "❌ Melding planningsfout: {error}",
+  "@schedulingError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "showingImmediatelyAsFallback": "Melding direct getoond als fallback",
+  "instantNotificationShown": "📬 Instant melding getoond: {title}",
+  "@instantNotificationShown": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "smartRemindersScheduled": "🧠 Slimme herinneringen plannen...",
+  "smartRemindersComplete": "✅ {count} herinneringen gepland",
+  "@smartRemindersComplete": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "proPostCoffeeScheduled": "☕ PRO: Na-koffie herinnering gepland",
+  "postWorkoutScheduled": "💪 Na-training herinnering gepland",
+  "proHeatWarningPro": "🌡️ PRO: Hittewaarschuwing verzonden",
+  "proAlcoholRecoveryPlan": "🍺 PRO: Alcohol herstelplan gepland",
+  "eveningReportScheduled": "📊 Avondrapport gepland voor {day}.{month} om 21:00",
+  "@eveningReportScheduled": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationCancelled": "🚫 Melding {id} geannuleerd",
+  "@notificationCancelled": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "allNotificationsCancelled": "🗑️ Alle meldingen geannuleerd",
+  "reminderSettingsSaved": "✅ Herinnering instellingen opgeslagen",
+  "testNotificationScheduledFor": "⏰ Test melding gepland voor {time}",
+  "@testNotificationScheduledFor": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "tomorrowRecommendations": "Aanbevelingen voor morgen",
+  "recommendationExcellent": "Uitstekend werk! Ga zo door. Probeer de dag te starten met een glas water en houd gelijk verbruik aan.",
+  "recommendationDiluted": "Je drinkt veel water maar weinig elektrolyten. Voeg morgen meer zout toe of drink elektrolytendrank. Probeer de dag te starten met zoute bouillon.",
+  "recommendationDehydrated": "Niet genoeg water vandaag. Stel morgen herinneringen in elke 2 uur. Houd waterfles in zicht.",
+  "recommendationLowSalt": "Lage natriumwaarden kunnen vermoeidheid veroorzaken. Voeg snufje zout toe aan water of drink bouillon. Vooral belangrijk bij keto of vasten.",
+  "recommendationGeneral": "Streef naar balans tussen water en elektrolyten. Drink gelijkmatig gedurende de dag en vergeet zout niet bij hitte.",
+  "category_water": "Water",
+  "category_hot_drinks": "Warme Dranken",
+  "category_juice": "Sappen",
+  "category_sports": "Sport",
+  "category_dairy": "Zuivel",
+  "category_alcohol": "Alcohol",
+  "category_supplements": "Supplementen",
+  "category_other": "Overige",
+  "drink_water": "Water",
+  "drink_sparkling_water": "Bruisend Water",
+  "drink_mineral_water": "Mineraalwater",
+  "drink_coconut_water": "Kokoswater",
+  "drink_coffee": "Koffie",
+  "drink_espresso": "Espresso",
+  "drink_americano": "Americano",
+  "drink_cappuccino": "Cappuccino",
+  "drink_latte": "Latte",
+  "drink_black_tea": "Zwarte Thee",
+  "drink_green_tea": "Groene Thee",
+  "drink_herbal_tea": "Kruidenthee",
+  "drink_matcha": "Matcha",
+  "drink_hot_chocolate": "Warme Chocolademelk",
+  "drink_orange_juice": "Sinaasappelsap",
+  "drink_apple_juice": "Appelsap",
+  "drink_grapefruit_juice": "Grapefruitsap",
+  "drink_tomato_juice": "Tomatensap",
+  "drink_vegetable_juice": "Groentesap",
+  "drink_smoothie": "Smoothie",
+  "drink_lemonade": "Limonade",
+  "drink_isotonic": "Isotone Drank",
+  "drink_electrolyte": "Elektrolytendrank",
+  "drink_protein_shake": "Proteïneshake",
+  "drink_bcaa": "BCAA Drank",
+  "drink_energy": "Energiedrank",
+  "drink_milk": "Melk",
+  "drink_kefir": "Kefir",
+  "drink_yogurt": "Yoghurtdrank",
+  "drink_almond_milk": "Amandelmelk",
+  "drink_soy_milk": "Sojamelk",
+  "drink_oat_milk": "Havermelk",
+  "drink_beer_light": "Licht Bier",
+  "drink_beer_regular": "Normaal Bier",
+  "drink_beer_strong": "Sterk Bier",
+  "drink_wine_red": "Rode Wijn",
+  "drink_wine_white": "Witte Wijn",
+  "drink_champagne": "Champagne",
+  "drink_vodka": "Wodka",
+  "drink_whiskey": "Whisky",
+  "drink_rum": "Rum",
+  "drink_gin": "Gin",
+  "drink_tequila": "Tequila",
+  "drink_mojito": "Mojito",
+  "drink_margarita": "Margarita",
+  "drink_kombucha": "Kombucha",
+  "drink_kvass": "Kvass",
+  "drink_bone_broth": "Bottenbouillon",
+  "drink_vegetable_broth": "Groentebouillon",
+  "drink_soda": "Frisdrank",
+  "drink_diet_soda": "Light Frisdrank",
+  "addedToFavorites": "Toegevoegd aan favorieten",
+  "favoriteLimitReached": "Favorietenlimiet bereikt (3 voor FREE, 20 voor PRO)",
+  "addFavorite": "Favoriet toevoegen",
+  "hotAndSupplements": "Warm & Supplementen",
+  "quickVolumes": "Snelle volumes:",
+  "type": "Type:",
+  "regular": "Normaal",
+  "coconut": "Kokos",
+  "sparkling": "Bruisend",
+  "mineral": "Mineraal",
+  "hotDrinks": "Warme Dranken",
+  "supplements": "Supplementen",
+  "tea": "Thee",
+  "salt": "Zout (1/4 tl)",
+  "electrolyteMix": "Elektrolyten Mix",
+  "boneBroth": "Bottenbouillon",
+  "favoriteAssignmentComingSoon": "Favoriet toewijzen komt binnenkort",
+  "longPressToEditComingSoon": "Lang drukken om te bewerken - komt binnenkort",
+  "proSubscriptionRequired": "PRO abonnement vereist",
+  "saveToFavorites": "Opslaan als favoriet",
+  "@saveToFavorites": {
+    "description": "Button to save current settings as favorite"
+  },
+  "savedToFavorites": "Opgeslagen als favoriet",
+  "@savedToFavorites": {
+    "description": "Success message when saved to favorites"
+  },
+  "selectFavoriteSlot": "Selecteer favoriet slot",
+  "@selectFavoriteSlot": {
+    "description": "Title for favorite slot selection dialog"
+  },
+  "slot": "Slot",
+  "@slot": {
+    "description": "Favorite slot label"
+  },
+  "emptySlot": "Leeg slot",
+  "@emptySlot": {
+    "description": "Label for empty favorite slot"
+  },
+  "upgradeToUnlock": "Upgrade naar PRO om te ontgrendelen",
+  "@upgradeToUnlock": {
+    "description": "Message for locked PRO slots"
+  },
+  "changeFavorite": "Favoriet wijzigen",
+  "@changeFavorite": {
+    "description": "Option to change existing favorite"
+  },
+  "removeFavorite": "Favoriet verwijderen",
+  "@removeFavorite": {
+    "description": "Option to remove favorite"
+  },
+  "ok": "OK",
+  "@ok": {
+    "description": "OK button text"
+  },
+  "mineralWater": "Mineraalwater",
+  "@mineralWater": {
+    "description": "Mineral water drink type"
+  },
+  "coconutWater": "Kokoswater",
+  "@coconutWater": {
+    "description": "Coconut water drink type"
+  },
+  "lemonWater": "Citroenwater",
+  "@lemonWater": {
+    "description": "Lemon water drink type"
+  },
+  "greenTea": "Groene Thee",
+  "@greenTea": {
+    "description": "Green tea drink type"
+  },
+  "amount": "Hoeveelheid",
+  "@amount": {
+    "description": "Amount label"
+  },
+  "createFavoriteHint": "Om een favoriet toe te voegen, ga naar een drankscherm hieronder en tik op 'Opslaan als favoriet' knop na instellen van je drank.",
+  "sparklingWater": "Bruisend Water",
+  "@sparklingWater": {
+    "description": "Sparkling water drink type"
+  },
+  "cola": "Cola",
+  "@cola": {
+    "description": "Cola drink type"
+  },
+  "juice": "Sap",
+  "@juice": {
+    "description": "Juice drink type"
+  },
+  "energyDrink": "Energiedrank",
+  "@energyDrink": {
+    "description": "Energy drink type"
+  },
+  "sportsDrink": "Sportdrank",
+  "@sportsDrink": {
+    "description": "Sports drink type"
+  },
+  "selectElectrolyteType": "Selecteer elektrolyt type:",
+  "@selectElectrolyteType": {
+    "description": "Prompt to select electrolyte type"
+  },
+  "saltQuarterTsp": "Zout (1/4 tl)",
+  "@saltQuarterTsp": {
+    "description": "Quarter teaspoon of salt"
+  },
+  "pinkSalt": "Roze Himalayazout",
+  "@pinkSalt": {
+    "description": "Pink Himalayan salt type"
+  },
+  "seaSalt": "Zeezout",
+  "@seaSalt": {
+    "description": "Sea salt type"
+  },
+  "potassiumCitrate": "Kaliumcitraat",
+  "@potassiumCitrate": {
+    "description": "Potassium citrate supplement"
+  },
+  "magnesiumGlycinate": "Magnesiumglycinaat",
+  "@magnesiumGlycinate": {
+    "description": "Magnesium glycinate supplement"
+  },
+  "coconutWaterElectrolyte": "Kokoswater",
+  "@coconutWaterElectrolyte": {
+    "description": "Coconut water as electrolyte source"
+  },
+  "sportsDrinkElectrolyte": "Sportdrank",
+  "@sportsDrinkElectrolyte": {
+    "description": "Sports drink as electrolyte source"
+  },
+  "electrolyteContent": "Elektrolyten inhoud:",
+  "@electrolyteContent": {
+    "description": "Label for electrolyte content display"
+  },
+  "sodiumContent": "Natrium: {amount} mg",
+  "@sodiumContent": {
+    "description": "Sodium content display",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "potassiumContent": "Kalium: {amount} mg",
+  "@potassiumContent": {
+    "description": "Potassium content display",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "magnesiumContent": "Magnesium: {amount} mg",
+  "@magnesiumContent": {
+    "description": "Magnesium content display",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "servings": "Porties",
+  "@servings": {
+    "description": "Servings label"
+  },
+  "enterServings": "Voer porties in",
+  "@enterServings": {
+    "description": "Prompt to enter number of servings"
+  },
+  "servingsUnit": "porties",
+  "@servingsUnit": {
+    "description": "Unit for servings"
+  },
+  "noElectrolytes": "Geen elektrolyten",
+  "@noElectrolytes": {
+    "description": "Message when no electrolytes present"
+  },
+  "enterValidAmount": "Voer geldig bedrag in",
+  "@enterValidAmount": {
+    "description": "Error message for invalid amount"
+  },
+  "lmntMix": "LMNT Mix",
+  "pickleJuice": "Augurkensap",
+  "tomatoSalt": "Tomaat + Zout",
+  "ketorade": "Ketorade",
+  "alkalineWater": "Alkalisch Water",
+  "celticSalt": "Keltisch Zoutwater",
+  "soleWater": "Sole Water",
+  "mineralDrops": "Minerale Druppels",
+  "bakingSoda": "Zuiveringszoutwater",
+  "creamTartar": "Wijnsteen",
+  "selectSupplementType": "Selecteer supplement type:",
+  "multivitamin": "Multivitamine",
+  "magnesiumCitrate": "Magnesiumcitraat",
+  "magnesiumThreonate": "Magnesium L-Threonaat",
+  "calciumCitrate": "Calciumcitraat",
+  "zincGlycinate": "Zinkglycinaat",
+  "vitaminD3": "Vitamine D3",
+  "vitaminC": "Vitamine C",
+  "bComplex": "B-Complex",
+  "omega3": "Omega-3",
+  "ironBisglycinate": "IJzerbisglycinaat",
+  "dosage": "Dosering",
+  "enterDosage": "Voer dosering in",
+  "noElectrolyteContent": "Geen elektrolyten inhoud",
+  "blackTea": "Zwarte Thee",
+  "herbalTea": "Kruidenthee",
+  "espresso": "Espresso",
+  "cappuccino": "Cappuccino",
+  "latte": "Latte",
+  "matcha": "Matcha",
+  "hotChocolate": "Warme Chocolademelk",
+  "caffeine": "Cafeïne",
+  "sports": "Sport",
+  "walking": "Wandelen",
+  "running": "Hardlopen",
+  "gym": "Sportschool",
+  "cycling": "Fietsen",
+  "swimming": "Zwemmen",
+  "yoga": "Yoga",
+  "hiit": "HIIT",
+  "crossfit": "CrossFit",
+  "boxing": "Boksen",
+  "dancing": "Dansen",
+  "tennis": "Tennis",
+  "teamSports": "Teamsport",
+  "selectActivityType": "Selecteer activiteit type:",
+  "duration": "Duur",
+  "minutes": "minuten",
+  "enterDuration": "Voer duur in",
+  "lowIntensity": "Lage intensiteit",
+  "mediumIntensity": "Gemiddelde intensiteit",
+  "highIntensity": "Hoge intensiteit",
+  "recommendedIntake": "Aanbevolen inname:",
+  "basedOnWeight": "Op basis van gewicht",
+  "logActivity": "Log Activiteit",
+  "activityLogged": "Activiteit gelogd",
+  "enterValidDuration": "Voer geldige duur in",
+  "sauna": "Sauna",
+  "veryHighIntensity": "Zeer hoge intensiteit",
+  "hriStatusExcellent": "Uitstekend",
+  "hriStatusGood": "Goed",
+  "hriStatusModerate": "Matig Risico",
+  "hriStatusHighRisk": "Hoog Risico",
+  "hriStatusCritical": "Kritiek",
+  "hriComponentWater": "Waterbalans",
+  "hriComponentSodium": "Natriumniveau",
+  "hriComponentPotassium": "Kaliumniveau",
+  "hriComponentMagnesium": "Magnesiumniveau",
+  "hriComponentHeat": "Hittestress",
+  "hriComponentWorkout": "Fysieke activiteit",
+  "hriComponentCaffeine": "Cafeïne impact",
+  "hriComponentAlcohol": "Alcohol impact",
+  "hriComponentTime": "Tijd sinds inname",
+  "hriComponentMorning": "Ochtend factoren",
+  "hriBreakdownTitle": "Risico factoren uitsplitsing",
+  "hriComponentValue": "{component}: {value}/{max} pts",
+  "fastingModeActive": "Vastenmodus actief",
+  "fastingSuppressionNote": "Tijdfactor onderdrukt tijdens vasten",
+  "morningCheckInTitle": "Ochtend Check-in",
+  "howAreYouFeeling": "Hoe voel je je?",
+  "feelingScale1": "Slecht",
+  "feelingScale2": "Onder gemiddeld",
+  "feelingScale3": "Normaal",
+  "feelingScale4": "Goed",
+  "feelingScale5": "Uitstekend",
+  "weightChange": "Gewichtsverandering sinds gisteren",
+  "urineColorScale": "Urine kleur (1-8 schaal)",
+  "urineColor1": "1 - Zeer bleek",
+  "urineColor2": "2 - Bleek",
+  "urineColor3": "3 - Lichtgeel",
+  "urineColor4": "4 - Geel",
+  "urineColor5": "5 - Donkergeel",
+  "urineColor6": "6 - Amber",
+  "urineColor7": "7 - Donker amber",
+  "urineColor8": "8 - Bruin",
+  "alcoholWithDecay": "Alcohol impact (afnemend)",
+  "standardDrinksToday": "Standaardglazen vandaag: {count}",
+  "activeCaffeineLevel": "Actieve cafeïne: {amount} mg",
+  "hriDebugInfo": "HRI Debug Info",
+  "hriNormalized": "HRI (genormaliseerd): {value}/100",
+  "fastingWindowActive": "Vastenvenster actief",
+  "eatingWindowActive": "Eetvenster actief",
+  "nextFastingWindow": "Volgend vasten: {time}",
+  "nextEatingWindow": "Volgend eten: {time}",
+  "todaysWorkouts": "Trainingen Vandaag",
+  "@todaysWorkouts": {
+    "description": "Title for today's workouts section"
+  },
+  "hoursAgo": "u geleden",
+  "@hoursAgo": {
+    "description": "Hours ago suffix"
+  },
+  "onboardingWelcomeTitle": "HydroCoach — slimme hydratie elke dag",
+  "@onboardingWelcomeTitle": {
+    "description": "Main welcome title with ION"
+  },
+  "onboardingWelcomeSubtitle": "Drink slimmer, niet meer\nDe app houdt rekening met weer, elektrolyten en je gewoontes\nHelpt heldere geest en stabiele energie behouden",
+  "@onboardingWelcomeSubtitle": {
+    "description": "Welcome subtitle"
+  },
+  "onboardingBullet1": "Persoonlijke water en zout norm op basis van weer en jou",
+  "@onboardingBullet1": {
+    "description": "First benefit bullet"
+  },
+  "onboardingBullet2": "\"Wat nu te doen\" tips in plaats van ruwe grafieken",
+  "@onboardingBullet2": {
+    "description": "Second benefit bullet"
+  },
+  "onboardingBullet3": "Alcohol in standaarddoses met veilige limieten",
+  "@onboardingBullet3": {
+    "description": "Third benefit bullet"
+  },
+  "onboardingBullet4": "Slimme herinneringen zonder spam",
+  "@onboardingBullet4": {
+    "description": "Fourth benefit bullet"
+  },
+  "onboardingStartButton": "Starten",
+  "@onboardingStartButton": {
+    "description": "Main start button on welcome screen"
+  },
+  "onboardingHaveAccount": "Ik heb al een account",
+  "@onboardingHaveAccount": {
+    "description": "Link for existing users"
+  },
+  "onboardingPracticeFasting": "Ik praktiseer intermitterend vasten",
+  "@onboardingPracticeFasting": {
+    "description": "Fasting checkbox title"
+  },
+  "onboardingPracticeFastingDesc": "Speciaal elektrolyten regime voor vastenvensters",
+  "@onboardingPracticeFastingDesc": {
+    "description": "Fasting checkbox description"
+  },
+  "onboardingProfileReady": "Profiel klaar!",
+  "@onboardingProfileReady": {
+    "description": "Completion screen title"
+  },
+  "onboardingWaterNorm": "Water norm",
+  "@onboardingWaterNorm": {
+    "description": "Water norm label in summary"
+  },
+  "onboardingIonWillHelp": "ION helpt dagelijks balans behouden",
+  "@onboardingIonWillHelp": {
+    "description": "ION helper text on completion"
+  },
+  "onboardingContinue": "Doorgaan",
+  "@onboardingContinue": {
+    "description": "Continue button text"
+  },
+  "onboardingLocationTitle": "Weer is belangrijk voor hydratie",
+  "@onboardingLocationTitle": {
+    "description": "Location permission title"
+  },
+  "onboardingLocationSubtitle": "We houden rekening met weer en vochtigheid. Dit is nauwkeuriger dan alleen formule op basis van gewicht",
+  "@onboardingLocationSubtitle": {
+    "description": "Location permission subtitle"
+  },
+  "onboardingWeatherExample": "Heet vandaag! +15% water",
+  "@onboardingWeatherExample": {
+    "description": "Weather example title"
+  },
+  "onboardingWeatherExampleDesc": "+500 mg natrium voor hitte",
+  "@onboardingWeatherExampleDesc": {
+    "description": "Weather example description"
+  },
+  "onboardingEnablePermission": "Inschakelen",
+  "@onboardingEnablePermission": {
+    "description": "Enable permission button"
+  },
+  "onboardingEnableLater": "Later inschakelen",
+  "@onboardingEnableLater": {
+    "description": "Skip permission button"
+  },
+  "onboardingNotificationTitle": "Slimme herinneringen",
+  "@onboardingNotificationTitle": {
+    "description": "Notification permission title"
+  },
+  "onboardingNotificationSubtitle": "Korte tips op het juiste moment. Je kunt frequentie in één tik wijzigen",
+  "@onboardingNotificationSubtitle": {
+    "description": "Notification permission subtitle"
+  },
+  "onboardingNotifExample1": "Tijd om te hydrateren",
+  "@onboardingNotifExample1": {
+    "description": "First notification example"
+  },
+  "onboardingNotifExample2": "Vergeet elektrolyten niet",
+  "@onboardingNotifExample2": {
+    "description": "Second notification example"
+  },
+  "onboardingNotifExample3": "Heet! Drink meer water",
+  "@onboardingNotifExample3": {
+    "description": "Third notification example"
+  },
+  "sportRecoveryProtocols": "Sport herstelprotocollen",
+  "@sportRecoveryProtocols": {
+    "description": "PRO feature - sport recovery protocols"
+  },
+  "allDrinksAndSupplements": "Alle dranken & supplementen",
+  "@allDrinksAndSupplements": {
+    "description": "PRO feature - expanded drinks and supplements catalog"
+  },
+  "notificationChannelDefault": "Hydratie Herinneringen",
+  "@notificationChannelDefault": {
+    "description": "Default notification channel name"
+  },
+  "notificationChannelDefaultDesc": "Water en elektrolyten herinneringen",
+  "@notificationChannelDefaultDesc": {
+    "description": "Default notification channel description"
+  },
+  "notificationChannelUrgent": "Belangrijke Meldingen",
+  "@notificationChannelUrgent": {
+    "description": "Urgent notification channel name"
+  },
+  "notificationChannelUrgentDesc": "Hittewaarschuwingen en kritieke hydratie waarschuwingen",
+  "@notificationChannelUrgentDesc": {
+    "description": "Urgent notification channel description"
+  },
+  "notificationChannelReport": "Rapporten",
+  "@notificationChannelReport": {
+    "description": "Report notification channel name"
+  },
+  "notificationChannelReportDesc": "Dagelijkse en wekelijkse rapporten",
+  "@notificationChannelReportDesc": {
+    "description": "Report notification channel description"
+  },
+  "notificationWaterTitle": "💧 Tijd om te hydrateren",
+  "notificationWaterBody": "Vergeet niet water te drinken",
+  "notificationPostCoffeeTitle": "☕ Na koffie",
+  "notificationPostCoffeeBody": "Drink 250-300 ml water om balans te herstellen",
+  "notificationDailyReportTitle": "📊 Dagrapport klaar",
+  "notificationDailyReportBody": "Zie hoe je hydratiedag verliep",
+  "notificationAlcoholCounterTitle": "🍺 Hersteltijd",
+  "notificationAlcoholCounterBody": "Drink {ml} ml water met snufje zout",
+  "@notificationAlcoholCounterBody": {
+    "placeholders": {
+      "ml": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationHeatWarningTitle": "🌡️ Hittewaarschuwing",
+  "notificationHeatWarningExtremeBody": "Extreme hitte! +15% water en +1g zout",
+  "notificationHeatWarningHotBody": "Heet! +10% water en elektrolyten",
+  "notificationHeatWarningWarmBody": "Warm. Monitor je hydratie",
+  "notificationWorkoutTitle": "💪 Training",
+  "notificationWorkoutBody": "Vergeet water en elektrolyten niet",
+  "notificationPostWorkoutTitle": "💪 Na training",
+  "notificationPostWorkoutBody": "500 ml water + elektrolyten voor herstel",
+  "notificationFastingElectrolyteTitle": "⚡ Elektrolyten tijd",
+  "notificationFastingElectrolyteBody": "Voeg snufje zout toe aan water of drink bouillon",
+  "notificationAlcoholRecoveryStepTitle": "💧 Herstel {hours}u",
+  "@notificationAlcoholRecoveryStepTitle": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationAlcoholRecoveryStepBody": "Drink {ml} ml water",
+  "@notificationAlcoholRecoveryStepBody": {
+    "placeholders": {
+      "ml": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationAlcoholRecoveryMidBody": "Voeg elektrolyten toe: Na/K/Mg",
+  "notificationAlcoholRecoveryFinalBody": "Morgenochtend - controle check-in",
+  "notificationMorningCheckInTitle": "☀️ Ochtend check-in",
+  "notificationMorningCheckInBody": "Hoe voel je je? Beoordeel je conditie en krijg een plan voor de dag",
+  "notificationMorningWaterBody": "Start je dag met een glas water",
+  "notificationLowProgressBody": "Je hebt slechts {percent}% van de norm gedronken. Tijd om in te halen!",
+  "@notificationLowProgressBody": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationGoodProgressBody": "Uitstekende vooruitgang! Ga zo door",
+  "notificationMaintainBalanceBody": "Houd waterbalans",
+  "notificationTestTitle": "🧪 Test melding",
+  "notificationTestBody": "Als je dit ziet - meldingen werken!",
+  "notificationTestScheduledTitle": "⏰ Geplande test",
+  "notificationTestScheduledBody": "Deze melding werd 1 minuut geleden gepland",
+  "onboardingUnitsTitle": "Kies je eenheden",
+  "@onboardingUnitsTitle": {
+    "description": "Units selection page title"
+  },
+  "onboardingUnitsSubtitle": "Je kunt dit later niet wijzigen",
+  "@onboardingUnitsSubtitle": {
+    "description": "Units selection warning"
+  },
+  "onboardingUnitsWarning": "Deze keuze is permanent en kan later niet worden gewijzigd",
+  "@onboardingUnitsWarning": {
+    "description": "Permanent choice warning for units"
+  },
+  "oz": "oz",
+  "fl_oz": "fl oz",
+  "gallons": "gal",
+  "lb": "lb",
+  "target": "Doel",
+  "humidity": "Vochtigheid",
+  "wind": "Wind",
+  "pressure": "Druk",
+  "highHeatIndexWarning": "Hoge hitteindex! Verhoog je waterinname",
+  "heatIndex": "Hitteindex",
+  "loading": "Laden...",
+  "weatherCondition": "Conditie",
+  "feelsLike": "Voelt Als",
+  "humidityLabel": "Vochtigheid",
+  "waterNormal": "Normaal",
+  "sodiumNormal": "Standaard",
+  "addedSuccessfully": "Succesvol toegevoegd",
+  "sugarIntake": "Suikerinname",
+  "sugarToday": "Suikerverbruik vandaag",
+  "totalSugar": "Totale Suiker",
+  "dailyLimit": "Dagelijkse Limiet",
+  "addedSugar": "Toegevoegde Suiker",
+  "naturalSugar": "Natuurlijke Suiker",
+  "hiddenSugar": "Verborgen Suiker",
+  "sugarFromDrinks": "Dranken",
+  "sugarFromFood": "Eten",
+  "sugarFromSnacks": "Snacks",
+  "sugarNormal": "Normaal",
+  "sugarModerate": "Matig",
+  "sugarHigh": "Hoog",
+  "sugarCritical": "Kritiek",
+  "sugarRecommendationNormal": "Goed bezig! Je suikerinname is binnen gezonde limieten",
+  "sugarRecommendationModerate": "Overweeg om zoete dranken en snacks te verminderen",
+  "sugarRecommendationHigh": "Hoge suikerinname! Beperk zoete dranken en desserts",
+  "sugarRecommendationCritical": "Zeer hoge suiker! Vermijd suikerhoudende dranken en snoep vandaag",
+  "noSugarIntake": "Geen suiker gelogd vandaag",
+  "hriImpact": "HRI Impact",
+  "hri_component_sugar": "Suiker",
+  "hri_sugar_description": "Hoge suikerinname beïnvloedt hydratie en algehele gezondheid",
+  "tip_reduce_sweet_drinks": "Vervang zoete dranken door water of ongezoete thee",
+  "tip_avoid_added_sugar": "Controleer labels en vermijd producten met toegevoegde suikers",
+  "tip_check_labels": "Wees bewust van verborgen suikers in sauzen en verwerkte voedingsmiddelen",
+  "tip_replace_soda": "Vervang frisdrank door bruisend water met citroen",
+  "sugarSources": "Suikerbronnen",
+  "drinks": "Dranken",
+  "food": "Eten",
+  "snacks": "Snacks",
+  "recommendedLimit": "Aanbevolen",
+  "points": "punten",
+  "drinkLightBeer": "Licht Bier",
+  "drinkLager": "Lager",
+  "drinkIPA": "IPA",
+  "drinkStout": "Stout",
+  "drinkWheatBeer": "Tarwebier",
+  "drinkCraftBeer": "Craft Bier",
+  "drinkNonAlcoholic": "Alcoholvrij",
+  "drinkRadler": "Radler",
+  "drinkPilsner": "Pilsner",
+  "drinkRedWine": "Rode Wijn",
+  "drinkWhiteWine": "Witte Wijn",
+  "drinkProsecco": "Prosecco",
+  "drinkPort": "Port",
+  "drinkRose": "Rosé",
+  "drinkDessertWine": "Dessertwijn",
+  "drinkSangria": "Sangria",
+  "drinkSherry": "Sherry",
+  "drinkVodkaShot": "Wodka Shot",
+  "drinkCognac": "Cognac",
+  "drinkLiqueur": "Likeur",
+  "drinkAbsinthe": "Absint",
+  "drinkBrandy": "Brandy",
+  "drinkLongIsland": "Long Island",
+  "drinkGinTonic": "Gin & Tonic",
+  "drinkPinaColada": "Piña Colada",
+  "drinkCosmopolitan": "Cosmopolitan",
+  "drinkMaiTai": "Mai Tai",
+  "drinkBloodyMary": "Bloody Mary",
+  "drinkDaiquiri": "Daiquiri",
+  "popularDrinks": "Populaire {type}",
+  "standardDrinksUnit": "SD",
+  "gramsSugar": "g suiker",
+  "moderateConsumption": "Matig verbruik",
+  "aboveRecommendations": "Boven aanbevelingen",
+  "highConsumption": "Hoog verbruik",
+  "veryHighConsider": "Zeer hoog - overweeg te stoppen",
+  "noAlcoholToday": "Geen alcohol vandaag",
+  "drinkWaterNow": "Drink nu 300-500 ml water",
+  "addPinchSalt": "Voeg snufje zout toe",
+  "avoidLateCoffee": "Vermijd late koffie",
+  "abvPercent": "{percent}% ABV",
+  "todaysElectrolytes": "Elektrolyten Vandaag",
+  "greatBalance": "Goede balans!",
+  "gettingThere": "Bijna goed",
+  "needMoreElectrolytes": "Meer elektrolyten nodig",
+  "lowElectrolyteLevels": "Lage elektrolyten niveaus",
+  "electrolyteTips": "Elektrolyten Tips",
+  "takeWithWater": "Neem met veel water",
+  "bestBetweenMeals": "Best tussen maaltijden opgenomen",
+  "startSmallAmounts": "Begin met kleine hoeveelheden",
+  "extraDuringExercise": "Extra nodig tijdens oefening",
+  "electrolytesBasic": "Basis",
+  "electrolytesMixes": "Mixen",
+  "electrolytesPills": "Pillen",
+  "popularSalts": "Populaire Zouten & Bouillons",
+  "popularMixes": "Populaire Elektrolyten Mixen",
+  "popularSupplements": "Populaire Supplementen",
+  "electrolyteSaltWater": "Zoutwater",
+  "electrolytePinkSalt": "Roze Zout",
+  "electrolyteSeaSalt": "Zeezout",
+  "electrolyteNuun": "Nuun",
+  "electrolyteLiquidIV": "Liquid IV",
+  "electrolyteUltima": "Ultima",
+  "electrolytePropel": "Propel",
+  "electrolytePedialyte": "Pedialyte",
+  "electrolyteGatoradeZero": "Gatorade Zero",
+  "electrolytePotassiumChloride": "Kaliumchloride",
+  "electrolyteMagThreonate": "Mag Threonaat",
+  "electrolyteTraceMinerals": "Spoormineralen",
+  "electrolyteZMAComplex": "ZMA Complex",
+  "electrolyteMultiMineral": "Multi-Mineraal",
+  "electrolyteLMNT": "LMNT",
+  "hydration": "Hydratie",
+  "todayHydration": "Hydratie Vandaag",
+  "currentIntake": "Verbruikt",
+  "dailyGoal": "Doel",
+  "toGo": "Resterend",
+  "goalReached": "Doel bereikt!",
+  "almostThere": "Bijna daar!",
+  "halfwayThere": "Halverwege",
+  "keepGoing": "Ga door",
+  "startDrinking": "Begin met drinken",
+  "plainWater": "Puur",
+  "enhancedWater": "Verrijkt",
+  "beverages": "Dranken",
+  "sodas": "Frisdranken",
+  "popularPlainWater": "Populaire Water Types",
+  "popularEnhancedWater": "Verrijkt & Infused",
+  "popularBeverages": "Populaire Dranken",
+  "popularSodas": "Populaire Frisdranken & Energy",
+  "hydrationTips": "Hydratie Tips",
+  "drinkRegularly": "Drink regelmatig kleine hoeveelheden",
+  "roomTemperature": "Kamertemperatuur water neemt beter op",
+  "addLemon": "Voeg citroen toe voor betere smaak",
+  "limitSugary": "Beperk suikerhoudende dranken - ze dehydrateren",
+  "warmWater": "Warm Water",
+  "iceWater": "IJs Water",
+  "filteredWater": "Gefilterd Water",
+  "distilledWater": "Gedistilleerd Water",
+  "springWater": "Bronwater",
+  "hydrogenWater": "Waterstof Water",
+  "oxygenatedWater": "Zuurstof Water",
+  "cucumberWater": "Komkommer Water",
+  "limeWater": "Limoen Water",
+  "berryWater": "Bessen Water",
+  "mintWater": "Munt Water",
+  "gingerWater": "Gember Water",
+  "caffeineStatusNone": "Geen cafeïne vandaag",
+  "caffeineStatusModerate": "Matig: {amount}mg",
+  "caffeineStatusHigh": "Hoog: {amount}mg",
+  "caffeineStatusVeryHigh": "Zeer hoog: {amount}mg!",
+  "caffeineDailyLimit": "Dagelijkse limiet: 400mg",
+  "caffeineWarningTitle": "Cafeïne Waarschuwing",
+  "caffeineWarning400": "Je hebt vandaag meer dan 400mg cafeïne genomen",
+  "caffeineTipWater": "Drink extra water om te compenseren",
+  "caffeineTipAvoid": "Vermijd vandaag meer cafeïne",
+  "caffeineTipSleep": "Kan je slaapkwaliteit beïnvloeden",
+  "total": "Totaal",
+  "cupsToday": "Kopjes vandaag",
+  "metabolizeTime": "Tijd om te metaboliseren",
+  "aboutCaffeine": "Over Cafeïne",
+  "caffeineInfo1": "Koffie bevat natuurlijke cafeïne die alertheid verhoogt",
+  "caffeineInfo2": "Dagelijkse veilige limiet is 400mg voor de meeste volwassenen",
+  "caffeineInfo3": "Cafeïne halfwaardetijd is 5-6 uur",
+  "caffeineInfo4": "Drink extra water om cafeïne's diuretisch effect te compenseren",
+  "caffeineWarningPregnant": "Zwangere vrouwen moeten cafeïne beperken tot 200mg/dag",
+  "gotIt": "Begrepen",
+  "consumed": "Verbruikt",
+  "todaysCaffeine": "Cafeïne Vandaag",
+  "alreadyInFavorites": "Al in favorieten",
+  "ofRecommendedLimit": "van aanbevolen limiet",
+  "aboutAlcohol": "Over Alcohol",
+  "alcoholInfo1": "Eén standaardglas is gelijk aan 10g pure alcohol",
+  "alcoholInfo2": "Alcohol dehydrateert — drink 250ml extra water per glas",
+  "alcoholInfo3": "Voeg natrium toe om vloeistoffen na drinken te behouden",
+  "alcoholInfo4": "Elk standaardglas verhoogt HRI met 3-5 punten",
+  "alcoholWarningHealth": "Overmatig alcoholgebruik is schadelijk voor gezondheid. De aanbevolen limiet is 2 SD voor mannen en 1 SD voor vrouwen per dag.",
+  "supplementsInfo1": "Supplementen helpen elektrolytenbalans behouden",
+  "supplementsInfo2": "Best ingenomen met maaltijden voor opname",
+  "supplementsInfo3": "Altijd innemen met veel water",
+  "supplementsInfo4": "Magnesium en kalium zijn essentieel voor hydratie",
+  "supplementsWarning": "Raadpleeg zorgverlener voordat je supplementen regime start",
+  "fromSupplementsToday": "Van Supplementen Vandaag",
+  "minerals": "Mineralen",
+  "vitamins": "Vitamines",
+  "essentialMinerals": "Essentiële Mineralen",
+  "otherSupplements": "Andere Supplementen",
+  "supplementTip1": "Neem supplementen met voedsel voor betere opname",
+  "supplementTip2": "Drink veel water met supplementen",
+  "supplementTip3": "Verdeel meerdere supplementen over de dag",
+  "supplementTip4": "Houd bij wat voor jou werkt",
+  "calciumCarbonate": "Calciumcarbonaat",
+  "traceMinerals": "Spoormineralen",
+  "vitaminA": "Vitamine A",
+  "vitaminE": "Vitamine E",
+  "vitaminK2": "Vitamine K2",
+  "folate": "Folaat",
+  "biotin": "Biotine",
+  "probiotics": "Probiotica",
+  "melatonin": "Melatonine",
+  "collagen": "Collageen",
+  "glucosamine": "Glucosamine",
+  "turmeric": "Kurkuma",
+  "coq10": "CoQ10",
+  "creatine": "Creatine",
+  "ashwagandha": "Ashwagandha",
+  "selectCardioActivity": "Selecteer Cardio Activiteit",
+  "selectStrengthActivity": "Selecteer Kracht Activiteit",
+  "selectSportsActivity": "Selecteer Sport",
+  "sessions": "Sessies",
+  "totalTime": "Totale Tijd",
+  "waterLoss": "Waterverlies",
+  "intensity": "Intensiteit",
+  "drinkWaterAfterWorkout": "Drink water na training",
+  "replenishElectrolytes": "Vul elektrolyten aan",
+  "restAndRecover": "Rust en herstel",
+  "avoidSugaryDrinks": "Vermijd suikerhoudende sportdranken",
+  "elliptical": "Crosstrainer",
+  "rowing": "Roeien",
+  "jumpRope": "Touwtjespringen",
+  "stairClimbing": "Traplopen",
+  "bodyweight": "Lichaamsgewicht",
+  "powerlifting": "Powerlifting",
+  "calisthenics": "Calisthenics",
+  "resistanceBands": "Weerstandsbanden",
+  "kettlebell": "Kettlebell",
+  "trx": "TRX",
+  "strongman": "Strongman",
+  "pilates": "Pilates",
+  "basketball": "Basketbal",
+  "soccerFootball": "Voetbal",
+  "golf": "Golf",
+  "martialArts": "Vechtsporten",
+  "rockClimbing": "Rotsklimmen",
+  "needsToReplenish": "Moet aanvullen",
+  "electrolyteTrackingPro": "Volg natrium, kalium & magnesium doelen met gedetailleerde voortgangsbalken",
+  "unlock": "Ontgrendel",
+  "weather": "Weer",
+  "weatherTrackingPro": "Volg hitteindex, vochtigheid & weer impact op hydratie doelen",
+  "sugarTracking": "Suiker Tracking",
+  "sugarTrackingPro": "Monitor natuurlijke, toegevoegde & verborgen suikerinname met HRI impact analyse",
+  "dayOverview": "Dag Overzicht",
+  "tapForDetails": "Tik voor details",
+  "noDataForDay": "Geen data voor deze dag",
+  "sweatLoss": "zweetverlies",
+  "cardio": "Cardio",
+  "strength": "Kracht",
+  "workout": "Training",
+  "noWaterToday": "Geen water geregistreerd vandaag",
+  "noElectrolytesToday": "Geen elektrolyten geregistreerd vandaag",
+  "noCoffeeToday": "Geen koffie geregistreerd vandaag",
+  "noWorkoutsToday": "Geen trainingen geregistreerd vandaag",
+  "noWaterThisDay": "Geen water geregistreerd deze dag",
+  "noElectrolytesThisDay": "Geen elektrolyten geregistreerd deze dag",
+  "noCoffeeThisDay": "Geen koffie geregistreerd deze dag",
+  "noWorkoutsThisDay": "Geen trainingen geregistreerd deze dag",
+  "weeklyReport": "Weekrapport",
+  "weeklyReportSubtitle": "Diepe inzichten en trends analyse",
+  "workouts": "Trainingen",
+  "workoutHydration": "Training Hydratie",
+  "workoutHydrationMessage": "Op trainingsdagen drink je {percent}% meer water",
+  "weeklyActivity": "Wekelijkse Activiteit",
+  "weeklyActivityMessage": "Je hebt {minutes} minuten getraind over {days} dagen",
+  "workoutMinutesPerDay": "Trainingsminuten per dag",
+  "daysWithWorkouts": "dagen met trainingen",
+  "noWorkoutsThisWeek": "Geen trainingen deze week",
+  "noAlcoholThisWeek": "Geen alcohol deze week",
+  "csvExported": "Data geëxporteerd naar CSV",
+  "mondayShort": "MA",
+  "tuesdayShort": "DI",
+  "wednesdayShort": "WO",
+  "thursdayShort": "DO",
+  "fridayShort": "VR",
+  "saturdayShort": "ZA",
+  "sundayShort": "ZO",
+  "achievements": "Prestaties",
+  "achievementsTabAll": "Alles",
+  "achievementsTabHydration": "Hydratie",
+  "achievementsTabElectrolytes": "Elektrolyten",
+  "achievementsTabSugar": "Suiker Controle",
+  "achievementsTabAlcohol": "Alcohol",
+  "achievementsTabWorkout": "Fitness",
+  "achievementsTabHRI": "HRI",
+  "achievementsTabStreaks": "Reeksen",
+  "achievementsTabSpecial": "Speciaal",
+  "achievementUnlocked": "Prestatie Ontgrendeld!",
+  "achievementProgress": "Voortgang",
+  "achievementPoints": "punten",
+  "achievementRarityCommon": "Gewoon",
+  "achievementRarityUncommon": "Ongewoon",
+  "achievementRarityRare": "Zeldzaam",
+  "achievementRarityEpic": "Episch",
+  "achievementRarityLegendary": "Legendarisch",
+  "achievementStatsUnlocked": "Ontgrendeld",
+  "achievementStatsTotal": "Totaal Punten",
+  "achievementFilterAll": "Alles",
+  "achievementFilterUnlocked": "Ontgrendeld",
+  "achievementSortProgress": "Voortgang",
+  "achievementSortName": "Naam",
+  "achievementSortRarity": "Zeldzaamheid",
+  "achievementNoAchievements": "Nog geen prestaties",
+  "achievementKeepUsing": "Blijf de app gebruiken om prestaties te ontgrendelen!",
+  "achievementFirstGlass": "Eerste Druppel",
+  "achievementFirstGlassDesc": "Drink je eerste glas water",
+  "achievementHydrationGoal1": "Gehydrateerd",
+  "achievementHydrationGoal1Desc": "Bereik je dagelijkse waterdoel",
+  "achievementHydrationGoal7": "Week van Hydratie",
+  "achievementHydrationGoal7Desc": "Bereik waterdoel 7 dagen op rij",
+  "achievementHydrationGoal30": "Hydratie Master",
+  "achievementHydrationGoal30Desc": "Bereik waterdoel 30 dagen op rij",
+  "achievementPerfectHydration": "Perfecte Balans",
+  "achievementPerfectHydrationDesc": "Bereik 90-110% van waterdoel",
+  "achievementEarlyBird": "Vroege Vogel",
+  "achievementEarlyBirdDesc": "Drink je eerste water voor 9 uur",
+  "achievementEarlyBirdTemplate": "Drink {volume} voor 9 uur",
+  "@achievementEarlyBirdTemplate": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementNightOwl": "Nacht Uil",
+  "achievementNightOwlDesc": "Voltooi hydratie doel voor 18 uur",
+  "achievementLiterLegend": "Liter Legende",
+  "achievementLiterLegendDesc": "Bereik je totale hydratie mijlpaal",
+  "achievementLiterLegendTemplate": "Drink {volume} totaal",
+  "@achievementLiterLegendTemplate": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementSaltStarter": "Zout Starter",
+  "achievementSaltStarterDesc": "Voeg je eerste elektrolyten toe",
+  "achievementElectrolyteBalance": "Gebalanceerd",
+  "achievementElectrolyteBalanceDesc": "Bereik alle elektrolyten doelen in één dag",
+  "achievementSodiumMaster": "Natrium Master",
+  "achievementSodiumMasterDesc": "Bereik natrium doel 7 dagen op rij",
+  "achievementPotassiumPro": "Kalium Pro",
+  "achievementPotassiumProDesc": "Bereik kalium doel 7 dagen op rij",
+  "achievementMagnesiumMaven": "Magnesium Maven",
+  "achievementMagnesiumMavenDesc": "Bereik magnesium doel 7 dagen op rij",
+  "achievementElectrolyteExpert": "Elektrolyten Expert",
+  "achievementElectrolyteExpertDesc": "Perfecte elektrolyten balans 30 dagen",
+  "achievementSugarAwareness": "Suiker Bewustzijn",
+  "achievementSugarAwarenessDesc": "Volg suiker voor eerste keer",
+  "achievementSugarUnder25": "Zoete Controle",
+  "achievementSugarUnder25Desc": "Houd suikerinname laag voor een dag",
+  "achievementSugarUnder25Template": "Houd suiker onder {weight} voor een dag",
+  "@achievementSugarUnder25Template": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementSugarWeekControl": "Suiker Discipline",
+  "achievementSugarWeekControlDesc": "Houd lage suikerinname aan een week",
+  "achievementSugarWeekControlTemplate": "Houd suiker onder {weight} voor 7 dagen",
+  "@achievementSugarWeekControlTemplate": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementSugarFreeDay": "Suikervrij",
+  "achievementSugarFreeDayDesc": "Voltooi dag met 0g toegevoegde suiker",
+  "achievementSugarDetective": "Suiker Detective",
+  "achievementSugarDetectiveDesc": "Volg verborgen suikers 10 keer",
+  "achievementSugarMaster": "Suiker Master",
+  "achievementSugarMasterDesc": "Houd zeer lage suikerinname aan een maand",
+  "achievementNoSodaWeek": "Frisdrank Vrije Week",
+  "achievementNoSodaWeekDesc": "Geen frisdrank 7 dagen",
+  "achievementNoSodaMonth": "Frisdrank Vrije Maand",
+  "achievementNoSodaMonthDesc": "Geen frisdrank 30 dagen",
+  "achievementSweetToothTamed": "Zoetekauw Getemd",
+  "achievementSweetToothTamedDesc": "Verminder dagelijkse suiker met 50% een week",
+  "achievementAlcoholTracker": "Bewustzijn",
+  "achievementAlcoholTrackerDesc": "Volg alcoholverbruik",
+  "achievementModerateDay": "Matiging",
+  "achievementModerateDayDesc": "Blijf onder 2 SD op een dag",
+  "achievementSoberDay": "Nuchtere Dag",
+  "achievementSoberDayDesc": "Voltooi alcoholvrije dag",
+  "achievementSoberWeek": "Nuchtere Week",
+  "achievementSoberWeekDesc": "7 dagen alcoholvrij",
+  "achievementSoberMonth": "Nuchtere Maand",
+  "achievementSoberMonthDesc": "30 dagen alcoholvrij",
+  "achievementRecoveryProtocol": "Herstel Pro",
+  "achievementRecoveryProtocolDesc": "Voltooi herstelprotocol na drinken",
+  "achievementFirstWorkout": "Ga Bewegen",
+  "achievementFirstWorkoutDesc": "Log je eerste training",
+  "achievementWorkoutWeek": "Actieve Week",
+  "achievementWorkoutWeekDesc": "Train 3 keer in een week",
+  "achievementCenturySweat": "Century Zweet",
+  "achievementCenturySweatDesc": "Verlies significant vocht door trainingen",
+  "achievementCenturySweatTemplate": "Verlies {volume} door trainingen",
+  "@achievementCenturySweatTemplate": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementCardioKing": "Cardio Koning",
+  "achievementCardioKingDesc": "Voltooi 10 cardio sessies",
+  "achievementStrengthWarrior": "Kracht Krijger",
+  "achievementStrengthWarriorDesc": "Voltooi 10 kracht sessies",
+  "achievementHRIGreen": "Groene Zone",
+  "achievementHRIGreenDesc": "Houd HRI in groene zone een dag",
+  "achievementHRIWeekGreen": "Veilige Week",
+  "achievementHRIWeekGreenDesc": "Houd HRI in groene zone 7 dagen",
+  "achievementHRIPerfect": "Perfecte Score",
+  "achievementHRIPerfectDesc": "Bereik HRI onder 20",
+  "achievementHRIRecovery": "Snel Herstel",
+  "achievementHRIRecoveryDesc": "Verminder HRI van rood naar groen in één dag",
+  "achievementHRIMaster": "HRI Master",
+  "achievementHRIMasterDesc": "Houd HRI onder 30 voor 30 dagen",
+  "achievementStreak3": "Aan Beginnen",
+  "achievementStreak3Desc": "3-dagen reeks",
+  "achievementStreak7": "Week Krijger",
+  "achievementStreak7Desc": "7-dagen reeks",
+  "achievementStreak30": "Consistentie Koning",
+  "achievementStreak30Desc": "30-dagen reeks",
+  "achievementStreak100": "Century Club",
+  "achievementStreak100Desc": "100-dagen reeks",
+  "achievementFirstWeek": "Eerste Week",
+  "achievementFirstWeekDesc": "Gebruik app 7 dagen",
+  "achievementProMember": "PRO Lid",
+  "achievementProMemberDesc": "Word PRO abonnee",
+  "achievementDataExport": "Data Analist",
+  "achievementDataExportDesc": "Exporteer je data naar CSV",
+  "achievementAllCategories": "Alleskunner",
+  "achievementAllCategoriesDesc": "Ontgrendel minstens één prestatie in elke categorie",
+  "achievementHunter": "Prestatie Jager",
+  "achievementHunterDesc": "Ontgrendel 50% van alle prestaties",
+  "achievementDetailsUnlockedOn": "Ontgrendeld op",
+  "achievementNewUnlocked": "Nieuwe prestatie ontgrendeld!",
+  "achievementViewAll": "Bekijk alle prestaties",
+  "achievementCloseNotification": "Sluiten",
+  "before": "voor",
+  "after": "na",
+  "lose": "Verlies",
+  "through": "door",
+  "throughWorkouts": "door trainingen",
+  "reach": "Bereik",
+  "daysInRow": "dagen op rij",
+  "completeHydrationGoal": "Voltooi hydratie doel",
+  "stayUnder": "Blijf onder",
+  "inADay": "op een dag",
+  "alcoholFree": "alcoholvrij",
+  "complete": "Voltooi",
+  "achieve": "Bereik",
+  "keep": "Houd",
+  "for30Days": "voor 30 dagen",
+  "liters": "liters",
+  "completed": "Voltooid",
+  "notCompleted": "Niet voltooid",
+  "days": "dagen",
+  "hours": "uren",
+  "minutes": "minuten",
+  "times": "keer",
+  "row": "rij",
+  "ofTotal": "van totaal",
+  "perDay": "per dag",
+  "perWeek": "per week",
+  "streak": "reeks",
+  "tapToDismiss": "Tik om te sluiten",
+  "tutorialStep1": "Hoi! Ik help je starten met je optimale hydratie reis. Laten we de eerste slok nemen van {volume}!",
+  "@tutorialStep1": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "tutorialStep2": "Uitstekend! Nu voegen we nog {volume} toe om te voelen hoe het werkt.",
+  "@tutorialStep2": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "tutorialStep3": "Geweldig! Je bent klaar om HydroCoach zelfstandig te gebruiken. Ik ben hier om je te helpen perfecte hydratie te bereiken!",
+  "tutorialComplete": "Begin met gebruiken",
+  "onboardingNotificationExamplesTitle": "Slimme Herinneringen",
+  "onboardingNotificationExamplesSubtitle": "HydroCoach weet wanneer je water nodig hebt",
+  "onboardingLocationExamplesTitle": "Persoonlijk Advies",
+  "onboardingLocationExamplesSubtitle": "We houden rekening met weer voor nauwkeurige aanbevelingen",
+  "onboardingAllowNotifications": "Sta Meldingen Toe",
+  "onboardingAllowLocation": "Sta Locatie Toe",
+  "foodCatalog": "Voedsel Catalogus",
+  "@foodCatalog": {
+    "description": "Food catalog screen title"
+  },
+  "todaysFoodIntake": "Voedselinname Vandaag",
+  "@todaysFoodIntake": {
+    "description": "Title for today's food intake summary"
+  },
+  "noFoodToday": "Geen voedsel gelogd vandaag",
+  "@noFoodToday": {
+    "description": "Message when no food has been logged today"
+  },
+  "foodItemsCount": "{count} voedsel items",
+  "@foodItemsCount": {
+    "description": "Count of food items logged today",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "waterFromFood": "Water uit voedsel",
+  "@waterFromFood": {
+    "description": "Label for water content from food"
+  },
+  "last": "Laatste",
+  "@last": {
+    "description": "Label for last item"
+  },
+  "categoryFruits": "Fruit",
+  "@categoryFruits": {
+    "description": "Fruits category"
+  },
+  "categoryVegetables": "Groenten",
+  "@categoryVegetables": {
+    "description": "Vegetables category"
+  },
+  "categorySoups": "Soepen",
+  "@categorySoups": {
+    "description": "Soups category"
+  },
+  "categoryMeat": "Vlees",
+  "@categoryMeat": {
+    "description": "Meat category"
+  },
+  "categoryFastFood": "Fast Food",
+  "@categoryFastFood": {
+    "description": "Fast food category"
+  },
+  "weightGrams": "Gewicht (gram)",
+  "@weightGrams": {
+    "description": "Weight in grams label"
+  },
+  "enterWeight": "Voer gewicht in",
+  "@enterWeight": {
+    "description": "Enter weight prompt"
+  },
+  "grams": "g",
+  "@grams": {
+    "description": "Grams unit"
+  },
+  "calories": "Calorieën",
+  "@calories": {
+    "description": "Calories label"
+  },
+  "waterContent": "Watergehalte",
+  "@waterContent": {
+    "description": "Water content label"
+  },
+  "sugar": "Suiker",
+  "@sugar": {
+    "description": "Sugar label"
+  },
+  "nutritionalInfo": "Voedingsinfo",
+  "@nutritionalInfo": {
+    "description": "Nutritional information label"
+  },
+  "caloriesPerWeight": "{calories} kcal per {weight}g",
+  "@caloriesPerWeight": {
+    "description": "Calories per weight format",
+    "placeholders": {
+      "calories": {
+        "type": "int"
+      },
+      "weight": {
+        "type": "int"
+      }
+    }
+  },
+  "waterPerWeight": "{water} ml water per {weight}g",
+  "@waterPerWeight": {
+    "description": "Water per weight format",
+    "placeholders": {
+      "water": {
+        "type": "int"
+      },
+      "weight": {
+        "type": "int"
+      }
+    }
+  },
+  "sugarPerWeight": "{sugar}g suiker per {weight}g",
+  "@sugarPerWeight": {
+    "description": "Sugar per weight format",
+    "placeholders": {
+      "sugar": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "int"
+      }
+    }
+  },
+  "addFood": "Voedsel Toevoegen",
+  "@addFood": {
+    "description": "Add food button"
+  },
+  "foodAdded": "Voedsel succesvol toegevoegd",
+  "@foodAdded": {
+    "description": "Food added success message"
+  },
+  "enterValidWeight": "Voer geldig gewicht in",
+  "@enterValidWeight": {
+    "description": "Invalid weight error message"
+  },
+  "proOnlyFood": "Alleen PRO",
+  "@proOnlyFood": {
+    "description": "PRO only food label"
+  },
+  "unlockProForFood": "Ontgrendel PRO voor toegang tot alle voedselitems",
+  "@unlockProForFood": {
+    "description": "PRO unlock message for food"
+  },
+  "foodTracker": "Voedsel Tracker",
+  "@foodTracker": {
+    "description": "Food tracker title"
+  },
+  "todaysFoodSummary": "Voedsel Samenvatting Vandaag",
+  "@todaysFoodSummary": {
+    "description": "Today's food summary title"
+  },
+  "kcal": "kcal",
+  "@kcal": {
+    "description": "Kilocalories unit"
+  },
+  "per100g": "per 100g",
+  "@per100g": {
+    "description": "Per 100 grams"
+  },
+  "addToFavorites": "Toevoegen aan favorieten",
+  "@addToFavorites": {
+    "description": "Add to favorites checkbox"
+  },
+  "favoritesFeatureComingSoon": "Favorieten functie komt binnenkort!",
+  "@favoritesFeatureComingSoon": {
+    "description": "Favorites feature not yet available message"
+  },
+  "foodAddedSuccess": "{food} toegevoegd! +{calories} kcal, +{water}",
+  "@foodAddedSuccess": {
+    "description": "Success message when food is added",
+    "placeholders": {
+      "food": {
+        "type": "String"
+      },
+      "calories": {
+        "type": "int"
+      },
+      "water": {
+        "type": "String"
+      }
+    }
+  },
+  "selectWeight": "Selecteer Gewicht",
+  "@selectWeight": {
+    "description": "Select weight dialog title"
+  },
+  "weight": "Gewicht",
+  "@weight": {
+    "description": "Weight label"
+  },
+  "ounces": "oz",
+  "@ounces": {
+    "description": "Ounces unit"
+  },
+  "items": "items",
+  "@items": {
+    "description": "Items count"
+  },
+  "tapToAddFood": "Tik om voedsel toe te voegen",
+  "@tapToAddFood": {
+    "description": "Add food prompt"
+  },
+  "noFoodLoggedToday": "Geen voedsel gelogd vandaag",
+  "@noFoodLoggedToday": {
+    "description": "No food logged message"
+  },
+  "lightEatingDay": "Lichte eetdag",
+  "@lightEatingDay": {
+    "description": "Light eating day status"
+  },
+  "moderateIntake": "Matige inname",
+  "@moderateIntake": {
+    "description": "Moderate intake status"
+  },
+  "goodCalorieIntake": "Goede calorieën inname",
+  "@goodCalorieIntake": {
+    "description": "Good calorie intake status"
+  },
+  "substantialMeals": "Substantiële maaltijden",
+  "@substantialMeals": {
+    "description": "Substantial meals status"
+  },
+  "highCalorieDay": "Hoge calorieën dag",
+  "@highCalorieDay": {
+    "description": "High calorie day status"
+  },
+  "veryHighIntake": "Zeer hoge inname",
+  "@veryHighIntake": {
+    "description": "Very high intake status"
+  },
+  "caloriesTracker": "Calorieën Tracker",
+  "@caloriesTracker": {
+    "description": "Calories tracker title"
+  },
+  "trackYourDailyCalorieIntake": "Volg je dagelijkse calorieën inname uit voedsel",
+  "@trackYourDailyCalorieIntake": {
+    "description": "Calories tracker description"
+  },
+  "unlockFoodTrackingFeatures": "Ontgrendel voedsel tracking functies",
+  "@unlockFoodTrackingFeatures": {
+    "description": "Unlock food tracking features message"
+  },
+  "selectFoodType": "Selecteer voedsel type",
+  "@selectFoodType": {
+    "description": "Select food type title"
+  },
+  "foodApple": "Appel",
+  "@foodApple": {
+    "description": "Apple fruit"
+  },
+  "foodBanana": "Banaan",
+  "@foodBanana": {
+    "description": "Banana fruit"
+  },
+  "foodOrange": "Sinaasappel",
+  "@foodOrange": {
+    "description": "Orange fruit"
+  },
+  "foodWatermelon": "Watermeloen",
+  "@foodWatermelon": {
+    "description": "Watermelon fruit"
+  },
+  "foodStrawberry": "Aardbei",
+  "@foodStrawberry": {
+    "description": "Strawberry fruit"
+  },
+  "foodGrapes": "Druiven",
+  "@foodGrapes": {
+    "description": "Grapes fruit"
+  },
+  "foodPineapple": "Ananas",
+  "@foodPineapple": {
+    "description": "Pineapple fruit"
+  },
+  "foodMango": "Mango",
+  "@foodMango": {
+    "description": "Mango fruit"
+  },
+  "foodPear": "Peer",
+  "@foodPear": {
+    "description": "Pear fruit"
+  },
+  "foodCarrot": "Wortel",
+  "@foodCarrot": {
+    "description": "Carrot vegetable"
+  },
+  "foodBroccoli": "Broccoli",
+  "@foodBroccoli": {
+    "description": "Broccoli vegetable"
+  },
+  "foodSpinach": "Spinazie",
+  "@foodSpinach": {
+    "description": "Spinach vegetable"
+  },
+  "foodTomato": "Tomaat",
+  "@foodTomato": {
+    "description": "Tomato vegetable"
+  },
+  "foodCucumber": "Komkommer",
+  "@foodCucumber": {
+    "description": "Cucumber vegetable"
+  },
+  "foodBellPepper": "Paprika",
+  "@foodBellPepper": {
+    "description": "Bell pepper vegetable"
+  },
+  "foodLettuce": "Sla",
+  "@foodLettuce": {
+    "description": "Lettuce vegetable"
+  },
+  "foodOnion": "Ui",
+  "@foodOnion": {
+    "description": "Onion vegetable"
+  },
+  "foodCelery": "Selderij",
+  "@foodCelery": {
+    "description": "Celery vegetable"
+  },
+  "foodPotato": "Aardappel",
+  "@foodPotato": {
+    "description": "Potato vegetable"
+  },
+  "foodChickenSoup": "Kippensoep",
+  "@foodChickenSoup": {
+    "description": "Chicken soup"
+  },
+  "foodTomatoSoup": "Tomatensoep",
+  "@foodTomatoSoup": {
+    "description": "Tomato soup"
+  },
+  "foodVegetableSoup": "Groentensoep",
+  "@foodVegetableSoup": {
+    "description": "Vegetable soup"
+  },
+  "foodMinestrone": "Minestrone",
+  "@foodMinestrone": {
+    "description": "Minestrone soup"
+  },
+  "foodMisoSoup": "Misosoep",
+  "@foodMisoSoup": {
+    "description": "Miso soup"
+  },
+  "foodMushroomSoup": "Champignonsoep",
+  "@foodMushroomSoup": {
+    "description": "Mushroom soup"
+  },
+  "foodBeefStew": "Runderstoofpot",
+  "@foodBeefStew": {
+    "description": "Beef stew"
+  },
+  "foodLentilSoup": "Linzensoep",
+  "@foodLentilSoup": {
+    "description": "Lentil soup"
+  },
+  "foodOnionSoup": "Franse Uiensoep",
+  "@foodOnionSoup": {
+    "description": "French onion soup"
+  },
+  "foodMilk": "Melk",
+  "@foodMilk": {
+    "description": "Milk"
+  },
+  "foodYogurt": "Griekse Yoghurt",
+  "@foodYogurt": {
+    "description": "Greek yogurt"
+  },
+  "foodCheese": "Cheddar Kaas",
+  "@foodCheese": {
+    "description": "Cheddar cheese"
+  },
+  "foodCottageCheese": "Hüttenkäse",
+  "@foodCottageCheese": {
+    "description": "Cottage cheese"
+  },
+  "foodButter": "Boter",
+  "@foodButter": {
+    "description": "Butter"
+  },
+  "foodCream": "Slagroom",
+  "@foodCream": {
+    "description": "Heavy cream"
+  },
+  "foodIceCream": "IJs",
+  "@foodIceCream": {
+    "description": "Ice cream"
+  },
+  "foodMozzarella": "Mozzarella",
+  "@foodMozzarella": {
+    "description": "Mozzarella cheese"
+  },
+  "foodParmesan": "Parmezaan",
+  "@foodParmesan": {
+    "description": "Parmesan cheese"
+  },
+  "foodChickenBreast": "Kipfilet",
+  "@foodChickenBreast": {
+    "description": "Chicken breast"
+  },
+  "foodBeef": "Gehakt",
+  "@foodBeef": {
+    "description": "Ground beef"
+  },
+  "foodSalmon": "Zalm",
+  "@foodSalmon": {
+    "description": "Salmon fish"
+  },
+  "foodEggs": "Eieren",
+  "@foodEggs": {
+    "description": "Chicken eggs"
+  },
+  "foodTuna": "Tonijn",
+  "@foodTuna": {
+    "description": "Tuna fish"
+  },
+  "foodPork": "Varkenskotelet",
+  "@foodPork": {
+    "description": "Pork chop"
+  },
+  "foodTurkey": "Kalkoen",
+  "@foodTurkey": {
+    "description": "Turkey meat"
+  },
+  "foodShrimp": "Garnaal",
+  "@foodShrimp": {
+    "description": "Shrimp"
+  },
+  "foodBacon": "Spek",
+  "@foodBacon": {
+    "description": "Bacon"
+  },
+  "foodBigMac": "Big Mac",
+  "@foodBigMac": {
+    "description": "McDonald's Big Mac"
+  },
+  "foodPizza": "Pizza Punt",
+  "@foodPizza": {
+    "description": "Pizza slice"
+  },
+  "foodFrenchFries": "Patat",
+  "@foodFrenchFries": {
+    "description": "French fries"
+  },
+  "foodChickenNuggets": "Kipnuggets",
+  "@foodChickenNuggets": {
+    "description": "Chicken nuggets"
+  },
+  "foodHotDog": "Hotdog",
+  "@foodHotDog": {
+    "description": "Hot dog"
+  },
+  "foodTacos": "Taco's",
+  "@foodTacos": {
+    "description": "Tacos"
+  },
+  "foodSubway": "Subway Sandwich",
+  "@foodSubway": {
+    "description": "Subway sandwich"
+  },
+  "foodDonut": "Donut",
+  "@foodDonut": {
+    "description": "Donut"
+  },
+  "foodBurgerKing": "Whopper",
+  "@foodBurgerKing": {
+    "description": "Burger King Whopper"
+  },
+  "foodSausage": "Worst",
+  "@foodSausage": {
+    "description": "Sausage"
+  },
+  "foodKefir": "Kefir",
+  "@foodKefir": {
+    "description": "Kefir"
+  },
+  "foodRyazhenka": "Ryazhenka",
+  "@foodRyazhenka": {
+    "description": "Baked fermented milk"
+  },
+  "foodDoner": "Döner",
+  "@foodDoner": {
+    "description": "Döner kebab"
+  },
+  "foodShawarma": "Shawarma",
+  "@foodShawarma": {
+    "description": "Shawarma wrap"
+  },
+  "foodBorscht": "Borsjt",
+  "@foodBorscht": {
+    "description": "Beet soup"
+  },
+  "foodRamen": "Ramen",
+  "@foodRamen": {
+    "description": "Japanese noodle soup"
+  },
+  "foodCabbage": "Kool",
+  "@foodCabbage": {
+    "description": "Cabbage"
+  },
+  "foodPeaSoup": "Erwtensoep",
+  "@foodPeaSoup": {
+    "description": "Pea soup"
+  },
+  "foodSolyanka": "Solyanka",
+  "@foodSolyanka": {
+    "description": "Russian soup with pickles and meat"
+  },
+  "meals": "maaltijden",
+  "@meals": {
+    "description": "Meals counter"
+  },
+  "dailyProgress": "Dagelijkse Voortgang",
+  "@dailyProgress": {
+    "description": "Daily progress label"
+  },
+  "fromFood": "uit voedsel",
+  "@fromFood": {
+    "description": "Water from food label"
+  },
+  "noFoodThisWeek": "Geen voedseldata deze week",
+  "@noFoodThisWeek": {
+    "description": "No food data message for weekly view"
+  },
+  "foodIntake": "Voedselinname",
+  "@foodIntake": {
+    "description": "Food intake chart title"
+  },
+  "foodStats": "Voedselstatistieken",
+  "@foodStats": {
+    "description": "Food statistics title"
+  },
+  "totalCalories": "Totaal calorieën",
+  "@totalCalories": {
+    "description": "Total calories label"
+  },
+  "avgCaloriesPerDay": "Gem. per dag",
+  "@avgCaloriesPerDay": {
+    "description": "Average calories per day label"
+  },
+  "daysWithFood": "Dagen met voedsel",
+  "@daysWithFood": {
+    "description": "Days with food label"
+  },
+  "avgMealsPerDay": "Maaltijden per dag",
+  "@avgMealsPerDay": {
+    "description": "Average meals per day label"
+  },
+  "caloriesPerDay": "Calorieën per dag",
+  "@caloriesPerDay": {
+    "description": "Calories per day label"
+  },
+  "sugarPerDay": "Suiker per dag",
+  "@sugarPerDay": {
+    "description": "Sugar per day label"
+  },
+  "foodTracking": "Voedsel Tracking",
+  "@foodTracking": {
+    "description": "Food tracking feature name"
+  },
+  "foodTrackingPro": "Volg voedsel impact op hydratie en HRI",
+  "@foodTrackingPro": {
+    "description": "Food tracking pro description"
+  },
+  "hydrationBalance": "Hydratie Balans",
+  "@hydrationBalance": {
+    "description": "Hydration balance label"
+  },
+  "highSodiumFood": "Hoog natrium uit voedsel",
+  "@highSodiumFood": {
+    "description": "High sodium food status"
+  },
+  "hydratingFood": "Uitstekende hydraterende keuzes",
+  "@hydratingFood": {
+    "description": "Hydrating food status"
+  },
+  "dryFood": "Laag watergehalte voedsel",
+  "@dryFood": {
+    "description": "Dry food status"
+  },
+  "balancedFood": "Gebalanceerde voeding",
+  "@balancedFood": {
+    "description": "Balanced food status"
+  },
+  "foodAdviceEmpty": "Voeg maaltijden toe om voedsel impact op hydratie te volgen.",
+  "@foodAdviceEmpty": {
+    "description": "Advice when no food logged"
+  },
+  "foodAdviceHighSodium": "Hoge natriuminname gedetecteerd. Verhoog water om elektrolyten te balanceren.",
+  "@foodAdviceHighSodium": {
+    "description": "Advice for high sodium food"
+  },
+  "foodAdviceLowWater": "Je voedsel had laag watergehalte. Overweeg extra water te drinken.",
+  "@foodAdviceLowWater": {
+    "description": "Advice for low water content food"
+  },
+  "foodAdviceGoodHydration": "Geweldig! Je voedsel helpt hydratie.",
+  "@foodAdviceGoodHydration": {
+    "description": "Advice for good hydrating food"
+  },
+  "foodAdviceBalanced": "Goede voeding! Vergeet niet water te drinken.",
+  "@foodAdviceBalanced": {
+    "description": "Advice for balanced food choices"
+  },
+  "richInElectrolytes": "Rijk aan elektrolyten",
+  "@richInElectrolytes": {
+    "description": "Status for food rich in electrolytes"
+  },
+  "recommendedCalories": "Aanbevolen calorieën: ~{calories} kcal/dag",
+  "@recommendedCalories": {
+    "description": "Recommended daily calorie intake",
+    "placeholders": {
+      "calories": {
+        "type": "int",
+        "example": "1750"
+      }
+    }
+  },
+  "proWelcomeTitle": "Welkom bij HydraCoach PRO!",
+  "@proWelcomeTitle": {
+    "description": "PRO welcome screen title"
+  },
+  "proTrialActivated": "Je 7-dagen proef geactiveerd!",
+  "@proTrialActivated": {
+    "description": "PRO trial activation subtitle"
+  },
+  "proFeaturePersonalizedRecommendations": "Gepersonaliseerde aanbevelingen",
+  "@proFeaturePersonalizedRecommendations": {
+    "description": "PRO feature: personalized hydration advice"
+  },
+  "proFeatureAdvancedAnalytics": "Geavanceerde analytics",
+  "@proFeatureAdvancedAnalytics": {
+    "description": "PRO feature: detailed charts and statistics"
+  },
+  "proFeatureWorkoutTracking": "Training tracking",
+  "@proFeatureWorkoutTracking": {
+    "description": "PRO feature: fluid loss tracking during sports"
+  },
+  "proFeatureElectrolyteControl": "Elektrolyten controle",
+  "@proFeatureElectrolyteControl": {
+    "description": "PRO feature: sodium, potassium, magnesium monitoring"
+  },
+  "proFeatureSmartReminders": "Slimme herinneringen",
+  "@proFeatureSmartReminders": {
+    "description": "PRO feature: personalized notifications"
+  },
+  "proFeatureHriIndex": "HRI index",
+  "@proFeatureHriIndex": {
+    "description": "PRO feature: real-time hydration risk index"
+  },
+  "proFeatureAchievements": "PRO prestaties",
+  "@proFeatureAchievements": {
+    "description": "PRO feature: exclusive rewards and goals"
+  },
+  "proFeaturePersonalizedDescription": "Individueel hydratie advies",
+  "@proFeaturePersonalizedDescription": {
+    "description": "PRO feature description: personalized recommendations"
+  },
+  "proFeatureAdvancedDescription": "Gedetailleerde grafieken en statistieken",
+  "@proFeatureAdvancedDescription": {
+    "description": "PRO feature description: advanced analytics"
+  },
+  "proFeatureWorkoutDescription": "Vochtverlies tracking tijdens sport",
+  "@proFeatureWorkoutDescription": {
+    "description": "PRO feature description: workout tracking"
+  },
+  "proFeatureElectrolyteDescription": "Natrium, kalium, magnesium monitoring",
+  "@proFeatureElectrolyteDescription": {
+    "description": "PRO feature description: electrolyte control"
+  },
+  "proFeatureSmartDescription": "Gepersonaliseerde meldingen",
+  "proFeatureNoMoreAds": "Geen advertenties meer!",
+  "@proFeatureNoMoreAds": {
+    "description": "PRO feature title: no more ads"
+  },
+  "proFeatureNoMoreAdsDescription": "Geniet van ononderbroken hydratie tracking zonder advertenties",
+  "@proFeatureNoMoreAdsDescription": {
+    "description": "PRO feature description: no more ads"
+  },
+  "@proFeatureSmartDescription": {
+    "description": "PRO feature description: smart reminders"
+  },
+  "proFeatureHriDescription": "Real-time hydratie risicoindex",
+  "@proFeatureHriDescription": {
+    "description": "PRO feature description: HRI index"
+  },
+  "proFeatureAchievementsDescription": "Exclusieve beloningen en doelen",
+  "@proFeatureAchievementsDescription": {
+    "description": "PRO feature description: PRO achievements"
+  },
+  "startUsing": "Begin met gebruiken",
+  "@startUsing": {
+    "description": "Button to start using PRO features"
+  },
+  "sayGoodbyeToAds": "Zeg vaarwel tegen advertenties. Ga Premium.",
+  "@sayGoodbyeToAds": {
+    "description": "Text below MREC ad encouraging premium upgrade"
+  },
+  "goPremium": "GA PREMIUM",
+  "@goPremium": {
+    "description": "Button text to upgrade to premium"
+  },
+  "removeAdsForever": "Verwijder advertenties voor altijd",
+  "@removeAdsForever": {
+    "description": "Text for premium fallback content"
+  },
+  "upgrade": "UPGRADE",
+  "@upgrade": {
+    "description": "Upgrade button text"
+  },
+  "support": "Ondersteuning",
+  "@support": {
+    "description": "Support section title"
+  },
+  "companyWebsite": "Bedrijfswebsite",
+  "@companyWebsite": {
+    "description": "Company website menu item"
+  },
+  "appStoreOpened": "App Store geopend",
+  "@appStoreOpened": {
+    "description": "Message when App Store opens successfully"
+  },
+  "linkCopiedToClipboard": "Link gekopieerd naar klembord",
+  "@linkCopiedToClipboard": {
+    "description": "Message when link is copied as fallback"
+  },
+  "shareDialogOpened": "Deel dialoog geopend",
+  "@shareDialogOpened": {
+    "description": "Message when share dialog opens successfully"
+  },
+  "linkForSharingCopied": "Link voor delen gekopieerd",
+  "@linkForSharingCopied": {
+    "description": "Message when share link is copied as fallback"
+  },
+  "websiteOpenedInBrowser": "Website geopend in browser",
+  "@websiteOpenedInBrowser": {
+    "description": "Message when website opens successfully"
+  },
+  "emailClientOpened": "E-mailclient geopend",
+  "@emailClientOpened": {
+    "description": "Message when email client opens successfully"
+  },
+  "emailCopiedToClipboard": "E-mail gekopieerd naar klembord",
+  "@emailCopiedToClipboard": {
+    "description": "Message when email is copied as fallback"
+  },
+  "privacyPolicyOpened": "Privacybeleid geopend",
+  "@privacyPolicyOpened": {
+    "description": "Message when privacy policy opens successfully"
+  },
+  "statisticsTo": "Statistieken tot {date}",
+  "@statisticsTo": {
+    "description": "Statistics up to selected date",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMd"
+      }
+    }
+  },
+  "monthlyInsights": "Maandelijkse Inzichten",
+  "average": "Gemiddeld",
+  "daysOver": "Dagen over",
+  "maximum": "Maximum",
+  "balance": "Balans",
+  "allNormal": "Alles normaal",
+  "excellentConsistency": "Uitstekende consistentie",
+  "goodResults": "Goede resultaten",
+  "positiveImprovement": "Positieve verbetering",
+  "physicalActivity": "Fysieke activiteit",
+  "coffeeConsumption": "Koffieverbruik",
+  "excellentSobriety": "Uitstekende nuchterheid",
+  "excellentMonth": "Uitstekende maand",
+  "keepGoingMotivation": "Ga zo door!",
+  "daysNormal": "dagen normaal",
+  "electrolyteBalance": "Elektrolyten balans heeft aandacht nodig",
+  "caffeineWarning": "Dagen met overdosis van veilige dosis (400mg)",
+  "sugarFrequentExcess": "Frequent teveel suiker beïnvloedt hydratie",
+  "averagePerDayShort": "per dag",
+  "highWarning": "Hoog",
+  "normalStatus": "Normaal",
+  "improvementToEnd": "Verbetering richting einde maand met {percent}%",
+  "@improvementToEnd": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutActivity": "{percent}% dagen met trainingen ({hours}u)",
+  "@workoutActivity": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "coffeeAverage": "Gemiddeld {avg} kopjes/dag",
+  "@coffeeAverage": {
+    "placeholders": {
+      "avg": {
+        "type": "String"
+      }
+    }
+  },
+  "sobrietyPercent": "{percent}% dagen zonder alcohol",
+  "@sobrietyPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "daySummary": "Dag Samenvatting",
+  "records": "Records",
+  "waterGoalAchievement": "Water doel bereikt: {percent}%",
+  "@waterGoalAchievement": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutSessions": "Trainingen: {count} sessies",
+  "@workoutSessions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "index": "Index",
+  "status": "Status",
+  "moderateRisk": "Matig risico",
+  "excess": "Overschot",
+  "whoLimit": "WHO limiet: 50g/dag",
+  "forMonth": "Voor maand",
+  "stability": "Stabiliteit in {percent}% van dagen",
+  "@stability": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "goodHydration": "{percent}% dagen met goede hydratie",
+  "@goodHydration": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "daysInNorm": "{count} dagen in norm",
+  "@daysInNorm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "perfectDays": "{count} dagen",
+  "@perfectDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "consistencyDays": "{percent}% dagen met goede hydratie",
+  "@consistencyDays": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "stabilityDays": "Stabiliteit in {percent}% van dagen",
+  "@stabilityDays": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "monthEndImprovement": "Einde-maand verbetering met {percent}%",
+  "@monthEndImprovement": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutDaysPercent": "{percent}% dagen met trainingen ({hours}u)",
+  "@workoutDaysPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "averageCupsPerDay": "Gemiddeld {avgCups} kopjes/dag",
+  "@averageCupsPerDay": {
+    "placeholders": {
+      "avgCups": {
+        "type": "String"
+      }
+    }
+  },
+  "soberDaysPercent": "{percent}% dagen zonder alcohol",
+  "@soberDaysPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "keepGoing": "Ga door!",
+  "moderateRiskStatus": "Status: Matig risico",
+  "high": "Hoog",
+  "whoLimitPerDay": "WHO limiet: 50g/dag"
+}

@@ -1,0 +1,33 @@
+What's new in version 2.1.4:
+
+⚡ PERFORMANCE BOOST
+• App launches 2x faster
+• Smooth 60 FPS on all devices
+• Up to 25% better battery life through animation optimizations
+
+🌍 NEW LANGUAGES
+Added 8 new languages:
+• 🇪🇸 Spanish
+• 🇩🇪 German
+• 🇯🇵 Japanese
+• 🇰🇷 Korean
+• 🇨🇳 Chinese Simplified
+• 🇹🇼 Chinese Traditional
+• 🇳🇱 Dutch
+• 🇵🇹 Portuguese
+
+🔒 SECURITY
+• Enhanced data protection
+• HTTPS-only secure connections
+• SKAN Postback protection for iOS 15+ (prevents manipulation)
+
+📱 SYSTEM REQUIREMENTS
+Updated minimum versions for better performance:
+• Android 9.0+ (previously Android 5.0)
+• iOS 15.0+ (previously iOS 13.0)
+
+🐛 BUG FIXES
+• Improved stability
+• Minor bug fixes
+
+Thank you for using HydraCoach!

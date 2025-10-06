@@ -46,7 +46,7 @@ android {
 
     defaultConfig {
         applicationId = "com.playcus.hydracoach"
-        minSdk = flutter.minSdkVersion
+        minSdk = 28  // Android 9.0 (API 28)
         targetSdk = 35
         versionCode = 34
         versionName = "2.1.3"

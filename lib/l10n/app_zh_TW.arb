@@ -1,0 +1,2950 @@
+{
+  "@@locale": "zh_TW",
+  "appTitle": "HydroCoach",
+  "@appTitle": {
+    "description": "The application name"
+  },
+  "getPro": "獲取PRO",
+  "@getPro": {
+    "description": "Get PRO tooltip"
+  },
+  "sunday": "週日",
+  "monday": "週一",
+  "tuesday": "週二",
+  "wednesday": "週三",
+  "thursday": "週四",
+  "friday": "週五",
+  "saturday": "週六",
+  "january": "1月",
+  "february": "2月",
+  "march": "3月",
+  "april": "4月",
+  "may": "5月",
+  "june": "6月",
+  "july": "7月",
+  "august": "8月",
+  "september": "9月",
+  "october": "10月",
+  "november": "11月",
+  "december": "12月",
+  "dateFormat": "{month}{day}日 {weekday}",
+  "@dateFormat": {
+    "description": "Date format pattern",
+    "placeholders": {
+      "weekday": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "loading": "載入中...",
+  "loadingWeather": "獲取天氣...",
+  "heatIndex": "熱指數",
+  "humidity": "濕度: {value}%",
+  "@humidity": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "water": "水",
+  "liquids": "液體",
+  "sodium": "鈉",
+  "potassium": "鉀",
+  "magnesium": "鎂",
+  "electrolyte": "電解質",
+  "broth": "湯",
+  "coffee": "咖啡",
+  "alcohol": "酒精",
+  "drink": "飲品",
+  "ml": "毫升",
+  "mg": "毫克",
+  "kg": "公斤",
+  "valueWithUnit": "{value} {unit}",
+  "@valueWithUnit": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "goalFormat": "{current}/{goal} {unit}",
+  "@goalFormat": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "heatAdjustment": "高溫 +{percent}%",
+  "@heatAdjustment": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "alcoholAdjustment": "酒精 +{amount} ml",
+  "@alcoholAdjustment": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "smartAdviceTitle": "當前建議",
+  "smartAdviceDefault": "保持水和電解質平衡",
+  "adviceOverhydrationSevere": "過度飲水(>目標200%)",
+  "adviceOverhydrationSevereBody": "暫停60-90分鐘。補充電解質: 300-500ml含鈉500-1000mg",
+  "adviceOverhydration": "過度飲水",
+  "adviceOverhydrationBody": "暫停飲水30-60分鐘，補充約500mg鈉(電解質/湯)",
+  "adviceAlcoholRecovery": "酒精: 恢復",
+  "adviceAlcoholRecoveryBody": "今天別再喝了。少量飲用300-500ml水，補充鈉",
+  "adviceLowSodium": "鈉不足",
+  "adviceLowSodiumBody": "補充約{amount}mg鈉。適量飲水",
+  "@adviceLowSodiumBody": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "adviceDehydration": "缺水",
+  "adviceDehydrationBody": "飲用300-500ml {type}",
+  "@adviceDehydrationBody": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "adviceHighRisk": "高風險(HRI)",
+  "adviceHighRiskBody": "緊急飲用電解質水(300-500ml)並減少活動",
+  "adviceHeat": "高溫和流失",
+  "adviceHeatBody": "水分增加5-8%，補充鈉300-500mg",
+  "adviceAllGood": "進展順利",
+  "adviceAllGoodBody": "保持節奏。目標還需約{amount}ml",
+  "@adviceAllGoodBody": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "hydrationStatus": "水分狀態",
+  "hydrationStatusNormal": "正常",
+  "hydrationStatusDiluted": "稀釋中",
+  "hydrationStatusDehydrated": "缺水",
+  "hydrationStatusLowSalt": "鹽分不足",
+  "hydrationRiskIndex": "水分風險指數",
+  "quickAdd": "快速添加",
+  "add": "添加",
+  "delete": "刪除",
+  "todaysDrinks": "今日飲品",
+  "allRecords": "全部記錄 →",
+  "itemDeleted": "{item}已刪除",
+  "@itemDeleted": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "undo": "撤銷",
+  "dailyReportReady": "日報完成！",
+  "viewDayResults": "查看今日結果",
+  "dailyReportComingSoon": "日報將在下一版本提供",
+  "home": "首頁",
+  "history": "歷史",
+  "settings": "設定",
+  "cancel": "取消",
+  "save": "儲存",
+  "reset": "重置",
+  "settingsTitle": "設定",
+  "languageSection": "語言",
+  "languageSettings": "語言",
+  "selectLanguage": "選擇語言",
+  "profileSection": "個人資料",
+  "weight": "體重",
+  "dietMode": "飲食模式",
+  "activityLevel": "活動量",
+  "changeWeight": "更改體重",
+  "dietModeNormal": "正常飲食",
+  "dietModeKeto": "生酮/低碳",
+  "dietModeFasting": "間歇禁食",
+  "activityLow": "低活動量",
+  "activityMedium": "中活動量",
+  "activityHigh": "高活動量",
+  "activityLowDesc": "辦公室工作，少運動",
+  "activityMediumDesc": "每天運動30-60分鐘",
+  "activityHighDesc": "運動>1小時",
+  "notificationsSection": "通知",
+  "notificationLimit": "通知限制(免費版)",
+  "notificationUsage": "已用: {used}/{limit}",
+  "@notificationUsage": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "waterReminders": "飲水提醒",
+  "waterRemindersDesc": "全天定期提醒",
+  "reminderFrequency": "提醒頻率",
+  "timesPerDay": "每天{count}次",
+  "@timesPerDay": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "maxTimesPerDay": "每天{count}次(最多4次)",
+  "@maxTimesPerDay": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "unlimitedReminders": "無限制",
+  "startOfDay": "開始時間",
+  "endOfDay": "結束時間",
+  "postCoffeeReminders": "咖啡後提醒",
+  "postCoffeeRemindersDesc": "20分鐘後提醒飲水",
+  "heatWarnings": "高溫警告",
+  "heatWarningsDesc": "高溫時通知",
+  "postAlcoholReminders": "飲酒後提醒",
+  "postAlcoholRemindersDesc": "6-12小時恢復計劃",
+  "proFeaturesSection": "PRO功能",
+  "unlockPro": "解鎖PRO",
+  "unlockProDesc": "無限通知和智慧提醒",
+  "noNotificationLimit": "無通知限制",
+  "unitsSection": "單位",
+  "metricSystem": "公制",
+  "metricUnits": "ml, kg, °C",
+  "imperialSystem": "英制",
+  "imperialUnits": "fl oz, lb, °F",
+  "aboutSection": "關於",
+  "version": "版本",
+  "rateApp": "評價應用",
+  "share": "分享",
+  "privacyPolicy": "隱私政策",
+  "termsOfUse": "使用條款",
+  "resetAllData": "重置所有資料",
+  "resetDataTitle": "重置所有資料？",
+  "resetDataMessage": "將刪除所有歷史並恢復預設設定",
+  "back": "返回",
+  "next": "下一步",
+  "start": "開始",
+  "welcomeTitle": "歡迎使用\nHydroCoach",
+  "welcomeSubtitle": "智慧水分和電解質追蹤\n適用於生酮、禁食和活躍生活",
+  "weightPageTitle": "您的體重",
+  "weightPageSubtitle": "計算最佳水分攝入量",
+  "weightUnit": "{weight} kg",
+  "@weightUnit": {
+    "placeholders": {
+      "weight": {
+        "type": "int"
+      }
+    }
+  },
+  "recommendedNorm": "建議: 每天{min}-{max}ml",
+  "@recommendedNorm": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "dietPageTitle": "飲食模式",
+  "dietPageSubtitle": "影響電解質需求",
+  "normalDiet": "正常飲食",
+  "normalDietDesc": "標準建議",
+  "ketoDiet": "生酮/低碳",
+  "ketoDietDesc": "需增加鹽分",
+  "fastingDiet": "間歇禁食",
+  "fastingDietDesc": "特殊電解質方案",
+  "fastingSchedule": "禁食計劃:",
+  "fasting16_8": "16:8",
+  "fasting16_8Desc": "每天8小時進食窗口",
+  "fastingOMAD": "OMAD",
+  "fastingOMADDesc": "一日一餐",
+  "fastingADF": "ADF",
+  "fastingADFDesc": "隔日禁食",
+  "activityPageTitle": "活動量",
+  "activityPageSubtitle": "影響水分需求",
+  "lowActivity": "低活動量",
+  "lowActivityDesc": "辦公室工作，少運動",
+  "lowActivityWater": "+0 ml",
+  "mediumActivity": "中活動量",
+  "mediumActivityDesc": "每天運動30-60分鐘",
+  "mediumActivityWater": "+350-700 ml",
+  "highActivity": "高活動量",
+  "highActivityDesc": "運動>1小時或體力勞動",
+  "highActivityWater": "+700-1200 ml",
+  "activityAdjustmentNote": "根據運動調整目標",
+  "day": "日",
+  "week": "週",
+  "month": "月",
+  "today": "今天",
+  "yesterday": "昨天",
+  "noData": "無資料",
+  "noRecordsToday": "今天還沒有記錄",
+  "noRecordsThisDay": "這天沒有記錄",
+  "loadingData": "載入中...",
+  "deleteRecord": "刪除記錄？",
+  "deleteRecordMessage": "刪除{type} {volume} ml？",
+  "@deleteRecordMessage": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "volume": {
+        "type": "int"
+      }
+    }
+  },
+  "recordDeleted": "已刪除",
+  "waterConsumption": "💧 飲水量",
+  "alcoholWeek": "🍺 本週飲酒",
+  "electrolytes": "⚡ 電解質",
+  "weeklyAverages": "📊 週平均",
+  "monthStatistics": "📊 月統計",
+  "alcoholStatistics": "🍺 飲酒統計",
+  "alcoholStatisticsTitle": "飲酒統計",
+  "weeklyInsights": "💡 週洞察",
+  "waterPerDay": "每日水分",
+  "sodiumPerDay": "每日鈉",
+  "potassiumPerDay": "每日鉀",
+  "magnesiumPerDay": "每日鎂",
+  "goal": "目標",
+  "daysWithGoalAchieved": "✅ 達標天數",
+  "recordsPerDay": "📝 每日記錄",
+  "insufficientDataForAnalysis": "資料不足",
+  "totalVolume": "總量",
+  "averagePerDay": "平均{amount} ml/天",
+  "@averagePerDay": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "activeDays": "活躍天數",
+  "perfectDays": "完美天數: {count}",
+  "@perfectDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "currentStreak": "連續: {days}天",
+  "@currentStreak": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "soberDaysRow": "連續戒酒: {days}天",
+  "@soberDaysRow": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "keepItUp": "繼續保持！",
+  "waterAmount": "水: {amount} ml ({percent}%)",
+  "@waterAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "alcoholAmount": "酒精: {amount} SD",
+  "@alcoholAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "totalSD": "總SD",
+  "forMonth": "本月",
+  "daysWithAlcohol": "飲酒天數",
+  "fromDays": "{days}天中",
+  "@fromDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "soberDays": "戒酒天數",
+  "excellent": "優秀！",
+  "averageSD": "平均SD",
+  "inDrinkingDays": "飲酒日",
+  "bestDay": "🏆 最佳",
+  "bestDayMessage": "{day} - 目標{percent}%",
+  "@bestDayMessage": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "weekends": "📅 週末",
+  "weekdays": "📅 工作日",
+  "drinkLessOnWeekends": "週末少喝{percent}%",
+  "@drinkLessOnWeekends": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "drinkLessOnWeekdays": "工作日少喝{percent}%",
+  "@drinkLessOnWeekdays": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "positiveTrend": "📈 良好趨勢",
+  "positiveTrendMessage": "週末水分攝入改善",
+  "decliningActivity": "📉 下降趨勢",
+  "decliningActivityMessage": "週末水分攝入減少",
+  "lowSalt": "⚠️ 鹽分不足",
+  "lowSaltMessage": "僅{days}天鈉正常",
+  "@lowSaltMessage": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "frequentAlcohol": "🍺 頻繁飲酒",
+  "frequentAlcoholMessage": "7天中{days}天飲酒影響水分",
+  "@frequentAlcoholMessage": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "excellentWeek": "✅ 優秀的一週",
+  "continueMessage": "繼續保持！",
+  "all": "全部",
+  "addAlcohol": "添加酒精",
+  "minimumHarm": "最小危害",
+  "additionalWaterNeeded": "需補水+{amount} ml",
+  "@additionalWaterNeeded": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "additionalSodiumNeeded": "需補鈉+{amount} mg",
+  "@additionalSodiumNeeded": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "goToBedEarly": "早睡",
+  "todayConsumed": "今日攝入:",
+  "alcoholToday": "今日飲酒",
+  "beer": "啤酒",
+  "wine": "葡萄酒",
+  "spirits": "烈酒",
+  "cocktail": "雞尾酒",
+  "selectDrinkType": "選擇酒類:",
+  "volume": "容量",
+  "enterVolume": "輸入ml",
+  "strength": "度數 (%):",
+  "standardDrinks": "標準杯:",
+  "additionalWater": "補水",
+  "additionalSodium": "補鈉",
+  "hriRisk": "HRI風險",
+  "enterValidVolume": "請輸入有效容量",
+  "weeklyHistory": "週歷史",
+  "weeklyHistoryDesc": "分析週趨勢，獲得見解和建議",
+  "monthlyHistory": "月歷史",
+  "monthlyHistoryDesc": "長期模式、週比較和深度分析",
+  "proFunction": "PRO功能",
+  "unlockProHistory": "解鎖PRO",
+  "unlimitedHistory": "無限歷史",
+  "dataExportCSV": "匯出CSV",
+  "detailedAnalytics": "詳細分析",
+  "periodComparison": "期間比較",
+  "shareResult": "分享結果",
+  "retry": "重試",
+  "welcomeToPro": "歡迎使用PRO！",
+  "allFeaturesUnlocked": "所有功能已解鎖",
+  "testMode": "測試模式: 模擬購買",
+  "proStatusNote": "PRO狀態將保持到應用重啟",
+  "startUsingPro": "開始使用PRO",
+  "lifetimeAccess": "終身訪問",
+  "bestValueAnnual": "最划算 — 年付",
+  "monthly": "月付",
+  "oneTime": "一次性",
+  "perYear": "/年",
+  "perMonth": "/月",
+  "approximatelyPerMonth": "≈ {amount}/月",
+  "@approximatelyPerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "startFreeTrial": "開始7天免費試用",
+  "continueWithPrice": "繼續 — {price}",
+  "@continueWithPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "unlockForPrice": "解鎖{price}(一次性)",
+  "@unlockForPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "enableFreeTrial": "啟用7天免費試用",
+  "noChargeToday": "今天不收費。7天後自動續訂，除非取消",
+  "cancelAnytime": "可隨時在設定中取消",
+  "everythingInPro": "PRO全部功能",
+  "smartReminders": "智慧提醒",
+  "smartRemindersDesc": "高溫、運動、禁食 — 無垃圾訊息",
+  "weeklyReports": "週報告",
+  "weeklyReportsDesc": "深度洞察 + CSV匯出",
+  "healthIntegrations": "健康整合",
+  "healthIntegrationsDesc": "Apple Health & Google Fit",
+  "alcoholProtocols": "飲酒方案",
+  "alcoholProtocolsDesc": "飲前準備和恢復路線圖",
+  "fullSync": "完全同步",
+  "fullSyncDesc": "跨裝置無限歷史",
+  "personalCalibrations": "個人校準",
+  "personalCalibrationsDesc": "汗液測試、尿色量表",
+  "showAllFeatures": "顯示全部功能",
+  "showLess": "收起",
+  "restorePurchases": "恢復購買",
+  "proSubscriptionRestored": "PRO訂閱已恢復！",
+  "noPurchasesToRestore": "沒有找到要恢復的購買",
+  "drinkMoreWaterToday": "今天多喝水(+20%)",
+  "addElectrolytesToWater": "每次飲水添加電解質",
+  "limitCoffeeOneCup": "咖啡限制一杯",
+  "increaseWater10": "水分增加10%",
+  "dontForgetElectrolytes": "別忘了電解質",
+  "startDayWithWater": "以一杯水開始新的一天",
+  "dontForgetElectrolytesReminder": "⚡ 別忘了電解質",
+  "startDayWithWaterReminder": "以一杯水開始新的一天，保持健康",
+  "takeElectrolytesMorning": "早上補充電解質",
+  "purchaseFailed": "購買失敗: {error}",
+  "@purchaseFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "restoreFailed": "恢復失敗: {error}",
+  "@restoreFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "trustedByUsers": "⭐️ 4.9 — 12,000用戶信賴",
+  "bestValue": "最划算",
+  "percentOff": "-{percent}% 最划算",
+  "@percentOff": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "weatherUnavailable": "天氣不可用",
+  "checkLocationPermissions": "檢查位置權限和網路",
+  "recommendedNormLabel": "建議量",
+  "waterAdjustment300": "+300 ml",
+  "waterAdjustment400": "+400 ml",
+  "waterAdjustment200": "+200 ml",
+  "waterAdjustmentNormal": "正常",
+  "waterAdjustment500": "+500 ml",
+  "waterAdjustment250": "+250 ml",
+  "waterAdjustment750": "+750 ml",
+  "currentLocation": "當前位置",
+  "weatherClear": "晴",
+  "weatherCloudy": "多雲",
+  "weatherOvercast": "陰天",
+  "weatherRain": "雨",
+  "weatherSnow": "雪",
+  "weatherStorm": "暴風雨",
+  "weatherFog": "霧",
+  "weatherDrizzle": "小雨",
+  "weatherSunny": "晴朗",
+  "heatWarningExtreme": "☀️ 極端高溫！最大補水",
+  "heatWarningVeryHot": "🌡️ 非常熱！脫水風險",
+  "heatWarningHot": "🔥 熱！多喝水",
+  "heatWarningElevated": "⚠️ 溫度升高",
+  "heatWarningComfortable": "舒適溫度",
+  "adjustmentWater": "+{percent}% 水",
+  "@adjustmentWater": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "adjustmentSodium": "+{amount} mg 鈉",
+  "@adjustmentSodium": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "heatWarningCold": "❄️ 寒冷！保暖並喝溫熱飲料",
+  "notificationChannelName": "HydroCoach 提醒",
+  "@notificationChannelName": {
+    "description": "Name of the notification channel"
+  },
+  "notificationChannelDescription": "水和電解質提醒",
+  "@notificationChannelDescription": {
+    "description": "Description of the notification channel"
+  },
+  "urgentNotificationChannelName": "緊急提醒",
+  "@urgentNotificationChannelName": {
+    "description": "Name of the urgent notification channel"
+  },
+  "urgentNotificationChannelDescription": "重要補水通知",
+  "@urgentNotificationChannelDescription": {
+    "description": "Description of the urgent notification channel"
+  },
+  "goodMorning": "☀️ 早安！",
+  "timeToHydrate": "💧 補水時間",
+  "eveningHydration": "💧 晚間補水",
+  "dailyReportTitle": "📊 每日報告已準備好",
+  "dailyReportBody": "查看您的補水日",
+  "maintainWaterBalance": "全天保持水分平衡",
+  "electrolytesTime": "電解質時間：在水中加少許鹽",
+  "catchUpHydration": "您只喝了每日量的{percent}%。該追上了！",
+  "@catchUpHydration": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "excellentProgress": "優秀進展！還差一點到目標",
+  "postCoffeeTitle": "☕ 喝咖啡後",
+  "postCoffeeBody": "喝250-300 ml水恢復平衡",
+  "postWorkoutTitle": "💪 運動後",
+  "postWorkoutBody": "恢復電解質：500 ml水+少許鹽",
+  "heatWarningPro": "🌡️ PRO 高溫警告",
+  "extremeHeatWarning": "極端高溫！增加15%水分攝取並加1g鹽",
+  "hotWeatherWarning": "熱！多喝10%水並別忘電解質",
+  "warmWeatherWarning": "溫暖天氣。監測您的補水",
+  "alcoholRecoveryTitle": "🍺 恢復時間",
+  "alcoholRecoveryBody": "喝300 ml水加少許鹽以平衡",
+  "continueHydration": "💧 繼續補水",
+  "alcoholRecoveryBody2": "再500 ml水幫您更快恢復",
+  "morningRecoveryTitle": "☀️ 晨間恢復",
+  "morningRecoveryBody": "以500 ml水和電解質開始新的一天",
+  "testNotificationTitle": "🧪 測試通知",
+  "testNotificationBody": "如果您看到這個 - 即時通知有效！",
+  "scheduledTestTitle": "⏰ 預定測試(1分鐘)",
+  "scheduledTestBody": "此通知在1分鐘前預定。預定有效！",
+  "notificationServiceInitialized": "✅ 通知服務已初始化",
+  "localNotificationsInitialized": "✅ 本地通知已初始化",
+  "androidChannelsCreated": "📢 Android通知頻道已建立",
+  "notificationsPermissionGranted": "📝 通知權限：{granted}",
+  "@notificationsPermissionGranted": {
+    "placeholders": {
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+  "exactAlarmsPermissionGranted": "📝 精確鬧鐘權限：{granted}",
+  "@exactAlarmsPermissionGranted": {
+    "placeholders": {
+      "granted": {
+        "type": "String"
+      }
+    }
+  },
+  "fcmPermissions": "📱 FCM權限：{status}",
+  "@fcmPermissions": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "fcmTokenReceived": "🔑 已收到FCM Token",
+  "fcmTokenSaved": "✅ 用戶{userId}的FCM Token已儲存到Firestore",
+  "@fcmTokenSaved": {
+    "placeholders": {
+      "userId": {
+        "type": "String"
+      }
+    }
+  },
+  "topicSubscriptionComplete": "✅ 主題訂閱完成",
+  "foregroundMessage": "📨 前景訊息：{title}",
+  "@foregroundMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationOpened": "📱 通知已開啟：{messageId}",
+  "@notificationOpened": {
+    "placeholders": {
+      "messageId": {
+        "type": "String"
+      }
+    }
+  },
+  "dailyLimitReached": "⚠️ 已達每日通知限制(免費版4/天)",
+  "schedulingError": "❌ 通知預定錯誤：{error}",
+  "@schedulingError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "showingImmediatelyAsFallback": "立即顯示通知作為備用",
+  "instantNotificationShown": "📬 已顯示即時通知：{title}",
+  "@instantNotificationShown": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "smartRemindersScheduled": "🧠 預定智能提醒中...",
+  "smartRemindersComplete": "✅ 已預定{count}個提醒",
+  "@smartRemindersComplete": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "proPostCoffeeScheduled": "☕ PRO：咖啡後提醒已預定",
+  "postWorkoutScheduled": "💪 運動後提醒已預定",
+  "proHeatWarningPro": "🌡️ PRO：高溫警告已發送",
+  "proAlcoholRecoveryPlan": "🍺 PRO：酒精恢復計劃已預定",
+  "eveningReportScheduled": "📊 晚間報告已預定於{day}.{month} 21:00",
+  "@eveningReportScheduled": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "month": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationCancelled": "🚫 通知{id}已取消",
+  "@notificationCancelled": {
+    "placeholders": {
+      "id": {
+        "type": "int"
+      }
+    }
+  },
+  "allNotificationsCancelled": "🗑️ 所有通知已取消",
+  "reminderSettingsSaved": "✅ 提醒設定已儲存",
+  "testNotificationScheduledFor": "⏰ 測試通知已預定於{time}",
+  "@testNotificationScheduledFor": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "tomorrowRecommendations": "明日建議",
+  "recommendationExcellent": "優秀！保持下去。嘗試以一杯水開始新的一天並保持均勻攝取。",
+  "recommendationDiluted": "您喝很多水但電解質少。明天多加鹽或喝電解質飲料。嘗試以鹽湯開始新的一天。",
+  "recommendationDehydrated": "今天水不夠。明天每2小時設定提醒。將水瓶放在視線內。",
+  "recommendationLowSalt": "低鈉可能導致疲勞。在水中加少許鹽或喝湯。在生酮或斷食時特別重要。",
+  "recommendationGeneral": "追求水和電解質平衡。全天均勻飲水並在炎熱時別忘鹽。",
+  "category_water": "水",
+  "category_hot_drinks": "熱飲",
+  "category_juice": "果汁",
+  "category_sports": "運動",
+  "category_dairy": "乳製品",
+  "category_alcohol": "酒精",
+  "category_supplements": "補充劑",
+  "category_other": "其他",
+  "drink_water": "水",
+  "drink_sparkling_water": "氣泡水",
+  "drink_mineral_water": "礦泉水",
+  "drink_coconut_water": "椰子水",
+  "drink_coffee": "咖啡",
+  "drink_espresso": "濃縮咖啡",
+  "drink_americano": "美式",
+  "drink_cappuccino": "卡布奇諾",
+  "drink_latte": "拿鐵",
+  "drink_black_tea": "紅茶",
+  "drink_green_tea": "綠茶",
+  "drink_herbal_tea": "花草茶",
+  "drink_matcha": "抹茶",
+  "drink_hot_chocolate": "熱巧克力",
+  "drink_orange_juice": "柳橙汁",
+  "drink_apple_juice": "蘋果汁",
+  "drink_grapefruit_juice": "葡萄柚汁",
+  "drink_tomato_juice": "番茄汁",
+  "drink_vegetable_juice": "蔬菜汁",
+  "drink_smoothie": "冰沙",
+  "drink_lemonade": "檸檬水",
+  "drink_isotonic": "等滲飲料",
+  "drink_electrolyte": "電解質飲料",
+  "drink_protein_shake": "蛋白奶昔",
+  "drink_bcaa": "BCAA",
+  "drink_energy": "能量飲料",
+  "drink_milk": "牛奶",
+  "drink_kefir": "克菲爾",
+  "drink_yogurt": "優格飲",
+  "drink_almond_milk": "杏仁奶",
+  "drink_soy_milk": "豆漿",
+  "drink_oat_milk": "燕麥奶",
+  "drink_beer_light": "淡啤酒",
+  "drink_beer_regular": "普通啤酒",
+  "drink_beer_strong": "濃啤酒",
+  "drink_wine_red": "紅酒",
+  "drink_wine_white": "白酒",
+  "drink_champagne": "香檳",
+  "drink_vodka": "伏特加",
+  "drink_whiskey": "威士忌",
+  "drink_rum": "蘭姆酒",
+  "drink_gin": "琴酒",
+  "drink_tequila": "龍舌蘭",
+  "drink_mojito": "莫希托",
+  "drink_margarita": "瑪格麗特",
+  "drink_kombucha": "康普茶",
+  "drink_kvass": "克瓦斯",
+  "drink_bone_broth": "骨湯",
+  "drink_vegetable_broth": "蔬菜湯",
+  "drink_soda": "汽水",
+  "drink_diet_soda": "無糖汽水",
+  "addedToFavorites": "已加入我的最愛",
+  "favoriteLimitReached": "已達上限(免費3個,PRO 20個)",
+  "addFavorite": "加入最愛",
+  "hotAndSupplements": "熱飲&補充劑",
+  "quickVolumes": "快速容量:",
+  "type": "類型:",
+  "regular": "普通",
+  "coconut": "椰子",
+  "sparkling": "氣泡",
+  "mineral": "礦泉",
+  "hotDrinks": "熱飲",
+  "tea": "茶",
+  "salt": "鹽(1/4茶匙)",
+  "favoriteAssignmentComingSoon": "最愛指定即將推出",
+  "longPressToEditComingSoon": "長按編輯 - 即將推出",
+  "proSubscriptionRequired": "需要PRO訂閱",
+  "saveToFavorites": "儲存至最愛",
+  "@saveToFavorites": {
+    "description": "Button to save current settings as favorite"
+  },
+  "savedToFavorites": "已儲存至最愛",
+  "@savedToFavorites": {
+    "description": "Success message when saved to favorites"
+  },
+  "selectFavoriteSlot": "選擇最愛欄位",
+  "@selectFavoriteSlot": {
+    "description": "Title for favorite slot selection dialog"
+  },
+  "slot": "欄位",
+  "@slot": {
+    "description": "Favorite slot label"
+  },
+  "emptySlot": "空欄位",
+  "@emptySlot": {
+    "description": "Label for empty favorite slot"
+  },
+  "upgradeToUnlock": "升級PRO解鎖",
+  "@upgradeToUnlock": {
+    "description": "Message for locked PRO slots"
+  },
+  "changeFavorite": "變更最愛",
+  "@changeFavorite": {
+    "description": "Option to change existing favorite"
+  },
+  "removeFavorite": "移除最愛",
+  "@removeFavorite": {
+    "description": "Option to remove favorite"
+  },
+  "ok": "確定",
+  "@ok": {
+    "description": "OK button text"
+  },
+  "mineralWater": "礦泉水",
+  "@mineralWater": {
+    "description": "Mineral water drink type"
+  },
+  "coconutWater": "椰子水",
+  "@coconutWater": {
+    "description": "Coconut water drink type"
+  },
+  "lemonWater": "檸檬水",
+  "@lemonWater": {
+    "description": "Lemon water drink type"
+  },
+  "greenTea": "綠茶",
+  "@greenTea": {
+    "description": "Green tea drink type"
+  },
+  "amount": "數量",
+  "@amount": {
+    "description": "Amount label"
+  },
+  "createFavoriteHint": "要新增最愛，請前往下方飲品畫面，設定後點擊「儲存至最愛」。",
+  "sparklingWater": "氣泡水",
+  "@sparklingWater": {
+    "description": "Sparkling water drink type"
+  },
+  "cola": "可樂",
+  "@cola": {
+    "description": "Cola drink type"
+  },
+  "juice": "果汁",
+  "@juice": {
+    "description": "Juice drink type"
+  },
+  "energyDrink": "能量飲料",
+  "@energyDrink": {
+    "description": "Energy drink type"
+  },
+  "sportsDrink": "運動飲料",
+  "@sportsDrink": {
+    "description": "Sports drink type"
+  },
+  "selectElectrolyteType": "選擇電解質類型:",
+  "@selectElectrolyteType": {
+    "description": "Prompt to select electrolyte type"
+  },
+  "saltQuarterTsp": "鹽(1/4茶匙)",
+  "@saltQuarterTsp": {
+    "description": "Quarter teaspoon of salt"
+  },
+  "pinkSalt": "喜馬拉雅粉鹽",
+  "@pinkSalt": {
+    "description": "Pink Himalayan salt type"
+  },
+  "seaSalt": "海鹽",
+  "@seaSalt": {
+    "description": "Sea salt type"
+  },
+  "potassiumCitrate": "檸檬酸鉀",
+  "@potassiumCitrate": {
+    "description": "Potassium citrate supplement"
+  },
+  "magnesiumGlycinate": "甘胺酸鎂",
+  "@magnesiumGlycinate": {
+    "description": "Magnesium glycinate supplement"
+  },
+  "coconutWaterElectrolyte": "椰子水",
+  "@coconutWaterElectrolyte": {
+    "description": "Coconut water as electrolyte source"
+  },
+  "sportsDrinkElectrolyte": "運動飲料",
+  "@sportsDrinkElectrolyte": {
+    "description": "Sports drink as electrolyte source"
+  },
+  "electrolyteContent": "電解質含量:",
+  "@electrolyteContent": {
+    "description": "Label for electrolyte content display"
+  },
+  "sodiumContent": "鈉: {amount} mg",
+  "@sodiumContent": {
+    "description": "Sodium content display",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "potassiumContent": "鉀: {amount} mg",
+  "@potassiumContent": {
+    "description": "Potassium content display",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "magnesiumContent": "鎂: {amount} mg",
+  "@magnesiumContent": {
+    "description": "Magnesium content display",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "servings": "份量",
+  "@servings": {
+    "description": "Servings label"
+  },
+  "enterServings": "輸入份量",
+  "@enterServings": {
+    "description": "Prompt to enter number of servings"
+  },
+  "servingsUnit": "份",
+  "@servingsUnit": {
+    "description": "Unit for servings"
+  },
+  "noElectrolytes": "無電解質",
+  "@noElectrolytes": {
+    "description": "Message when no electrolytes present"
+  },
+  "enterValidAmount": "請輸入有效數量",
+  "@enterValidAmount": {
+    "description": "Error message for invalid amount"
+  },
+  "heatWarningVeryHot": "🌡️ 非常熱！脫水風險",
+  "heatWarningHot": "🔥 炎熱！多喝水",
+  "heatWarningElevated": "⚠️ 溫度升高",
+  "heatWarningComfortable": "舒適溫度",
+  "adjustmentWater": "+{percent}% 水",
+  "@adjustmentWater": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "adjustmentSodium": "+{amount} mg 鈉",
+  "@adjustmentSodium": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "heatWarningCold": "❄️ 寒冷！保暖並喝溫熱液體",
+  "notificationChannelName": "HydroCoach提醒",
+  "@notificationChannelName": {
+    "description": "Name of the notification channel"
+  },
+  "notificationChannelDescription": "水和電解質提醒",
+  "@notificationChannelDescription": {
+    "description": "Description of the notification channel"
+  },
+  "urgentNotificationChannelName": "緊急提醒",
+  "@urgentNotificationChannelName": {
+    "description": "Name of the urgent notification channel"
+  },
+  "urgentNotificationChannelDescription": "重要水分通知",
+  "@urgentNotificationChannelDescription": {
+    "description": "Description of the urgent notification channel"
+  },
+  "goodMorning": "☀️ 早上好！",
+  "timeToHydrate": "💧 水分補充時間",
+  "eveningHydration": "💧 晚間水分補充",
+  "dailyReportTitle": " 日報完成",
+  "dailyReportBody": "查看你的水分情況",
+  "maintainWaterBalance": "全天保持水分平衡",
+  "electrolytesTime": "電解質時間: 水中加少量鹽",
+  "catchUpHydration": "你只喝了每日目標的{percent}%。該補上了！",
+  "@catchUpHydration": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "excellentProgress": "進展優秀！再接再厲達成目標",
+  "postCoffeeTitle": " 咖啡後",
+  "postCoffeeBody": "喝250-300ml水恢復平衡",
+  "postWorkoutTitle": " 運動後",
+  "postWorkoutBody": "恢復電解質: 500ml水 + 少量鹽",
+  "heatWarningPro": "🌡️ PRO高溫警告",
+  "extremeHeatWarning": "極熱！水分增加15%，加1g鹽",
+  "hotWeatherWarning": "炎熱！多喝10%水，別忘電解質",
+  "warmWeatherWarning": "溫暖。監測水分狀態",
+  "alcoholRecoveryTitle": "🍺 恢復時間",
+  "alcoholRecoveryBody": "喝300ml水加少量鹽恢復平衡",
+  "continueHydration": "💧 繼續補水",
+  "alcoholRecoveryBody2": "再喝500ml水幫助更快恢復",
+  "morningRecoveryTitle": "☀️ 晨間恢復",
+  "morningRecoveryBody": "以500ml水和電解質開始新的一天",
+  "testNotificationTitle": "🧪 測試通知",
+  "testNotificationBody": "如果你看到這個 - 即時通知有效！",
+  "scheduledTestTitle": "⏰ 定時測試(1分鐘)",
+  "scheduledTestBody": "此通知在1分鐘前安排。定時有效！",
+  "currentIntake": "已攝入",
+  "dailyGoal": "目標",
+  "toGo": "剩餘",
+  "goalReached": "目標達成！",
+  "almostThere": "快到了！",
+  "halfwayThere": "半程",
+  "keepGoing": "繼續",
+  "startDrinking": "開始飲用",
+  "plainWater": "純淨",
+  "enhancedWater": "增強",
+  "beverages": "飲料",
+  "sodas": "汽水",
+  "popularPlainWater": "流行水類型",
+  "popularEnhancedWater": "增強&注入",
+  "popularBeverages": "流行飲料",
+  "popularSodas": "流行汽水&能量",
+  "hydrationTips": "水分提示",
+  "drinkRegularly": "定期少量飲用",
+  "roomTemperature": "室溫水吸收更好",
+  "addLemon": "加檸檬味道更好",
+  "limitSugary": "限制含糖飲料 - 會脫水",
+  "warmWater": "溫水",
+  "iceWater": "冰水",
+  "filteredWater": "過濾水",
+  "distilledWater": "蒸餾水",
+  "springWater": "泉水",
+  "hydrogenWater": "氫水",
+  "oxygenatedWater": "富氧水",
+  "cucumberWater": "黃瓜水",
+  "limeWater": "青檸水",
+  "berryWater": "漿果水",
+  "mintWater": "薄荷水",
+  "gingerWater": "薑水",
+  "caffeineStatusNone": "今天無咖啡因",
+  "caffeineStatusModerate": "適量: {amount}mg",
+  "caffeineStatusHigh": "高: {amount}mg",
+  "caffeineStatusVeryHigh": "非常高: {amount}mg！",
+  "caffeineDailyLimit": "每日限量: 400mg",
+  "caffeineWarningTitle": "咖啡因警告",
+  "caffeineWarning400": "今天已超400mg咖啡因",
+  "caffeineTipWater": "多喝水補償",
+  "caffeineTipAvoid": "今天避免更多咖啡因",
+  "caffeineTipSleep": "可能影響睡眠質量",
+  "cupsToday": "今日杯數",
+  "metabolizeTime": "代謝時間",
+  "aboutCaffeine": "關於咖啡因",
+  "caffeineInfo1": "咖啡含天然咖啡因提高警覺性",
+  "caffeineInfo2": "大多數成人每日安全限量為400mg",
+  "caffeineInfo3": "咖啡因半衰期5-6小時",
+  "caffeineInfo4": "多喝水補償咖啡因利尿效應",
+  "caffeineWarningPregnant": "孕婦應限制咖啡因至200mg/天",
+  "gotIt": "明白",
+  "todaysCaffeine": "今日咖啡因",
+  "alreadyInFavorites": "已在收藏中",
+  "ofRecommendedLimit": "建議限量的",
+  "aboutAlcohol": "關於酒精",
+  "alcoholInfo1": "1標準杯等於10g純酒精",
+  "alcoholInfo2": "酒精脫水 — 每杯多喝250ml水",
+  "alcoholInfo3": "添加鈉幫助飲酒後保持體液",
+  "alcoholInfo4": "每標準杯增加HRI 3-5分",
+  "alcoholWarningHealth": "過量飲酒有害健康。建議男性每天2 SD，女性1 SD",
+  "supplementsInfo1": "補劑幫助維持電解質平衡",
+  "supplementsInfo2": "最好隨餐服用以吸收",
+  "supplementsInfo3": "始終與大量水一起服用",
+  "supplementsInfo4": "鎂和鉀是水分補充關鍵",
+  "supplementsWarning": "開始任何補劑方案前請諮詢醫療保健提供者",
+  "fromSupplementsToday": "今日補劑攝入",
+  "minerals": "礦物質",
+  "vitamins": "維生素",
+  "essentialMinerals": "必需礦物質",
+  "otherSupplements": "其他補劑",
+  "supplementTip1": "隨餐服用補劑以更好吸收",
+  "supplementTip2": "與補劑一起喝大量水",
+  "supplementTip3": "全天分散多種補劑",
+  "supplementTip4": "記錄對你有效的",
+  "calciumCarbonate": "碳酸鈣",
+  "traceMinerals": "微量礦物質",
+  "vitaminA": "維生素A",
+  "vitaminE": "維生素E",
+  "vitaminK2": "維生素K2",
+  "folate": "葉酸",
+  "biotin": "生物素",
+  "probiotics": "益生菌",
+  "melatonin": "褪黑素",
+  "collagen": "膠原蛋白",
+  "glucosamine": "氨基葡萄糖",
+  "turmeric": "薑黃",
+  "coq10": "輔酶Q10",
+  "creatine": "肌酸",
+  "ashwagandha": "南非醉茄",
+  "selectCardioActivity": "選擇有氧活動",
+  "selectStrengthActivity": "選擇力量活動",
+  "selectSportsActivity": "選擇運動",
+  "sessions": "次",
+  "totalTime": "總時長",
+  "waterLoss": "水分流失",
+  "intensity": "強度",
+  "drinkWaterAfterWorkout": "運動後喝水",
+  "replenishElectrolytes": "補充電解質",
+  "restAndRecover": "休息和恢復",
+  "avoidSugaryDrinks": "避免含糖運動飲料",
+  "elliptical": "橢圓機",
+  "rowing": "划船",
+  "jumpRope": "跳繩",
+  "stairClimbing": "爬樓梯",
+  "bodyweight": "自重",
+  "powerlifting": "力量舉",
+  "calisthenics": "健美操",
+  "resistanceBands": "阻力帶",
+  "kettlebell": "壺鈴",
+  "trx": "TRX",
+  "strongman": "大力士",
+  "pilates": "普拉提",
+  "basketball": "籃球",
+  "soccerFootball": "足球",
+  "golf": "高爾夫",
+  "martialArts": "武術",
+  "rockClimbing": "攀岩",
+  "needsToReplenish": "需要補充",
+  "electrolyteTrackingPro": "追蹤鈉、鉀和鎂目標，詳細進度條",
+  "unlock": "解鎖",
+  "weather": "天氣",
+  "weatherTrackingPro": "追蹤熱指數、濕度和天氣對水分目標的影響",
+  "sugarTracking": "糖追蹤",
+  "sugarTrackingPro": "監測天然、添加和隱藏糖攝入及HRI影響分析",
+  "dayOverview": "日概覽",
+  "tapForDetails": "點擊查看詳情",
+  "noDataForDay": "這天無資料",
+  "sweatLoss": "流汗損失",
+  "cardio": "有氧",
+  "strength": "力量",
+  "workout": "運動",
+  "noWaterToday": "今天未記錄水",
+  "noElectrolytesToday": "今天未記錄電解質",
+  "noCoffeeToday": "今天未記錄咖啡",
+  "noWorkoutsToday": "今天未記錄運動",
+  "noWaterThisDay": "這天未記錄水",
+  "noElectrolytesThisDay": "這天未記錄電解質",
+  "noCoffeeThisDay": "這天未記錄咖啡",
+  "noWorkoutsThisDay": "這天未記錄運動",
+  "weeklyReport": "週報告",
+  "weeklyReportSubtitle": "深度洞察和趨勢分析",
+  "workouts": "運動",
+  "workoutHydration": "運動水分",
+  "workoutHydrationMessage": "運動日你喝{percent}%更多水",
+  "weeklyActivity": "週活動",
+  "weeklyActivityMessage": "你{days}天訓練了{minutes}分鐘",
+  "workoutMinutesPerDay": "每日運動分鐘",
+  "daysWithWorkouts": "運動天數",
+  "noWorkoutsThisWeek": "本週無運動",
+  "noAlcoholThisWeek": "本週無酒精",
+  "csvExported": "資料已匯出為CSV",
+  "mondayShort": "週一",
+  "tuesdayShort": "週二",
+  "wednesdayShort": "週三",
+  "thursdayShort": "週四",
+  "fridayShort": "週五",
+  "saturdayShort": "週六",
+  "sundayShort": "週日",
+  "achievements": "成就",
+  "achievementsTabAll": "全部",
+  "achievementsTabHydration": "水分",
+  "achievementsTabElectrolytes": "電解質",
+  "achievementsTabSugar": "糖控制",
+  "achievementsTabAlcohol": "酒精",
+  "achievementsTabWorkout": "健身",
+  "achievementsTabHRI": "HRI",
+  "achievementsTabStreaks": "連續",
+  "achievementsTabSpecial": "特別",
+  "achievementUnlocked": "成就解鎖！",
+  "achievementProgress": "進度",
+  "achievementPoints": "分",
+  "achievementRarityCommon": "普通",
+  "achievementRarityUncommon": "少見",
+  "achievementRarityRare": "稀有",
+  "achievementRarityEpic": "史詩",
+  "achievementRarityLegendary": "傳說",
+  "achievementStatsUnlocked": "已解鎖",
+  "achievementStatsTotal": "總分",
+  "achievementFilterAll": "全部",
+  "achievementFilterUnlocked": "已解鎖",
+  "achievementSortProgress": "進度",
+  "achievementSortName": "名稱",
+  "achievementSortRarity": "稀有度",
+  "achievementNoAchievements": "還沒有成就",
+  "achievementKeepUsing": "繼續使用應用解鎖成就！",
+  "achievementFirstGlass": "第一滴",
+  "achievementFirstGlassDesc": "喝你的第一杯水",
+  "achievementHydrationGoal1": "補水",
+  "achievementHydrationGoal1Desc": "達到每日水分目標",
+  "achievementHydrationGoal7": "一週補水",
+  "achievementHydrationGoal7Desc": "連續7天達到水分目標",
+  "achievementHydrationGoal30": "水分大師",
+  "achievementHydrationGoal30Desc": "連續30天達到水分目標",
+  "achievementPerfectHydration": "完美平衡",
+  "achievementPerfectHydrationDesc": "達到水分目標的90-110%",
+  "achievementEarlyBird": "早起鳥",
+  "achievementEarlyBirdDesc": "上午9點前喝第一杯水",
+  "achievementEarlyBirdTemplate": "上午9點前喝{volume}",
+  "@achievementEarlyBirdTemplate": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementNightOwl": "夜貓子",
+  "achievementNightOwlDesc": "下午6點前完成水分目標",
+  "achievementLiterLegend": "升級傳奇",
+  "achievementLiterLegendDesc": "達到總水分里程碑",
+  "achievementLiterLegendTemplate": "總共喝{volume}",
+  "@achievementLiterLegendTemplate": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementSaltStarter": "鹽起步",
+  "achievementSaltStarterDesc": "添加第一份電解質",
+  "achievementElectrolyteBalance": "平衡",
+  "achievementElectrolyteBalanceDesc": "一天內達到所有電解質目標",
+  "achievementSodiumMaster": "鈉大師",
+  "achievementSodiumMasterDesc": "連續7天達到鈉目標",
+  "achievementPotassiumPro": "鉀專家",
+  "achievementPotassiumProDesc": "連續7天達到鉀目標",
+  "achievementMagnesiumMaven": "鎂達人",
+  "achievementMagnesiumMavenDesc": "連續7天達到鎂目標",
+  "achievementElectrolyteExpert": "電解質專家",
+  "achievementElectrolyteExpertDesc": "30天完美電解質平衡",
+  "achievementSugarAwareness": "糖意識",
+  "achievementSugarAwarenessDesc": "首次追蹤糖",
+  "achievementSugarUnder25": "甜味控制",
+  "achievementSugarUnder25Desc": "一天保持低糖攝入",
+  "achievementSugarUnder25Template": "一天糖攝入低於{weight}",
+  "@achievementSugarUnder25Template": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementSugarWeekControl": "糖紀律",
+  "achievementSugarWeekControlDesc": "一週保持低糖攝入",
+  "achievementSugarWeekControlTemplate": "7天糖攝入低於{weight}",
+  "@achievementSugarWeekControlTemplate": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementSugarFreeDay": "無糖",
+  "achievementSugarFreeDayDesc": "完成0g添加糖的一天",
+  "achievementSugarDetective": "糖偵探",
+  "achievementSugarDetectiveDesc": "追蹤隱藏糖10次",
+  "achievementSugarMaster": "糖大師",
+  "achievementSugarMasterDesc": "一個月保持超低糖攝入",
+  "achievementNoSodaWeek": "無汽水週",
+  "achievementNoSodaWeekDesc": "7天無汽水",
+  "achievementNoSodaMonth": "無汽水月",
+  "achievementNoSodaMonthDesc": "30天無汽水",
+  "achievementSweetToothTamed": "馴服甜牙",
+  "achievementSweetToothTamedDesc": "一週內每日糖減少50%",
+  "achievementAlcoholTracker": "意識",
+  "achievementAlcoholTrackerDesc": "追蹤酒精消費",
+  "achievementModerateDay": "節制",
+  "achievementModerateDayDesc": "一天保持低於2 SD",
+  "achievementSoberDay": "戒酒日",
+  "achievementSoberDayDesc": "完成無酒精的一天",
+  "achievementSoberWeek": "戒酒週",
+  "achievementSoberWeekDesc": "7天無酒精",
+  "achievementSoberMonth": "戒酒月",
+  "achievementSoberMonthDesc": "30天無酒精",
+  "achievementRecoveryProtocol": "恢復專家",
+  "achievementRecoveryProtocolDesc": "飲酒後完成恢復方案",
+  "achievementFirstWorkout": "開始運動",
+  "achievementFirstWorkoutDesc": "記錄第一次運動",
+  "achievementWorkoutWeek": "活躍週",
+  "achievementWorkoutWeekDesc": "一週運動3次",
+  "achievementCenturySweat": "百升汗",
+  "achievementCenturySweatDesc": "通過運動流失大量液體",
+  "achievementCenturySweatTemplate": "通過運動流失{volume}",
+  "@achievementCenturySweatTemplate": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementCardioKing": "有氧王",
+  "achievementCardioKingDesc": "完成10次有氧運動",
+  "achievementStrengthWarrior": "力量戰士",
+  "achievementStrengthWarriorDesc": "完成10次力量訓練",
+  "achievementHRIGreen": "綠區",
+  "achievementHRIGreenDesc": "一天保持HRI在綠區",
+  "achievementHRIWeekGreen": "安全週",
+  "achievementHRIWeekGreenDesc": "7天保持HRI在綠區",
+  "achievementHRIPerfect": "完美分數",
+  "achievementHRIPerfectDesc": "達到HRI低於20",
+  "achievementHRIRecovery": "快速恢復",
+  "achievementHRIRecoveryDesc": "一天內將HRI從紅色降到綠色",
+  "achievementHRIMaster": "HRI大師",
+  "achievementHRIMasterDesc": "30天保持HRI低於30",
+  "achievementStreak3": "起步",
+  "achievementStreak3Desc": "3天連續",
+  "achievementStreak7": "週戰士",
+  "achievementStreak7Desc": "7天連續",
+  "achievementStreak30": "一致性王",
+  "achievementStreak30Desc": "30天連續",
+  "achievementStreak100": "百日俱樂部",
+  "achievementStreak100Desc": "100天連續",
+  "achievementFirstWeek": "第一週",
+  "achievementFirstWeekDesc": "使用應用7天",
+  "achievementProMember": "PRO會員",
+  "achievementProMemberDesc": "成為PRO訂閱者",
+  "achievementDataExport": "資料分析師",
+  "achievementDataExportDesc": "匯出資料為CSV",
+  "achievementAllCategories": "全能",
+  "achievementAllCategoriesDesc": "每個類別至少解鎖一個成就",
+  "achievementHunter": "成就獵人",
+  "achievementHunterDesc": "解鎖50%的所有成就",
+  "achievementDetailsUnlockedOn": "解鎖於",
+  "achievementNewUnlocked": "新成就解鎖！",
+  "achievementViewAll": "查看所有成就",
+  "achievementCloseNotification": "關閉",
+  "before": "之前",
+  "after": "之後",
+  "lose": "流失",
+  "through": "通過",
+  "throughWorkouts": "通過運動",
+  "reach": "達到",
+  "daysInRow": "連續天數",
+  "completeHydrationGoal": "完成水分目標",
+  "stayUnder": "保持低於",
+  "inADay": "一天內",
+  "alcoholFree": "無酒精",
+  "complete": "完成",
+  "achieve": "達成",
+  "keep": "保持",
+  "for30Days": "30天",
+  "liters": "升",
+  "completed": "已完成",
+  "notCompleted": "未完成",
+  "days": "天",
+  "hours": "小時",
+  "minutes": "分鐘",
+  "times": "次",
+  "row": "連續",
+  "ofTotal": "總的",
+  "perDay": "每天",
+  "perWeek": "每週",
+  "streak": "連續",
+  "tapToDismiss": "點擊關閉",
+  "tutorialStep1": "你好！我將幫你開始最佳水分補充之旅。讓我們喝第一口{volume}！",
+  "@tutorialStep1": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "tutorialStep2": "太好了！現在再添加{volume}感受一下。",
+  "@tutorialStep2": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "tutorialStep3": "出色！你已準備好獨立使用HydroCoach。我會幫你達到完美水分補充！",
+  "tutorialComplete": "開始使用",
+  "onboardingNotificationExamplesTitle": "智慧提醒",
+  "onboardingNotificationExamplesSubtitle": "HydroCoach知道你何時需要水",
+  "onboardingLocationExamplesTitle": "個人建議",
+  "onboardingLocationExamplesSubtitle": "我們考慮天氣提供準確建議",
+  "onboardingAllowNotifications": "允許通知",
+  "onboardingAllowLocation": "允許位置",
+  "foodCatalog": "食品目錄",
+  "@foodCatalog": {
+    "description": "Food catalog screen title"
+  },
+  "todaysFoodIntake": "今日食物攝入",
+  "@todaysFoodIntake": {
+    "description": "Title for today's food intake summary"
+  },
+  "noFoodToday": "今天未記錄食物",
+  "@noFoodToday": {
+    "description": "Message when no food has been logged today"
+  },
+  "foodItemsCount": "{count}項食物",
+  "@foodItemsCount": {
+    "description": "Count of food items logged today",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "waterFromFood": "食物水分",
+  "@waterFromFood": {
+    "description": "Label for water content from food"
+  },
+  "last": "最後",
+  "@last": {
+    "description": "Label for last item"
+  },
+  "categoryFruits": "水果",
+  "@categoryFruits": {
+    "description": "Fruits category"
+  },
+  "categoryVegetables": "蔬菜",
+  "@categoryVegetables": {
+    "description": "Vegetables category"
+  },
+  "categorySoups": "湯類",
+  "@categorySoups": {
+    "description": "Soups category"
+  },
+  "categoryDairy": "乳製品",
+  "@categoryDairy": {
+    "description": "Dairy category"
+  },
+  "categoryMeat": "肉類",
+  "@categoryMeat": {
+    "description": "Meat category"
+  },
+  "categoryFastFood": "快餐",
+  "@categoryFastFood": {
+    "description": "Fast food category"
+  },
+  "weightGrams": "重量(克)",
+  "@weightGrams": {
+    "description": "Weight in grams label"
+  },
+  "enterWeight": "輸入重量",
+  "@enterWeight": {
+    "description": "Enter weight prompt"
+  },
+  "grams": "克",
+  "@grams": {
+    "description": "Grams unit"
+  },
+  "calories": "卡路里",
+  "@calories": {
+    "description": "Calories label"
+  },
+  "waterContent": "水分含量",
+  "@waterContent": {
+    "description": "Water content label"
+  },
+  "sugar": "糖",
+  "@sugar": {
+    "description": "Sugar label"
+  },
+  "nutritionalInfo": "營養資訊",
+  "@nutritionalInfo": {
+    "description": "Nutritional information label"
+  },
+  "caloriesPerWeight": "{weight}克{calories} kcal",
+  "@caloriesPerWeight": {
+    "description": "Calories per weight format",
+    "placeholders": {
+      "calories": {
+        "type": "int"
+      },
+      "weight": {
+        "type": "int"
+      }
+    }
+  },
+  "waterPerWeight": "{weight}克{water}ml水",
+  "@waterPerWeight": {
+    "description": "Water per weight format",
+    "placeholders": {
+      "water": {
+        "type": "int"
+      },
+      "weight": {
+        "type": "int"
+      }
+    }
+  },
+  "sugarPerWeight": "{weight}克{sugar}g糖",
+  "@sugarPerWeight": {
+    "description": "Sugar per weight format",
+    "placeholders": {
+      "sugar": {
+        "type": "String"
+      },
+      "weight": {
+        "type": "int"
+      }
+    }
+  },
+  "addFood": "添加食物",
+  "@addFood": {
+    "description": "Add food button"
+  },
+  "foodAdded": "食物添加成功",
+  "@foodAdded": {
+    "description": "Food added success message"
+  },
+  "enterValidWeight": "請輸入有效重量",
+  "@enterValidWeight": {
+    "description": "Invalid weight error message"
+  },
+  "proOnlyFood": "僅PRO",
+  "@proOnlyFood": {
+    "description": "PRO only food label"
+  },
+  "unlockProForFood": "解鎖PRO使用全部食物",
+  "@unlockProForFood": {
+    "description": "PRO unlock message for food"
+  },
+  "foodTracker": "食物追蹤",
+  "@foodTracker": {
+    "description": "Food tracker title"
+  },
+  "todaysFoodSummary": "今日食物摘要",
+  "@todaysFoodSummary": {
+    "description": "Today's food summary title"
+  },
+  "kcal": "kcal",
+  "@kcal": {
+    "description": "Kilocalories unit"
+  },
+  "per100g": "每100g",
+  "@per100g": {
+    "description": "Per 100 grams"
+  },
+  "addToFavorites": "添加到收藏",
+  "@addToFavorites": {
+    "description": "Add to favorites checkbox"
+  },
+  "favoritesFeatureComingSoon": "收藏功能即將推出！",
+  "@favoritesFeatureComingSoon": {
+    "description": "Favorites feature not yet available message"
+  },
+  "foodAddedSuccess": "{food}已添加！+{calories} kcal, +{water}",
+  "@foodAddedSuccess": {
+    "description": "Success message when food is added",
+    "placeholders": {
+      "food": {
+        "type": "String"
+      },
+      "calories": {
+        "type": "int"
+      },
+      "water": {
+        "type": "String"
+      }
+    }
+  },
+  "selectWeight": "選擇重量",
+  "@selectWeight": {
+    "description": "Select weight dialog title"
+  },
+  "weight": "重量",
+  "@weight": {
+    "description": "Weight label"
+  },
+  "ounces": "盎司",
+  "@ounces": {
+    "description": "Ounces unit"
+  },
+  "items": "項",
+  "@items": {
+    "description": "Items count"
+  },
+  "tapToAddFood": "點擊添加食物",
+  "@tapToAddFood": {
+    "description": "Add food prompt"
+  },
+  "noFoodLoggedToday": "今天未記錄食物",
+  "@noFoodLoggedToday": {
+    "description": "No food logged message"
+  },
+  "lightEatingDay": "輕食日",
+  "@lightEatingDay": {
+    "description": "Light eating day status"
+  },
+  "moderateIntake": "適量攝入",
+  "@moderateIntake": {
+    "description": "Moderate intake status"
+  },
+  "goodCalorieIntake": "良好卡路里",
+  "@goodCalorieIntake": {
+    "description": "Good calorie intake status"
+  },
+  "substantialMeals": "豐盛餐",
+  "@substantialMeals": {
+    "description": "Substantial meals status"
+  },
+  "highCalorieDay": "高卡日",
+  "@highCalorieDay": {
+    "description": "High calorie day status"
+  },
+  "veryHighIntake": "超高攝入",
+  "@veryHighIntake": {
+    "description": "Very high intake status"
+  },
+  "caloriesTracker": "卡路里追蹤",
+  "@caloriesTracker": {
+    "description": "Calories tracker title"
+  },
+  "trackYourDailyCalorieIntake": "追蹤每日卡路里攝入",
+  "@trackYourDailyCalorieIntake": {
+    "description": "Calories tracker description"
+  },
+  "unlockFoodTrackingFeatures": "解鎖食物追蹤功能",
+  "@unlockFoodTrackingFeatures": {
+    "description": "Unlock food tracking features message"
+  },
+  "selectFoodType": "選擇食物類型",
+  "@selectFoodType": {
+    "description": "Select food type title"
+  },
+  "foodApple": "蘋果",
+  "@foodApple": {
+    "description": "Apple fruit"
+  },
+  "foodBanana": "香蕉",
+  "@foodBanana": {
+    "description": "Banana fruit"
+  },
+  "foodOrange": "橙子",
+  "@foodOrange": {
+    "description": "Orange fruit"
+  },
+  "foodWatermelon": "西瓜",
+  "@foodWatermelon": {
+    "description": "Watermelon fruit"
+  },
+  "foodStrawberry": "草莓",
+  "@foodStrawberry": {
+    "description": "Strawberry fruit"
+  },
+  "foodGrapes": "葡萄",
+  "@foodGrapes": {
+    "description": "Grapes fruit"
+  },
+  "foodPineapple": "菠蘿",
+  "@foodPineapple": {
+    "description": "Pineapple fruit"
+  },
+  "foodMango": "芒果",
+  "@foodMango": {
+    "description": "Mango fruit"
+  },
+  "foodPear": "梨",
+  "@foodPear": {
+    "description": "Pear fruit"
+  },
+  "foodCarrot": "胡蘿蔔",
+  "@foodCarrot": {
+    "description": "Carrot vegetable"
+  },
+  "foodBroccoli": "西蘭花",
+  "@foodBroccoli": {
+    "description": "Broccoli vegetable"
+  },
+  "foodSpinach": "菠菜",
+  "@foodSpinach": {
+    "description": "Spinach vegetable"
+  },
+  "foodTomato": "番茄",
+  "@foodTomato": {
+    "description": "Tomato vegetable"
+  },
+  "foodCucumber": "黃瓜",
+  "@foodCucumber": {
+    "description": "Cucumber vegetable"
+  },
+  "foodBellPepper": "甜椒",
+  "@foodBellPepper": {
+    "description": "Bell pepper vegetable"
+  },
+  "foodLettuce": "生菜",
+  "@foodLettuce": {
+    "description": "Lettuce vegetable"
+  },
+  "foodOnion": "洋蔥",
+  "@foodOnion": {
+    "description": "Onion vegetable"
+  },
+  "foodCelery": "芹菜",
+  "@foodCelery": {
+    "description": "Celery vegetable"
+  },
+  "foodPotato": "土豆",
+  "@foodPotato": {
+    "description": "Potato vegetable"
+  },
+  "foodChickenSoup": "雞湯",
+  "@foodChickenSoup": {
+    "description": "Chicken soup"
+  },
+  "foodTomatoSoup": "番茄湯",
+  "@foodTomatoSoup": {
+    "description": "Tomato soup"
+  },
+  "foodVegetableSoup": "蔬菜湯",
+  "@foodVegetableSoup": {
+    "description": "Vegetable soup"
+  },
+  "foodMinestrone": "意式雜菜湯",
+  "@foodMinestrone": {
+    "description": "Minestrone soup"
+  },
+  "foodMisoSoup": "味噌湯",
+  "@foodMisoSoup": {
+    "description": "Miso soup"
+  },
+  "foodMushroomSoup": "蘑菇湯",
+  "@foodMushroomSoup": {
+    "description": "Mushroom soup"
+  },
+  "foodBeefStew": "燉牛肉",
+  "@foodBeefStew": {
+    "description": "Beef stew"
+  },
+  "foodLentilSoup": "扁豆湯",
+  "@foodLentilSoup": {
+    "description": "Lentil soup"
+  },
+  "foodOnionSoup": "法式洋蔥湯",
+  "@foodOnionSoup": {
+    "description": "French onion soup"
+  },
+  "foodMilk": "牛奶",
+  "@foodMilk": {
+    "description": "Milk"
+  },
+  "foodYogurt": "希臘酸奶",
+  "@foodYogurt": {
+    "description": "Greek yogurt"
+  },
+  "foodCheese": "切達奶酪",
+  "@foodCheese": {
+    "description": "Cheddar cheese"
+  },
+  "foodCottageCheese": "鄉村奶酪",
+  "@foodCottageCheese": {
+    "description": "Cottage cheese"
+  },
+  "foodButter": "黃油",
+  "@foodButter": {
+    "description": "Butter"
+  },
+  "foodCream": "稀奶油",
+  "@foodCream": {
+    "description": "Heavy cream"
+  },
+  "foodIceCream": "冰淇淋",
+  "@foodIceCream": {
+    "description": "Ice cream"
+  },
+  "foodMozzarella": "馬蘇里拉",
+  "@foodMozzarella": {
+    "description": "Mozzarella cheese"
+  },
+  "foodParmesan": "帕爾馬",
+  "@foodParmesan": {
+    "description": "Parmesan cheese"
+  },
+  "foodChickenBreast": "雞胸肉",
+  "@foodChickenBreast": {
+    "description": "Chicken breast"
+  },
+  "foodBeef": "碎牛肉",
+  "@foodBeef": {
+    "description": "Ground beef"
+  },
+  "foodSalmon": "三文魚",
+  "@foodSalmon": {
+    "description": "Salmon fish"
+  },
+  "foodEggs": "雞蛋",
+  "@foodEggs": {
+    "description": "Chicken eggs"
+  },
+  "foodTuna": "金槍魚",
+  "@foodTuna": {
+    "description": "Tuna fish"
+  },
+  "foodPork": "豬排",
+  "@foodPork": {
+    "description": "Pork chop"
+  },
+  "foodTurkey": "火雞",
+  "@foodTurkey": {
+    "description": "Turkey meat"
+  },
+  "foodShrimp": "蝦",
+  "@foodShrimp": {
+    "description": "Shrimp"
+  },
+  "foodBacon": "培根",
+  "@foodBacon": {
+    "description": "Bacon"
+  },
+  "foodBigMac": "巨無霸",
+  "@foodBigMac": {
+    "description": "McDonald's Big Mac"
+  },
+  "foodPizza": "披薩",
+  "@foodPizza": {
+    "description": "Pizza slice"
+  },
+  "foodFrenchFries": "炸薯條",
+  "@foodFrenchFries": {
+    "description": "French fries"
+  },
+  "foodChickenNuggets": "雞塊",
+  "@foodChickenNuggets": {
+    "description": "Chicken nuggets"
+  },
+  "foodHotDog": "熱狗",
+  "@foodHotDog": {
+    "description": "Hot dog"
+  },
+  "foodTacos": "玉米卷",
+  "@foodTacos": {
+    "description": "Tacos"
+  },
+  "foodSubway": "賽百味",
+  "@foodSubway": {
+    "description": "Subway sandwich"
+  },
+  "foodDonut": "甜甜圈",
+  "@foodDonut": {
+    "description": "Donut"
+  },
+  "foodBurgerKing": "皇堡",
+  "@foodBurgerKing": {
+    "description": "Burger King Whopper"
+  },
+  "foodSausage": "香腸",
+  "@foodSausage": {
+    "description": "Sausage"
+  },
+  "foodKefir": "開菲爾",
+  "@foodKefir": {
+    "description": "Kefir"
+  },
+  "foodRyazhenka": "發酵奶",
+  "@foodRyazhenka": {
+    "description": "Baked fermented milk"
+  },
+  "foodDoner": "土耳其烤肉",
+  "@foodDoner": {
+    "description": "Döner kebab"
+  },
+  "foodShawarma": "沙威瑪",
+  "@foodShawarma": {
+    "description": "Shawarma wrap"
+  },
+  "foodBorscht": "羅宋湯",
+  "@foodBorscht": {
+    "description": "Beet soup"
+  },
+  "foodRamen": "拉麵",
+  "@foodRamen": {
+    "description": "Japanese noodle soup"
+  },
+  "foodCabbage": "捲心菜",
+  "@foodCabbage": {
+    "description": "Cabbage"
+  },
+  "foodPeaSoup": "豌豆湯",
+  "@foodPeaSoup": {
+    "description": "Pea soup"
+  },
+  "foodSolyanka": "酸辣湯",
+  "@foodSolyanka": {
+    "description": "Russian soup with pickles and meat"
+  },
+  "meals": "餐",
+  "@meals": {
+    "description": "Meals counter"
+  },
+  "dailyProgress": "每日進度",
+  "@dailyProgress": {
+    "description": "Daily progress label"
+  },
+  "fromFood": "來自食物",
+  "@fromFood": {
+    "description": "Water from food label"
+  },
+  "noFoodThisWeek": "本週無食物資料",
+  "@noFoodThisWeek": {
+    "description": "No food data message for weekly view"
+  },
+  "foodIntake": "食物攝入",
+  "@foodIntake": {
+    "description": "Food intake chart title"
+  },
+  "foodStats": "食物統計",
+  "@foodStats": {
+    "description": "Food statistics title"
+  },
+  "totalCalories": "總卡路里",
+  "@totalCalories": {
+    "description": "Total calories label"
+  },
+  "avgCaloriesPerDay": "平均/天",
+  "@avgCaloriesPerDay": {
+    "description": "Average calories per day label"
+  },
+  "daysWithFood": "進食天數",
+  "@daysWithFood": {
+    "description": "Days with food label"
+  },
+  "avgMealsPerDay": "餐/天",
+  "@avgMealsPerDay": {
+    "description": "Average meals per day label"
+  },
+  "caloriesPerDay": "卡路里/天",
+  "@caloriesPerDay": {
+    "description": "Calories per day label"
+  },
+  "sugarPerDay": "糖/天",
+  "@sugarPerDay": {
+    "description": "Sugar per day label"
+  },
+  "foodTracking": "食物追蹤",
+  "@foodTracking": {
+    "description": "Food tracking feature name"
+  },
+  "foodTrackingPro": "追蹤食物對水分和HRI的影響",
+  "@foodTrackingPro": {
+    "description": "Food tracking pro description"
+  },
+  "hydrationBalance": "水分平衡",
+  "@hydrationBalance": {
+    "description": "Hydration balance label"
+  },
+  "highSodiumFood": "食物高鈉",
+  "@highSodiumFood": {
+    "description": "High sodium food status"
+  },
+  "hydratingFood": "優秀補水選擇",
+  "@hydratingFood": {
+    "description": "Hydrating food status"
+  },
+  "dryFood": "低水分食物",
+  "@dryFood": {
+    "description": "Dry food status"
+  },
+  "balancedFood": "均衡營養",
+  "@balancedFood": {
+    "description": "Balanced food status"
+  },
+  "foodAdviceEmpty": "添加餐食以追蹤食物對水分的影響",
+  "@foodAdviceEmpty": {
+    "description": "Advice when no food logged"
+  },
+  "foodAdviceHighSodium": "檢測到高鈉攝入。增加水分以平衡電解質",
+  "@foodAdviceHighSodium": {
+    "description": "Advice for high sodium food"
+  },
+  "foodAdviceLowWater": "食物水分含量低。考慮多喝水",
+  "@foodAdviceLowWater": {
+    "description": "Advice for low water content food"
+  },
+  "foodAdviceGoodHydration": "很好！食物幫助補水",
+  "@foodAdviceGoodHydration": {
+    "description": "Advice for good hydrating food"
+  },
+  "foodAdviceBalanced": "營養良好！記得喝水",
+  "@foodAdviceBalanced": {
+    "description": "Advice for balanced food choices"
+  },
+  "richInElectrolytes": "電解質豐富",
+  "@richInElectrolytes": {
+    "description": "Status for food rich in electrolytes"
+  },
+  "recommendedCalories": "建議卡路里: 約{calories} kcal/天",
+  "@recommendedCalories": {
+    "description": "Recommended daily calorie intake",
+    "placeholders": {
+      "calories": {
+        "type": "int",
+        "example": "1750"
+      }
+    }
+  },
+  "proWelcomeTitle": "歡迎使用HydraCoach PRO！",
+  "@proWelcomeTitle": {
+    "description": "PRO welcome screen title"
+  },
+  "proTrialActivated": "7天試用已啟動！",
+  "@proTrialActivated": {
+    "description": "PRO trial activation subtitle"
+  },
+  "proFeaturePersonalizedRecommendations": "個性化建議",
+  "@proFeaturePersonalizedRecommendations": {
+    "description": "PRO feature: personalized hydration advice"
+  },
+  "proFeatureAdvancedAnalytics": "高級分析",
+  "@proFeatureAdvancedAnalytics": {
+    "description": "PRO feature: detailed charts and statistics"
+  },
+  "proFeatureWorkoutTracking": "運動追蹤",
+  "@proFeatureWorkoutTracking": {
+    "description": "PRO feature: fluid loss tracking during sports"
+  },
+  "proFeatureElectrolyteControl": "電解質控制",
+  "@proFeatureElectrolyteControl": {
+    "description": "PRO feature: sodium, potassium, magnesium monitoring"
+  },
+  "proFeatureSmartReminders": "智慧提醒",
+  "@proFeatureSmartReminders": {
+    "description": "PRO feature: personalized notifications"
+  },
+  "proFeatureHriIndex": "HRI指數",
+  "@proFeatureHriIndex": {
+    "description": "PRO feature: real-time hydration risk index"
+  },
+  "proFeatureAchievements": "PRO成就",
+  "@proFeatureAchievements": {
+    "description": "PRO feature: exclusive rewards and goals"
+  },
+  "proFeaturePersonalizedDescription": "個人水分建議",
+  "@proFeaturePersonalizedDescription": {
+    "description": "PRO feature description: personalized recommendations"
+  },
+  "proFeatureAdvancedDescription": "詳細圖表和統計",
+  "@proFeatureAdvancedDescription": {
+    "description": "PRO feature description: advanced analytics"
+  },
+  "proFeatureWorkoutDescription": "運動中液體流失追蹤",
+  "@proFeatureWorkoutDescription": {
+    "description": "PRO feature description: workout tracking"
+  },
+  "proFeatureElectrolyteDescription": "鈉、鉀、鎂監測",
+  "@proFeatureElectrolyteDescription": {
+    "description": "PRO feature description: electrolyte control"
+  },
+  "proFeatureSmartDescription": "個性化通知",
+  "proFeatureNoMoreAds": "無廣告！",
+  "@proFeatureNoMoreAds": {
+    "description": "PRO feature title: no more ads"
+  },
+  "proFeatureNoMoreAdsDescription": "享受無廣告水分追蹤",
+  "@proFeatureNoMoreAdsDescription": {
+    "description": "PRO feature description: no more ads"
+  },
+  "@proFeatureSmartDescription": {
+    "description": "PRO feature description: smart reminders"
+  },
+  "proFeatureHriDescription": "即時水分風險指數",
+  "@proFeatureHriDescription": {
+    "description": "PRO feature description: HRI index"
+  },
+  "proFeatureAchievementsDescription": "專屬獎勵和目標",
+  "@proFeatureAchievementsDescription": {
+    "description": "PRO feature description: PRO achievements"
+  },
+  "startUsing": "開始使用",
+  "@startUsing": {
+    "description": "Button to start using PRO features"
+  },
+  "sayGoodbyeToAds": "告別廣告。升級高級版",
+  "@sayGoodbyeToAds": {
+    "description": "Text below MREC ad encouraging premium upgrade"
+  },
+  "goPremium": "升級高級版",
+  "@goPremium": {
+    "description": "Button text to upgrade to premium"
+  },
+  "removeAdsForever": "永久移除廣告",
+  "@removeAdsForever": {
+    "description": "Text for premium fallback content"
+  },
+  "upgrade": "升級",
+  "@upgrade": {
+    "description": "Upgrade button text"
+  },
+  "support": "支援",
+  "@support": {
+    "description": "Support section title"
+  },
+  "companyWebsite": "公司網站",
+  "@companyWebsite": {
+    "description": "Company website menu item"
+  },
+  "appStoreOpened": "應用商店已開啟",
+  "@appStoreOpened": {
+    "description": "Message when App Store opens successfully"
+  },
+  "linkCopiedToClipboard": "連結已複製",
+  "@linkCopiedToClipboard": {
+    "description": "Message when link is copied as fallback"
+  },
+  "shareDialogOpened": "分享對話已開啟",
+  "@shareDialogOpened": {
+    "description": "Message when share dialog opens successfully"
+  },
+  "linkForSharingCopied": "分享連結已複製",
+  "@linkForSharingCopied": {
+    "description": "Message when share link is copied as fallback"
+  },
+  "websiteOpenedInBrowser": "網站已在瀏覽器開啟",
+  "@websiteOpenedInBrowser": {
+    "description": "Message when website opens successfully"
+  },
+  "emailClientOpened": "郵件客戶端已開啟",
+  "@emailClientOpened": {
+    "description": "Message when email client opens successfully"
+  },
+  "emailCopiedToClipboard": "郵件已複製",
+  "@emailCopiedToClipboard": {
+    "description": "Message when email is copied as fallback"
+  },
+  "privacyPolicyOpened": "隱私政策已開啟",
+  "@privacyPolicyOpened": {
+    "description": "Message when privacy policy opens successfully"
+  },
+  "statisticsTo": "統計至{date}",
+  "@statisticsTo": {
+    "description": "Statistics up to selected date",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMd"
+      }
+    }
+  },
+  "monthlyInsights": "月洞察",
+  "average": "平均",
+  "daysOver": "超過天數",
+  "maximum": "最大",
+  "balance": "平衡",
+  "allNormal": "全部正常",
+  "goodResults": "良好結果",
+  "positiveImprovement": "積極改善",
+  "physicalActivity": "身體活動",
+  "coffeeConsumption": "咖啡消費",
+  "excellentSobriety": "出色戒酒",
+  "excellentMonth": "出色的月",
+  "keepGoingMotivation": "繼續保持！",
+  "daysNormal": "天正常",
+  "electrolyteBalance": "電解質平衡需注意",
+  "caffeineWarning": "安全劑量超標天數(400mg)",
+  "sugarFrequentExcess": "頻繁超標糖影響水分",
+  "averagePerDayShort": "每天",
+  "highWarning": "高",
+  "normalStatus": "正常",
+  "improvementToEnd": "月末改善{percent}%",
+  "@improvementToEnd": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutActivity": "{percent}%天有運動({hours}小時)",
+  "@workoutActivity": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "coffeeAverage": "平均{avg}杯/天",
+  "@coffeeAverage": {
+    "placeholders": {
+      "avg": {
+        "type": "String"
+      }
+    }
+  },
+  "sobrietyPercent": "{percent}%天無酒精",
+  "@sobrietyPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "daySummary": "日摘要",
+  "records": "記錄",
+  "waterGoalAchievement": "水分目標達成: {percent}%",
+  "@waterGoalAchievement": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutSessions": "運動: {count}次",
+  "@workoutSessions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "index": "指數",
+  "status": "狀態",
+  "moderateRisk": "中等風險",
+  "excess": "超標",
+  "whoLimit": "WHO限量: 50g/天",
+  "forMonth": "本月",
+  "stability": "{percent}%天穩定",
+  "@stability": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "goodHydration": "{percent}%天良好水分",
+  "@goodHydration": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "daysInNorm": "{count}天正常",
+  "@daysInNorm": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "perfectDays": "{count}天",
+  "@perfectDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "excellentConsistency": "⭐ 出色一致",
+  "consistencyDays": "{percent}%天良好水分",
+  "@consistencyDays": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "stabilityDays": "{percent}%天穩定",
+  "@stabilityDays": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "positiveTrend": "📈 積極趨勢",
+  "monthEndImprovement": "月末改善{percent}%",
+  "@monthEndImprovement": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "workoutDaysPercent": "{percent}%天有運動({hours}小時)",
+  "@workoutDaysPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "averageCupsPerDay": "平均{avgCups}杯/天",
+  "@averageCupsPerDay": {
+    "placeholders": {
+      "avgCups": {
+        "type": "String"
+      }
+    }
+  },
+  "soberDaysPercent": "{percent}%天無酒精",
+  "@soberDaysPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "keepGoing": "繼續！",
+  "moderateRiskStatus": "狀態: 中等風險",
+  "high": "高",
+  "whoLimitPerDay": "WHO限量: 50g/天",
+  "drinkDaiquiri": "黛克瑞",
+  "drinkAbsinthe": "苦艾酒",
+  "drinkBrandy": "白蘭地",
+  "drinkLongIsland": "長島冰茶",
+  "drinkGinTonic": "琴通寧",
+  "drinkPinaColada": "鳳梨可樂達",
+  "drinkCosmopolitan": "柯夢波丹",
+  "drinkMaiTai": "邁泰",
+  "drinkBloodyMary": "血腥瑪莉",
+  "drinkLightBeer": "淡啤酒",
+  "drinkLager": "拉格",
+  "drinkIPA": "IPA",
+  "drinkStout": "黑啤",
+  "drinkWheatBeer": "小麥啤酒",
+  "drinkCraftBeer": "精釀啤酒",
+  "drinkNonAlcoholic": "無酒精",
+  "drinkRadler": "淡啤果汁",
+  "drinkPilsner": "皮爾森",
+  "drinkRedWine": "紅酒",
+  "drinkWhiteWine": "白酒",
+  "drinkProsecco": "普羅塞克",
+  "drinkPort": "波特酒",
+  "drinkRose": "粉紅酒",
+  "drinkDessertWine": "甜酒",
+  "drinkSangria": "桑格利亞",
+  "drinkSherry": "雪莉酒",
+  "drinkVodkaShot": "伏特加Shot",
+  "drinkCognac": "干邑",
+  "drinkLiqueur": "利口酒",
+  "popularDrinks": "熱門{type}",
+  "standardDrinksUnit": "SD",
+  "gramsSugar": "g糖",
+  "moderateConsumption": "適度攝取",
+  "aboveRecommendations": "超過建議",
+  "highConsumption": "高攝取",
+  "veryHighConsider": "非常高 - 考慮停止",
+  "noAlcoholToday": "今天無酒精",
+  "drinkWaterNow": "現在喝300-500 ml水",
+  "addPinchSalt": "加少許鹽",
+  "avoidLateCoffee": "避免太晚喝咖啡",
+  "abvPercent": "{percent}% ABV",
+  "greatBalance": "很好的平衡！",
+  "gettingThere": "快到了",
+  "needMoreElectrolytes": "需要更多電解質",
+  "lowElectrolyteLevels": "電解質水平低",
+  "electrolyteTips": "電解質提示",
+  "takeWithWater": "與大量水一起服用",
+  "bestBetweenMeals": "餐間吸收最好",
+  "startSmallAmounts": "從小量開始",
+  "extraDuringExercise": "運動時需要額外",
+  "electrolytesBasic": "基本",
+  "electrolytesMixes": "混合",
+  "electrolytesPills": "藥丸",
+  "popularSalts": "熱門鹽&湯",
+  "popularMixes": "熱門電解質混合",
+  "popularSupplements": "熱門補充劑",
+  "electrolyteSaltWater": "鹽水",
+  "electrolytePinkSalt": "粉鹽",
+  "electrolyteSeaSalt": "海鹽",
+  "electrolyteNuun": "Nuun",
+  "electrolyteLiquidIV": "Liquid IV",
+  "electrolyteUltima": "Ultima",
+  "electrolytePropel": "Propel",
+  "electrolytePedialyte": "Pedialyte",
+  "electrolyteGatoradeZero": "Gatorade Zero",
+  "electrolytePotassiumChloride": "氯化鉀",
+  "electrolyteMagThreonate": "蘇糖酸鎂",
+  "electrolyteTraceMinerals": "微量礦物質",
+  "electrolyteZMAComplex": "ZMA複合物",
+  "electrolyteMultiMineral": "多礦物質",
+  "electrolyteLMNT": "LMNT",
+  "hydration": "補水",
+  "todayHydration": "今日補水",
+  "currentIntake": "已攝取",
+  "toGo": "剩餘",
+  "goalReached": "達成目標！",
+  "almostThere": "快到了！",
+  "halfwayThere": "到一半",
+  "startDrinking": "開始喝水",
+  "plainWater": "純水",
+  "enhancedWater": "強化",
+  "beverages": "飲料",
+  "sodas": "汽水",
+  "popularPlainWater": "熱門水類型",
+  "popularEnhancedWater": "強化&浸泡",
+  "popularBeverages": "熱門飲料",
+  "popularSodas": "熱門汽水&能量",
+  "hydrationTips": "補水提示",
+  "drinkRegularly": "定期少量飲用",
+  "roomTemperature": "室溫水吸收更好",
+  "addLemon": "加檸檬更好喝",
+  "limitSugary": "限制含糖飲料 - 會脫水",
+  "warmWater": "溫水",
+  "iceWater": "冰水",
+  "filteredWater": "過濾水",
+  "distilledWater": "蒸餾水",
+  "springWater": "泉水",
+  "hydrogenWater": "氫水",
+  "oxygenatedWater": "含氧水",
+  "cucumberWater": "黃瓜水",
+  "limeWater": "萊姆水",
+  "berryWater": "莓果水",
+  "mintWater": "薄荷水",
+  "gingerWater": "薑水",
+  "caffeineStatusNone": "今天無咖啡因",
+  "caffeineStatusModerate": "適度: {amount}mg",
+  "caffeineStatusHigh": "高: {amount}mg",
+  "caffeineStatusVeryHigh": "非常高: {amount}mg！",
+  "caffeineDailyLimit": "每日限量: 400mg",
+  "caffeineWarningTitle": "咖啡因警告",
+  "caffeineWarning400": "您今天已超過400mg咖啡因",
+  "caffeineTipWater": "多喝水補償",
+  "caffeineTipAvoid": "今天避免更多咖啡因",
+  "caffeineTipSleep": "可能影響睡眠品質",
+  "cupsToday": "今天杯數",
+  "metabolizeTime": "代謝時間",
+  "aboutCaffeine": "關於咖啡因",
+  "caffeineInfo1": "咖啡含天然咖啡因可提高警覺",
+  "caffeineInfo2": "大多數成人每日安全限量400mg",
+  "caffeineInfo3": "咖啡因半衰期5-6小時",
+  "caffeineInfo4": "多喝水補償咖啡因利尿效應",
+  "caffeineWarningPregnant": "孕婦應限制咖啡因至200mg/天",
+  "gotIt": "知道了",
+  "consumed": "已攝取",
+  "todaysCaffeine": "今日咖啡因",
+  "alreadyInFavorites": "已在最愛中",
+  "ofRecommendedLimit": "佔建議限量",
+  "aboutAlcohol": "關於酒精",
+  "alcoholInfo1": "一標準杯等於10g純酒精",
+  "alcoholInfo2": "酒精會脫水 — 每杯多喝250ml水",
+  "alcoholInfo3": "加鈉有助飲酒後保持體液",
+  "alcoholInfo4": "每標準杯增加HRI 3-5分",
+  "alcoholWarningHealth": "過量飲酒有害健康。建議限量男性每天2 SD、女性1 SD。",
+  "supplementsInfo1": "補充劑幫助維持電解質平衡",
+  "supplementsInfo2": "最好隨餐服用以吸收",
+  "supplementsInfo3": "總是與大量水一起服用",
+  "supplementsInfo4": "鎂和鉀是補水的關鍵",
+  "supplementsWarning": "開始任何補充劑方案前請諮詢醫療提供者",
+  "fromSupplementsToday": "今日補充劑",
+  "essentialMinerals": "必需礦物質",
+  "otherSupplements": "其他補充劑",
+  "supplementTip1": "與食物一起服用補充劑以更好吸收",
+  "supplementTip2": "與補充劑一起喝大量水",
+  "supplementTip3": "全天分散多個補充劑",
+  "supplementTip4": "追蹤什麼對您有效",
+  "calciumCarbonate": "碳酸鈣",
+  "traceMinerals": "微量礦物質",
+  "vitaminA": "維生素A",
+  "vitaminE": "維生素E",
+  "vitaminK2": "維生素K2",
+  "folate": "葉酸",
+  "biotin": "生物素",
+  "probiotics": "益生菌",
+  "melatonin": "褪黑激素",
+  "collagen": "膠原蛋白",
+  "glucosamine": "葡萄糖胺",
+  "turmeric": "薑黃",
+  "coq10": "輔酶Q10",
+  "creatine": "肌酸",
+  "ashwagandha": "南非醉茄",
+  "selectCardioActivity": "選擇有氧活動",
+  "selectStrengthActivity": "選擇力量活動",
+  "selectSportsActivity": "選擇運動",
+  "drinkWaterAfterWorkout": "運動後喝水",
+  "replenishElectrolytes": "補充電解質",
+  "restAndRecover": "休息恢復",
+  "avoidSugaryDrinks": "避免含糖運動飲料",
+  "elliptical": "橢圓機",
+  "rowing": "划船",
+  "jumpRope": "跳繩",
+  "stairClimbing": "爬樓梯",
+  "bodyweight": "體重訓練",
+  "powerlifting": "力量舉",
+  "calisthenics": "健美操",
+  "resistanceBands": "阻力帶",
+  "kettlebell": "壺鈴",
+  "trx": "TRX",
+  "strongman": "大力士",
+  "pilates": "普拉提",
+  "basketball": "籃球",
+  "soccerFootball": "足球",
+  "golf": "高爾夫",
+  "martialArts": "武術",
+  "rockClimbing": "攀岩",
+  "needsToReplenish": "需要補充",
+  "electrolyteTrackingPro": "追蹤鈉、鉀和鎂目標及詳細進度條",
+  "weatherTrackingPro": "追蹤熱指數、濕度及天氣對補水目標的影響",
+  "sugarTrackingPro": "監測天然、添加和隱藏糖攝入及HRI影響分析",
+  "dayOverview": "日概覽",
+  "noDataForDay": "此日無資料",
+  "sweatLoss": "汗液流失",
+  "noWaterThisDay": "此日無水記錄",
+  "noElectrolytesThisDay": "此日無電解質記錄",
+  "noCoffeeThisDay": "此日無咖啡記錄",
+  "noWorkoutsThisDay": "此日無運動記錄",
+  "daysWithWorkouts": "有運動的天數",
+  "csvExported": "資料已匯出至CSV",
+  "mondayShort": "一",
+  "tuesdayShort": "二",
+  "wednesdayShort": "三",
+  "thursdayShort": "四",
+  "fridayShort": "五",
+  "saturdayShort": "六",
+  "sundayShort": "日",
+  "achievementsTabAll": "全部",
+  "achievementsTabHydration": "補水",
+  "achievementsTabElectrolytes": "電解質",
+  "achievementsTabSugar": "控糖",
+  "achievementsTabAlcohol": "酒精",
+  "achievementsTabWorkout": "健身",
+  "achievementsTabHRI": "HRI",
+  "achievementsTabStreaks": "連續",
+  "achievementsTabSpecial": "特別",
+  "achievementRarityCommon": "普通",
+  "achievementRarityUncommon": "罕見",
+  "achievementRarityRare": "稀有",
+  "achievementRarityEpic": "史詩",
+  "achievementRarityLegendary": "傳奇",
+  "achievementFilterAll": "全部",
+  "achievementFilterUnlocked": "已解鎖",
+  "achievementSortProgress": "進度",
+  "achievementSortName": "名稱",
+  "achievementSortRarity": "稀有度",
+  "before": "前",
+  "after": "後",
+  "lose": "失去",
+  "through": "通過",
+  "throughWorkouts": "通過運動",
+  "reach": "達到",
+  "daysInRow": "連續天數",
+  "completeHydrationGoal": "完成補水目標",
+  "stayUnder": "保持在以下",
+  "inADay": "一天內",
+  "alcoholFree": "無酒精",
+  "notCompleted": "未完成",
+  "ofTotal": "佔總數",
+  "perDay": "每天",
+  "perWeek": "每週",
+  "onboardingAllowNotifications": "允許通知",
+  "onboardingAllowLocation": "允許位置",
+  "caloriesPerDay": "每日卡路里",
+  "sugarPerDay": "每日糖",
+  "foodTrackingPro": "追蹤食物對補水和HRI的影響",
+  "hydrationBalance": "補水平衡",
+  "highSodiumFood": "食物中高鈉",
+  "hydratingFood": "優秀補水選擇",
+  "dryFood": "低水分食物",
+  "balancedFood": "均衡營養",
+  "foodAdviceEmpty": "添加餐點以追蹤食物對補水的影響。",
+  "foodAdviceHighSodium": "檢測到高鈉攝入。增加水以平衡電解質。",
+  "foodAdviceLowWater": "您的食物水分含量低。考慮多喝水。",
+  "foodAdviceGoodHydration": "太好了！您的食物幫助補水。",
+  "foodAdviceBalanced": "營養良好！記得喝水。",
+  "richInElectrolytes": "富含電解質",
+  "recommendedCalories": "建議卡路里: ~{calories} kcal/天",
+  "proWelcomeTitle": "歡迎使用HydraCoach PRO！",
+  "proTrialActivated": "您的7天試用已啟動！",
+  "proFeaturePersonalizedRecommendations": "個人化建議",
+  "proFeatureAdvancedAnalytics": "進階分析",
+  "proFeatureWorkoutTracking": "運動追蹤",
+  "proFeatureElectrolyteControl": "電解質控制",
+  "proFeatureSmartReminders": "智能提醒",
+  "proFeatureHriIndex": "HRI指數",
+  "proFeatureAchievements": "PRO成就",
+  "proFeaturePersonalizedDescription": "個人補水建議",
+  "proFeatureAdvancedDescription": "詳細圖表和統計",
+  "proFeatureWorkoutDescription": "運動期間體液流失追蹤",
+  "proFeatureElectrolyteDescription": "鈉、鉀、鎂監測",
+  "proFeatureSmartDescription": "個人化通知",
+  "proFeatureNoMoreAds": "不再有廣告！",
+  "proFeatureNoMoreAdsDescription": "享受無中斷補水追蹤，無任何廣告",
+  "proFeatureHriDescription": "即時補水風險指數",
+  "proFeatureAchievementsDescription": "專屬獎勵和目標",
+  "startUsing": "開始使用",
+  "sayGoodbyeToAds": "告別廣告。升級高級版。",
+  "goPremium": "升級高級版",
+  "removeAdsForever": "永久移除廣告",
+  "upgrade": "升級",
+  "support": "支援",
+  "companyWebsite": "公司網站",
+  "appStoreOpened": "App Store已開啟",
+  "linkCopiedToClipboard": "連結已複製到剪貼板",
+  "shareDialogOpened": "分享對話框已開啟",
+  "linkForSharingCopied": "分享連結已複製",
+  "websiteOpenedInBrowser": "網站已在瀏覽器開啟",
+  "emailClientOpened": "電郵客戶端已開啟",
+  "emailCopiedToClipboard": "電郵已複製到剪貼板",
+  "privacyPolicyOpened": "隱私政策已開啟",
+  "statisticsTo": "統計至{date}",
+  "monthlyInsights": "每月洞察",
+  "average": "平均",
+  "daysOver": "天數超過",
+  "maximum": "最大",
+  "allNormal": "全部正常",
+  "daysNormal": "天正常",
+  "electrolyteBalance": "電解質平衡需要關注",
+  "caffeineWarning": "超過安全劑量天數(400mg)",
+  "sugarFrequentExcess": "頻繁過量糖影響補水",
+  "averagePerDayShort": "每天",
+  "highWarning": "高",
+  "normalStatus": "正常",
+  "activeCaffeineLevel": "活躍咖啡因: {amount} mg",
+  "activityLogged": "活動已記錄",
+  "addedSuccessfully": "成功添加",
+  "addedSugar": "添加糖",
+  "alcoholWithDecay": "酒精影響(衰減中)",
+  "alkalineWater": "鹼性水",
+  "allDrinksAndSupplements": "所有飲品&補充劑",
+  "bakingSoda": "小蘇打水",
+  "basedOnWeight": "基於體重",
+  "bComplex": "B群",
+  "blackTea": "紅茶",
+  "boneBroth": "骨湯",
+  "boxing": "拳擊",
+  "caffeine": "咖啡因",
+  "calciumCitrate": "檸檬酸鈣",
+  "cappuccino": "卡布奇諾",
+  "celticSalt": "凱爾特鹽水",
+  "creamTartar": "酒石酸鉀",
+  "crossfit": "CrossFit",
+  "cycling": "騎車",
+  "dailyLimit": "每日限量",
+  "dancing": "跳舞",
+  "dosage": "劑量",
+  "drinks": "飲品",
+  "duration": "時長",
+  "eatingWindowActive": "進食窗口活躍",
+  "electrolyteMix": "電解質混合",
+  "enterDosage": "輸入劑量",
+  "enterDuration": "輸入時長",
+  "enterValidDuration": "請輸入有效時長",
+  "espresso": "濃縮咖啡",
+  "fastingModeActive": "斷食模式活躍",
+  "fastingSuppressionNote": "斷食期間時間因子被抑制",
+  "fastingWindowActive": "斷食窗口活躍",
+  "feelingScale1": "差",
+  "feelingScale2": "低於平均",
+  "feelingScale3": "正常",
+  "feelingScale4": "好",
+  "feelingScale5": "優秀",
+  "feelsLike": "體感",
+  "fl_oz": "fl oz",
+  "gym": "健身房",
+  "herbalTea": "花草茶",
+  "hiddenSugar": "隱藏糖",
+  "highHeatIndexWarning": "高熱指數！增加水分攝取",
+  "highIntensity": "高強度",
+  "hiit": "HIIT",
+  "hotChocolate": "熱巧克力",
+  "hoursAgo": "小時前",
+  "howAreYouFeeling": "您感覺如何？",
+  "hri_component_sugar": "糖",
+  "hri_sugar_description": "高糖攝入影響補水和整體健康",
+  "hriBreakdownTitle": "風險因子分解",
+  "hriComponentAlcohol": "酒精影響",
+  "hriComponentCaffeine": "咖啡因影響",
+  "hriComponentHeat": "熱壓力",
+  "hriComponentMagnesium": "鎂水平",
+  "hriComponentMorning": "晨間因子",
+  "hriComponentPotassium": "鉀水平",
+  "hriComponentSodium": "鈉水平",
+  "hriComponentTime": "攝取後時間",
+  "hriComponentValue": "{component}: {value}/{max} 分",
+  "hriComponentWater": "水分平衡",
+  "hriComponentWorkout": "身體活動",
+  "hriDebugInfo": "HRI除錯資訊",
+  "hriNormalized": "HRI(標準化): {value}/100",
+  "hriStatusCritical": "危急",
+  "hriStatusExcellent": "優秀",
+  "hriStatusGood": "良好",
+  "hriStatusHighRisk": "高風險",
+  "hriStatusModerate": "中度風險",
+  "humidityLabel": "濕度",
+  "ironBisglycinate": "雙甘胺酸鐵",
+  "ketorade": "Ketorade",
+  "latte": "拿鐵",
+  "lb": "lb",
+  "lmntMix": "LMNT混合",
+  "logActivity": "記錄活動",
+  "lowIntensity": "低強度",
+  "magnesiumCitrate": "檸檬酸鎂",
+  "magnesiumThreonate": "蘇糖酸鎂L",
+  "matcha": "抹茶",
+  "mediumIntensity": "中強度",
+  "mineralDrops": "礦物質滴劑",
+  "morningCheckInTitle": "晨間檢查",
+  "multivitamin": "綜合維生素",
+  "naturalSugar": "天然糖",
+  "nextEatingWindow": "下次進食: {time}",
+  "nextFastingWindow": "下次斷食: {time}",
+  "noElectrolyteContent": "無電解質含量",
+  "noSugarIntake": "今天未追蹤糖",
+  "notificationAlcoholCounterBody": "喝{ml} ml水加少許鹽",
+  "notificationAlcoholCounterTitle": "🍺 恢復時間",
+  "notificationAlcoholRecoveryFinalBody": "明早 - 控制檢查",
+  "notificationAlcoholRecoveryMidBody": "添加電解質: Na/K/Mg",
+  "notificationAlcoholRecoveryStepBody": "喝{ml} ml水",
+  "notificationAlcoholRecoveryStepTitle": "💧 恢復{hours}h",
+  "notificationChannelDefault": "補水提醒",
+  "notificationChannelDefaultDesc": "水和電解質提醒",
+  "notificationChannelReport": "報告",
+  "notificationChannelReportDesc": "每日和每週報告",
+  "notificationChannelUrgent": "重要通知",
+  "notificationChannelUrgentDesc": "高溫警告和緊急補水警報",
+  "notificationFastingElectrolyteBody": "在水中加少許鹽或喝湯",
+  "notificationFastingElectrolyteTitle": "⚡ 電解質時間",
+  "notificationGoodProgressBody": "優秀進展！繼續",
+  "notificationHeatWarningExtremeBody": "極端高溫！+15%水和+1g鹽",
+  "notificationHeatWarningHotBody": "熱！+10%水和電解質",
+  "notificationHeatWarningTitle": "🌡️ 高溫警告",
+  "notificationHeatWarningWarmBody": "溫暖。監測您的補水",
+  "notificationLowProgressBody": "您只喝了{percent}%。該追上了！",
+  "notificationMaintainBalanceBody": "保持水分平衡",
+  "notificationMorningCheckInBody": "感覺如何？評估狀態並獲得當日計劃",
+  "notificationMorningCheckInTitle": "☀️ 晨間檢查",
+  "notificationMorningWaterBody": "以一杯水開始新的一天",
+  "notificationPostWorkoutBody": "500 ml水+電解質恢復",
+  "notificationPostWorkoutTitle": "💪 運動後",
+  "notificationTestBody": "如果您看到這個 - 通知有效！",
+  "notificationTestScheduledBody": "此通知在1分鐘前預定",
+  "notificationTestScheduledTitle": "⏰ 預定測試",
+  "notificationTestTitle": "🧪 測試通知",
+  "notificationWaterBody": "別忘喝水",
+  "notificationWaterTitle": "💧 補水時間",
+  "notificationWorkoutBody": "別忘水和電解質",
+  "notificationWorkoutTitle": "💪 運動",
+  "omega3": "Omega-3",
+  "oz": "oz",
+  "pickleJuice": "醃黃瓜汁",
+  "pressure": "氣壓",
+  "recommendedIntake": "建議攝取:",
+  "running": "跑步",
+  "sauna": "桑拿",
+  "selectSupplementType": "選擇補充劑類型:",
+  "soleWater": "Sole水",
+  "sportRecoveryProtocols": "運動恢復方案",
+  "standardDrinksToday": "今天標準杯數: {count}",
+  "sugarFromDrinks": "飲品",
+  "sugarFromFood": "食物",
+  "sugarFromSnacks": "零食",
+  "sugarSources": "糖來源",
+  "swimming": "游泳",
+  "teamSports": "團隊運動",
+  "tennis": "網球",
+  "tip_avoid_added_sugar": "檢查標籤避免添加糖產品",
+  "tip_check_labels": "注意醬料和加工食品中的隱藏糖",
+  "tip_reduce_sweet_drinks": "用水或無糖茶替代甜飲料",
+  "tip_replace_soda": "用氣泡水加檸檬替代汽水",
+  "tomatoSalt": "番茄+鹽",
+  "urineColor1": "1 - 非常淡",
+  "urineColor2": "2 - 淡",
+  "urineColor3": "3 - 淺黃",
+  "urineColor4": "4 - 黃",
+  "urineColor5": "5 - 深黃",
+  "urineColor6": "6 - 琥珀色",
+  "urineColor7": "7 - 深琥珀",
+  "urineColor8": "8 - 棕色",
+  "urineColorScale": "尿液顏色(1-8級)",
+  "veryHighIntensity": "極高強度",
+  "vitamins": "維生素",
+  "vitaminC": "維生素C",
+  "vitaminD3": "維生素D3",
+  "walking": "步行",
+  "weatherCondition": "狀況",
+  "weightChange": "自昨天體重變化",
+  "wind": "風",
+  "yoga": "瑜伽",
+  "zincGlycinate": "甘胺酸鋅",
+  "gallons": "加侖",
+  "hriImpact": "HRI影響",
+  "notificationDailyReportBody": "查看您的補水日",
+  "notificationDailyReportTitle": "📊 每日報告已準備好",
+  "notificationPostCoffeeBody": "喝250-300 ml水恢復平衡",
+  "notificationPostCoffeeTitle": "☕ 喝咖啡後",
+  "onboardingBullet1": "基於天氣和您的個人水和鹽標準",
+  "onboardingBullet2": "「現在該做什麼」提示而非原始圖表",
+  "onboardingBullet3": "標準杯酒精與安全限量",
+  "onboardingBullet4": "智能提醒無垃圾訊息",
+  "onboardingContinue": "繼續",
+  "onboardingEnableLater": "稍後啟用",
+  "onboardingEnablePermission": "啟用",
+  "onboardingHaveAccount": "我已有帳戶",
+  "onboardingIonWillHelp": "ION每天幫助保持平衡",
+  "onboardingLocationSubtitle": "我們會考慮天氣和濕度。這比僅根據體重的公式更準確",
+  "onboardingLocationTitle": "天氣對補水很重要",
+  "onboardingNotifExample1": "補水時間",
+  "onboardingNotifExample2": "別忘電解質",
+  "onboardingNotifExample3": "熱！多喝水",
+  "onboardingNotificationSubtitle": "在適當時刻簡短提示。您可以一鍵改變頻率",
+  "onboardingNotificationTitle": "智能提醒",
+  "onboardingPracticeFasting": "我實行間歇性斷食",
+  "onboardingPracticeFastingDesc": "斷食窗口特殊電解質方案",
+  "onboardingProfileReady": "配置檔已準備好！",
+  "onboardingStartButton": "開始",
+  "onboardingUnitsSubtitle": "您稍後無法變更此設定",
+  "onboardingUnitsTitle": "選擇您的單位",
+  "onboardingUnitsWarning": "此選擇是永久的且稍後無法變更",
+  "onboardingWaterNorm": "水分標準",
+  "onboardingWeatherExample": "今天熱！+15%水",
+  "onboardingWeatherExampleDesc": "+500 mg鈉應對高溫",
+  "onboardingWelcomeSubtitle": "聰明喝，不是多喝\n應用程式考慮天氣、電解質和您的習慣\n幫助保持清晰思維和穩定能量",
+  "onboardingWelcomeTitle": "HydroCoach — 每天智能補水",
+  "points": "分",
+  "recommendedLimit": "建議",
+  "selectActivityType": "選擇活動類型:",
+  "snacks": "零食",
+  "sodiumNormal": "標準",
+  "sports": "運動",
+  "sugarCritical": "危急",
+  "sugarHigh": "高",
+  "sugarIntake": "糖攝入",
+  "sugarModerate": "適度",
+  "sugarNormal": "正常",
+  "sugarRecommendationCritical": "糖非常高！今天避免含糖飲料和糖果",
+  "sugarRecommendationHigh": "糖攝入高！限制甜飲料和甜點",
+  "sugarRecommendationModerate": "考慮減少甜飲料和零食",
+  "sugarRecommendationNormal": "做得好！您的糖攝入在健康範圍內",
+  "sugarToday": "今天的糖消耗",
+  "target": "目標",
+  "todaysWorkouts": "今日運動",
+  "totalSugar": "總糖",
+  "waterNormal": "正常",
+  "remaining": "剩餘",
+  "supplements": "補充劑",
+  "todaysElectrolytes": "今日電解質",
+  "total": "總計"
+}
