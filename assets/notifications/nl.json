@@ -1,0 +1,56 @@
+{
+  "water_reminder_title": "💧 Tijd om te hydrateren",
+  "water_reminder_morning": "Begin je dag met een glas water",
+  "water_reminder_low_progress": "Je hebt maar {progress}% van de norm gedronken. Tijd om bij te werken!",
+  "water_reminder_good_progress": "Uitstekende voortgang! Ga door",
+  "water_reminder_maintain": "Vochtbalans handhaven",
+  "water_reminder_body": "Je hebt {progress}% van je doel bereikt. Blijf doorgaan!",
+
+  "post_coffee_title": "☕ Na de koffie",
+  "post_coffee_body": "Drink 250-300 ml water om het evenwicht te herstellen",
+
+  "daily_report_title": "📊 Dagrapport gereed",
+  "daily_report_body": "Bekijk hoe je hydratiedag eruit zag",
+
+  "alcohol_counter_title": "🍺 Hersteltijd",
+  "alcohol_counter_body": "Drink {amount} ml water met een snufje zout",
+
+  "heat_warning_title": "🌡️ Hittemelding",
+  "heat_warning_extreme": "Extreme hitte! +15% water en +1g zout",
+  "heat_warning_hot": "Heet! +10% water en elektrolyten",
+  "heat_warning_warm": "Warm. Let op je hydratie",
+
+  "workout_title": "💪 Training",
+  "workout_body": "Vergeet water en elektrolyten niet",
+
+  "post_workout_title": "💪 Na de training",
+  "post_workout_body": "500 ml water + elektrolyten voor herstel",
+
+  "fasting_electrolyte_title": "⚡ Elektrolyten tijd",
+  "fasting_electrolyte_body": "Voeg een snufje zout toe aan water of drink bouillon",
+
+  "alcohol_recovery_step_title": "💧 Herstel {hour}u",
+  "alcohol_recovery_step_body": "Drink {amount} ml water",
+  "alcohol_recovery_step_body_with_electrolytes": "Drink {amount} ml water + elektrolyten (Na/K/Mg)",
+
+  "morning_checkin_title": "☀️ Ochtend check-in",
+  "morning_checkin_body": "Hoe voel je je? Beoordeel je conditie en maak een plan voor de dag",
+
+  "test_notification_title": "🧪 Testmelding",
+  "test_notification_body": "Als je dit ziet - meldingen werken!",
+
+  "test_scheduled_title": "⏰ Geplande test",
+  "test_scheduled_body": "Deze melding werd een minuut geleden gepland",
+
+  "channel_name_default": "Hydratie herinneringen",
+  "channel_desc_default": "Water- en elektrolytenwaarschuwingen",
+
+  "channel_name_urgent": "Belangrijke meldingen",
+  "channel_desc_urgent": "Hittewaarschuwingen en kritische hydratiewaarschuwingen",
+
+  "channel_name_report": "Rapporten",
+  "channel_desc_report": "Dag- en weekrapporten",
+
+  "channel_name_silent": "Stille meldingen",
+  "channel_desc_silent": "Stille herinneringen zonder geluid of trillen"
+}

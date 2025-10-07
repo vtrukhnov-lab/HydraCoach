@@ -1,0 +1,56 @@
+{
+  "water_reminder_title": "💧 Zeit zum Hydratisieren",
+  "water_reminder_morning": "Starten Sie Ihren Tag mit einem Glas Wasser",
+  "water_reminder_low_progress": "Sie haben nur {progress}% der Norm getrunken. Zeit aufzuholen!",
+  "water_reminder_good_progress": "Hervorragender Fortschritt! Weiter so",
+  "water_reminder_maintain": "Wasserbilanz aufrechterhalten",
+  "water_reminder_body": "Sie haben {progress}% Ihres Ziels erreicht. Bleiben Sie dran!",
+
+  "post_coffee_title": "☕ Nach dem Kaffee",
+  "post_coffee_body": "Trinken Sie 250-300 ml Wasser, um das Gleichgewicht wiederherzustellen",
+
+  "daily_report_title": "📊 Tagesbericht bereit",
+  "daily_report_body": "Sehen Sie, wie Ihr Hydratationstag verlaufen ist",
+
+  "alcohol_counter_title": "🍺 Erholungszeit",
+  "alcohol_counter_body": "{amount} ml Wasser mit einer Prise Salz trinken",
+
+  "heat_warning_title": "🌡️ Hitzewarnung",
+  "heat_warning_extreme": "Extreme Hitze! +15% Wasser und +1g Salz",
+  "heat_warning_hot": "Heiß! +10% Wasser und Elektrolyte",
+  "heat_warning_warm": "Warm. Achten Sie auf Ihre Hydratation",
+
+  "workout_title": "💪 Training",
+  "workout_body": "Vergessen Sie Wasser und Elektrolyte nicht",
+
+  "post_workout_title": "💪 Nach dem Training",
+  "post_workout_body": "500 ml Wasser + Elektrolyte zur Regeneration",
+
+  "fasting_electrolyte_title": "⚡ Elektrolytzeit",
+  "fasting_electrolyte_body": "Fügen Sie dem Wasser eine Prise Salz hinzu oder trinken Sie Brühe",
+
+  "alcohol_recovery_step_title": "💧 Erholung {hour}h",
+  "alcohol_recovery_step_body": "{amount} ml Wasser trinken",
+  "alcohol_recovery_step_body_with_electrolytes": "{amount} ml Wasser + Elektrolyte (Na/K/Mg)",
+
+  "morning_checkin_title": "☀️ Morgen-Check-in",
+  "morning_checkin_body": "Wie geht es Ihnen? Bewerten Sie Ihren Zustand und erhalten Sie einen Plan für den Tag",
+
+  "test_notification_title": "🧪 Test-Benachrichtigung",
+  "test_notification_body": "Wenn Sie dies sehen - Benachrichtigungen funktionieren!",
+
+  "test_scheduled_title": "⏰ Geplanter Test",
+  "test_scheduled_body": "Diese Benachrichtigung wurde vor einer Minute geplant",
+
+  "channel_name_default": "Hydratations-Erinnerungen",
+  "channel_desc_default": "Wasser- und Elektrolyt-Erinnerungen",
+
+  "channel_name_urgent": "Wichtige Benachrichtigungen",
+  "channel_desc_urgent": "Hitzewarnungen und kritische Hydratations-Warnungen",
+
+  "channel_name_report": "Berichte",
+  "channel_desc_report": "Tages- und Wochenberichte",
+
+  "channel_name_silent": "Stille Benachrichtigungen",
+  "channel_desc_silent": "Leise Erinnerungen ohne Ton oder Vibration"
+}

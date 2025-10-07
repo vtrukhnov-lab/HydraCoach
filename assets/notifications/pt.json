@@ -1,0 +1,56 @@
+{
+  "water_reminder_title": "💧 Hora de hidratar",
+  "water_reminder_morning": "Comece seu dia com um copo de água",
+  "water_reminder_low_progress": "Você bebeu apenas {progress}% do recomendado. Hora de recuperar!",
+  "water_reminder_good_progress": "Progresso excelente! Continue assim",
+  "water_reminder_maintain": "Manter o equilíbrio de água",
+  "water_reminder_body": "Você atingiu {progress}% da sua meta. Persista!",
+
+  "post_coffee_title": "☕ Após o café",
+  "post_coffee_body": "Beba 250-300 ml de água para restaurar o equilíbrio",
+
+  "daily_report_title": "📊 Relatório diário pronto",
+  "daily_report_body": "Veja como foi seu dia de hidratação",
+
+  "alcohol_counter_title": "🍺 Tempo de recuperação",
+  "alcohol_counter_body": "Beba {amount} ml de água com uma pitada de sal",
+
+  "heat_warning_title": "🌡️ Alerta de calor",
+  "heat_warning_extreme": "Calor extremo! +15% de água e +1g de sal",
+  "heat_warning_hot": "Quente! +10% de água e eletrólitos",
+  "heat_warning_warm": "Morno. Monitore sua hidratação",
+
+  "workout_title": "💪 Treino",
+  "workout_body": "Não esqueça de água e eletrólitos",
+
+  "post_workout_title": "💪 Pós-treino",
+  "post_workout_body": "500 ml de água + eletrólitos para recuperação",
+
+  "fasting_electrolyte_title": "⚡ Hora dos eletrólitos",
+  "fasting_electrolyte_body": "Adicione uma pitada de sal à água ou beba caldo",
+
+  "alcohol_recovery_step_title": "💧 Recuperação {hour}h",
+  "alcohol_recovery_step_body": "Beba {amount} ml de água",
+  "alcohol_recovery_step_body_with_electrolytes": "Beba {amount} ml de água + eletrólitos (Na/K/Mg)",
+
+  "morning_checkin_title": "☀️ Check-in matinal",
+  "morning_checkin_body": "Como você está se sentindo? Avalie sua condição e faça um plano para o dia",
+
+  "test_notification_title": "🧪 Notificação de teste",
+  "test_notification_body": "Se você está vendo isto - as notificações estão funcionando!",
+
+  "test_scheduled_title": "⏰ Teste agendado",
+  "test_scheduled_body": "Esta notificação foi agendada há 1 minuto",
+
+  "channel_name_default": "Lembretes de hidratação",
+  "channel_desc_default": "Lembretes de água e eletrólitos",
+
+  "channel_name_urgent": "Notificações importantes",
+  "channel_desc_urgent": "Alertas de calor e hidratação crítica",
+
+  "channel_name_report": "Relatórios",
+  "channel_desc_report": "Relatórios diários e semanais",
+
+  "channel_name_silent": "Notificações silenciosas",
+  "channel_desc_silent": "Lembretes silenciosos sem som ou vibração"
+}

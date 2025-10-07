@@ -1,0 +1,56 @@
+{
+  "water_reminder_title": "💧 수분 섭취 시간",
+  "water_reminder_morning": "하루를 한 잔의 물로 시작하세요",
+  "water_reminder_low_progress": "기준의 {progress}%만 마셨어요. 따라잡을 시간입니다!",
+  "water_reminder_good_progress": "훌륭한 진행 상황! 계속 하세요",
+  "water_reminder_maintain": "수분 균형 유지하기",
+  "water_reminder_body": "목표의 {progress}%에 도달했어요. 계속 해보세요!",
+
+  "post_coffee_title": "☕ 커피 후",
+  "post_coffee_body": "균형을 되찾기 위해 250-300ml 물 마시기",
+
+  "daily_report_title": "📊 일일 보고서 준비 완료",
+  "daily_report_body": "오늘의 수분 섭취 상황 확인하기",
+
+  "alcohol_counter_title": "🍺 회복 시간",
+  "alcohol_counter_body": "소금을 조금 넣은 {amount}ml 물 마시기",
+
+  "heat_warning_title": "🌡️ 폭염 경보",
+  "heat_warning_extreme": "극심한 더위! 물 +15%, 소금 +1g",
+  "heat_warning_hot": "더움! 물 +10%와 전해질",
+  "heat_warning_warm": "따뜻함. 수분 섭취 모니터링",
+
+  "workout_title": "💪 운동",
+  "workout_body": "물과 전해질 잊지 마세요",
+
+  "post_workout_title": "💪 운동 후",
+  "post_workout_body": "회복을 위한 500ml 물 + 전해질",
+
+  "fasting_electrolyte_title": "⚡ 전해질 시간",
+  "fasting_electrolyte_body": "물에 소금 조금 넣거나 국물 마시기",
+
+  "alcohol_recovery_step_title": "💧 회복 {hour}시간",
+  "alcohol_recovery_step_body": "{amount}ml 물 마시기",
+  "alcohol_recovery_step_body_with_electrolytes": "{amount}ml 물 + 전해질 (Na/K/Mg)",
+
+  "morning_checkin_title": "☀️ 아침 체크인",
+  "morning_checkin_body": "오늘 기분은 어떤가요? 컨디션을 평가하고 하루 계획 세우기",
+
+  "test_notification_title": "🧪 테스트 알림",
+  "test_notification_body": "이것이 보인다면 - 알림이 작동합니다!",
+
+  "test_scheduled_title": "⏰ 예약된 테스트",
+  "test_scheduled_body": "이 알림은 1분 전에 예약되었습니다",
+
+  "channel_name_default": "수분 섭취 리마인더",
+  "channel_desc_default": "물과 전해질 리마인더",
+
+  "channel_name_urgent": "중요 알림",
+  "channel_desc_urgent": "폭염 경보 및 중요 수분 섭취 알림",
+
+  "channel_name_report": "보고서",
+  "channel_desc_report": "일일 및 주간 보고서",
+
+  "channel_name_silent": "무음 알림",
+  "channel_desc_silent": "소리나 진동 없는 조용한 리마인더"
+}

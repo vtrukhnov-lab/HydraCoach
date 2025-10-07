@@ -1,0 +1,56 @@
+{
+  "water_reminder_title": "💧 水分補給の時間",
+  "water_reminder_morning": "1日をグラス1杯の水から始めましょう",
+  "water_reminder_low_progress": "基準の{progress}%しか飲んでいません。追いつく時間です！",
+  "water_reminder_good_progress": "素晴らしい進捗！続けましょう",
+  "water_reminder_maintain": "水分バランスを維持する",
+  "water_reminder_body": "目標の{progress}%に到達しました。頑張りましょう！",
+
+  "post_coffee_title": "☕ コーヒー後",
+  "post_coffee_body": "バランスを取り戻すために250-300 mlの水を飲みましょう",
+
+  "daily_report_title": "📊 日次レポート準備完了",
+  "daily_report_body": "今日の水分補給の状況を確認しましょう",
+
+  "alcohol_counter_title": "🍺 回復時間",
+  "alcohol_counter_body": "塩を少々加えた{amount} mlの水を飲みましょう",
+
+  "heat_warning_title": "🌡️ 熱中症警報",
+  "heat_warning_extreme": "酷暑！水分を+15%、塩を+1g",
+  "heat_warning_hot": "暑い！水分+10%とミネラル",
+  "heat_warning_warm": "暖かい。水分補給に注意しましょう",
+
+  "workout_title": "💪 トレーニング",
+  "workout_body": "水分とミネラルを忘れずに",
+
+  "post_workout_title": "💪 トレーニング後",
+  "post_workout_body": "回復のため、500 mlの水 + ミネラル",
+
+  "fasting_electrolyte_title": "⚡ ミネラル補給の時間",
+  "fasting_electrolyte_body": "水に塩を少々加えるか、スープを飲みましょう",
+
+  "alcohol_recovery_step_title": "💧 回復 {hour}時間後",
+  "alcohol_recovery_step_body": "{amount} mlの水を飲みましょう",
+  "alcohol_recovery_step_body_with_electrolytes": "{amount} mlの水 + ミネラル（Na/K/Mg）",
+
+  "morning_checkin_title": "☀️ 朝のチェックイン",
+  "morning_checkin_body": "今日の気分はいかがですか？ 体調を評価し、1日の計画を立てましょう",
+
+  "test_notification_title": "🧪 テスト通知",
+  "test_notification_body": "これが見えたら - 通知は機能しています！",
+
+  "test_scheduled_title": "⏰ 予定されたテスト",
+  "test_scheduled_body": "この通知は1分前にスケジュールされました",
+
+  "channel_name_default": "水分補給リマインダー",
+  "channel_desc_default": "水分とミネラルのリマインダー",
+
+  "channel_name_urgent": "重要な通知",
+  "channel_desc_urgent": "熱中症警報と重大な水分補給警告",
+
+  "channel_name_report": "レポート",
+  "channel_desc_report": "日次・週次レポート",
+
+  "channel_name_silent": "サイレント通知",
+  "channel_desc_silent": "音やバイブレーションのない静かなリマインダー"
+}

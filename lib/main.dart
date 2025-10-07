@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hydracoach/utils/app_logger.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
@@ -119,7 +120,7 @@ void main() async {
 
   // Log app open event with AppsFlyer
   await AnalyticsService().log('app_open', {
-    'app_version': '2.1.3',
+    'app_version': '2.1.4',
     'locale': LocaleService.instance.currentLocale.toString(),
     'tz': DateTime.now().timeZoneName,
     'onboarding_completed': onboardingCompleted.toString(),  // преобразуем в строку
@@ -249,6 +250,13 @@ class MyApp extends StatelessWidget {
             Locale('en'),
             Locale('es'),
             Locale('ru'),
+            Locale('de'),
+            Locale('ja'),
+            Locale('ko'),
+            Locale('zh'),
+            Locale('zh', 'TW'),
+            Locale('nl'),
+            Locale('pt'),
           ],
           localizationsDelegates: const [
             AppLocalizations.delegate,
@@ -333,6 +341,7 @@ class _SplashScreenState extends State<SplashScreen> {
       });
 
       // Initialize alcohol service
+      if (!mounted) return;
       final alcoholService = Provider.of<AlcoholService>(context, listen: false);
       await alcoholService.init();
 
@@ -432,16 +441,16 @@ class _SplashScreenState extends State<SplashScreen> {
       // 🔥 КРИТИЧНО: Настраиваем callback для AppsFlyer startSDK() ПОСЛЕ согласия
       _consentService.onConsentChanged = (hasConsent) async {
         if (kDebugMode) {
-          print('🔧 Consent изменён: $hasConsent');
+          logger.d('🔧 Consent изменён: $hasConsent');
         }
         if (hasConsent) {
           if (kDebugMode) {
-            print('🚀 Согласие получено! Запускаем AppsFlyer SDK...');
+            logger.d('🚀 Согласие получено! Запускаем AppsFlyer SDK...');
           }
           await AnalyticsService().checkAndEnableAppsFlyer();
         } else {
           if (kDebugMode) {
-            print('⚠️ Согласие НЕ получено - AppsFlyer остается неактивным');
+            logger.d('⚠️ Согласие НЕ получено - AppsFlyer остается неактивным');
           }
         }
       };

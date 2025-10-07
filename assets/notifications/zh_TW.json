@@ -1,0 +1,56 @@
+{
+  "water_reminder_title": "💧 補水時間",
+  "water_reminder_morning": "從一杯水開始您的一天",
+  "water_reminder_low_progress": "您只喝了標準的{progress}%。是時候追上了！",
+  "water_reminder_good_progress": "進展excellent！繼續保持",
+  "water_reminder_maintain": "維持水分平衡",
+  "water_reminder_body": "您已達到目標的{progress}%。繼續加油！",
+
+  "post_coffee_title": "☕ 咖啡後",
+  "post_coffee_body": "喝250-300毫升水以恢復平衡",
+
+  "daily_report_title": "📊 日報已準備就緒",
+  "daily_report_body": "查看您今天的水分攝入情況",
+
+  "alcohol_counter_title": "🍺 恢復時間",
+  "alcohol_counter_body": "喝{amount}毫升水，加一小撮鹽",
+
+  "heat_warning_title": "🌡️ 高溫預警",
+  "heat_warning_extreme": "極端高溫！水分+15%，鹽+1克",
+  "heat_warning_hot": "炎熱！水分+10%和電解質",
+  "heat_warning_warm": "溫暖。監測您的水分攝入",
+
+  "workout_title": "💪 運動",
+  "workout_body": "不要忘記水和電解質",
+
+  "post_workout_title": "💪 運動後",
+  "post_workout_body": "500毫升水+電解質，助力恢復",
+
+  "fasting_electrolyte_title": "⚡ 電解質時間",
+  "fasting_electrolyte_body": "在水中加一小撮鹽，或喝湯",
+
+  "alcohol_recovery_step_title": "💧 恢復 {hour}小時",
+  "alcohol_recovery_step_body": "喝{amount}毫升水",
+  "alcohol_recovery_step_body_with_electrolytes": "喝{amount}毫升水+電解質（鈉/鉀/鎂）",
+
+  "morning_checkin_title": "☀️ 早晨報到",
+  "morning_checkin_body": "今天感覺如何？評估您的狀況並制定今天的計劃",
+
+  "test_notification_title": "🧪 測試通知",
+  "test_notification_body": "如果您看到這個 - 通知正常工作！",
+
+  "test_scheduled_title": "⏰ 預定測試",
+  "test_scheduled_body": "此通知是在1分鐘前預定的",
+
+  "channel_name_default": "水分補充提醒",
+  "channel_desc_default": "水和電解質提醒",
+
+  "channel_name_urgent": "重要通知",
+  "channel_desc_urgent": "高溫預警和關鍵水分攝入提醒",
+
+  "channel_name_report": "報告",
+  "channel_desc_report": "日報和週報",
+
+  "channel_name_silent": "靜音通知",
+  "channel_desc_silent": "無聲音和震動的安靜提醒"
+}
