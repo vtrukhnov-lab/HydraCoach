@@ -27,11 +27,11 @@ class TypeSelector<T> extends StatelessWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final color = activeColor ?? Colors.blue;
-    
+
     return Container(
       padding: padding ?? const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -55,12 +55,12 @@ class TypeSelector<T> extends StatelessWidget {
                 child: Text(
                   getTypeName(type, l10n),
                   style: TextStyle(
-                    color: isSelected 
-                      ? Colors.white 
-                      : theme.colorScheme.onSurfaceVariant,
-                    fontWeight: isSelected 
-                      ? FontWeight.bold 
-                      : FontWeight.normal,
+                    color: isSelected
+                        ? Colors.white
+                        : theme.colorScheme.onSurfaceVariant,
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                     fontSize: 13,
                   ),
                   textAlign: TextAlign.center,

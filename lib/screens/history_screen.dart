@@ -15,46 +15,47 @@ class HistoryScreen extends StatefulWidget {
   State<HistoryScreen> createState() => _HistoryScreenState();
 }
 
-class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProviderStateMixin {
+class _HistoryScreenState extends State<HistoryScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
   }
-  
+
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
   }
-  
+
   void _showPaywall() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const PaywallScreen(
-          showCloseButton: true,
-          source: 'history',
-        ),
-        fullscreenDialog: true,
-      ),
-    ).then((result) {
-      // Если пользователь купил PRO, обновляем UI
-      if (result == true) {
-        setState(() {});
-      }
-    });
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (context) =>
+                const PaywallScreen(showCloseButton: true, source: 'history'),
+            fullscreenDialog: true,
+          ),
+        )
+        .then((result) {
+          // Если пользователь купил PRO, обновляем UI
+          if (result == true) {
+            setState(() {});
+          }
+        });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    
+
     return Consumer<SubscriptionProvider>(
       builder: (context, subscriptionProvider, _) {
         final isPro = subscriptionProvider.isPro;
-        
+
         return Scaffold(
           backgroundColor: const Color(0xFFF8F9FA),
           appBar: AppBar(
@@ -73,10 +74,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                 decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border(
-                    bottom: BorderSide(
-                      color: Colors.grey.shade200,
-                      width: 1,
-                    ),
+                    bottom: BorderSide(color: Colors.grey.shade200, width: 1),
                   ),
                 ),
                 child: TabBar(
@@ -90,12 +88,10 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                     Tab(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(l10n.day),
-                        ],
+                        children: [Text(l10n.day)],
                       ),
                     ),
-                    
+
                     // Недельная вкладка - PRO
                     Tab(
                       child: Row(
@@ -113,7 +109,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                         ],
                       ),
                     ),
-                    
+
                     // Месячная вкладка - PRO
                     Tab(
                       child: Row(
@@ -151,21 +147,21 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
 
                     // Недельная история - только PRO
                     isPro
-                      ? const WeeklyHistoryScreen()
-                      : _buildProPlaceholder(
-                          title: l10n.weeklyHistory,
-                          description: l10n.weeklyHistoryDesc,
-                          icon: Icons.calendar_view_week,
-                        ),
+                        ? const WeeklyHistoryScreen()
+                        : _buildProPlaceholder(
+                            title: l10n.weeklyHistory,
+                            description: l10n.weeklyHistoryDesc,
+                            icon: Icons.calendar_view_week,
+                          ),
 
                     // Месячная история - только PRO
                     isPro
-                      ? const MonthlyHistoryScreen()
-                      : _buildProPlaceholder(
-                          title: l10n.monthlyHistory,
-                          description: l10n.monthlyHistoryDesc,
-                          icon: Icons.calendar_month,
-                        ),
+                        ? const MonthlyHistoryScreen()
+                        : _buildProPlaceholder(
+                            title: l10n.monthlyHistory,
+                            description: l10n.monthlyHistoryDesc,
+                            icon: Icons.calendar_month,
+                          ),
                   ],
                 ),
               ),
@@ -175,7 +171,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
       },
     );
   }
-  
+
   // Заглушка для PRO функций
   Widget _buildProPlaceholder({
     required String title,
@@ -183,7 +179,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
     required IconData icon,
   }) {
     final l10n = AppLocalizations.of(context);
-    
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
@@ -196,24 +192,17 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
               height: 100,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    Colors.grey.shade200,
-                    Colors.grey.shade300,
-                  ],
+                  colors: [Colors.grey.shade200, Colors.grey.shade300],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                size: 50,
-                color: Colors.grey.shade400,
-              ),
+              child: Icon(icon, size: 50, color: Colors.grey.shade400),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Заголовок
             Text(
               title,
@@ -223,9 +212,9 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                 color: Colors.black87,
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Описание
             Text(
               description,
@@ -236,9 +225,9 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                 height: 1.5,
               ),
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // PRO badge
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -251,7 +240,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.orange.withOpacity(0.3),
+                    color: Colors.orange.withValues(alpha: 0.3),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -260,11 +249,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
-                    Icons.star,
-                    color: Colors.white,
-                    size: 18,
-                  ),
+                  const Icon(Icons.star, color: Colors.white, size: 18),
                   const SizedBox(width: 6),
                   Text(
                     l10n.proFunction,
@@ -277,9 +262,9 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Кнопка разблокировки
             ElevatedButton(
               onPressed: _showPaywall,
@@ -310,9 +295,9 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Список преимуществ
             Container(
               margin: const EdgeInsets.only(top: 16),
@@ -335,25 +320,18 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
       ),
     );
   }
-  
+
   Widget _buildBenefit(String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Icon(
-            Icons.check_circle,
-            color: Colors.green.shade600,
-            size: 20,
-          ),
+          Icon(Icons.check_circle, color: Colors.green.shade600, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               text,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade800,
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade800),
             ),
           ),
         ],

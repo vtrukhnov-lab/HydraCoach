@@ -12,13 +12,13 @@ class AlcoholCard extends StatelessWidget {
         if (alcoholService.soberModeEnabled) {
           return const SizedBox.shrink();
         }
-        
+
         final totalSD = alcoholService.totalStandardDrinks;
-        
+
         if (totalSD == 0) {
           return const SizedBox.shrink();
         }
-        
+
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           padding: const EdgeInsets.all(16),
@@ -52,7 +52,10 @@ class AlcoholCard extends StatelessWidget {
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.red[500],
                       borderRadius: BorderRadius.circular(12),
@@ -86,7 +89,7 @@ class AlcoholCard extends StatelessWidget {
                 'Ложитесь спать раньше',
                 Colors.indigo,
               ),
-              
+
               // Список выпитого
               if (alcoholService.todayIntakes.isNotEmpty) ...[
                 const SizedBox(height: 12),
@@ -101,22 +104,28 @@ class AlcoholCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                ...alcoholService.todayIntakes.map((intake) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Row(
-                    children: [
-                      Icon(intake.type.icon, size: 16, color: Colors.orange[600]),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${intake.formattedTime} - ${intake.volumeMl.toInt()} мл, ${intake.abv}% (${intake.formattedSD})',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[700],
+                ...alcoholService.todayIntakes.map(
+                  (intake) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Row(
+                      children: [
+                        Icon(
+                          intake.type.icon,
+                          size: 16,
+                          color: Colors.orange[600],
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 4),
+                        Text(
+                          '${intake.formattedTime} - ${intake.volumeMl.toInt()} мл, ${intake.abv}% (${intake.formattedSD})',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                )),
+                ),
               ],
             ],
           ),
@@ -124,7 +133,7 @@ class AlcoholCard extends StatelessWidget {
       },
     );
   }
-  
+
   Widget _buildAdviceItem(IconData icon, String text, Color color) {
     return Row(
       children: [
@@ -133,10 +142,7 @@ class AlcoholCard extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700],
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey[700]),
           ),
         ),
       ],
@@ -154,13 +160,13 @@ class AlcoholIndicator extends StatelessWidget {
         if (alcoholService.soberModeEnabled) {
           return const SizedBox.shrink();
         }
-        
+
         final totalSD = alcoholService.totalStandardDrinks;
-        
+
         if (totalSD == 0) {
           return const SizedBox.shrink();
         }
-        
+
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -171,18 +177,11 @@ class AlcoholIndicator extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(
-                Icons.local_bar,
-                color: Colors.orange[600],
-                size: 20,
-              ),
+              Icon(Icons.local_bar, color: Colors.orange[600], size: 20),
               const SizedBox(width: 8),
               Text(
                 'Алкоголь сегодня',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[700],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[700]),
               ),
               const Spacer(),
               Container(

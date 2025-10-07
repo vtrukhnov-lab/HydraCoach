@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hydracoach/utils/app_logger.dart';
+
 import '../l10n/app_localizations.dart';
 import '../services/analytics_service.dart';
 import '../services/consent_service.dart';
@@ -31,7 +33,7 @@ class _MainShellState extends State<MainShell> {
     'reports',
     'settings',
   ];
-  
+
   @override
   void initState() {
     super.initState();
@@ -100,23 +102,27 @@ class _MainShellState extends State<MainShell> {
       final bool hasConsent = await consentService.getCachedConsent();
 
       if (kDebugMode) {
-        print('🔧 MainShell: Проверка согласия из кеша = $hasConsent');
+        logger.d('🔧 MainShell: Проверка согласия из кеша = $hasConsent');
       }
 
       // Если согласие есть, запускаем AppsFlyer SDK
       if (hasConsent) {
         if (kDebugMode) {
-          print('✅ MainShell: Согласие найдено в кеше, запускаем AppsFlyer SDK...');
+          logger.d(
+            '✅ MainShell: Согласие найдено в кеше, запускаем AppsFlyer SDK...',
+          );
         }
         await _analytics.checkAndEnableAppsFlyer();
       } else {
         if (kDebugMode) {
-          print('⚠️ MainShell: Согласие НЕ найдено в кеше - AppsFlyer остается неактивным');
+          logger.d(
+            '⚠️ MainShell: Согласие НЕ найдено в кеше - AppsFlyer остается неактивным',
+          );
         }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ MainShell: Ошибка проверки согласия: $e');
+        logger.d('❌ MainShell: Ошибка проверки согласия: $e');
       }
     }
   }
@@ -124,13 +130,15 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     // Устанавливаем цвет системных панелей для edge-to-edge display
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      systemNavigationBarColor: Colors.transparent,
-      systemNavigationBarDividerColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ));
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
 
     final l10n = AppLocalizations.of(context);
 
@@ -139,11 +147,8 @@ class _MainShellState extends State<MainShell> {
       extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: false,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
-      
+      body: IndexedStack(index: _currentIndex, children: _screens),
+
       // FAB - центральная кнопка
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddMenu,
@@ -151,13 +156,13 @@ class _MainShellState extends State<MainShell> {
         child: const Icon(Icons.add, color: Colors.white),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      
+
       // Bottom Navigation
       bottomNavigationBar: BottomAppBar(
-          shape: const CircularNotchedRectangle(),
-          notchMargin: 8.0,
-          child: SizedBox(
-            height: 65,
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8.0,
+        child: SizedBox(
+          height: 65,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -174,10 +179,10 @@ class _MainShellState extends State<MainShell> {
                 label: l10n.history,
                 index: 1,
               ),
-              
+
               // Пространство для FAB
               const SizedBox(width: 40),
-              
+
               // Правая часть
               _buildNavItem(
                 icon: Icons.notifications_outlined,
@@ -206,7 +211,7 @@ class _MainShellState extends State<MainShell> {
   }) {
     final isSelected = _currentIndex == index;
     final theme = Theme.of(context);
-    
+
     return Expanded(
       child: GestureDetector(
         onTap: () => _onTabTapped(index),
@@ -219,8 +224,8 @@ class _MainShellState extends State<MainShell> {
             children: [
               Icon(
                 isSelected ? activeIcon : icon,
-                color: isSelected 
-                    ? theme.colorScheme.primary 
+                color: isSelected
+                    ? theme.colorScheme.primary
                     : theme.colorScheme.onSurfaceVariant,
                 size: 26, // Уменьшено с 28
               ),
@@ -229,8 +234,8 @@ class _MainShellState extends State<MainShell> {
                 label,
                 style: TextStyle(
                   fontSize: 10, // Уменьшено с 11
-                  color: isSelected 
-                      ? theme.colorScheme.primary 
+                  color: isSelected
+                      ? theme.colorScheme.primary
                       : theme.colorScheme.onSurfaceVariant,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),
@@ -253,7 +258,7 @@ class _AddMenuSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    
+
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
@@ -273,16 +278,13 @@ class _AddMenuSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          
+
           // Заголовок
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Text(
-              l10n.quickAdd,
-              style: theme.textTheme.titleLarge,
-            ),
+            child: Text(l10n.quickAdd, style: theme.textTheme.titleLarge),
           ),
-          
+
           // Опции
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -309,7 +311,7 @@ class _AddMenuSheet extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-                
+
                 // Вторая строка
                 Row(
                   children: [
@@ -331,7 +333,7 @@ class _AddMenuSheet extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-                
+
                 // Третья строка
                 Row(
                   children: [
@@ -372,7 +374,7 @@ class _AddMenuSheet extends StatelessWidget {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 20),
         ],
       ),
@@ -396,7 +398,7 @@ class _AddMenuSheet extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -406,10 +408,7 @@ class _AddMenuSheet extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: TextStyle(color: color, fontWeight: FontWeight.w500),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),

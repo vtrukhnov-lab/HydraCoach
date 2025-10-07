@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
+import 'package:hydracoach/utils/app_logger.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/alcohol_intake.dart';
@@ -39,48 +40,54 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
   final ItemsCatalog _catalog = ItemsCatalog();
   final QuickFavoritesManager _favoritesManager = QuickFavoritesManager();
   final RemoteConfigService _remoteConfig = RemoteConfigService.instance;
-  
+
   // State
   bool _isPro = false;
   String _units = 'metric';
   String _selectedType = 'beer'; // beer, wine, spirits, cocktail
   bool _showHarmReduction = false;
-  
+
   @override
   void initState() {
     super.initState();
     _units = UnitsService.instance.units;
     _initializePro();
   }
-  
+
   Future<void> _initializePro() async {
     await Future.delayed(Duration.zero);
     if (!mounted) return;
-    
-    final subscription = Provider.of<SubscriptionProvider>(context, listen: false);
+
+    final subscription = Provider.of<SubscriptionProvider>(
+      context,
+      listen: false,
+    );
     _isPro = subscription.isPro;
     await _favoritesManager.init(_isPro);
     if (mounted) setState(() {});
   }
-  
+
   // Get current items from catalog
   List<CatalogItem> _getCurrentItems() {
     return _catalog.getAlcoholItems(type: _selectedType);
   }
-  
+
   // Calculate standard drinks
   double _calculateSD(double volumeMl, double abv) {
     final stdDrinkGrams = _remoteConfig.getDouble('std_drink_grams') ?? 10.0;
     final ethanolGrams = volumeMl * (abv / 100.0) * 0.789;
     return ethanolGrams / stdDrinkGrams;
   }
-  
+
   // Get today's alcohol data
   Map<String, dynamic> _getTodayAlcoholData() {
     try {
-      final alcoholService = Provider.of<AlcoholService>(context, listen: false);
+      final alcoholService = Provider.of<AlcoholService>(
+        context,
+        listen: false,
+      );
       final todaySD = alcoholService.totalStandardDrinks;
-      
+
       return {
         'totalSD': todaySD,
         'waterCorrection': alcoholService.totalWaterCorrection,
@@ -96,17 +103,19 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
       };
     }
   }
-  
+
   // Log alcohol intake
   Future<void> _logIntake(CatalogItem item, double volumeMl) async {
     final abv = (item.properties['abv'] as num).toDouble();
     final sugar = item.properties['sugar'] as double? ?? 0.0;
-    
+
     // Calculate proportional sugar based on volume
     final baseVolume = item.getDefaultVolume(_units).toDouble();
-    final baseVolumeMl = _units == 'imperial' ? baseVolume * 29.5735 : baseVolume;
+    final baseVolumeMl = _units == 'imperial'
+        ? baseVolume * 29.5735
+        : baseVolume;
     final proportionalSugar = (sugar * volumeMl / baseVolumeMl);
-    
+
     // Create intake
     final intake = AlcoholIntake(
       timestamp: DateTime.now(),
@@ -117,41 +126,49 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
       name: item.getName(AppLocalizations.of(context)!),
       emoji: item.icon is String ? item.icon as String : null,
     );
-    
+
     try {
-  final alcoholService = Provider.of<AlcoholService>(context, listen: false);
-  await alcoholService.addIntake(intake);
-  
-  // ДОБАВИТЬ: Синхронизируем с HRIService
-  try {
-    final hriService = Provider.of<HRIService>(context, listen: false);
-    await hriService.addAlcoholIntake(intake.standardDrinks);
-    print('Alcohol synced: ${intake.standardDrinks} SD to HRIService');
-  } catch (e) {
-    print('Error syncing with HRIService: $e');
-  }
-  
-  // ДОБАВИТЬ: Обновляем корректировки в HydrationProvider
-  try {
-    final hydrationProvider = Provider.of<HydrationProvider>(context, listen: false);
-    hydrationProvider.updateAlcoholAdjustments(
-      alcoholService.totalWaterCorrection,
-      alcoholService.totalSodiumCorrection.round(),
-    );
-    print('Alcohol adjustments updated in HydrationProvider');
-  } catch (e) {
-    print('Error updating alcohol adjustments: $e');
-  }
-  
-  // Schedule notification
-  await NotificationService().scheduleAlcoholCounterReminder(intake.standardDrinks.toInt());
-  
-  // Show harm reduction card
-  setState(() => _showHarmReduction = true);
-      
+      final alcoholService = Provider.of<AlcoholService>(
+        context,
+        listen: false,
+      );
+      await alcoholService.addIntake(intake);
+
+      // ДОБАВИТЬ: Синхронизируем с HRIService
+      try {
+        final hriService = Provider.of<HRIService>(context, listen: false);
+        await hriService.addAlcoholIntake(intake.standardDrinks);
+        logger.i('Alcohol synced: ${intake.standardDrinks} SD to HRIService');
+      } catch (e) {
+        logger.e('Error syncing with HRIService: $e');
+      }
+
+      // ДОБАВИТЬ: Обновляем корректировки в HydrationProvider
+      try {
+        final hydrationProvider = Provider.of<HydrationProvider>(
+          context,
+          listen: false,
+        );
+        hydrationProvider.updateAlcoholAdjustments(
+          alcoholService.totalWaterCorrection,
+          alcoholService.totalSodiumCorrection.round(),
+        );
+        logger.i('Alcohol adjustments updated in HydrationProvider');
+      } catch (e) {
+        logger.e('Error updating alcohol adjustments: $e');
+      }
+
+      // Schedule notification
+      await NotificationService().scheduleAlcoholCounterReminder(
+        intake.standardDrinks.toInt(),
+      );
+
+      // Show harm reduction card
+      setState(() => _showHarmReduction = true);
+
       // Haptic feedback
       HapticFeedback.mediumImpact();
-      
+
       // Success message
       if (mounted) {
         final l10n = AppLocalizations.of(context);
@@ -164,25 +181,25 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
         );
       }
     } catch (e) {
-      print('Error logging intake: $e');
+      logger.e('Error logging intake: $e');
     }
   }
-  
+
   // Save to favorites
   Future<void> _saveToFavorites(CatalogItem item, double volumeMl) async {
     final l10n = AppLocalizations.of(context);
-    
+
     final slot = await FavoriteSlotSelector.show(
       context: context,
       favoritesManager: _favoritesManager,
       isPro: _isPro,
     );
-    
+
     if (slot == null) return;
-    
+
     final volumeStr = UnitsService.instance.formatVolume(volumeMl.round());
     final abv = item.properties['abv'] as num;
-    
+
     final favorite = QuickFavorite(
       id: 'alcohol_${item.id}_${volumeMl.toInt()}',
       type: 'alcohol',
@@ -196,9 +213,9 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
         'sugar': item.properties['sugar'] ?? 0.0,
       },
     );
-    
+
     await _favoritesManager.saveFavorite(slot, favorite);
-    
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -208,7 +225,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
       );
     }
   }
-  
+
   // Handle item selection
   void _handleItemSelection(CatalogItem item) async {
     if (item.isPro && !_isPro) {
@@ -221,7 +238,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
       );
       return;
     }
-    
+
     // Show enhanced volume selection dialog with ABV and SD calculation
     await VolumeSelectionDialog.show(
       context: context,
@@ -234,17 +251,15 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
       calculateSD: _calculateSD,
     );
   }
-  
+
   // Show alcohol info dialog
   void _showAlcoholInfoDialog() {
     final l10n = AppLocalizations.of(context);
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             const Icon(Icons.local_bar, color: Colors.red, size: 28),
@@ -300,33 +315,33 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
       ),
     );
   }
-  
+
   Widget _buildInfoRow(String emoji, String text) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(emoji, style: const TextStyle(fontSize: 20)),
         const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 14),
-          ),
-        ),
+        Expanded(child: Text(text, style: const TextStyle(fontSize: 14))),
       ],
     );
   }
-  
+
   AlcoholType _getAlcoholType(String type) {
     switch (type) {
-      case 'beer': return AlcoholType.beer;
-      case 'wine': return AlcoholType.wine;
-      case 'spirits': return AlcoholType.spirits;
-      case 'cocktail': return AlcoholType.cocktail;
-      default: return AlcoholType.beer;
+      case 'beer':
+        return AlcoholType.beer;
+      case 'wine':
+        return AlcoholType.wine;
+      case 'spirits':
+        return AlcoholType.spirits;
+      case 'cocktail':
+        return AlcoholType.cocktail;
+      default:
+        return AlcoholType.beer;
     }
   }
-  
+
   Color _getStatusColor(double sd) {
     if (sd == 0) return Colors.green;
     if (sd <= 1.0) return Colors.blue;
@@ -334,7 +349,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
     if (sd <= 3.0) return Colors.deepOrange;
     return Colors.red;
   }
-  
+
   String _getStatusMessage(double sd, AppLocalizations l10n) {
     if (sd == 0) return l10n.noAlcoholToday;
     if (sd <= 1) return l10n.moderateConsumption;
@@ -342,21 +357,21 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
     if (sd <= 3) return l10n.highConsumption;
     return l10n.veryHighConsider;
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    
+
     // Update PRO status
     final subscription = Provider.of<SubscriptionProvider>(context);
     _isPro = subscription.isPro;
-    
+
     // Get alcohol data
     final alcoholData = _getTodayAlcoholData();
     final todaySD = alcoholData['totalSD'] as double;
     final statusColor = _getStatusColor(todaySD);
-    
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
@@ -376,9 +391,7 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
             hriModifier: alcoholData['hriModifier'] as double,
             l10n: l10n,
             onInfoTap: _showAlcoholInfoDialog,
-          ).animate()
-            .fadeIn(duration: 300.ms)
-            .slideY(begin: -0.1, end: 0),
+          ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.1, end: 0),
 
           const SizedBox(height: 16),
 
@@ -386,106 +399,125 @@ class _AlcoholLogScreenState extends State<AlcoholLogScreen> {
           if (!_isPro) const AdBannerCard(),
 
           const SizedBox(height: 16),
-          
+
           // Type selector
           Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              children: ['beer', 'wine', 'spirits', 'cocktail'].map((type) {
-                final isSelected = type == _selectedType;
-                final emoji = _getTypeEmoji(type);
-                final name = _getTypeName(type, l10n);
-                
-                return Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      setState(() => _selectedType = type);
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: isSelected ? theme.colorScheme.primary : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(emoji, style: const TextStyle(fontSize: 20)),
-                          if (type != 'spirits') ...[
-                            const SizedBox(width: 4),
-                            Text(
-                              name,
-                              style: TextStyle(
-                                color: isSelected 
-                                  ? theme.colorScheme.onPrimary 
-                                  : theme.colorScheme.onSurfaceVariant,
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.3,
                   ),
-                );
-              }).toList(),
-            ),
-          ).animate()
-            .fadeIn(duration: 300.ms, delay: 100.ms)
-            .slideX(begin: -0.1, end: 0),
-          
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: ['beer', 'wine', 'spirits', 'cocktail'].map((type) {
+                    final isSelected = type == _selectedType;
+                    final emoji = _getTypeEmoji(type);
+                    final name = _getTypeName(type, l10n);
+
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          setState(() => _selectedType = type);
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? theme.colorScheme.primary
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(emoji, style: const TextStyle(fontSize: 20)),
+                              if (type != 'spirits') ...[
+                                const SizedBox(width: 4),
+                                Text(
+                                  name,
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? theme.colorScheme.onPrimary
+                                        : theme.colorScheme.onSurfaceVariant,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              )
+              .animate()
+              .fadeIn(duration: 300.ms, delay: 100.ms)
+              .slideX(begin: -0.1, end: 0),
+
           const SizedBox(height: 20),
-          
+
           // Items grid using catalog
           ItemsGrid(
             items: _getCurrentItems(),
             isPro: _isPro,
             onItemSelected: _handleItemSelection,
-            title: l10n.popularDrinks(_getTypeName(_selectedType, l10n).toLowerCase()),
+            title: l10n.popularDrinks(
+              _getTypeName(_selectedType, l10n).toLowerCase(),
+            ),
             showAlcoholIndicators: true,
-          ).animate()
-            .fadeIn(duration: 300.ms, delay: 200.ms),
-          
+          ).animate().fadeIn(duration: 300.ms, delay: 200.ms),
+
           const SizedBox(height: 24),
-          
+
           // Harm reduction card
           if (_showHarmReduction)
             HarmReductionCard(
-              onDismiss: () => setState(() => _showHarmReduction = false),
-              l10n: l10n,
-              isPro: _isPro,
-            ).animate()
-              .fadeIn(duration: 300.ms)
-              .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1)),
+                  onDismiss: () => setState(() => _showHarmReduction = false),
+                  l10n: l10n,
+                  isPro: _isPro,
+                )
+                .animate()
+                .fadeIn(duration: 300.ms)
+                .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1)),
         ],
       ),
     );
   }
-  
+
   String _getTypeEmoji(String type) {
     switch (type) {
-      case 'beer': return '🍺';
-      case 'wine': return '🍷';
-      case 'spirits': return '🥃';
-      case 'cocktail': return '🍹';
-      default: return '🍺';
+      case 'beer':
+        return '🍺';
+      case 'wine':
+        return '🍷';
+      case 'spirits':
+        return '🥃';
+      case 'cocktail':
+        return '🍹';
+      default:
+        return '🍺';
     }
   }
-  
+
   String _getTypeName(String type, AppLocalizations l10n) {
     switch (type) {
-      case 'beer': return l10n.beer;
-      case 'wine': return l10n.wine;
-      case 'spirits': return l10n.spirits;
-      case 'cocktail': return l10n.cocktail;
-      default: return '';
+      case 'beer':
+        return l10n.beer;
+      case 'wine':
+        return l10n.wine;
+      case 'spirits':
+        return l10n.spirits;
+      case 'cocktail':
+        return l10n.cocktail;
+      default:
+        return '';
     }
   }
 }
@@ -498,7 +530,7 @@ class EnhancedAlcoholStatusCard extends StatelessWidget {
   final double hriModifier;
   final AppLocalizations l10n;
   final VoidCallback onInfoTap;
-  
+
   const EnhancedAlcoholStatusCard({
     super.key,
     required this.todaySD,
@@ -508,7 +540,7 @@ class EnhancedAlcoholStatusCard extends StatelessWidget {
     required this.l10n,
     required this.onInfoTap,
   });
-  
+
   Color _getStatusColor(double sd) {
     if (sd == 0) return Colors.green;
     if (sd <= 1.0) return Colors.blue;
@@ -516,7 +548,7 @@ class EnhancedAlcoholStatusCard extends StatelessWidget {
     if (sd <= 3.0) return Colors.deepOrange;
     return Colors.red;
   }
-  
+
   String _getStatusMessage(double sd) {
     if (sd == 0) return l10n.noAlcoholToday;
     if (sd <= 1) return l10n.moderateConsumption;
@@ -524,7 +556,7 @@ class EnhancedAlcoholStatusCard extends StatelessWidget {
     if (sd <= 3) return l10n.highConsumption;
     return l10n.veryHighConsider;
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final subscription = context.watch<SubscriptionProvider>();
@@ -543,15 +575,15 @@ class EnhancedAlcoholStatusCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            statusColor.withOpacity(0.1),
-            statusColor.withOpacity(0.05),
+            statusColor.withValues(alpha: 0.1),
+            statusColor.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: statusColor.withOpacity(0.3),
+          color: statusColor.withValues(alpha: 0.3),
           width: 1.5,
         ),
       ),
@@ -678,7 +710,7 @@ class EnhancedAlcoholStatusCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surface.withOpacity(0.5),
+                color: theme.colorScheme.surface.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -686,7 +718,8 @@ class EnhancedAlcoholStatusCard extends StatelessWidget {
                 children: [
                   _CorrectionItem(
                     icon: Icons.water_drop,
-                    value: '+${UnitsService.instance.formatVolume(waterCorrection.round(), hideUnit: true)}',
+                    value:
+                        '+${UnitsService.instance.formatVolume(waterCorrection.round(), hideUnit: true)}',
                     unit: UnitsService.instance.volumeUnit,
                     label: l10n.additionalWater,
                     color: Colors.blue,
@@ -694,7 +727,7 @@ class EnhancedAlcoholStatusCard extends StatelessWidget {
                   Container(
                     width: 1,
                     height: 40,
-                    color: theme.colorScheme.outline.withOpacity(0.2),
+                    color: theme.colorScheme.outline.withValues(alpha: 0.2),
                   ),
                   _CorrectionItem(
                     icon: Icons.grain,
@@ -706,7 +739,7 @@ class EnhancedAlcoholStatusCard extends StatelessWidget {
                   Container(
                     width: 1,
                     height: 40,
-                    color: theme.colorScheme.outline.withOpacity(0.2),
+                    color: theme.colorScheme.outline.withValues(alpha: 0.2),
                   ),
                   _CorrectionItem(
                     icon: Icons.warning,
@@ -731,7 +764,8 @@ class EnhancedAlcoholStatusCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const PaywallScreen(source: 'alcohol_intake_card'),
+            builder: (context) =>
+                const PaywallScreen(source: 'alcohol_intake_card'),
             fullscreenDialog: true,
           ),
         );
@@ -740,10 +774,7 @@ class EnhancedAlcoholStatusCard extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Colors.grey.shade700,
-              Colors.grey.shade800,
-            ],
+            colors: [Colors.grey.shade700, Colors.grey.shade800],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -762,16 +793,9 @@ class EnhancedAlcoholStatusCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.amber.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.amber,
-                  width: 2,
-                ),
+                border: Border.all(color: Colors.amber, width: 2),
               ),
-              child: const Icon(
-                Icons.local_bar,
-                color: Colors.amber,
-                size: 28,
-              ),
+              child: const Icon(Icons.local_bar, color: Colors.amber, size: 28),
             ),
 
             const SizedBox(height: 16),
@@ -818,10 +842,7 @@ class EnhancedAlcoholStatusCard extends StatelessWidget {
 
             // Unlock button
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 10,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Colors.amber.shade600, Colors.orange.shade600],
@@ -838,11 +859,7 @@ class EnhancedAlcoholStatusCard extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
-                    Icons.lock_open,
-                    color: Colors.white,
-                    size: 14,
-                  ),
+                  const Icon(Icons.lock_open, color: Colors.white, size: 14),
                   const SizedBox(width: 6),
                   Text(
                     l10n.unlock,
@@ -868,7 +885,7 @@ class _CorrectionItem extends StatelessWidget {
   final String unit;
   final String label;
   final Color color;
-  
+
   const _CorrectionItem({
     required this.icon,
     required this.value,
@@ -876,7 +893,7 @@ class _CorrectionItem extends StatelessWidget {
     required this.label,
     required this.color,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -890,19 +907,13 @@ class _CorrectionItem extends StatelessWidget {
           children: [
             Text(
               value,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
             ),
             if (unit.isNotEmpty) ...[
               const SizedBox(width: 2),
               Text(
                 unit,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
               ),
             ],
           ],
@@ -910,10 +921,7 @@ class _CorrectionItem extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 10,
-            color: Colors.grey.shade600,
-          ),
+          style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
           textAlign: TextAlign.center,
         ),
       ],
@@ -926,18 +934,18 @@ class HarmReductionCard extends StatelessWidget {
   final VoidCallback onDismiss;
   final AppLocalizations l10n;
   final bool isPro;
-  
+
   const HarmReductionCard({
     super.key,
     required this.onDismiss,
     required this.l10n,
     required this.isPro,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -1003,7 +1011,7 @@ class HarmReductionCard extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildStep(String emoji, String text) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),

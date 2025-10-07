@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:hydracoach/utils/app_logger.dart';
+
 import '../../../l10n/app_localizations.dart';
 import '../../../widgets/ion_character.dart';
 import '../../../services/units_service.dart';
@@ -27,39 +29,43 @@ class WeightPage extends StatelessWidget {
         return SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 30),
           child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: constraints.maxHeight,
-            ),
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 10),
-                const IonCharacter(size: 100, mood: IonMood.happy, showGlow: false)
-                  .animate().fadeIn(),
-                
+                const IonCharacter(
+                  size: 100,
+                  mood: IonMood.happy,
+                  showGlow: false,
+                ).animate().fadeIn(),
+
                 const SizedBox(height: 20),
-                
+
                 Text(
                   l10n.weightPageTitle,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 Text(
                   l10n.weightPageSubtitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 15, color: Colors.grey[600]),
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 _buildWeightSelector(context, l10n),
-                
+
                 const SizedBox(height: 16),
-                
+
                 _buildWaterNormInfo(l10n),
-                
+
                 const SizedBox(height: 20),
               ],
             ),
@@ -78,29 +84,33 @@ class WeightPage extends StatelessWidget {
     final bool isImperial = units == 'imperial';
 
     // Отладочная информация
-    print('WeightPage: weight=$weight, units=$units, isImperial=$isImperial');
-    
+    logger.d(
+      'WeightPage: weight=$weight, units=$units, isImperial=$isImperial',
+    );
+
     // Конвертация веса в отображаемые единицы
-    final int displayWeight = isImperial 
-        ? (weight * 2.20462).round()  // кг в фунты
-        : weight.round();              // остаемся в кг
-    
+    final int displayWeight = isImperial
+        ? (weight * 2.20462)
+              .round() // кг в фунты
+        : weight.round(); // остаемся в кг
+
     // Единица измерения
     final String weightUnit = isImperial ? l10n.lb : l10n.kg;
 
-    
     // Границы слайдера всегда в килограммах для внутреннего хранения
     const double minWeightKg = 30.0;
     const double maxWeightKg = 200.0;
-    
+
     // Отображаемые границы в выбранных единицах
-    final int minDisplay = isImperial 
-        ? (minWeightKg * 2.20462).round()  // кг в фунты
-        : minWeightKg.round();              // остаемся в кг
-    
+    final int minDisplay = isImperial
+        ? (minWeightKg * 2.20462)
+              .round() // кг в фунты
+        : minWeightKg.round(); // остаемся в кг
+
     final int maxDisplay = isImperial
-        ? (maxWeightKg * 2.20462).round()  // кг в фунты  
-        : maxWeightKg.round();              // остаемся в кг
+        ? (maxWeightKg * 2.20462)
+              .round() // кг в фунты
+        : maxWeightKg.round(); // остаемся в кг
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -109,7 +119,7 @@ class WeightPage extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF2EC5FF).withOpacity(0.1),
+            color: const Color(0xFF2EC5FF).withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -145,9 +155,11 @@ class WeightPage extends StatelessWidget {
           SliderTheme(
             data: SliderTheme.of(context).copyWith(
               activeTrackColor: const Color(0xFF2EC5FF),
-              inactiveTrackColor: const Color(0xFF2EC5FF).withOpacity(0.1),
+              inactiveTrackColor: const Color(
+                0xFF2EC5FF,
+              ).withValues(alpha: 0.1),
               thumbColor: const Color(0xFF2EC5FF),
-              overlayColor: const Color(0xFF2EC5FF).withOpacity(0.2),
+              overlayColor: const Color(0xFF2EC5FF).withValues(alpha: 0.2),
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
               trackHeight: 8,
             ),
@@ -155,7 +167,8 @@ class WeightPage extends StatelessWidget {
               value: weight.clamp(minWeightKg, maxWeightKg),
               min: minWeightKg,
               max: maxWeightKg,
-              divisions: ((maxWeightKg - minWeightKg) * 2).round(), // Шаг 0.5 кг
+              divisions: ((maxWeightKg - minWeightKg) * 2)
+                  .round(), // Шаг 0.5 кг
               onChanged: (value) {
                 onWeightChanged(value);
                 HapticFeedback.selectionClick();
@@ -165,8 +178,14 @@ class WeightPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('$minDisplay $weightUnit', style: TextStyle(color: Colors.grey[500], fontSize: 13)),
-              Text('$maxDisplay $weightUnit', style: TextStyle(color: Colors.grey[500], fontSize: 13)),
+              Text(
+                '$minDisplay $weightUnit',
+                style: TextStyle(color: Colors.grey[500], fontSize: 13),
+              ),
+              Text(
+                '$maxDisplay $weightUnit',
+                style: TextStyle(color: Colors.grey[500], fontSize: 13),
+              ),
             ],
           ),
         ],
@@ -184,12 +203,14 @@ class WeightPage extends StatelessWidget {
 
     // Конвертируем в выбранные единицы
     final int minWater = isImperial
-        ? (minWaterMl / 29.5735).round()  // мл в унции
-        : minWaterMl;                      // остаемся в мл
+        ? (minWaterMl / 29.5735)
+              .round() // мл в унции
+        : minWaterMl; // остаемся в мл
 
     final int maxWater = isImperial
-        ? (maxWaterMl / 29.5735).round()  // мл в унции
-        : maxWaterMl;                      // остаемся в мл
+        ? (maxWaterMl / 29.5735)
+              .round() // мл в унции
+        : maxWaterMl; // остаемся в мл
 
     final String waterUnit = isImperial ? l10n.oz : l10n.ml;
 
@@ -203,16 +224,20 @@ class WeightPage extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: const Color(0xFF8AF5A3).withOpacity(0.1),
+            color: const Color(0xFF8AF5A3).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: const Color(0xFF8AF5A3).withOpacity(0.3),
+              color: const Color(0xFF8AF5A3).withValues(alpha: 0.3),
               width: 1,
             ),
           ),
           child: Row(
             children: [
-              const Icon(Icons.water_drop_outlined, color: Color(0xFF2EC5FF), size: 22),
+              const Icon(
+                Icons.water_drop_outlined,
+                color: Color(0xFF2EC5FF),
+                size: 22,
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -234,16 +259,20 @@ class WeightPage extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: const Color(0xFFFF9F43).withOpacity(0.1),
+            color: const Color(0xFFFF9F43).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: const Color(0xFFFF9F43).withOpacity(0.3),
+              color: const Color(0xFFFF9F43).withValues(alpha: 0.3),
               width: 1,
             ),
           ),
           child: Row(
             children: [
-              const Icon(Icons.local_fire_department, color: Color(0xFFFF9F43), size: 22),
+              const Icon(
+                Icons.local_fire_department,
+                color: Color(0xFFFF9F43),
+                size: 22,
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(

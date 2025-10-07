@@ -105,7 +105,7 @@ class FoodIntake {
   // Get formatted time string
   String get formattedTime {
     return '${timestamp.hour.toString().padLeft(2, '0')}:'
-           '${timestamp.minute.toString().padLeft(2, '0')}';
+        '${timestamp.minute.toString().padLeft(2, '0')}';
   }
 
   // Get formatted weight string
@@ -137,9 +137,9 @@ class FoodIntake {
   @override
   String toString() {
     return 'FoodIntake(id: $id, timestamp: $timestamp, foodId: $foodId, '
-           'foodName: $foodName, weight: $weight, calories: $calories, '
-           'waterContent: $waterContent, sodium: $sodium, potassium: $potassium, '
-           'magnesium: $magnesium, sugar: $sugar, hasCaffeine: $hasCaffeine)';
+        'foodName: $foodName, weight: $weight, calories: $calories, '
+        'waterContent: $waterContent, sodium: $sodium, potassium: $potassium, '
+        'magnesium: $magnesium, sugar: $sugar, hasCaffeine: $hasCaffeine)';
   }
 
   @override
@@ -147,35 +147,35 @@ class FoodIntake {
     if (identical(this, other)) return true;
 
     return other is FoodIntake &&
-      other.id == id &&
-      other.timestamp == timestamp &&
-      other.foodId == foodId &&
-      other.foodName == foodName &&
-      other.weight == weight &&
-      other.calories == calories &&
-      other.waterContent == waterContent &&
-      other.sodium == sodium &&
-      other.potassium == potassium &&
-      other.magnesium == magnesium &&
-      other.sugar == sugar &&
-      other.hasCaffeine == hasCaffeine &&
-      other.emoji == emoji;
+        other.id == id &&
+        other.timestamp == timestamp &&
+        other.foodId == foodId &&
+        other.foodName == foodName &&
+        other.weight == weight &&
+        other.calories == calories &&
+        other.waterContent == waterContent &&
+        other.sodium == sodium &&
+        other.potassium == potassium &&
+        other.magnesium == magnesium &&
+        other.sugar == sugar &&
+        other.hasCaffeine == hasCaffeine &&
+        other.emoji == emoji;
   }
 
   @override
   int get hashCode {
     return id.hashCode ^
-      timestamp.hashCode ^
-      foodId.hashCode ^
-      foodName.hashCode ^
-      weight.hashCode ^
-      calories.hashCode ^
-      waterContent.hashCode ^
-      sodium.hashCode ^
-      potassium.hashCode ^
-      magnesium.hashCode ^
-      sugar.hashCode ^
-      hasCaffeine.hashCode ^
-      emoji.hashCode;
+        timestamp.hashCode ^
+        foodId.hashCode ^
+        foodName.hashCode ^
+        weight.hashCode ^
+        calories.hashCode ^
+        waterContent.hashCode ^
+        sodium.hashCode ^
+        potassium.hashCode ^
+        magnesium.hashCode ^
+        sugar.hashCode ^
+        hasCaffeine.hashCode ^
+        emoji.hashCode;
   }
 }

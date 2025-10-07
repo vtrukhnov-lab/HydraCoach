@@ -9,7 +9,6 @@ import '../services/units_service.dart';
 import '../services/consent_service.dart';
 import '../services/url_launcher_service.dart';
 
-
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -18,24 +17,24 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  
   @override
   void initState() {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
         child: Consumer2<HydrationProvider, UnitsService>(
           builder: (context, hydrationProvider, unitsService, child) {
-            final displayWeight = unitsService.formatWeight(hydrationProvider.weight);
-            
+            final displayWeight = unitsService.formatWeight(
+              hydrationProvider.weight,
+            );
+
             return SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,10 +50,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ).animate().fadeIn(duration: 350.ms),
                   ),
-                
-                // DEBUG PANELS
-                if (kDebugMode) _buildUsercentricsDebugPanel(),
-                
+
+                  // DEBUG PANELS
+                  if (kDebugMode) _buildUsercentricsDebugPanel(),
+
                   // Profile Section
                   _buildSectionTitle(l10n.profileSection),
                   Container(
@@ -69,7 +68,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           l10n.weight,
                           displayWeight,
                           Icons.monitor_weight_outlined,
-                          () => _showWeightDialog(hydrationProvider, unitsService, l10n),
+                          () => _showWeightDialog(
+                            hydrationProvider,
+                            unitsService,
+                            l10n,
+                          ),
                         ),
                         _buildDivider(),
                         _buildProfileTile(
@@ -81,26 +84,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         _buildDivider(),
                         _buildProfileTile(
                           l10n.activityLevel,
-                          _getActivityText(hydrationProvider.activityLevel, l10n),
+                          _getActivityText(
+                            hydrationProvider.activityLevel,
+                            l10n,
+                          ),
                           Icons.fitness_center,
                           () => _showActivityDialog(hydrationProvider, l10n),
                         ),
                         _buildDivider(),
                         ListTile(
-                          leading: const Icon(Icons.straighten, color: Colors.blue),
+                          leading: const Icon(
+                            Icons.straighten,
+                            color: Colors.blue,
+                          ),
                           title: Text(l10n.unitsSection),
                           subtitle: Text(
-                            unitsService.isMetric ? l10n.metricSystem : l10n.imperialSystem,
+                            unitsService.isMetric
+                                ? l10n.metricSystem
+                                : l10n.imperialSystem,
                             style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                           trailing: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.grey[200],
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
-                              unitsService.isMetric ? l10n.metricUnits : l10n.imperialUnits,
+                              unitsService.isMetric
+                                  ? l10n.metricUnits
+                                  : l10n.imperialUnits,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey[700],
@@ -112,9 +128,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ],
                     ),
                   ).animate().fadeIn(),
-                  
-                  
-                  
+
                   // About Section
                   _buildSectionTitle(l10n.aboutSection),
                   Container(
@@ -137,10 +151,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           '',
                           Icons.star_outline,
                           () async {
-                            final success = await UrlLauncherService.openAppStore();
+                            final success =
+                                await UrlLauncherService.openAppStore();
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(success ? l10n.appStoreOpened : l10n.linkCopiedToClipboard)),
+                                SnackBar(
+                                  content: Text(
+                                    success
+                                        ? l10n.appStoreOpened
+                                        : l10n.linkCopiedToClipboard,
+                                  ),
+                                ),
                               );
                             }
                           },
@@ -154,7 +175,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             final success = await UrlLauncherService.shareApp();
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(success ? l10n.shareDialogOpened : l10n.linkForSharingCopied)),
+                                SnackBar(
+                                  content: Text(
+                                    success
+                                        ? l10n.shareDialogOpened
+                                        : l10n.linkForSharingCopied,
+                                  ),
+                                ),
                               );
                             }
                           },
@@ -165,10 +192,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           'playcus.com',
                           Icons.language_outlined,
                           () async {
-                            final success = await UrlLauncherService.openWebsite();
+                            final success =
+                                await UrlLauncherService.openWebsite();
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(success ? l10n.websiteOpenedInBrowser : l10n.linkCopiedToClipboard)),
+                                SnackBar(
+                                  content: Text(
+                                    success
+                                        ? l10n.websiteOpenedInBrowser
+                                        : l10n.linkCopiedToClipboard,
+                                  ),
+                                ),
                               );
                             }
                           },
@@ -178,10 +212,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           'support@playcus.com',
                           Icons.support_agent_outlined,
                           () async {
-                            final success = await UrlLauncherService.openSupportEmail();
+                            final success =
+                                await UrlLauncherService.openSupportEmail();
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(success ? l10n.emailClientOpened : l10n.emailCopiedToClipboard)),
+                                SnackBar(
+                                  content: Text(
+                                    success
+                                        ? l10n.emailClientOpened
+                                        : l10n.emailCopiedToClipboard,
+                                  ),
+                                ),
                               );
                             }
                           },
@@ -191,10 +232,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           'playcus.com/privacy-policy',
                           Icons.privacy_tip_outlined,
                           () async {
-                            final success = await UrlLauncherService.openPrivacyPolicy();
+                            final success =
+                                await UrlLauncherService.openPrivacyPolicy();
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(success ? l10n.privacyPolicyOpened : l10n.linkCopiedToClipboard)),
+                                SnackBar(
+                                  content: Text(
+                                    success
+                                        ? l10n.privacyPolicyOpened
+                                        : l10n.linkCopiedToClipboard,
+                                  ),
+                                ),
                               );
                             }
                           },
@@ -202,10 +250,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ],
                     ),
                   ).animate().fadeIn(delay: 300.ms),
-                  
+
                   // Company Information
                   Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade50,
@@ -217,28 +268,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       children: [
                         Text(
                           'Playcus Ltd',
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'Thiseos 9, Flat/Office C1\nAglantzia, P.C. 2121\nNicosia, Cyprus',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey.shade600,
-                            height: 1.4,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Colors.grey.shade600,
+                                height: 1.4,
+                              ),
                         ),
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            Icon(Icons.email_outlined, size: 14, color: Colors.grey.shade600),
+                            Icon(
+                              Icons.email_outlined,
+                              size: 14,
+                              color: Colors.grey.shade600,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               'support@playcus.com',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey.shade600,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: Colors.grey.shade600),
                             ),
                           ],
                         ),
@@ -271,7 +325,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildProfileTile(String title, String value, IconData icon, VoidCallback onTap) {
+  Widget _buildProfileTile(
+    String title,
+    String value,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
     return ListTile(
       leading: Icon(icon, color: Colors.blue),
       title: Text(title),
@@ -281,11 +340,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildListTile(String title, String subtitle, IconData icon, VoidCallback? onTap, {bool isPro = false}) {
+  Widget _buildListTile(
+    String title,
+    String subtitle,
+    IconData icon,
+    VoidCallback? onTap, {
+    bool isPro = false,
+  }) {
     return Consumer<SubscriptionProvider>(
       builder: (context, subscriptionProvider, _) {
         final hasAccess = !isPro || subscriptionProvider.isPro;
-        
+
         return ListTile(
           leading: Icon(icon, color: hasAccess ? Colors.blue : Colors.grey),
           title: Row(
@@ -300,30 +365,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               if (isPro && !subscriptionProvider.isPro) ...[
                 const SizedBox(width: 8),
-                Icon(
-                  Icons.star,
-                  size: 16,
-                  color: Colors.grey.shade400,
-                ),
+                Icon(Icons.star, size: 16, color: Colors.grey.shade400),
               ],
             ],
           ),
-          subtitle: subtitle.isNotEmpty ? Text(
-            subtitle,
-            style: TextStyle(
-              color: hasAccess ? null : Colors.grey.shade400,
-            ),
-          ) : null,
-          trailing: onTap != null ? Icon(
-            Icons.chevron_right,
-            color: hasAccess ? null : Colors.grey.shade300,
-          ) : null,
+          subtitle: subtitle.isNotEmpty
+              ? Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: hasAccess ? null : Colors.grey.shade400,
+                  ),
+                )
+              : null,
+          trailing: onTap != null
+              ? Icon(
+                  Icons.chevron_right,
+                  color: hasAccess ? null : Colors.grey.shade300,
+                )
+              : null,
           onTap: onTap,
         );
       },
     );
   }
-
 
   Widget _buildDivider() {
     return const Divider(height: 1, indent: 16, endIndent: 16);
@@ -331,30 +395,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   String _getDietModeText(String mode, AppLocalizations l10n) {
     switch (mode) {
-      case 'normal': return l10n.dietModeNormal;
-      case 'keto': return l10n.dietModeKeto;
-      case 'fasting': return l10n.dietModeFasting;
-      default: return mode;
+      case 'normal':
+        return l10n.dietModeNormal;
+      case 'keto':
+        return l10n.dietModeKeto;
+      case 'fasting':
+        return l10n.dietModeFasting;
+      default:
+        return mode;
     }
   }
 
   String _getActivityText(String level, AppLocalizations l10n) {
     switch (level) {
-      case 'low': return l10n.activityLow;
-      case 'medium': return l10n.activityMedium;
-      case 'high': return l10n.activityHigh;
-      default: return level;
+      case 'low':
+        return l10n.activityLow;
+      case 'medium':
+        return l10n.activityMedium;
+      case 'high':
+        return l10n.activityHigh;
+      default:
+        return level;
     }
   }
 
   // Dialog Methods
-  void _showWeightDialog(HydrationProvider provider, UnitsService units, AppLocalizations l10n) {
+  void _showWeightDialog(
+    HydrationProvider provider,
+    UnitsService units,
+    AppLocalizations l10n,
+  ) {
     double tempWeight = provider.weight;
     double displayWeight = units.toDisplayWeight(tempWeight);
     final weightUnit = units.weightUnit;
     final minWeight = units.isImperial ? 88.0 : 40.0;
     final maxWeight = units.isImperial ? 330.0 : 150.0;
-    
+
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -365,7 +441,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               Text(
                 '${displayWeight.round()} $weightUnit',
-                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 20),
               Slider(
@@ -383,8 +462,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('${minWeight.round()} $weightUnit', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
-                  Text('${maxWeight.round()} $weightUnit', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+                  Text(
+                    '${minWeight.round()} $weightUnit',
+                    style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                  ),
+                  Text(
+                    '${maxWeight.round()} $weightUnit',
+                    style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                  ),
                 ],
               ),
             ],
@@ -520,9 +605,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-
-
-
   // Usercentrics Debug Panel
   Widget _buildUsercentricsDebugPanel() {
     return Container(
@@ -590,7 +672,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Consent reset! Restart app to test.'),
+                            content: Text(
+                              'Consent reset! Restart app to test.',
+                            ),
                             backgroundColor: Colors.green,
                           ),
                         );
@@ -660,8 +744,3 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 }
-
-
-
-
-

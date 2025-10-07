@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:hydracoach/utils/app_logger.dart';
 import 'package:intl/intl.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -66,7 +67,7 @@ class WeeklyHistoryScreen extends StatefulWidget {
 class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
   Map<String, DailyData> weeklyData = {};
   bool isLoadingWeekData = false;
-  
+
   late final HistoryService _historyService;
   late final RemoteConfigService _remoteConfig;
   late final UnitsService _unitsService;
@@ -92,14 +93,14 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
       // Получаем понедельник текущей недели
       final now = DateTime.now();
       final monday = now.subtract(Duration(days: now.weekday - 1));
-      
+
       // Загружаем данные за 7 дней начиная с понедельника
       for (int i = 0; i < 7; i++) {
         final date = monday.add(Duration(days: i));
         final dateKey = date.toIso8601String().split('T')[0];
         final isToday = _isSameDay(date, DateTime.now());
         final isFuture = date.isAfter(DateTime.now());
-        
+
         // Пропускаем будущие дни
         if (isFuture && !isToday) continue;
 
@@ -113,13 +114,16 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
         if (isToday) {
           // Данные текущего дня из provider
           final waterCurrent = provider.totalWaterToday.round();
-          final waterPercent = waterGoal > 0 
-              ? (waterCurrent / waterGoal * 100).clamp(0.0, 200.0) 
+          final waterPercent = waterGoal > 0
+              ? (waterCurrent / waterGoal * 100).clamp(0.0, 200.0)
               : 0.0;
 
           final hriService = Provider.of<HRIService>(context, listen: false);
-          final workoutMinutes = hriService.todayWorkouts.fold(0, (sum, w) => sum + w.durationMinutes);
-          
+          final workoutMinutes = hriService.todayWorkouts.fold(
+            0,
+            (sum, w) => sum + w.durationMinutes,
+          );
+
           tempData[dateKey] = DailyData(
             date: date,
             water: waterCurrent,
@@ -143,11 +147,11 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
         } else {
           // Исторические данные из HistoryService
           final daySummary = await _historyService.getDaySummary(date);
-          
+
           if (daySummary.isNotEmpty) {
             final waterCurrent = daySummary['water'] ?? 0;
-            final waterPercent = waterGoal > 0 
-                ? (waterCurrent / waterGoal * 100).clamp(0.0, 200.0) 
+            final waterPercent = waterGoal > 0
+                ? (waterCurrent / waterGoal * 100).clamp(0.0, 200.0)
                 : 0.0;
 
             tempData[dateKey] = DailyData(
@@ -181,7 +185,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
         });
       }
     } catch (e) {
-      print('Error loading weekly data: $e');
+      logger.e('Error loading weekly data: $e');
       if (mounted) {
         setState(() => isLoadingWeekData = false);
       }
@@ -190,8 +194,8 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
 
   bool _isSameDay(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
-           date1.month == date2.month &&
-           date1.day == date2.day;
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
 
   // Сортировка данных начиная с понедельника и обеспечение 7 дней
@@ -211,28 +215,31 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
       } else {
         // Создаем пустую запись для дней без данных
         final provider = Provider.of<HydrationProvider>(context, listen: false);
-        final waterGoal = (_remoteConfig.waterOptPerKg * provider.weight).round();
+        final waterGoal = (_remoteConfig.waterOptPerKg * provider.weight)
+            .round();
 
-        result.add(DailyData(
-          date: date,
-          water: 0,
-          sodium: 0,
-          potassium: 0,
-          magnesium: 0,
-          waterPercent: 0,
-          coffeeCount: 0,
-          intakeCount: 0,
-          alcoholSD: 0,
-          workoutMinutes: 0,
-          workoutCount: 0,
-          hasWorkouts: false,
-          waterGoal: waterGoal,
-          foodCount: 0,
-          totalCalories: 0,
-          totalFoodSugar: 0,
-          totalFoodWater: 0,
-          hasFood: false,
-        ));
+        result.add(
+          DailyData(
+            date: date,
+            water: 0,
+            sodium: 0,
+            potassium: 0,
+            magnesium: 0,
+            waterPercent: 0,
+            coffeeCount: 0,
+            intakeCount: 0,
+            alcoholSD: 0,
+            workoutMinutes: 0,
+            workoutCount: 0,
+            hasWorkouts: false,
+            waterGoal: waterGoal,
+            foodCount: 0,
+            totalCalories: 0,
+            totalFoodSugar: 0,
+            totalFoodWater: 0,
+            hasFood: false,
+          ),
+        );
       }
     }
 
@@ -242,11 +249,9 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    
+
     if (isLoadingWeekData) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final alcoholService = Provider.of<AlcoholService>(context);
@@ -257,7 +262,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [              
+            children: [
               // График воды
               _buildWaterChart(l10n).animate().fadeIn(),
               const SizedBox(height: 20),
@@ -270,15 +275,13 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               if (_hasFoodData())
                 _buildFoodChart(l10n).animate().fadeIn(delay: 75.ms),
 
-              if (_hasFoodData())
-                const SizedBox(height: 20),
+              if (_hasFoodData()) const SizedBox(height: 20),
 
               // График тренировок (если есть данные)
               if (_hasWorkoutData())
                 _buildWorkoutsChart(l10n).animate().fadeIn(delay: 100.ms),
-              
-              if (_hasWorkoutData())
-                const SizedBox(height: 20),
+
+              if (_hasWorkoutData()) const SizedBox(height: 20),
 
               // График алкоголя (если есть данные и не sober mode)
               if (!alcoholService.soberModeEnabled && _hasAlcoholData())
@@ -293,7 +296,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
 
               // Инсайты недели
               _buildWeeklyInsights(l10n).animate().scale(delay: 300.ms),
-              
+
               const SizedBox(height: 120),
             ],
           ),
@@ -315,7 +318,10 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               const SizedBox(width: 8),
               Text(
                 l10n.waterConsumption,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -329,7 +335,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
   Widget _buildWaterLineChart(AppLocalizations l10n) {
     final List<FlSpot> spots = [];
     final List<String> bottomTitles = [];
-    
+
     final sortedData = _getSortedWeekData();
 
     for (int i = 0; i < sortedData.length; i++) {
@@ -382,8 +388,12 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               reservedSize: 25,
             ),
           ),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
         borderData: FlBorderData(show: false),
         minX: 0.0,
@@ -398,7 +408,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               (i) => FlSpot(i.toDouble(), 100.0),
             ),
             isCurved: false,
-            color: Colors.green.withOpacity(0.3),
+            color: Colors.green.withValues(alpha: 0.3),
             barWidth: 1,
             isStrokeCapRound: false,
             dotData: const FlDotData(show: false),
@@ -415,11 +425,11 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               show: true,
               getDotPainter: (spot, percent, barData, index) =>
                   FlDotCirclePainter(
-                radius: 4,
-                color: Colors.white,
-                strokeWidth: 2,
-                strokeColor: Colors.blue,
-              ),
+                    radius: 4,
+                    color: Colors.white,
+                    strokeWidth: 2,
+                    strokeColor: Colors.blue,
+                  ),
             ),
             belowBarData: BarAreaData(
               show: true,
@@ -427,8 +437,8 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.blue.withOpacity(0.3),
-                  Colors.blue.withOpacity(0.0),
+                  Colors.blue.withValues(alpha: 0.3),
+                  Colors.blue.withValues(alpha: 0.0),
                 ],
               ),
             ),
@@ -476,7 +486,10 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               const SizedBox(width: 8),
               Text(
                 l10n.electrolytes,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -508,14 +521,32 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
     for (int i = 0; i < sortedData.length; i++) {
       final d = sortedData[i];
 
-      final naPct = ((d.sodium / (provider.goals.sodium == 0 ? 1 : provider.goals.sodium)) * 100)
-          .clamp(0.0, 150.0).toDouble();
+      final naPct =
+          ((d.sodium /
+                      (provider.goals.sodium == 0
+                          ? 1
+                          : provider.goals.sodium)) *
+                  100)
+              .clamp(0.0, 150.0)
+              .toDouble();
 
-      final kPct = ((d.potassium / (provider.goals.potassium == 0 ? 1 : provider.goals.potassium)) * 100)
-          .clamp(0.0, 150.0).toDouble();
+      final kPct =
+          ((d.potassium /
+                      (provider.goals.potassium == 0
+                          ? 1
+                          : provider.goals.potassium)) *
+                  100)
+              .clamp(0.0, 150.0)
+              .toDouble();
 
-      final mgPct = ((d.magnesium / (provider.goals.magnesium == 0 ? 1 : provider.goals.magnesium)) * 100)
-          .clamp(0.0, 150.0).toDouble();
+      final mgPct =
+          ((d.magnesium /
+                      (provider.goals.magnesium == 0
+                          ? 1
+                          : provider.goals.magnesium)) *
+                  100)
+              .clamp(0.0, 150.0)
+              .toDouble();
 
       barGroups.add(
         BarChartGroupData(
@@ -617,8 +648,12 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               reservedSize: 25,
             ),
           ),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
         borderData: FlBorderData(show: false),
         barGroups: barGroups,
@@ -667,7 +702,10 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               const SizedBox(width: 8),
               Text(
                 l10n.foodIntake,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -755,8 +793,12 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               reservedSize: 25,
             ),
           ),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
         borderData: FlBorderData(show: false),
         barGroups: barGroups,
@@ -783,7 +825,10 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               const SizedBox(width: 8),
               Text(
                 l10n.workouts,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -871,8 +916,12 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               reservedSize: 25,
             ),
           ),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
         borderData: FlBorderData(show: false),
         barGroups: barGroups,
@@ -899,7 +948,10 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               const SizedBox(width: 8),
               Text(
                 l10n.alcoholWeek,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -922,8 +974,11 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
           barRods: [
             BarChartRodData(
               toY: d.alcoholSD > 0 ? d.alcoholSD : 0,
-              color: d.alcoholSD > 2 ? Colors.red.shade400 :
-                     d.alcoholSD > 0 ? Colors.orange.shade400 : Colors.grey.shade300,
+              color: d.alcoholSD > 2
+                  ? Colors.red.shade400
+                  : d.alcoholSD > 0
+                  ? Colors.orange.shade400
+                  : Colors.grey.shade300,
               width: 16,
               borderRadius: BorderRadius.circular(4),
             ),
@@ -988,8 +1043,12 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               reservedSize: 25,
             ),
           ),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
         ),
         borderData: FlBorderData(show: false),
         barGroups: barGroups,
@@ -1023,7 +1082,10 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
               const SizedBox(width: 8),
               Text(
                 l10n.weeklyAverages,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -1075,7 +1137,9 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
           icon: '💧',
           label: l10n.waterPerDay,
           value: _unitsService.formatVolume((totalWater / daysCount).round()),
-          target: _unitsService.formatVolume((_remoteConfig.waterOptPerKg * provider.weight).round()),
+          target: _unitsService.formatVolume(
+            (_remoteConfig.waterOptPerKg * provider.weight).round(),
+          ),
           color: Colors.blue,
         ),
         const SizedBox(height: 12),
@@ -1117,7 +1181,8 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
             icon: '🍯',
             label: l10n.sugarPerDay,
             value: '${(totalFoodSugar / daysCount).toStringAsFixed(1)}g',
-            target: '${(totalFoodCount / daysCount).toStringAsFixed(1)} meals/day',
+            target:
+                '${(totalFoodCount / daysCount).toStringAsFixed(1)} meals/day',
             color: Colors.amber,
           ),
         ],
@@ -1127,18 +1192,21 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
           _buildStatRow(
             icon: '💪',
             label: l10n.workoutMinutesPerDay,
-            value: '${(totalWorkoutMinutes / daysCount).round()} ${l10n.minutes}',
+            value:
+                '${(totalWorkoutMinutes / daysCount).round()} ${l10n.minutes}',
             target: '$daysWithWorkouts ${l10n.daysWithWorkouts}',
             color: Colors.green,
           ),
         ],
-        
+
         const Divider(height: 32),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(l10n.daysWithGoalAchieved,
-                style: const TextStyle(fontWeight: FontWeight.w500)),
+            Text(
+              l10n.daysWithGoalAchieved,
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
@@ -1163,8 +1231,10 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(l10n.recordsPerDay,
-                style: const TextStyle(fontWeight: FontWeight.w500)),
+            Text(
+              l10n.recordsPerDay,
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
             Text(
               '≈ ${(totalIntakes / daysCount).round()}',
               style: const TextStyle(fontWeight: FontWeight.bold),
@@ -1188,29 +1258,40 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Center(child: Text(icon, style: const TextStyle(fontSize: 20))),
+          child: Center(
+            child: Text(icon, style: const TextStyle(fontSize: 20)),
+          ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label,
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+              Text(
+                label,
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+              ),
               const SizedBox(height: 2),
-              Text(value,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
             ],
           ),
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text('Target',
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 11)),
+            Text(
+              'Target',
+              style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
+            ),
             Text(
               target,
               style: TextStyle(
@@ -1225,7 +1306,6 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
     );
   }
 
-
   Widget _buildWeeklyInsights(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -1236,7 +1316,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.purple.withOpacity(0.3),
+            color: Colors.purple.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -1251,7 +1331,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -1283,8 +1363,10 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
 
     if (weeklyData.isEmpty) {
       return [
-        Text(l10n.insufficientDataForAnalysis,
-            style: const TextStyle(color: Colors.white70))
+        Text(
+          l10n.insufficientDataForAnalysis,
+          style: const TextStyle(color: Colors.white70),
+        ),
       ];
     }
 
@@ -1299,34 +1381,49 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
     }
 
     if (bestDay != null) {
-      insights.add(_buildInsight(
-        '🏆',
-        l10n.bestDay,
-        l10n.bestDayMessage(_getWeekdayFull(bestDay.date, l10n), bestDay.waterPercent.toInt()),
-      ));
+      insights.add(
+        _buildInsight(
+          '🏆',
+          l10n.bestDay,
+          l10n.bestDayMessage(
+            _getWeekdayFull(bestDay.date, l10n),
+            bestDay.waterPercent.toInt(),
+          ),
+        ),
+      );
     }
 
     // Анализ выходных vs будни
-    final weekend = sorted.where((d) => d.date.weekday == 6 || d.date.weekday == 7);
+    final weekend = sorted.where(
+      (d) => d.date.weekday == 6 || d.date.weekday == 7,
+    );
     final weekdays = sorted.where((d) => d.date.weekday < 6);
 
     if (weekend.isNotEmpty && weekdays.isNotEmpty) {
-      final avgWeekend = weekend.map((d) => d.waterPercent).reduce((a, b) => a + b) / weekend.length;
-      final avgWeekdays = weekdays.map((d) => d.waterPercent).reduce((a, b) => a + b) / weekdays.length;
+      final avgWeekend =
+          weekend.map((d) => d.waterPercent).reduce((a, b) => a + b) /
+          weekend.length;
+      final avgWeekdays =
+          weekdays.map((d) => d.waterPercent).reduce((a, b) => a + b) /
+          weekdays.length;
 
       if ((avgWeekdays - avgWeekend).abs() > 15) {
         if (avgWeekdays > avgWeekend) {
-          insights.add(_buildInsight(
-            '📅',
-            l10n.weekends,
-            l10n.drinkLessOnWeekends((avgWeekdays - avgWeekend).toInt()),
-          ));
+          insights.add(
+            _buildInsight(
+              '📅',
+              l10n.weekends,
+              l10n.drinkLessOnWeekends((avgWeekdays - avgWeekend).toInt()),
+            ),
+          );
         } else {
-          insights.add(_buildInsight(
-            '💼',
-            l10n.weekdays,
-            l10n.drinkLessOnWeekdays((avgWeekend - avgWeekdays).toInt()),
-          ));
+          insights.add(
+            _buildInsight(
+              '💼',
+              l10n.weekdays,
+              l10n.drinkLessOnWeekdays((avgWeekend - avgWeekdays).toInt()),
+            ),
+          );
         }
       }
     }
@@ -1337,45 +1434,71 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
       final daysWithoutWorkouts = sorted.where((d) => !d.hasWorkouts).toList();
 
       if (daysWithWorkouts.isNotEmpty && daysWithoutWorkouts.isNotEmpty) {
-        final avgWithWorkouts = daysWithWorkouts.map((d) => d.waterPercent).reduce((a, b) => a + b) / daysWithWorkouts.length;
-        final avgWithoutWorkouts = daysWithoutWorkouts.map((d) => d.waterPercent).reduce((a, b) => a + b) / daysWithoutWorkouts.length;
+        final avgWithWorkouts =
+            daysWithWorkouts
+                .map((d) => d.waterPercent)
+                .reduce((a, b) => a + b) /
+            daysWithWorkouts.length;
+        final avgWithoutWorkouts =
+            daysWithoutWorkouts
+                .map((d) => d.waterPercent)
+                .reduce((a, b) => a + b) /
+            daysWithoutWorkouts.length;
 
         if (avgWithWorkouts > avgWithoutWorkouts + 10) {
-          insights.add(_buildInsight(
-            '💪',
-            l10n.workoutHydration,
-            l10n.workoutHydrationMessage((avgWithWorkouts - avgWithoutWorkouts).toInt()),
-          ));
+          insights.add(
+            _buildInsight(
+              '💪',
+              l10n.workoutHydration,
+              l10n.workoutHydrationMessage(
+                (avgWithWorkouts - avgWithoutWorkouts).toInt(),
+              ),
+            ),
+          );
         }
       }
 
-      final totalWorkoutMinutes = sorted.fold(0, (sum, d) => sum + d.workoutMinutes);
+      final totalWorkoutMinutes = sorted.fold(
+        0,
+        (sum, d) => sum + d.workoutMinutes,
+      );
       if (totalWorkoutMinutes > 0) {
-        insights.add(_buildInsight(
-          '🏃',
-          l10n.weeklyActivity,
-          l10n.weeklyActivityMessage(totalWorkoutMinutes, sorted.where((d) => d.hasWorkouts).length),
-        ));
+        insights.add(
+          _buildInsight(
+            '🏃',
+            l10n.weeklyActivity,
+            l10n.weeklyActivityMessage(
+              totalWorkoutMinutes,
+              sorted.where((d) => d.hasWorkouts).length,
+            ),
+          ),
+        );
       }
     }
 
     // Анализ трендов
     if (sorted.length >= 3) {
-      final firstHalf = sorted.take(3).map((d) => d.waterPercent).reduce((a, b) => a + b) / 3;
-      final secondHalf = sorted.skip(sorted.length - 3).map((d) => d.waterPercent).reduce((a, b) => a + b) / 3;
+      final firstHalf =
+          sorted.take(3).map((d) => d.waterPercent).reduce((a, b) => a + b) / 3;
+      final secondHalf =
+          sorted
+              .skip(sorted.length - 3)
+              .map((d) => d.waterPercent)
+              .reduce((a, b) => a + b) /
+          3;
 
       if (secondHalf > firstHalf + 10) {
-        insights.add(_buildInsight(
-          '📈',
-          l10n.positiveTrend,
-          l10n.positiveTrendMessage,
-        ));
+        insights.add(
+          _buildInsight('📈', l10n.positiveTrend, l10n.positiveTrendMessage),
+        );
       } else if (firstHalf > secondHalf + 10) {
-        insights.add(_buildInsight(
-          '📉',
-          l10n.decliningActivity,
-          l10n.decliningActivityMessage,
-        ));
+        insights.add(
+          _buildInsight(
+            '📉',
+            l10n.decliningActivity,
+            l10n.decliningActivityMessage,
+          ),
+        );
       }
     }
 
@@ -1388,11 +1511,13 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
       }
     }
     if (daysWithGoodSodium < 3) {
-      insights.add(_buildInsight(
-        '🧂',
-        l10n.lowSalt,
-        l10n.lowSaltMessage(daysWithGoodSodium),
-      ));
+      insights.add(
+        _buildInsight(
+          '🧂',
+          l10n.lowSalt,
+          l10n.lowSaltMessage(daysWithGoodSodium),
+        ),
+      );
     }
 
     // Анализ алкоголя
@@ -1402,11 +1527,13 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
         if (d.alcoholSD > 0) daysWithAlcohol++;
       }
       if (daysWithAlcohol > 3) {
-        insights.add(_buildInsight(
-          '🍺',
-          l10n.frequentAlcohol,
-          l10n.frequentAlcoholMessage(daysWithAlcohol),
-        ));
+        insights.add(
+          _buildInsight(
+            '🍺',
+            l10n.frequentAlcohol,
+            l10n.frequentAlcoholMessage(daysWithAlcohol),
+          ),
+        );
       }
     }
 
@@ -1425,14 +1552,11 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: Center(
-              child: Text(
-                emoji,
-                style: const TextStyle(fontSize: 18),
-              ),
+              child: Text(emoji, style: const TextStyle(fontSize: 18)),
             ),
           ),
           const SizedBox(width: 12),
@@ -1452,7 +1576,7 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
                 Text(
                   description,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 13,
                   ),
                 ),
@@ -1465,41 +1589,57 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
   }
 
   BoxDecoration _cardDecoration() => BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      );
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(20),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withValues(alpha: 0.05),
+        blurRadius: 10,
+        offset: const Offset(0, 2),
+      ),
+    ],
+  );
 
   String _getWeekdayShort(DateTime date, AppLocalizations l10n) {
     // Используем короткие названия из локализации если есть
     switch (date.weekday) {
-      case 1: return l10n.mondayShort ?? 'ПН';
-      case 2: return l10n.tuesdayShort ?? 'ВТ';
-      case 3: return l10n.wednesdayShort ?? 'СР';
-      case 4: return l10n.thursdayShort ?? 'ЧТ';
-      case 5: return l10n.fridayShort ?? 'ПТ';
-      case 6: return l10n.saturdayShort ?? 'СБ';
-      case 7: return l10n.sundayShort ?? 'ВС';
-      default: return '';
+      case 1:
+        return l10n.mondayShort ?? 'ПН';
+      case 2:
+        return l10n.tuesdayShort ?? 'ВТ';
+      case 3:
+        return l10n.wednesdayShort ?? 'СР';
+      case 4:
+        return l10n.thursdayShort ?? 'ЧТ';
+      case 5:
+        return l10n.fridayShort ?? 'ПТ';
+      case 6:
+        return l10n.saturdayShort ?? 'СБ';
+      case 7:
+        return l10n.sundayShort ?? 'ВС';
+      default:
+        return '';
     }
   }
 
   String _getWeekdayFull(DateTime date, AppLocalizations l10n) {
     switch (date.weekday) {
-      case 1: return l10n.monday;
-      case 2: return l10n.tuesday;
-      case 3: return l10n.wednesday;
-      case 4: return l10n.thursday;
-      case 5: return l10n.friday;
-      case 6: return l10n.saturday;
-      case 7: return l10n.sunday;
-      default: return '';
+      case 1:
+        return l10n.monday;
+      case 2:
+        return l10n.tuesday;
+      case 3:
+        return l10n.wednesday;
+      case 4:
+        return l10n.thursday;
+      case 5:
+        return l10n.friday;
+      case 6:
+        return l10n.saturday;
+      case 7:
+        return l10n.sunday;
+      default:
+        return '';
     }
   }
 
@@ -1515,7 +1655,6 @@ class _WeeklyHistoryScreenState extends State<WeeklyHistoryScreen> {
     }
     return maxV > 0 ? maxV * 1.1 : 2000;
   }
-
 
   double _getMaxAlcoholValue() {
     double maxV = 0;

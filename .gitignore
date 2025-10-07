@@ -80,3 +80,29 @@ build*
 # Release builds
 docs/release_notes/**/*.apk
 docs/release_notes/**/*.aab
+
+# Crash logs and temporary files
+*.log
+android/hs_err_*.log
+android/replay_*.log
+*.bak
+*.backup
+*_old.*
+*_copy.*
+nul
+
+# APK analysis directories
+apk_analysis/
+*.apk.cache/
+
+# Gradle caches
+android/.gradle/
+
+# Vim temporary files
+*.swp
+*.swo
+*~
+
+# Windows
+Thumbs.db
+desktop.ini

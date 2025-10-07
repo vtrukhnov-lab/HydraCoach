@@ -7,6 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
+import 'package:hydracoach/utils/app_logger.dart';
+
 import 'notification_types.dart';
 import 'notification_config.dart';
 import '../notification_texts.dart';
@@ -20,7 +22,7 @@ class NotificationSender {
   final FirebaseFirestore _firestore;
   final NotificationLimitsHelper _limitsHelper;
   final AnalyticsService _analytics;
-  
+
   // Кеш для отслеживания отправленных уведомлений
   final Map<NotificationType, int> _lastNotificationIds = {};
   final Set<int> _pendingNotificationIds = {};
@@ -55,15 +57,25 @@ class NotificationSender {
 
     // Корректировка времени для тихих часов
     if (scheduledTime != null) {
-      scheduledTime = await _adjustScheduledTime(scheduledTime, skipChecks, silentIfQuiet);
+      scheduledTime = await _adjustScheduledTime(
+        scheduledTime,
+        skipChecks,
+        silentIfQuiet,
+      );
     }
 
     // Создание деталей уведомления
-    final details = await _createNotificationDetails(type, title, body, scheduledTime, silentIfQuiet);
-    
+    final details = await _createNotificationDetails(
+      type,
+      title,
+      body,
+      scheduledTime,
+      silentIfQuiet,
+    );
+
     // Генерация ID
     final notificationId = _generateNotificationId(type, when: scheduledTime);
-    
+
     // Создание payload
     final mergedPayload = {
       'type': type.name,
@@ -102,11 +114,10 @@ class NotificationSender {
 
       // Сохраняем в историю
       await _saveNotificationToHistory(type, title, body, scheduledTime);
-
     } catch (e) {
-      print('❌ Error sending notification: $e');
+      logger.e('Error sending notification: $e');
       // Убираем вызов несуществующего метода
-      print('Notification error: type=$type, error=$e');
+      logger.e('Notification error: type=$type, error=$e');
     }
   }
 
@@ -116,31 +127,32 @@ class NotificationSender {
     final day = TimezoneHelper.dayOfYear(t);
     final minutesInDay = t.hour * 60 + t.minute;
     final fromYearStart = day * 1440 + minutesInDay; // 0..527039
-    return type.index * 1_000_000 + fromYearStart; // ИСПРАВЛЕНО: увеличено пространство
+    return type.index * 1_000_000 +
+        fromYearStart; // ИСПРАВЛЕНО: увеличено пространство
   }
 
   /// Декодирование информации из ID уведомления
-  static ({int typeIdx, int dayFromId, int hour, int minute}) decodeNotificationId(int id) {
+  static ({int typeIdx, int dayFromId, int hour, int minute})
+  decodeNotificationId(int id) {
     final typeIdx = id ~/ 1_000_000;
     final fromYearStart = id % 1_000_000;
     final dayFromId = fromYearStart ~/ 1440;
     final minutesInDay = fromYearStart % 1440;
     final hour = minutesInDay ~/ 60;
     final minute = minutesInDay % 60;
-    
-    return (
-      typeIdx: typeIdx,
-      dayFromId: dayFromId,
-      hour: hour,
-      minute: minute,
-    );
+
+    return (typeIdx: typeIdx, dayFromId: dayFromId, hour: hour, minute: minute);
   }
 
   /// Выполнение всех проверок перед отправкой
-  Future<bool> _performChecks(NotificationType type, DateTime? scheduledTime, bool silentIfQuiet) async {
+  Future<bool> _performChecks(
+    NotificationType type,
+    DateTime? scheduledTime,
+    bool silentIfQuiet,
+  ) async {
     // Проверка дубликатов
     if (await _limitsHelper.isDuplicateNotification(type, null)) {
-      print('🚫 Duplicate notification blocked: $type');
+      logger.d('Duplicate notification blocked: $type');
       return false;
     }
 
@@ -148,29 +160,31 @@ class NotificationSender {
     if (scheduledTime == null) {
       // Проверка базовых лимитов
       if (!await _limitsHelper.canSendNotification()) {
-        print('⌛ Cannot send: daily limit or anti-spam');
-        print('Notification error: type=$type, error=Daily limit or anti-spam');
+        logger.d('Cannot send: daily limit or anti-spam');
+        logger.e(
+          'Notification error: type=$type, error=Daily limit or anti-spam',
+        );
         return false;
       }
 
       // Проверка PRO лимитов
       if (await _limitsHelper.isProUser()) {
         if (!await _limitsHelper.checkProDailyCap()) {
-          print('⌛ PRO hard cap reached');
-          print('Notification error: type=$type, error=PRO hard cap');
+          logger.d('PRO hard cap reached');
+          logger.e('Notification error: type=$type, error=PRO hard cap');
           return false;
         }
       }
 
       // Проверка тихих часов
       if (await _limitsHelper.isInQuietHours() && !silentIfQuiet) {
-        print('🔇 Cannot send: quiet hours active');
+        logger.d('Cannot send: quiet hours active');
         return false;
       }
 
       // Проверка режима поста
       if (!await _limitsHelper.shouldSendQuietFastingReminder()) {
-        print('🥗 Cannot send: quiet fasting mode');
+        logger.d('Cannot send: quiet fasting mode');
         return false;
       }
     }
@@ -179,16 +193,20 @@ class NotificationSender {
   }
 
   /// Корректировка запланированного времени
-  Future<DateTime?> _adjustScheduledTime(DateTime scheduledTime, bool skipChecks, bool silentIfQuiet) async {
+  Future<DateTime?> _adjustScheduledTime(
+    DateTime scheduledTime,
+    bool skipChecks,
+    bool silentIfQuiet,
+  ) async {
     if (scheduledTime.isBefore(DateTime.now())) {
-      print('⚠️ Scheduled time in the past, sending immediately');
+      logger.w('Scheduled time in the past, sending immediately');
       return null;
     }
-    
+
     if (!skipChecks && !silentIfQuiet) {
       return await _limitsHelper.adjustForQuietHours(scheduledTime);
     }
-    
+
     return scheduledTime;
   }
 
@@ -201,31 +219,36 @@ class NotificationSender {
     bool silentIfQuiet,
   ) async {
     final currentLocale = NotificationTexts.currentLocale;
-    
+
     // Определение канала и приоритета
-    String channelId = '${NotificationConfig.channelPrefix}_${NotificationConfig.defaultChannelSuffix}_$currentLocale';
+    String channelId =
+        '${NotificationConfig.channelPrefix}_${NotificationConfig.defaultChannelSuffix}_$currentLocale';
     Importance importance = Importance.high;
     Priority priority = Priority.high;
 
     // ИСПРАВЛЕНО: Добавлен недостающий case для NotificationPriority.high
     switch (type.priority) {
       case NotificationPriority.urgent:
-        channelId = '${NotificationConfig.channelPrefix}_${NotificationConfig.urgentChannelSuffix}_$currentLocale';
+        channelId =
+            '${NotificationConfig.channelPrefix}_${NotificationConfig.urgentChannelSuffix}_$currentLocale';
         importance = Importance.max;
         priority = Priority.max;
         break;
       case NotificationPriority.high:
-        channelId = '${NotificationConfig.channelPrefix}_${NotificationConfig.defaultChannelSuffix}_$currentLocale';
+        channelId =
+            '${NotificationConfig.channelPrefix}_${NotificationConfig.defaultChannelSuffix}_$currentLocale';
         importance = Importance.high;
         priority = Priority.high;
         break;
       case NotificationPriority.normal:
-        channelId = '${NotificationConfig.channelPrefix}_${NotificationConfig.reportChannelSuffix}_$currentLocale';
+        channelId =
+            '${NotificationConfig.channelPrefix}_${NotificationConfig.reportChannelSuffix}_$currentLocale';
         importance = Importance.defaultImportance;
         priority = Priority.defaultPriority;
         break;
       case NotificationPriority.low:
-        channelId = '${NotificationConfig.channelPrefix}_${NotificationConfig.silentChannelSuffix}_$currentLocale';
+        channelId =
+            '${NotificationConfig.channelPrefix}_${NotificationConfig.silentChannelSuffix}_$currentLocale';
         importance = Importance.low;
         priority = Priority.low;
         break;
@@ -236,16 +259,23 @@ class NotificationSender {
     if (silentIfQuiet) {
       if (scheduledTime != null) {
         final prefs = await SharedPreferences.getInstance();
-        final startStr = prefs.getString(NotificationConfig.prefQuietHoursStart) ?? NotificationConfig.defaultQuietHoursStart;
-        final endStr = prefs.getString(NotificationConfig.prefQuietHoursEnd) ?? NotificationConfig.defaultQuietHoursEnd;
-        quietForThis = _limitsHelper.isInQuietHoursAt(scheduledTime, startStr, endStr) && await _limitsHelper.isProUser();
+        final startStr =
+            prefs.getString(NotificationConfig.prefQuietHoursStart) ??
+            NotificationConfig.defaultQuietHoursStart;
+        final endStr =
+            prefs.getString(NotificationConfig.prefQuietHoursEnd) ??
+            NotificationConfig.defaultQuietHoursEnd;
+        quietForThis =
+            _limitsHelper.isInQuietHoursAt(scheduledTime, startStr, endStr) &&
+            await _limitsHelper.isProUser();
       } else {
         quietForThis = await _limitsHelper.isInQuietHours();
       }
     }
 
     if (quietForThis) {
-      channelId = '${NotificationConfig.channelPrefix}_${NotificationConfig.silentChannelSuffix}_$currentLocale';
+      channelId =
+          '${NotificationConfig.channelPrefix}_${NotificationConfig.silentChannelSuffix}_$currentLocale';
       importance = Importance.low;
       priority = Priority.low;
     }
@@ -259,7 +289,8 @@ class NotificationSender {
       ticker: 'HydroCoach',
       icon: 'notification_icon',
       color: const Color.fromARGB(255, 33, 150, 243),
-      enableVibration: !channelId.contains('report') && !channelId.contains('silent'),
+      enableVibration:
+          !channelId.contains('report') && !channelId.contains('silent'),
       playSound: !channelId.contains('silent'),
       styleInformation: BigTextStyleInformation(
         body,
@@ -275,10 +306,7 @@ class NotificationSender {
       presentSound: !quietForThis,
     );
 
-    return NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
+    return NotificationDetails(android: androidDetails, iOS: iosDetails);
   }
 
   /// Получение локализованного имени канала
@@ -316,10 +344,10 @@ class NotificationSender {
     await _limitsHelper.saveLastNotificationTime();
     await _limitsHelper.incrementProCount();
 
-    print('📬 Notification sent: $title');
+    logger.i('📬 Notification sent: $title');
 
     // Убираем вызов несуществующего метода аналитики
-    print('Notification sent: type=$type, scheduled=false');
+    logger.i('Notification sent: type=$type, scheduled=false');
   }
 
   /// Планирование уведомления на будущее
@@ -346,10 +374,14 @@ class NotificationSender {
 
     _pendingNotificationIds.add(notificationId);
 
-    print('📅 Notification scheduled for ${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}: $title');
+    logger.i(
+      '📅 Notification scheduled for ${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}: $title',
+    );
 
     // Убираем вызов несуществующего метода аналитики
-    print('Notification scheduled: type=$type, delay=${scheduledTime.difference(DateTime.now()).inMinutes}min');
+    logger.i(
+      'Notification scheduled: type=$type, delay=${scheduledTime.difference(DateTime.now()).inMinutes}min',
+    );
   }
 
   /// Отмена старого уведомления того же типа
@@ -358,7 +390,7 @@ class NotificationSender {
     if (oldId != null && _pendingNotificationIds.contains(oldId)) {
       await _localNotifications.cancel(oldId);
       _pendingNotificationIds.remove(oldId);
-      print('🚫 Cancelled old notification of type $type (ID: $oldId)');
+      logger.i('🚫 Cancelled old notification of type $type (ID: $oldId)');
     }
   }
 
@@ -378,13 +410,13 @@ class NotificationSender {
           .doc(user.uid)
           .collection('notification_history')
           .add({
-        'type': type.toString(),
-        'scheduled_time': scheduledTime?.toIso8601String(),
-        'sent_at': FieldValue.serverTimestamp(),
-        // ИСПРАВЛЕНО: Убираем title/body для приватности согласно задачам
-      });
+            'type': type.toString(),
+            'scheduled_time': scheduledTime?.toIso8601String(),
+            'sent_at': FieldValue.serverTimestamp(),
+            // ИСПРАВЛЕНО: Убираем title/body для приватности согласно задачам
+          });
     } catch (e) {
-      print('⚠️ Error saving notification history: $e');
+      logger.i('⚠️ Error saving notification history: $e');
     }
   }
 

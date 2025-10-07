@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:hydracoach/utils/app_logger.dart';
+
 import 'notification_types.dart';
 import 'notification_config.dart';
 import 'notification_sender.dart';
@@ -28,7 +30,7 @@ class FCMHandler {
 
   /// Инициализация FCM с обработчиками
   Future<void> initialize() async {
-    print('FCM Handler initializing...');
+    logger.i('FCM Handler initializing...');
 
     // Получение и сохранение начального токена
     await _initializeFCMToken();
@@ -39,7 +41,7 @@ class FCMHandler {
     // Подписка на топики
     await _subscribeToTopics();
 
-    print('FCM Handler initialized');
+    logger.i('FCM Handler initialized');
   }
 
   /// Инициализация и сохранение FCM токена
@@ -48,17 +50,16 @@ class FCMHandler {
       final token = await _messaging.getToken();
       if (token != null) {
         await _saveFCMToken(token);
-        print('FCM token obtained and saved');
+        logger.i('FCM token obtained and saved');
       }
 
       // Обработка обновлений токена
       _messaging.onTokenRefresh.listen((newToken) {
-        print('FCM token refreshed');
+        logger.i('FCM token refreshed');
         _saveFCMToken(newToken);
       });
-
     } catch (e) {
-      print('Error initializing FCM token: $e');
+      logger.i('Error initializing FCM token: $e');
     }
   }
 
@@ -79,21 +80,23 @@ class FCMHandler {
     try {
       final initialMessage = await _messaging.getInitialMessage();
       if (initialMessage != null) {
-        print('App opened from notification');
+        logger.i('App opened from notification');
         _handleNotificationOpen(initialMessage);
       }
     } catch (e) {
-      print('Error handling initial message: $e');
+      logger.i('Error handling initial message: $e');
     }
   }
 
   /// Обработка сообщения в foreground
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
-    print('Foreground FCM message received: ${message.messageId}');
+    logger.i('Foreground FCM message received: ${message.messageId}');
 
     try {
       // Логируем получение - УБРАНО: вызов несуществующего метода
-      print('FCM Message: ${message.messageId}, title: ${message.notification?.title}, hasData: ${message.data.isNotEmpty}');
+      logger.i(
+        'FCM Message: ${message.messageId}, title: ${message.notification?.title}, hasData: ${message.data.isNotEmpty}',
+      );
 
       // Если есть notification - показываем как локальное уведомление
       if (message.notification != null) {
@@ -104,9 +107,8 @@ class FCMHandler {
       if (message.data.isNotEmpty) {
         await _processDataPayload(message.data);
       }
-
     } catch (e) {
-      print('Error handling foreground message: $e');
+      logger.i('Error handling foreground message: $e');
       // УБРАНО: вызов _analytics.logFCMError
     }
   }
@@ -119,7 +121,7 @@ class FCMHandler {
     // Определяем тип из data или используем custom
     final typeStr = message.data['type'] ?? 'custom';
     NotificationType type;
-    
+
     try {
       type = NotificationType.values.firstWhere((t) => t.name == typeStr);
     } catch (e) {
@@ -134,16 +136,16 @@ class FCMHandler {
       skipChecks: true, // FCM уведомления высокоприоритетные
     );
 
-    print('Foreground notification shown: $title');
+    logger.i('Foreground notification shown: $title');
   }
 
   /// Обработка data payload
   Future<void> _processDataPayload(Map<String, dynamic> data) async {
     final action = data['action'] as String?;
-    
+
     if (action != null) {
-      print('Processing FCM data action: $action');
-      
+      logger.i('Processing FCM data action: $action');
+
       // Обрабатываем специальные действия
       switch (action) {
         case 'update_goals':
@@ -164,19 +166,20 @@ class FCMHandler {
 
   /// Обработка открытия уведомления
   Future<void> _handleNotificationOpen(RemoteMessage message) async {
-    print('FCM notification opened: ${message.messageId}');
+    logger.i('FCM notification opened: ${message.messageId}');
 
     try {
       // Логируем открытие - УБРАНО: вызов несуществующего метода
-      print('Notification opened: type=${message.data['type'] ?? 'fcm'}, action=${message.data['action']}');
+      logger.i(
+        'Notification opened: type=${message.data['type'] ?? 'fcm'}, action=${message.data['action']}',
+      );
 
       // Обрабатываем действие
       if (message.data.isNotEmpty) {
         await _processNotificationAction(jsonEncode(message.data));
       }
-
     } catch (e) {
-      print('Error handling notification open: $e');
+      logger.i('Error handling notification open: $e');
     }
   }
 
@@ -188,7 +191,7 @@ class FCMHandler {
       final data = jsonDecode(payload) as Map<String, dynamic>;
       final action = data['action'] as String?;
 
-      print('Processing notification action: $action');
+      logger.i('Processing notification action: $action');
 
       // Здесь будет роутинг к соответствующим экранам
       // В зависимости от архитектуры приложения
@@ -215,11 +218,10 @@ class FCMHandler {
           // Показать предупреждение о жаре
           break;
         default:
-          print('Unknown action: $action');
+          logger.i('Unknown action: $action');
       }
-
     } catch (e) {
-      print('Error processing notification action: $e');
+      logger.i('Error processing notification action: $e');
     }
   }
 
@@ -240,14 +242,13 @@ class FCMHandler {
           'updated_at': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
 
-        print('FCM token saved to Firestore for user: ${user.uid}');
+        logger.i('FCM token saved to Firestore for user: ${user.uid}');
       }
 
       // Обновляем устройства для push-кампаний
       await _updateDeviceInfo(token);
-
     } catch (e) {
-      print('Error saving FCM token: $e');
+      logger.i('Error saving FCM token: $e');
     }
   }
 
@@ -259,7 +260,8 @@ class FCMHandler {
 
       final prefs = await SharedPreferences.getInstance();
       final isPro = prefs.getBool(NotificationConfig.prefIsPro) ?? false;
-      final dietMode = prefs.getString(NotificationConfig.prefDietMode) ?? 'normal';
+      final dietMode =
+          prefs.getString(NotificationConfig.prefDietMode) ?? 'normal';
 
       await _firestore.collection('devices').doc(token).set({
         'user_id': user.uid,
@@ -268,9 +270,8 @@ class FCMHandler {
         'diet_mode': dietMode,
         'last_active': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
-
     } catch (e) {
-      print('Error updating device info: $e');
+      logger.i('Error updating device info: $e');
     }
   }
 
@@ -281,26 +282,26 @@ class FCMHandler {
 
       // Подписка на общий топик
       await _messaging.subscribeToTopic('all_users');
-      print('Subscribed to: all_users');
+      logger.i('Subscribed to: all_users');
 
       // Подписка на топик по режиму диеты
-      final dietMode = prefs.getString(NotificationConfig.prefDietMode) ?? 'normal';
+      final dietMode =
+          prefs.getString(NotificationConfig.prefDietMode) ?? 'normal';
       await _messaging.subscribeToTopic('${dietMode}_users');
-      print('Subscribed to: ${dietMode}_users');
+      logger.i('Subscribed to: ${dietMode}_users');
 
       // Подписка на топик по статусу PRO
       final isPro = prefs.getBool(NotificationConfig.prefIsPro) ?? false;
       final proTopic = isPro ? 'pro_users' : 'free_users';
       await _messaging.subscribeToTopic(proTopic);
-      print('Subscribed to: $proTopic');
+      logger.i('Subscribed to: $proTopic');
 
       // Подписка на топик по платформе
       final platformTopic = Platform.isIOS ? 'ios_users' : 'android_users';
       await _messaging.subscribeToTopic(platformTopic);
-      print('Subscribed to: $platformTopic');
-
+      logger.i('Subscribed to: $platformTopic');
     } catch (e) {
-      print('Error subscribing to topics: $e');
+      logger.i('Error subscribing to topics: $e');
     }
   }
 
@@ -309,10 +310,10 @@ class FCMHandler {
     try {
       for (final topic in topics) {
         await _messaging.unsubscribeFromTopic(topic);
-        print('Unsubscribed from: $topic');
+        logger.i('Unsubscribed from: $topic');
       }
     } catch (e) {
-      print('Error unsubscribing from topics: $e');
+      logger.i('Error unsubscribing from topics: $e');
     }
   }
 
@@ -320,19 +321,18 @@ class FCMHandler {
   Future<void> updateTopicSubscriptions() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       // Отписываемся от старых топиков диеты
       final oldDietTopics = ['normal_users', 'keto_users', 'fasting_users'];
       await _unsubscribeFromTopics(oldDietTopics);
-      
+
       // Отписываемся от старых PRO топиков
       await _unsubscribeFromTopics(['pro_users', 'free_users']);
-      
+
       // Подписываемся на новые
       await _subscribeToTopics();
-      
     } catch (e) {
-      print('Error updating topic subscriptions: $e');
+      logger.i('Error updating topic subscriptions: $e');
     }
   }
 
@@ -340,33 +340,35 @@ class FCMHandler {
 
   /// Обработка обновления целей
   Future<void> _handleUpdateGoals(Map<String, dynamic> data) async {
-    print('Handling update goals from FCM');
-    
+    logger.i('Handling update goals from FCM');
+
     // Здесь можно обновить локальные цели из серверных данных
     // Или показать уведомление о том, что цели изменились
-    
+
     try {
       final newWaterGoal = data['water_goal'] as int?;
       final newSodiumGoal = data['sodium_goal'] as int?;
-      
+
       if (newWaterGoal != null || newSodiumGoal != null) {
         // Обновляем локальные цели
         // Можно отправить событие через EventBus или State Management
-        print('New goals from server: water=$newWaterGoal, sodium=$newSodiumGoal');
+        logger.i(
+          'New goals from server: water=$newWaterGoal, sodium=$newSodiumGoal',
+        );
       }
     } catch (e) {
-      print('Error processing goal update: $e');
+      logger.i('Error processing goal update: $e');
     }
   }
 
   /// Обработка синхронизации данных
   Future<void> _handleSyncData(Map<String, dynamic> data) async {
-    print('Handling data sync from FCM');
-    
+    logger.i('Handling data sync from FCM');
+
     // Можно запустить фоновую синхронизацию
     try {
       final syncType = data['sync_type'] as String?;
-      
+
       switch (syncType) {
         case 'full':
           // Полная синхронизация
@@ -375,27 +377,27 @@ class FCMHandler {
           // Инкрементальная синхронизация
           break;
         default:
-          print('Unknown sync type: $syncType');
+          logger.i('Unknown sync type: $syncType');
       }
     } catch (e) {
-      print('Error processing data sync: $e');
+      logger.i('Error processing data sync: $e');
     }
   }
 
   /// Обработка показа PRO предложения
   Future<void> _handleShowProOffer(Map<String, dynamic> data) async {
-    print('Handling PRO offer from FCM');
-    
+    logger.i('Handling PRO offer from FCM');
+
     try {
       final offerType = data['offer_type'] as String?;
       final discount = data['discount'] as String?;
-      
+
       // Показать PRO предложение с кастомными параметрами
-      print('PRO offer: type=$offerType, discount=$discount');
-      
+      logger.i('PRO offer: type=$offerType, discount=$discount');
+
       // Здесь можно показать специальный экран PRO с дисконтом
     } catch (e) {
-      print('Error processing PRO offer: $e');
+      logger.i('Error processing PRO offer: $e');
     }
   }
 
@@ -406,7 +408,7 @@ class FCMHandler {
     try {
       return await _messaging.getToken();
     } catch (e) {
-      print('Error getting FCM token: $e');
+      logger.i('Error getting FCM token: $e');
       return null;
     }
   }
@@ -415,7 +417,7 @@ class FCMHandler {
   Future<Map<String, dynamic>> getPermissionStatus() async {
     try {
       final settings = await _messaging.getNotificationSettings();
-      
+
       return {
         'authorization_status': settings.authorizationStatus.toString(),
         'alert': settings.alert.toString(),
@@ -426,7 +428,7 @@ class FCMHandler {
         'critical_alert': settings.criticalAlert.toString(),
       };
     } catch (e) {
-      print('Error getting FCM permissions: $e');
+      logger.i('Error getting FCM permissions: $e');
       return {'error': e.toString()};
     }
   }
@@ -444,9 +446,9 @@ class FCMHandler {
         'test_type': 'fcm_handler_test',
       });
 
-      print('Test data sent to server');
+      logger.i('Test data sent to server');
     } catch (e) {
-      print('Error sending test data: $e');
+      logger.i('Error sending test data: $e');
     }
   }
 
@@ -456,20 +458,24 @@ class FCMHandler {
       // Отписываемся от всех топиков
       final topics = [
         'all_users',
-        'normal_users', 'keto_users', 'fasting_users',
-        'pro_users', 'free_users',
-        'ios_users', 'android_users',
+        'normal_users',
+        'keto_users',
+        'fasting_users',
+        'pro_users',
+        'free_users',
+        'ios_users',
+        'android_users',
       ];
-      
+
       await _unsubscribeFromTopics(topics);
-      
+
       // Удаляем токен из SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(NotificationConfig.prefFcmToken);
-      
-      print('FCM cleanup completed');
+
+      logger.i('FCM cleanup completed');
     } catch (e) {
-      print('Error during FCM cleanup: $e');
+      logger.i('Error during FCM cleanup: $e');
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:hydracoach/utils/app_logger.dart';
 
 import 'devtodev_config.dart';
 
@@ -33,7 +34,7 @@ class DevToDevAnalyticsService {
 
     if (!_credentials.isComplete) {
       if (kDebugMode) {
-        print(
+        logger.d(
           '⚠️ DevToDev ключи не заполнены для платформы $defaultTargetPlatform. '
           'Интеграция DevToDev будет пропущена.',
         );
@@ -51,15 +52,15 @@ class DevToDevAnalyticsService {
     } on MissingPluginException {
       // В сборке без нативной реализации тихо пропускаем инициализацию.
       if (kDebugMode) {
-        print(
+        logger.d(
           '⚠️ Плагин DevToDev не найден. Убедитесь, что добавили нативную '
           'реализацию MethodChannel devtodev_analytics.',
         );
       }
     } catch (error, stackTrace) {
       if (kDebugMode) {
-        print('❌ Ошибка инициализации DevToDev: $error');
-        print(stackTrace);
+        logger.d('❌ Ошибка инициализации DevToDev: $error');
+        logger.d(stackTrace);
       }
     }
   }
@@ -70,9 +71,7 @@ class DevToDevAnalyticsService {
     }
 
     try {
-      await _channel.invokeMethod<void>('setUserId', {
-        'userId': userId,
-      });
+      await _channel.invokeMethod<void>('setUserId', {'userId': userId});
     } catch (error) {
       _logError('setUserId', error);
     }
@@ -208,9 +207,7 @@ class DevToDevAnalyticsService {
     }
 
     try {
-      await _channel.invokeMethod<void>('tutorial', {
-        'step': step,
-      });
+      await _channel.invokeMethod<void>('tutorial', {'step': step});
     } catch (error) {
       _logError('tutorial', error);
     }
@@ -242,9 +239,7 @@ class DevToDevAnalyticsService {
     }
 
     try {
-      await _channel.invokeMethod<void>('currentBalance', {
-        'balance': balance,
-      });
+      await _channel.invokeMethod<void>('currentBalance', {'balance': balance});
     } catch (error) {
       _logError('currentBalance', error);
     }
@@ -263,7 +258,7 @@ class DevToDevAnalyticsService {
 
   void _logError(String method, Object error) {
     if (kDebugMode) {
-      print('❌ DevToDev $method error: $error');
+      logger.d('❌ DevToDev $method error: $error');
     }
   }
 }

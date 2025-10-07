@@ -1,23 +1,24 @@
 import 'package:flutter/foundation.dart';
 import 'lib/services/devtodev_config.dart';
+import 'lib/utils/app_logger.dart';
 
 void main() {
   // Test iOS credentials
-  print('=== iOS DevToDev Credentials ===');
-  print('App ID: ${devToDevIosCredentials.appId}');
-  print('Secret Key: ${devToDevIosCredentials.secretKey}');
-  print('API Key: ${devToDevIosCredentials.apiKey}');
-  print('Is Complete: ${devToDevIosCredentials.isComplete}');
+  logger.i('=== iOS DevToDev Credentials ===');
+  logger.i('App ID: ${devToDevIosCredentials.appId}');
+  logger.i('Secret Key: ${devToDevIosCredentials.secretKey}');
+  logger.i('API Key: ${devToDevIosCredentials.apiKey}');
+  logger.i('Is Complete: ${devToDevIosCredentials.isComplete}');
 
-  print('\n=== Android DevToDev Credentials ===');
-  print('App ID: ${devToDevAndroidCredentials.appId}');
-  print('Secret Key: ${devToDevAndroidCredentials.secretKey}');
-  print('API Key: ${devToDevAndroidCredentials.apiKey}');
-  print('Is Complete: ${devToDevAndroidCredentials.isComplete}');
+  logger.i('\n=== Android DevToDev Credentials ===');
+  logger.i('App ID: ${devToDevAndroidCredentials.appId}');
+  logger.i('Secret Key: ${devToDevAndroidCredentials.secretKey}');
+  logger.i('API Key: ${devToDevAndroidCredentials.apiKey}');
+  logger.i('Is Complete: ${devToDevAndroidCredentials.isComplete}');
 
   // Test platform resolution
-  print('\n=== Platform Testing ===');
-  print('Default Target Platform: $defaultTargetPlatform');
+  logger.i('\n=== Platform Testing ===');
+  logger.i('Default Target Platform: $defaultTargetPlatform');
 
   // Test credentials resolution based on platform
   DevToDevCredentials getCredentialsForPlatform(TargetPlatform platform) {
@@ -31,8 +32,8 @@ void main() {
     }
   }
 
-  print('iOS Credentials Valid: ${getCredentialsForPlatform(TargetPlatform.iOS).isComplete}');
-  print('Android Credentials Valid: ${getCredentialsForPlatform(TargetPlatform.android).isComplete}');
+  logger.i('iOS Credentials Valid: ${getCredentialsForPlatform(TargetPlatform.iOS).isComplete}');
+  logger.i('Android Credentials Valid: ${getCredentialsForPlatform(TargetPlatform.android).isComplete}');
 
-  print('\n✅ DevToDev configuration test completed successfully!');
+  logger.i('\n✅ DevToDev configuration test completed successfully!');
 }

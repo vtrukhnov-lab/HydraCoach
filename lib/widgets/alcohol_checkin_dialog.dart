@@ -5,12 +5,12 @@ import '../services/alcohol_service.dart';
 
 class AlcoholCheckinDialog extends StatefulWidget {
   const AlcoholCheckinDialog({super.key});
-  
+
   static Future<void> show(BuildContext context) async {
     final alcoholService = Provider.of<AlcoholService>(context, listen: false);
-    
+
     // Проверяем, был ли алкоголь вчера и нет ли уже чек-ина
-    if (await alcoholService.hadAlcoholYesterday() && 
+    if (await alcoholService.hadAlcoholYesterday() &&
         alcoholService.todayCheckin == null) {
       await showDialog(
         context: context,
@@ -28,9 +28,15 @@ class _AlcoholCheckinDialogState extends State<AlcoholCheckinDialog> {
   int _feelingScore = 3;
   bool _hadWater = false;
   bool _hadElectrolytes = false;
-  
+
   final List<String> _emojis = ['😵', '😣', '😐', '🙂', '😊'];
-  final List<String> _feelings = ['Ужасно', 'Плохо', 'Нормально', 'Хорошо', 'Отлично'];
+  final List<String> _feelings = [
+    'Ужасно',
+    'Плохо',
+    'Нормально',
+    'Хорошо',
+    'Отлично',
+  ];
 
   Future<void> _saveCheckin() async {
     final checkin = AlcoholCheckin(
@@ -39,10 +45,10 @@ class _AlcoholCheckinDialogState extends State<AlcoholCheckinDialog> {
       hadWater: _hadWater,
       hadElectrolytes: _hadElectrolytes,
     );
-    
+
     final alcoholService = Provider.of<AlcoholService>(context, listen: false);
     await alcoholService.saveCheckin(checkin);
-    
+
     if (mounted) {
       Navigator.of(context).pop();
     }
@@ -51,11 +57,9 @@ class _AlcoholCheckinDialogState extends State<AlcoholCheckinDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -70,14 +74,11 @@ class _AlcoholCheckinDialogState extends State<AlcoholCheckinDialog> {
             const SizedBox(height: 8),
             Text(
               'Как самочувствие после вчерашнего?',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            
+
             // Шкала эмоций
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -95,16 +96,18 @@ class _AlcoholCheckinDialogState extends State<AlcoholCheckinDialog> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: isSelected ? theme.primaryColor : Colors.grey[300]!,
+                        color: isSelected
+                            ? theme.primaryColor
+                            : Colors.grey[300]!,
                         width: 2,
                       ),
-                      color: isSelected ? theme.primaryColor.withOpacity(0.1) : null,
+                      color: isSelected
+                          ? theme.primaryColor.withValues(alpha: 0.1)
+                          : null,
                     ),
                     child: Text(
                       _emojis[index],
-                      style: TextStyle(
-                        fontSize: isSelected ? 32 : 28,
-                      ),
+                      style: TextStyle(fontSize: isSelected ? 32 : 28),
                     ),
                   ),
                 );
@@ -119,9 +122,9 @@ class _AlcoholCheckinDialogState extends State<AlcoholCheckinDialog> {
                 color: theme.primaryColor,
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Вопросы
             Container(
               padding: const EdgeInsets.all(16),
@@ -145,9 +148,9 @@ class _AlcoholCheckinDialogState extends State<AlcoholCheckinDialog> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Рекомендации
             if (_feelingScore <= 3 || !_hadWater || !_hadElectrolytes)
               Container(
@@ -177,22 +180,24 @@ class _AlcoholCheckinDialogState extends State<AlcoholCheckinDialog> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    ..._getRecommendations().map((rec) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: Text(
-                        rec,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[700],
+                    ..._getRecommendations().map(
+                      (rec) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: Text(
+                          rec,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey[700],
+                          ),
                         ),
                       ),
-                    )),
+                    ),
                   ],
                 ),
               ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Кнопка
             SizedBox(
               width: double.infinity,
@@ -206,10 +211,7 @@ class _AlcoholCheckinDialogState extends State<AlcoholCheckinDialog> {
                 ),
                 child: const Text(
                   'Готово',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -218,15 +220,12 @@ class _AlcoholCheckinDialogState extends State<AlcoholCheckinDialog> {
       ),
     );
   }
-  
+
   Widget _buildQuestion(String question, bool value, Function(bool) onChanged) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          question,
-          style: const TextStyle(fontSize: 14),
-        ),
+        Text(question, style: const TextStyle(fontSize: 14)),
         Switch(
           value: value,
           onChanged: onChanged,
@@ -235,10 +234,10 @@ class _AlcoholCheckinDialogState extends State<AlcoholCheckinDialog> {
       ],
     );
   }
-  
+
   List<String> _getRecommendations() {
     List<String> recommendations = [];
-    
+
     if (_feelingScore <= 2) {
       recommendations.add('💧 Пейте больше воды сегодня (+20%)');
       recommendations.add('🧂 Добавьте электролиты к каждому приему');
@@ -247,15 +246,15 @@ class _AlcoholCheckinDialogState extends State<AlcoholCheckinDialog> {
       recommendations.add('💧 Увеличьте воду на 10%');
       recommendations.add('🧂 Не забывайте про электролиты');
     }
-    
+
     if (!_hadWater) {
       recommendations.add('💧 Выпейте стакан воды прямо сейчас');
     }
-    
+
     if (!_hadElectrolytes) {
       recommendations.add('🧂 Примите электролиты с утра');
     }
-    
+
     return recommendations;
   }
 }

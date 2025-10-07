@@ -1,6 +1,6 @@
 // ============================================================================
 // FILE: lib/screens/supplements_screen.dart
-// 
+//
 // PURPOSE: Supplements Screen - unified with other screens
 // Uses common components and patterns from the project
 // ============================================================================
@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
+import 'package:hydracoach/utils/app_logger.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/quick_favorites.dart';
@@ -37,27 +38,26 @@ class SupplementsScreen extends StatefulWidget {
   State<SupplementsScreen> createState() => _SupplementsScreenState();
 }
 
-class _SupplementsScreenState extends State<SupplementsScreen> 
+class _SupplementsScreenState extends State<SupplementsScreen>
     with SingleTickerProviderStateMixin {
-  
   // Animation controller
   late AnimationController _animController;
-  
+
   // Catalog
   final ItemsCatalog _catalog = ItemsCatalog();
-  
+
   // Favorites manager
   final QuickFavoritesManager _favoritesManager = QuickFavoritesManager();
-  
+
   // Units
   String _units = 'metric';
-  
+
   // Selected subtype
   SupplementType _selectedType = SupplementType.minerals;
-  
+
   // Show tips
   bool _showTips = false;
-  
+
   @override
   void initState() {
     super.initState();
@@ -66,28 +66,31 @@ class _SupplementsScreenState extends State<SupplementsScreen>
       vsync: this,
     );
     _animController.forward();
-    
+
     _units = UnitsService.instance.units;
     _initializeData();
   }
-  
+
   Future<void> _initializeData() async {
     await Future.delayed(Duration.zero);
     if (!mounted) return;
-    
+
     // Get PRO status from provider
-    final subscription = Provider.of<SubscriptionProvider>(context, listen: false);
+    final subscription = Provider.of<SubscriptionProvider>(
+      context,
+      listen: false,
+    );
     await _favoritesManager.init(subscription.isPro);
-    
+
     if (mounted) setState(() {});
   }
-  
+
   @override
   void dispose() {
     _animController.dispose();
     super.dispose();
   }
-  
+
   // Map enum to catalog subtype
   String _getSubtype() {
     switch (_selectedType) {
@@ -99,24 +102,24 @@ class _SupplementsScreenState extends State<SupplementsScreen>
         return 'other';
     }
   }
-  
+
   // Get current items from catalog
   List<CatalogItem> _getCurrentItems() {
     return _catalog.getSupplementItems(subtype: _getSubtype());
   }
-  
+
   // Get today's totals for status card
   Map<String, int> _getTodayTotals() {
     final provider = Provider.of<HydrationProvider>(context, listen: false);
-    
+
     final sodium = provider.totalSodiumToday;
     final potassium = provider.totalPotassiumToday;
     final magnesium = provider.totalMagnesiumToday;
-    
+
     final sodiumGoal = provider.goals.sodium;
     final potassiumGoal = provider.goals.potassium;
     final magnesiumGoal = provider.goals.magnesium;
-    
+
     return {
       'sodium': sodium,
       'sodiumGoal': sodiumGoal,
@@ -126,7 +129,7 @@ class _SupplementsScreenState extends State<SupplementsScreen>
       'magnesiumGoal': magnesiumGoal,
     };
   }
-  
+
   // Log supplement intake
   Future<void> _logIntake({
     required CatalogItem item,
@@ -135,29 +138,29 @@ class _SupplementsScreenState extends State<SupplementsScreen>
     try {
       final provider = Provider.of<HydrationProvider>(context, listen: false);
       final l10n = AppLocalizations.of(context);
-      
+
       // CRITICAL: Set context for AchievementService
       provider.setContext(context);
-      
+
       // Calculate electrolytes based on dosage
       final props = item.properties;
-      
+
       int sodium = 0;
       int potassium = 0;
       int magnesium = 0;
-      
+
       if (props.containsKey('sodium')) {
         sodium = ((props['sodium'] as num) * dosageValue).round();
       }
-      
+
       if (props.containsKey('potassium')) {
         potassium = ((props['potassium'] as num) * dosageValue).round();
       }
-      
+
       if (props.containsKey('magnesium')) {
         magnesium = ((props['magnesium'] as num) * dosageValue).round();
       }
-      
+
       // Log through unified HydrationProvider
       provider.addIntake(
         'supplement_${_getSubtype()}',
@@ -169,21 +172,21 @@ class _SupplementsScreenState extends State<SupplementsScreen>
         name: item.getName(AppLocalizations.of(context)!),
         emoji: item.icon is String ? item.icon as String : null,
       );
-      
+
       // Show tips after first supplement
       setState(() {
         if (!_showTips) {
           _showTips = true;
         }
       });
-      
+
       // Haptic feedback
       HapticFeedback.mediumImpact();
-      
+
       // Success animation
       _animController.reset();
       _animController.forward();
-      
+
       // Success message
       if (mounted) {
         final dosageUnit = item.getDosageUnit(_units);
@@ -193,7 +196,9 @@ class _SupplementsScreenState extends State<SupplementsScreen>
               children: [
                 const Icon(Icons.check_circle, color: Colors.white, size: 20),
                 const SizedBox(width: 8),
-                Text('${item.getName(l10n)}: ${dosageValue.toInt()} $dosageUnit'),
+                Text(
+                  '${item.getName(l10n)}: ${dosageValue.toInt()} $dosageUnit',
+                ),
               ],
             ),
             backgroundColor: Colors.purple[600],
@@ -201,54 +206,56 @@ class _SupplementsScreenState extends State<SupplementsScreen>
           ),
         );
       }
-      
     } catch (e) {
-      print('Error logging supplement: $e');
+      logger.e('Error logging supplement: $e');
     }
   }
-  
+
   // Save to favorites
   Future<void> _saveToFavorites({
     required CatalogItem item,
     required double dosageValue,
   }) async {
     final l10n = AppLocalizations.of(context);
-    
+
     // Get current PRO status
-    final subscription = Provider.of<SubscriptionProvider>(context, listen: false);
+    final subscription = Provider.of<SubscriptionProvider>(
+      context,
+      listen: false,
+    );
     final isPro = subscription.isPro;
-    
+
     // Show favorite slot selector
     final slot = await FavoriteSlotSelector.show(
       context: context,
       favoritesManager: _favoritesManager,
       isPro: isPro,
     );
-    
+
     if (slot == null) return;
-    
+
     // Calculate electrolytes
     final props = item.properties;
     int sodium = 0;
     int potassium = 0;
     int magnesium = 0;
-    
+
     if (props.containsKey('sodium')) {
       sodium = ((props['sodium'] as num) * dosageValue).round();
     }
-    
+
     if (props.containsKey('potassium')) {
       potassium = ((props['potassium'] as num) * dosageValue).round();
     }
-    
+
     if (props.containsKey('magnesium')) {
       magnesium = ((props['magnesium'] as num) * dosageValue).round();
     }
-    
+
     final dosageUnit = item.getDosageUnit(_units);
     final itemName = item.getName(l10n);
     final label = '$itemName: ${dosageValue.toInt()} $dosageUnit';
-    
+
     final favorite = QuickFavorite(
       id: 'supplement_${item.id}_${dosageValue.toInt()}',
       type: 'supplement',
@@ -265,9 +272,9 @@ class _SupplementsScreenState extends State<SupplementsScreen>
         'name': itemName,
       },
     );
-    
+
     await _favoritesManager.saveFavorite(slot, favorite);
-    
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -277,13 +284,16 @@ class _SupplementsScreenState extends State<SupplementsScreen>
       );
     }
   }
-  
+
   // Handle item selection
   Future<void> _onItemSelected(CatalogItem item) async {
     // Check PRO status
-    final subscription = Provider.of<SubscriptionProvider>(context, listen: false);
+    final subscription = Provider.of<SubscriptionProvider>(
+      context,
+      listen: false,
+    );
     final isPro = subscription.isPro;
-    
+
     // Check if PRO item
     if (item.isPro && !isPro) {
       final result = await Navigator.push(
@@ -293,16 +303,22 @@ class _SupplementsScreenState extends State<SupplementsScreen>
           fullscreenDialog: true,
         ),
       );
-      
+
       // Check if upgraded
-      final updatedSubscription = Provider.of<SubscriptionProvider>(context, listen: false);
+      final updatedSubscription = Provider.of<SubscriptionProvider>(
+        context,
+        listen: false,
+      );
       if (!updatedSubscription.isPro) return;
     }
-    
+
     // Update favorites manager
-    final currentSubscription = Provider.of<SubscriptionProvider>(context, listen: false);
+    final currentSubscription = Provider.of<SubscriptionProvider>(
+      context,
+      listen: false,
+    );
     await _favoritesManager.init(currentSubscription.isPro);
-    
+
     // Show dosage dialog
     await VolumeSelectionDialog.show(
       context: context,
@@ -319,17 +335,15 @@ class _SupplementsScreenState extends State<SupplementsScreen>
       },
     );
   }
-  
+
   // Show supplement info
   void _showSupplementInfo() {
     final l10n = AppLocalizations.of(context);
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             const Icon(Icons.medication, color: Colors.purple, size: 28),
@@ -359,7 +373,11 @@ class _SupplementsScreenState extends State<SupplementsScreen>
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.warning, color: Colors.purple.shade700, size: 20),
+                    Icon(
+                      Icons.warning,
+                      color: Colors.purple.shade700,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -385,33 +403,31 @@ class _SupplementsScreenState extends State<SupplementsScreen>
       ),
     );
   }
-  
+
   Widget _buildInfoRow(String emoji, String text) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(emoji, style: const TextStyle(fontSize: 20)),
         const SizedBox(width: 12),
-        Expanded(
-          child: Text(text, style: const TextStyle(fontSize: 14)),
-        ),
+        Expanded(child: Text(text, style: const TextStyle(fontSize: 14))),
       ],
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    
+
     // Get PRO status
     final subscription = Provider.of<SubscriptionProvider>(context);
     final isPro = subscription.isPro;
-    
+
     // Get data
     final items = _getCurrentItems();
     final totals = _getTodayTotals();
-    
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
@@ -428,9 +444,7 @@ class _SupplementsScreenState extends State<SupplementsScreen>
             totals: totals,
             l10n: l10n,
             onInfoTap: _showSupplementInfo,
-          ).animate()
-            .fadeIn(duration: 300.ms)
-            .slideY(begin: -0.1, end: 0),
+          ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.1, end: 0),
 
           const SizedBox(height: 16),
 
@@ -438,21 +452,22 @@ class _SupplementsScreenState extends State<SupplementsScreen>
           if (!isPro) const AdBannerCard(),
 
           const SizedBox(height: 16),
-          
+
           // Type selector - unified style
           _SupplementTypeSelector(
-            selected: _selectedType,
-            onChanged: (type) {
-              setState(() => _selectedType = type);
-              HapticFeedback.selectionClick();
-            },
-            l10n: l10n,
-          ).animate()
-            .fadeIn(duration: 300.ms, delay: 100.ms)
-            .slideX(begin: -0.1, end: 0),
-          
+                selected: _selectedType,
+                onChanged: (type) {
+                  setState(() => _selectedType = type);
+                  HapticFeedback.selectionClick();
+                },
+                l10n: l10n,
+              )
+              .animate()
+              .fadeIn(duration: 300.ms, delay: 100.ms)
+              .slideX(begin: -0.1, end: 0),
+
           const SizedBox(height: 20),
-          
+
           // Items grid - unified component
           ItemsGrid(
             items: items,
@@ -461,30 +476,30 @@ class _SupplementsScreenState extends State<SupplementsScreen>
             onItemSelected: _onItemSelected,
             showElectrolyteIndicators: true,
             childAspectRatio: 0.85,
-          ).animate()
-            .fadeIn(duration: 300.ms, delay: 200.ms),
-          
+          ).animate().fadeIn(duration: 300.ms, delay: 200.ms),
+
           const SizedBox(height: 24),
-          
+
           // Tips card
           if (_showTips)
             HydrationTipsCard(
-              onDismiss: () => setState(() => _showTips = false),
-              l10n: l10n,
-              customTips: [
-                TipItem(emoji: '💊', text: l10n.supplementTip1),
-                TipItem(emoji: '💧', text: l10n.supplementTip2),
-                TipItem(emoji: '⏰', text: l10n.supplementTip3),
-                TipItem(emoji: '📝', text: l10n.supplementTip4),
-              ],
-            ).animate()
-              .fadeIn(duration: 300.ms)
-              .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1)),
+                  onDismiss: () => setState(() => _showTips = false),
+                  l10n: l10n,
+                  customTips: [
+                    TipItem(emoji: '💊', text: l10n.supplementTip1),
+                    TipItem(emoji: '💧', text: l10n.supplementTip2),
+                    TipItem(emoji: '⏰', text: l10n.supplementTip3),
+                    TipItem(emoji: '📝', text: l10n.supplementTip4),
+                  ],
+                )
+                .animate()
+                .fadeIn(duration: 300.ms)
+                .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1)),
         ],
       ),
     );
   }
-  
+
   String _getGridTitle() {
     final l10n = AppLocalizations.of(context);
     switch (_selectedType) {
@@ -503,21 +518,21 @@ class _SupplementTypeSelector extends StatelessWidget {
   final SupplementType selected;
   final ValueChanged<SupplementType> onChanged;
   final AppLocalizations l10n;
-  
+
   const _SupplementTypeSelector({
     required this.selected,
     required this.onChanged,
     required this.l10n,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -536,12 +551,12 @@ class _SupplementTypeSelector extends StatelessWidget {
                 child: Text(
                   _getTypeName(type),
                   style: TextStyle(
-                    color: isSelected 
-                      ? Colors.white 
-                      : theme.colorScheme.onSurfaceVariant,
-                    fontWeight: isSelected 
-                      ? FontWeight.bold 
-                      : FontWeight.normal,
+                    color: isSelected
+                        ? Colors.white
+                        : theme.colorScheme.onSurfaceVariant,
+                    fontWeight: isSelected
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                     fontSize: 14,
                   ),
                   textAlign: TextAlign.center,
@@ -553,7 +568,7 @@ class _SupplementTypeSelector extends StatelessWidget {
       ),
     );
   }
-  
+
   String _getTypeName(SupplementType type) {
     switch (type) {
       case SupplementType.minerals:

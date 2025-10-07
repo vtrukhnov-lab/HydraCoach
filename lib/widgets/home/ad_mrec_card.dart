@@ -71,7 +71,8 @@ class _AdMrecCardState extends State<AdMrecCard> {
 
       // Создаем дополнительные параметры согласно инструкции AppLovin MAX
       Map<String, dynamic> additionalParams = {
-        'country': 'US', // Можно получить через MaxSdk.getConfiguration().countryCode
+        'country':
+            'US', // Можно получить через MaxSdk.getConfiguration().countryCode
         'ad_unit': ad.adUnitId,
         'ad_type': ad.adFormat.toString(),
         'placement': ad.placement ?? '',
@@ -89,7 +90,9 @@ class _AdMrecCardState extends State<AdMrecCard> {
       });
 
       if (mounted) {
-        debugPrint('💰 MREC Ad Revenue tracked: \$${ad.revenue} from ${ad.networkName}');
+        debugPrint(
+          '💰 MREC Ad Revenue tracked: \$${ad.revenue} from ${ad.networkName}',
+        );
       }
     } catch (e) {
       debugPrint('❌ Error tracking MREC ad revenue: $e');
@@ -107,107 +110,107 @@ class _AdMrecCardState extends State<AdMrecCard> {
     }
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.purple.shade50,
-            Colors.purple.shade100,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.purple.withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 5),
-            spreadRadius: 0,
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.purple.shade50, Colors.purple.shade100],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.purple.withValues(alpha: 0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 5),
+                spreadRadius: 0,
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // MREC область (стандартный размер 300x250)
-            Center(
-              child: Container(
-                width: 300, // MREC стандартная ширина
-                height: 250, // MREC стандартная высота
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Colors.purple.shade200,
-                    width: 1,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                // MREC область (стандартный размер 300x250)
+                Center(
+                  child: Container(
+                    width: 300, // MREC стандартная ширина
+                    height: 250, // MREC стандартная высота
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.purple.shade200,
+                        width: 1,
+                      ),
+                    ),
+                    child: _buildAdContent(),
                   ),
                 ),
-                child: _buildAdContent(),
-              ),
-            ),
 
-            const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-            // Текст
-            Row(
-              children: [
-                Icon(
-                  Icons.star_rounded,
-                  color: Colors.purple.shade600,
-                  size: 20,
+                // Текст
+                Row(
+                  children: [
+                    Icon(
+                      Icons.star_rounded,
+                      color: Colors.purple.shade600,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        l10n.sayGoodbyeToAds,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.purple.shade700,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    l10n.sayGoodbyeToAds,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.purple.shade700,
+
+                const SizedBox(height: 12),
+
+                // Кнопка Go Premium внизу
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: _onPremiumTap,
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.purple.shade600,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                    child: Text(
+                      l10n.goPremium,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-
-            const SizedBox(height: 12),
-
-            // Кнопка Go Premium внизу
-            SizedBox(
-              width: double.infinity,
-              child: TextButton(
-                onPressed: _onPremiumTap,
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.purple.shade600,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                ),
-                child: Text(
-                  l10n.goPremium,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ).animate().fadeIn(duration: 600.ms).slideY(
-      begin: 0.3,
-      end: 0.0,
-      duration: 600.ms,
-      curve: Curves.easeOutQuart,
-    );
+          ),
+        )
+        .animate()
+        .fadeIn(duration: 600.ms)
+        .slideY(
+          begin: 0.3,
+          end: 0.0,
+          duration: 600.ms,
+          curve: Curves.easeOutQuart,
+        );
   }
 
   Widget _buildAdContent() {
@@ -221,7 +224,8 @@ class _AdMrecCardState extends State<AdMrecCard> {
           listener: AdViewAdListener(
             onAdLoadedCallback: (ad) {
               if (mounted) {
-                _fallbackTimer?.cancel(); // Отменяем таймер при успешной загрузке
+                _fallbackTimer
+                    ?.cancel(); // Отменяем таймер при успешной загрузке
                 setState(() {
                   _isAdLoaded = true;
                   _isAdLoading = false;
@@ -317,7 +321,7 @@ class _AdMrecCardState extends State<AdMrecCard> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.purple.withOpacity(0.3),
+              color: Colors.purple.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -331,7 +335,7 @@ class _AdMrecCardState extends State<AdMrecCard> {
               right: 30,
               child: Icon(
                 Icons.star,
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
                 size: 24,
               ),
             ),
@@ -340,7 +344,7 @@ class _AdMrecCardState extends State<AdMrecCard> {
               left: 40,
               child: Icon(
                 Icons.star,
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 size: 16,
               ),
             ),
@@ -350,20 +354,31 @@ class _AdMrecCardState extends State<AdMrecCard> {
               children: [
                 // Анимированная иконка
                 Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.star_rounded,
-                    color: Colors.amber,
-                    size: 40,
-                  ),
-                ).animate(onPlay: (controller) => controller.repeat())
-                  .scale(duration: 2000.ms, curve: Curves.easeInOut, begin: const Offset(1.0, 1.0), end: const Offset(1.1, 1.1))
-                  .then()
-                  .scale(duration: 2000.ms, curve: Curves.easeInOut, begin: const Offset(1.1, 1.1), end: const Offset(1.0, 1.0)),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.star_rounded,
+                        color: Colors.amber,
+                        size: 40,
+                      ),
+                    )
+                    .animate(onPlay: (controller) => controller.repeat())
+                    .scale(
+                      duration: 2000.ms,
+                      curve: Curves.easeInOut,
+                      begin: const Offset(1.0, 1.0),
+                      end: const Offset(1.1, 1.1),
+                    )
+                    .then()
+                    .scale(
+                      duration: 2000.ms,
+                      curve: Curves.easeInOut,
+                      begin: const Offset(1.1, 1.1),
+                      end: const Offset(1.0, 1.0),
+                    ),
 
                 const SizedBox(height: 16),
                 Text(
@@ -379,7 +394,7 @@ class _AdMrecCardState extends State<AdMrecCard> {
                 Text(
                   l10n?.removeAdsForever ?? 'Remove ads forever',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -388,7 +403,10 @@ class _AdMrecCardState extends State<AdMrecCard> {
                 const SizedBox(height: 12),
                 // Маленькая кнопка upgrade
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.amber,
                     borderRadius: BorderRadius.circular(15),

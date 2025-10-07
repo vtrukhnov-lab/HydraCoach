@@ -3,19 +3,21 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:hydracoach/utils/app_logger.dart';
 import '../models/achievement.dart';
 import '../services/units_service.dart';
 
 /// Репозиторий для управления достижениями
 class AchievementsRepository {
-  static final AchievementsRepository _instance = AchievementsRepository._internal();
+  static final AchievementsRepository _instance =
+      AchievementsRepository._internal();
   factory AchievementsRepository() => _instance;
   AchievementsRepository._internal();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String? _userId;
-  
-  // Кеш достижений в памяти  
+
+  // Кеш достижений в памяти
   final Map<String, Achievement> _achievementsCache = {};
   bool _isInitialized = false;
 
@@ -70,17 +72,15 @@ class AchievementsRepository {
     'early_bird': {
       'nameKey': 'achievementEarlyBird',
       'descriptionKey': 'achievementEarlyBirdDesc', // "Drink 500ml before 9 AM"
-      'descriptionTemplate': 'achievementEarlyBirdTemplate', // будущий ключ: "Drink {volume} before 9 AM"
+      'descriptionTemplate':
+          'achievementEarlyBirdTemplate', // будущий ключ: "Drink {volume} before 9 AM"
       'icon': '🌅',
       'category': AchievementCategory.hydration,
       'rarity': AchievementRarity.uncommon,
       'maxProgress': 500, // В мл для внутренней логики
       'rewardPoints': 25,
       'unitValues': {
-        'volume': {
-          'metric': '500ml',
-          'imperial': '17 fl oz',
-        },
+        'volume': {'metric': '500ml', 'imperial': '17 fl oz'},
       },
     },
     'night_owl': {
@@ -94,21 +94,20 @@ class AchievementsRepository {
     },
     'liter_legend': {
       'nameKey': 'achievementLiterLegend',
-      'descriptionKey': 'achievementLiterLegendDesc', // "Drink 100 liters total"
-      'descriptionTemplate': 'achievementLiterLegendTemplate', // будущий ключ: "Drink {volume} total"
+      'descriptionKey':
+          'achievementLiterLegendDesc', // "Drink 100 liters total"
+      'descriptionTemplate':
+          'achievementLiterLegendTemplate', // будущий ключ: "Drink {volume} total"
       'icon': '🏅',
       'category': AchievementCategory.hydration,
       'rarity': AchievementRarity.epic,
       'maxProgress': 100000, // 100L в мл
       'rewardPoints': 250,
       'unitValues': {
-        'volume': {
-          'metric': '100L',
-          'imperial': '26 gallons',
-        },
+        'volume': {'metric': '100L', 'imperial': '26 gallons'},
       },
     },
-    
+
     // ELECTROLYTE ACHIEVEMENTS
     'salt_starter': {
       'nameKey': 'achievementSaltStarter',
@@ -164,7 +163,7 @@ class AchievementsRepository {
       'maxProgress': 30,
       'rewardPoints': 400,
     },
-    
+
     // SUGAR ACHIEVEMENTS
     'sugar_awareness': {
       'nameKey': 'achievementSugarAwareness',
@@ -177,34 +176,32 @@ class AchievementsRepository {
     },
     'sugar_under_25': {
       'nameKey': 'achievementSugarUnder25',
-      'descriptionKey': 'achievementSugarUnder25Desc', // "Keep sugar under 25g for a day"
-      'descriptionTemplate': 'achievementSugarUnder25Template', // будущий ключ: "Keep sugar under {weight} for a day"
+      'descriptionKey':
+          'achievementSugarUnder25Desc', // "Keep sugar under 25g for a day"
+      'descriptionTemplate':
+          'achievementSugarUnder25Template', // будущий ключ: "Keep sugar under {weight} for a day"
       'icon': '🎯',
       'category': AchievementCategory.sugar,
       'rarity': AchievementRarity.uncommon,
       'maxProgress': 1,
       'rewardPoints': 30,
       'unitValues': {
-        'weight': {
-          'metric': '25g',
-          'imperial': '0.9 oz',
-        }
+        'weight': {'metric': '25g', 'imperial': '0.9 oz'},
       },
     },
     'sugar_week_control': {
       'nameKey': 'achievementSugarWeekControl',
-      'descriptionKey': 'achievementSugarWeekControlDesc', // "Keep sugar under 25g for 7 days"
-      'descriptionTemplate': 'achievementSugarWeekControlTemplate', // будущий ключ: "Keep sugar under {weight} for 7 days"
+      'descriptionKey':
+          'achievementSugarWeekControlDesc', // "Keep sugar under 25g for 7 days"
+      'descriptionTemplate':
+          'achievementSugarWeekControlTemplate', // будущий ключ: "Keep sugar under {weight} for 7 days"
       'icon': '📉',
       'category': AchievementCategory.sugar,
       'rarity': AchievementRarity.rare,
       'maxProgress': 7,
       'rewardPoints': 100,
       'unitValues': {
-        'weight': {
-          'metric': '25g',
-          'imperial': '0.9 oz',
-        }
+        'weight': {'metric': '25g', 'imperial': '0.9 oz'},
       },
     },
     'sugar_free_day': {
@@ -227,7 +224,8 @@ class AchievementsRepository {
     },
     'sugar_master': {
       'nameKey': 'achievementSugarMaster',
-      'descriptionKey': 'achievementSugarMasterDesc', // "Keep sugar under 25g for 30 days"
+      'descriptionKey':
+          'achievementSugarMasterDesc', // "Keep sugar under 25g for 30 days"
       'icon': '👑',
       'category': AchievementCategory.sugar,
       'rarity': AchievementRarity.legendary,
@@ -261,7 +259,7 @@ class AchievementsRepository {
       'maxProgress': 1,
       'rewardPoints': 200,
     },
-    
+
     // ALCOHOL ACHIEVEMENTS
     'alcohol_tracker': {
       'nameKey': 'achievementAlcoholTracker',
@@ -317,7 +315,7 @@ class AchievementsRepository {
       'maxProgress': 1,
       'rewardPoints': 35,
     },
-    
+
     // WORKOUT ACHIEVEMENTS
     'first_workout': {
       'nameKey': 'achievementFirstWorkout',
@@ -330,7 +328,8 @@ class AchievementsRepository {
     },
     'workout_week': {
       'nameKey': 'achievementWorkoutWeek',
-      'descriptionKey': 'achievementWorkoutWeekDesc', // "Work out 3 times in a week"
+      'descriptionKey':
+          'achievementWorkoutWeekDesc', // "Work out 3 times in a week"
       'icon': '💪',
       'category': AchievementCategory.workout,
       'rarity': AchievementRarity.uncommon,
@@ -339,18 +338,17 @@ class AchievementsRepository {
     },
     'century_sweat': {
       'nameKey': 'achievementCenturySweat',
-      'descriptionKey': 'achievementCenturySweatDesc', // "Lose 100 liters through workouts"
-      'descriptionTemplate': 'achievementCenturySweatTemplate', // будущий ключ: "Lose {volume} through workouts"
+      'descriptionKey':
+          'achievementCenturySweatDesc', // "Lose 100 liters through workouts"
+      'descriptionTemplate':
+          'achievementCenturySweatTemplate', // будущий ключ: "Lose {volume} through workouts"
       'icon': '💦',
       'category': AchievementCategory.workout,
       'rarity': AchievementRarity.legendary,
       'maxProgress': 100000, // 100L в мл
       'rewardPoints': 600,
       'unitValues': {
-        'volume': {
-          'metric': '100L',
-          'imperial': '26 gallons',
-        },
+        'volume': {'metric': '100L', 'imperial': '26 gallons'},
       },
     },
     'cardio_king': {
@@ -371,7 +369,7 @@ class AchievementsRepository {
       'maxProgress': 10,
       'rewardPoints': 80,
     },
-    
+
     // HRI ACHIEVEMENTS
     'hri_green': {
       'nameKey': 'achievementHRIGreen',
@@ -418,7 +416,7 @@ class AchievementsRepository {
       'maxProgress': 30,
       'rewardPoints': 500,
     },
-    
+
     // STREAK ACHIEVEMENTS
     'streak_3': {
       'nameKey': 'achievementStreak3',
@@ -456,7 +454,7 @@ class AchievementsRepository {
       'maxProgress': 100,
       'rewardPoints': 1000,
     },
-    
+
     // SPECIAL ACHIEVEMENTS
     'first_week': {
       'nameKey': 'achievementFirstWeek',
@@ -508,7 +506,7 @@ class AchievementsRepository {
   /// Initialize repository
   Future<void> initialize() async {
     if (_isInitialized) return;
-    
+
     await _loadLocalAchievements();
     _isInitialized = true;
   }
@@ -524,22 +522,23 @@ class AchievementsRepository {
   /// Load achievements from local storage
   Future<void> _loadLocalAchievements() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Initialize all achievements
     _achievementDefinitions.forEach((id, definition) {
       final savedData = prefs.getString('achievement_$id');
-      
+
       Achievement achievement;
-      
+
       if (savedData != null) {
         // Load from saved data
         final json = jsonDecode(savedData);
         achievement = Achievement.fromJson({
           'id': id,
-          'name': definition['nameKey'], // Ключи локализации будут резолвиться в UI
+          'name':
+              definition['nameKey'], // Ключи локализации будут резолвиться в UI
           'description': definition['descriptionKey'],
           'descriptionTemplate': definition['descriptionTemplate'],
-          'unitValues': definition['unitValues'] != null 
+          'unitValues': definition['unitValues'] != null
               ? Map<String, dynamic>.from(definition['unitValues'])
               : null,
           ...json,
@@ -549,9 +548,10 @@ class AchievementsRepository {
         achievement = Achievement(
           id: id,
           name: definition['nameKey'], // Это ключ локализации, не текст
-          description: definition['descriptionKey'], // Это ключ локализации, не текст
+          description:
+              definition['descriptionKey'], // Это ключ локализации, не текст
           descriptionTemplate: definition['descriptionTemplate'],
-          unitValues: definition['unitValues'] != null 
+          unitValues: definition['unitValues'] != null
               ? Map<String, dynamic>.from(definition['unitValues'])
               : null,
           icon: definition['icon'],
@@ -563,17 +563,17 @@ class AchievementsRepository {
           rewardPoints: definition['rewardPoints'],
         );
       }
-      
+
       // Apply units-specific maxProgress if available
       if (definition['unitValues'] != null) {
         final units = UnitsService.instance.units;
         final unitValues = definition['unitValues'] as Map<String, dynamic>;
-        
+
         if (unitValues.containsKey('maxProgress_$units')) {
           achievement.maxProgress = unitValues['maxProgress_$units'] as int;
         }
       }
-      
+
       _achievementsCache[id] = achievement;
     });
   }
@@ -608,9 +608,7 @@ class AchievementsRepository {
 
   /// Get unlocked achievements
   List<Achievement> getUnlockedAchievements() {
-    return _achievementsCache.values
-        .where((a) => a.isUnlocked)
-        .toList()
+    return _achievementsCache.values.where((a) => a.isUnlocked).toList()
       ..sort((a, b) => b.unlockedAt!.compareTo(a.unlockedAt!));
   }
 
@@ -619,20 +617,26 @@ class AchievementsRepository {
     return _achievementsCache.values
         .where((a) => !a.isUnlocked && a.localizedProgressPercent >= 80)
         .toList()
-      ..sort((a, b) => b.localizedProgressPercent.compareTo(a.localizedProgressPercent));
+      ..sort(
+        (a, b) =>
+            b.localizedProgressPercent.compareTo(a.localizedProgressPercent),
+      );
   }
 
   /// Update achievement progress
-  Future<Achievement?> updateProgress(String achievementId, int progress) async {
+  Future<Achievement?> updateProgress(
+    String achievementId,
+    int progress,
+  ) async {
     final achievement = _achievementsCache[achievementId];
     if (achievement == null) return null;
-    
+
     // Get localized max progress for proper comparison
     final maxProgress = achievement.getLocalizedMaxProgress();
-    
+
     // Update progress
     achievement.currentProgress = progress.clamp(0, maxProgress);
-    
+
     // Check if unlocked
     Achievement? unlocked;
     if (!achievement.isUnlocked && achievement.currentProgress >= maxProgress) {
@@ -640,15 +644,15 @@ class AchievementsRepository {
       achievement.unlockedAt = DateTime.now();
       unlocked = achievement;
     }
-    
+
     // Save locally
     await _saveAchievement(achievement);
-    
+
     // Sync with Firestore
     if (_userId != null) {
       _syncAchievementToFirestore(achievement);
     }
-    
+
     return unlocked;
   }
 
@@ -656,7 +660,7 @@ class AchievementsRepository {
   Future<Achievement?> incrementProgress(String achievementId) async {
     final achievement = _achievementsCache[achievementId];
     if (achievement == null) return null;
-    
+
     return updateProgress(achievementId, achievement.currentProgress + 1);
   }
 
@@ -666,11 +670,12 @@ class AchievementsRepository {
     final unlocked = all.where((a) => a.isUnlocked);
     final byCategory = <AchievementCategory, int>{};
     final totalPoints = unlocked.fold(0, (sum, a) => sum + a.rewardPoints);
-    
+
     for (final achievement in unlocked) {
-      byCategory[achievement.category] = (byCategory[achievement.category] ?? 0) + 1;
+      byCategory[achievement.category] =
+          (byCategory[achievement.category] ?? 0) + 1;
     }
-    
+
     return {
       'totalAchievements': all.length,
       'unlockedCount': unlocked.length,
@@ -684,7 +689,7 @@ class AchievementsRepository {
   /// Sync with Firestore
   Future<void> syncWithFirestore() async {
     if (_userId == null) return;
-    
+
     try {
       // Load from Firestore
       final doc = await _firestore
@@ -693,16 +698,16 @@ class AchievementsRepository {
           .collection('achievements')
           .doc('data')
           .get();
-      
+
       if (doc.exists) {
         final data = doc.data() ?? {};
-        
+
         // Merge with local data
         data.forEach((id, achievementData) {
           if (_achievementsCache.containsKey(id)) {
             final local = _achievementsCache[id]!;
             final remote = Achievement.fromJson(achievementData);
-            
+
             // Take the one with more progress
             if (remote.currentProgress > local.currentProgress ||
                 (remote.isUnlocked && !local.isUnlocked)) {
@@ -712,7 +717,7 @@ class AchievementsRepository {
           }
         });
       }
-      
+
       // Save all to Firestore
       final batch = _firestore.batch();
       final docRef = _firestore
@@ -720,45 +725,43 @@ class AchievementsRepository {
           .doc(_userId)
           .collection('achievements')
           .doc('data');
-      
+
       final allData = <String, dynamic>{};
       _achievementsCache.forEach((id, achievement) {
         allData[id] = achievement.toJson();
       });
-      
+
       batch.set(docRef, allData, SetOptions(merge: true));
       await batch.commit();
     } catch (e) {
-      print('Error syncing achievements: $e');
+      logger.i('Error syncing achievements: $e');
     }
   }
 
   /// Sync single achievement to Firestore
   Future<void> _syncAchievementToFirestore(Achievement achievement) async {
     if (_userId == null) return;
-    
+
     try {
       await _firestore
           .collection('users')
           .doc(_userId)
           .collection('achievements')
           .doc('data')
-          .set({
-            achievement.id: achievement.toJson(),
-          }, SetOptions(merge: true));
+          .set({achievement.id: achievement.toJson()}, SetOptions(merge: true));
     } catch (e) {
-      print('Error syncing achievement ${achievement.id}: $e');
+      logger.i('Error syncing achievement ${achievement.id}: $e');
     }
   }
 
   /// Clear all progress (for testing)
   Future<void> clearAllProgress() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     for (final id in _achievementsCache.keys) {
       await prefs.remove('achievement_$id');
     }
-    
+
     await _loadLocalAchievements();
   }
 }

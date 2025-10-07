@@ -87,7 +87,7 @@ class ItemsCatalog {
       ...MeatItems.getAllItems(),
       ...FastFoodItems.getAllItems(),
     ];
-    
+
     try {
       return allItems.firstWhere((item) => item.id == id);
     } catch (_) {
@@ -100,7 +100,7 @@ class ItemsCatalog {
     if (subtype == null) {
       return WaterItems.getAllItems();
     }
-    
+
     switch (subtype) {
       case 'plain':
         return WaterItems.getPlainWater();
@@ -120,7 +120,7 @@ class ItemsCatalog {
     if (subtype == null) {
       return ElectrolyteItems.getAllItems();
     }
-    
+
     switch (subtype) {
       case 'basic':
         return ElectrolyteItems.getBasicElectrolytes();
@@ -136,57 +136,54 @@ class ItemsCatalog {
     if (subtype == null) {
       return HotDrinkItems.getAllItems();
     }
-    
+
     // Фильтруем все items по типу
     final allItems = HotDrinkItems.getAllItems();
-    
+
     switch (subtype) {
       case 'coffee':
         return allItems.where((item) {
           final type = item.properties['type'] as String?;
-          return type != null && (
-            type.contains('coffee') || 
-            type.contains('espresso') || 
-            type.contains('cappuccino') || 
-            type.contains('latte') ||
-            type.contains('americano') ||
-            type.contains('macchiato') ||
-            type.contains('mocha') ||
-            type.contains('flat_white') ||
-            type.contains('decaf') ||
-            type.contains('turkish')
-          );
+          return type != null &&
+              (type.contains('coffee') ||
+                  type.contains('espresso') ||
+                  type.contains('cappuccino') ||
+                  type.contains('latte') ||
+                  type.contains('americano') ||
+                  type.contains('macchiato') ||
+                  type.contains('mocha') ||
+                  type.contains('flat_white') ||
+                  type.contains('decaf') ||
+                  type.contains('turkish'));
         }).toList();
-        
+
       case 'tea':
         return allItems.where((item) {
           final type = item.properties['type'] as String?;
-          return type != null && (
-            type.contains('tea') || 
-            type.contains('matcha') ||
-            type.contains('chai') ||
-            type.contains('earl') ||
-            type.contains('chamomile') ||
-            type.contains('peppermint') ||
-            type.contains('rooibos') ||
-            type.contains('oolong')
-          );
+          return type != null &&
+              (type.contains('tea') ||
+                  type.contains('matcha') ||
+                  type.contains('chai') ||
+                  type.contains('earl') ||
+                  type.contains('chamomile') ||
+                  type.contains('peppermint') ||
+                  type.contains('rooibos') ||
+                  type.contains('oolong'));
         }).toList();
-        
+
       case 'other':
         return allItems.where((item) {
           final type = item.properties['type'] as String?;
-          return type != null && (
-            type.contains('chocolate') ||
-            type.contains('cocoa') ||
-            type.contains('turmeric') ||
-            type.contains('cider') ||
-            type.contains('ginger') ||
-            type.contains('lemon') ||
-            type.contains('hot_water')
-          );
+          return type != null &&
+              (type.contains('chocolate') ||
+                  type.contains('cocoa') ||
+                  type.contains('turmeric') ||
+                  type.contains('cider') ||
+                  type.contains('ginger') ||
+                  type.contains('lemon') ||
+                  type.contains('hot_water'));
         }).toList();
-        
+
       default:
         return allItems;
     }
@@ -205,10 +202,10 @@ class ItemsCatalog {
     if (subtype == null) {
       return SportItems.getAllItems();
     }
-    
+
     // Фильтруем по интенсивности
     final allItems = SportItems.getAllItems();
-    
+
     switch (subtype) {
       case 'low':
         return allItems.where((item) {
@@ -235,49 +232,46 @@ class ItemsCatalog {
     if (subtype == null) {
       return SupplementItems.getAllItems();
     }
-    
+
     // Фильтруем все items по типу
     final allItems = SupplementItems.getAllItems();
-    
+
     switch (subtype) {
       case 'minerals':
         return allItems.where((item) {
           final type = item.properties['type'] as String?;
-          return type != null && (
-            type.contains('magnesium') || 
-            type.contains('potassium') || 
-            type.contains('calcium') ||
-            type.contains('zinc') ||
-            type.contains('iron')
-          );
+          return type != null &&
+              (type.contains('magnesium') ||
+                  type.contains('potassium') ||
+                  type.contains('calcium') ||
+                  type.contains('zinc') ||
+                  type.contains('iron'));
         }).toList();
-        
+
       case 'vitamins':
         return allItems.where((item) {
           final type = item.properties['type'] as String?;
-          return type != null && (
-            type.contains('vitamin') || 
-            type.contains('multivitamin') ||
-            type.contains('b_complex')
-          );
+          return type != null &&
+              (type.contains('vitamin') ||
+                  type.contains('multivitamin') ||
+                  type.contains('b_complex'));
         }).toList();
-        
+
       case 'other':
         return allItems.where((item) {
           final type = item.properties['type'] as String?;
-          return type != null && (
-            type.contains('omega') || 
-            !type.contains('magnesium') && 
-            !type.contains('potassium') && 
-            !type.contains('calcium') &&
-            !type.contains('zinc') &&
-            !type.contains('iron') &&
-            !type.contains('vitamin') &&
-            !type.contains('multivitamin') &&
-            !type.contains('b_complex')
-          );
+          return type != null &&
+              (type.contains('omega') ||
+                  !type.contains('magnesium') &&
+                      !type.contains('potassium') &&
+                      !type.contains('calcium') &&
+                      !type.contains('zinc') &&
+                      !type.contains('iron') &&
+                      !type.contains('vitamin') &&
+                      !type.contains('multivitamin') &&
+                      !type.contains('b_complex'));
         }).toList();
-        
+
       default:
         return allItems;
     }
@@ -346,7 +340,7 @@ class ItemsCatalog {
   /// Поиск элементов по названию
   List<CatalogItem> searchItems(String query, AppLocalizations l10n) {
     if (query.isEmpty) return [];
-    
+
     final allItems = [
       ...WaterItems.getAllItems(),
       ...ElectrolyteItems.getAllItems(),
@@ -355,9 +349,9 @@ class ItemsCatalog {
       ...SportItems.getAllItems(),
       ...SupplementItems.getAllItems(),
     ];
-    
+
     final lowercaseQuery = query.toLowerCase();
-    
+
     return allItems.where((item) {
       final name = item.getName(l10n).toLowerCase();
       return name.contains(lowercaseQuery);
@@ -373,24 +367,24 @@ class ItemsCatalog {
     bool freeOnly = false,
   }) {
     final items = getItemsForCategory(category);
-    
+
     if (query.isEmpty && !proOnly && !freeOnly) {
       return items;
     }
-    
+
     final lowercaseQuery = query.toLowerCase();
-    
+
     return items.where((item) {
       // Проверка PRO/FREE фильтров
       if (proOnly && !item.isPro) return false;
       if (freeOnly && item.isPro) return false;
-      
+
       // Проверка поиска
       if (query.isNotEmpty) {
         final name = item.getName(l10n).toLowerCase();
         if (!name.contains(lowercaseQuery)) return false;
       }
-      
+
       return true;
     }).toList();
   }
@@ -412,12 +406,8 @@ class ItemsCatalog {
     final items = getItemsForCategory(category);
     final proCount = items.where((item) => item.isPro).length;
     final freeCount = items.where((item) => !item.isPro).length;
-    
-    return {
-      'total': items.length,
-      'pro': proCount,
-      'free': freeCount,
-    };
+
+    return {'total': items.length, 'pro': proCount, 'free': freeCount};
   }
 
   /// Получить все категории с их названиями
@@ -438,12 +428,9 @@ class ItemsCatalog {
   }
 
   /// Получить случайный элемент из категории
-  CatalogItem? getRandomItem({
-    ItemCategory? category,
-    bool? isPro,
-  }) {
+  CatalogItem? getRandomItem({ItemCategory? category, bool? isPro}) {
     List<CatalogItem> items;
-    
+
     if (category != null) {
       items = getItemsForCategory(category);
     } else {
@@ -456,13 +443,13 @@ class ItemsCatalog {
         ...SupplementItems.getAllItems(),
       ];
     }
-    
+
     if (isPro != null) {
       items = items.where((item) => item.isPro == isPro).toList();
     }
-    
+
     if (items.isEmpty) return null;
-    
+
     final random = items..shuffle();
     return random.first;
   }
@@ -470,39 +457,43 @@ class ItemsCatalog {
   /// Получить элементы с электролитами
   List<CatalogItem> getItemsWithElectrolytes() {
     final allItems = <CatalogItem>[];
-    
+
     // Все электролиты содержат электролиты
     allItems.addAll(ElectrolyteItems.getAllItems());
-    
+
     // Добавки-минералы могут содержать электролиты
     final supplements = SupplementItems.getAllItems();
     for (final item in supplements) {
       final sodium = item.properties['sodium'] ?? 0;
       final potassium = item.properties['potassium'] ?? 0;
       final magnesium = item.properties['magnesium'] ?? 0;
-      if ((sodium as int) > 0 || (potassium as int) > 0 || (magnesium as int) > 0) {
+      if ((sodium as int) > 0 ||
+          (potassium as int) > 0 ||
+          (magnesium as int) > 0) {
         allItems.add(item);
       }
     }
-    
+
     // Некоторая вода может содержать электролиты
     final enhancedWater = WaterItems.getEnhancedWater();
     for (final item in enhancedWater) {
       final sodium = item.properties['sodium'] ?? 0;
       final potassium = item.properties['potassium'] ?? 0;
       final magnesium = item.properties['magnesium'] ?? 0;
-      if ((sodium as int) > 0 || (potassium as int) > 0 || (magnesium as int) > 0) {
+      if ((sodium as int) > 0 ||
+          (potassium as int) > 0 ||
+          (magnesium as int) > 0) {
         allItems.add(item);
       }
     }
-    
+
     return allItems;
   }
 
   /// Получить элементы с кофеином
   List<CatalogItem> getItemsWithCaffeine() {
     final allItems = <CatalogItem>[];
-    
+
     // Горячие напитки с кофеином
     final hotDrinks = HotDrinkItems.getAllItems();
     for (final item in hotDrinks) {
@@ -511,7 +502,7 @@ class ItemsCatalog {
         allItems.add(item);
       }
     }
-    
+
     // Газировки с кофеином (энергетики)
     final sodas = WaterItems.getSodas();
     for (final item in sodas) {
@@ -520,14 +511,14 @@ class ItemsCatalog {
         allItems.add(item);
       }
     }
-    
+
     return allItems;
   }
 
   /// Получить элементы с сахаром
   List<CatalogItem> getItemsWithSugar() {
     final allItems = <CatalogItem>[];
-    
+
     // Алкоголь с сахаром
     final alcohol = AlcoholItems.getAllItems();
     for (final item in alcohol) {
@@ -536,10 +527,10 @@ class ItemsCatalog {
         allItems.add(item);
       }
     }
-    
+
     // Газировки
     allItems.addAll(WaterItems.getSodas());
-    
+
     // Напитки с сахаром
     final beverages = WaterItems.getBeverages();
     for (final item in beverages) {
@@ -548,7 +539,7 @@ class ItemsCatalog {
         allItems.add(item);
       }
     }
-    
+
     // Горячие напитки с сахаром
     final hotDrinks = HotDrinkItems.getAllItems();
     for (final item in hotDrinks) {
@@ -557,7 +548,7 @@ class ItemsCatalog {
         allItems.add(item);
       }
     }
-    
+
     return allItems;
   }
 }

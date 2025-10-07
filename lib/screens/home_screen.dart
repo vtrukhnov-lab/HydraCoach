@@ -20,11 +20,10 @@ import '../screens/achievements_screen.dart';
 
 // Widgets
 import '../widgets/home/home_header.dart';
-import '../widgets/home/weather_card.dart';
+import '../widgets/weather_card.dart';
 import '../widgets/home/main_progress_card.dart';
 import '../widgets/home/electrolytes_card.dart';
 import '../widgets/home/ad_mrec_card.dart';
-import '../widgets/home/ad_banner_card.dart';
 import '../widgets/home/hri_status_card.dart';
 import '../widgets/home/sugar_intake_card.dart';
 import '../widgets/home/food_intake_card.dart';
@@ -38,7 +37,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   String _fastingSchedule = '16:8';
   bool _isInitialized = false;
   int _currentIndex = 0;
@@ -79,29 +79,32 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
 
   Future<void> _initialize() async {
     await _loadPreferences();
-    
+
     // Initialize achievement tracker
     await _achievementTracker.initialize();
-    
+
     // ✅ ИСПРАВЛЕНО: Слушаем изменения в AchievementTracker только для обновления UI
     _achievementTracker.addListener(_onAchievementTrackerChanged);
-    
+
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
     alcohol.addListener(_onAlcoholChanged);
-    
+
     final weather = Provider.of<WeatherService>(context, listen: false);
     weather.addListener(_onWeatherChanged);
     // Убрали автоматическую загрузку погоды - теперь загружается только при клике на weather card
-    
-    final hydrationProvider = Provider.of<HydrationProvider>(context, listen: false);
-    
+
+    final hydrationProvider = Provider.of<HydrationProvider>(
+      context,
+      listen: false,
+    );
+
     // Pass context to HydrationProvider for AchievementService
     hydrationProvider.setContext(context);
-    
+
     hydrationProvider.addListener(() {
       if (mounted) _updateHRI();
     });
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _applyAlcoholAdjustments();
@@ -135,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
   // ✅ ИСПРАВЛЕНО: Только обновляем UI, НЕ удаляем достижения из очереди
   void _onAchievementTrackerChanged() {
     if (!mounted) return;
-    
+
     // Просто обновляем UI для показа красной точки
     setState(() {});
   }
@@ -166,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
   void _applyAlcoholAdjustments() {
     final provider = Provider.of<HydrationProvider>(context, listen: false);
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
-    
+
     provider.updateAlcoholAdjustments(
       alcohol.totalWaterCorrection,
       alcohol.totalSodiumCorrection.round(),
@@ -175,21 +178,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
 
   void _updateHRI() {
     if (!mounted) return;
-    
+
     final provider = Provider.of<HydrationProvider>(context, listen: false);
     final hri = Provider.of<HRIService>(context, listen: false);
     final alcohol = Provider.of<AlcoholService>(context, listen: false);
     final weather = Provider.of<WeatherService>(context, listen: false);
-    
-    DateTime? lastIntakeTime = provider.todayIntakes.isNotEmpty 
-        ? provider.todayIntakes.last.timestamp 
+
+    DateTime? lastIntakeTime = provider.todayIntakes.isNotEmpty
+        ? provider.todayIntakes.last.timestamp
         : null;
-        
+
     bool isFasting = _isCurrentlyFasting(provider);
     hri.setFastingStatus(isFasting);
-    
+
     final sugarData = provider.getSugarIntakeData(context);
-    
+
     hri.calculateHRI(
       waterIntake: provider.totalWaterToday,
       waterGoal: provider.goals.waterOpt.toDouble(),
@@ -207,9 +210,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
       userWeightKg: provider.weight,
       // NEW: Add food data
       foodWaterContent: provider.totalWaterFromFoodToday,
-      foodSodiumIntake: provider.todayFoodIntakes.fold(0.0, (sum, food) => sum + food.sodium),
+      foodSodiumIntake: provider.todayFoodIntakes.fold(
+        0.0,
+        (sum, food) => sum + food.sodium,
+      ),
       foodCount: provider.todayFoodIntakes.length,
-      foodSugarIntake: provider.todayFoodIntakes.fold(0.0, (sum, food) => sum + food.sugar),
+      foodSugarIntake: provider.todayFoodIntakes.fold(
+        0.0,
+        (sum, food) => sum + food.sugar,
+      ),
     );
   }
 
@@ -222,9 +231,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
       case 'OMAD':
         return hour < 18 || hour >= 19;
       case 'ADF':
-        final dayOfYear = DateTime.now().difference(
-          DateTime(DateTime.now().year, 1, 1)
-        ).inDays;
+        final dayOfYear = DateTime.now()
+            .difference(DateTime(DateTime.now().year, 1, 1))
+            .inDays;
         return dayOfYear % 2 == 0;
       default:
         return hour < 12 || hour >= 20;
@@ -280,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
             Text(
               _formatDate(DateTime.now(), l10n),
               style: TextStyle(
-                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 fontSize: 14,
               ),
             ),
@@ -292,9 +301,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
             animation: _achievementTracker,
             builder: (context, child) {
               // ✅ Проверяем есть ли новые достижения через AchievementTracker
-              final hasNewAchievements = _achievementTracker.hasUnlockedAchievements || 
-                                       _achievementTracker.unlockedQueue.isNotEmpty;
-              
+              final hasNewAchievements =
+                  _achievementTracker.hasUnlockedAchievements ||
+                  _achievementTracker.unlockedQueue.isNotEmpty;
+
               return Stack(
                 children: [
                   IconButton(
@@ -302,13 +312,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
                       '🏆',
                       style: TextStyle(
                         fontSize: 26,
-                        shadows: hasNewAchievements ? [
-                          Shadow(
-                            color: Colors.amber.withOpacity(0.8),
-                            blurRadius: 8,
-                            offset: const Offset(0, 0),
-                          ),
-                        ] : null,
+                        shadows: hasNewAchievements
+                            ? [
+                                Shadow(
+                                  color: Colors.amber.withValues(alpha: 0.8),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 0),
+                                ),
+                              ]
+                            : null,
                       ),
                     ),
                     onPressed: () {
@@ -334,7 +346,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.red.withOpacity(0.3),
+                              color: Colors.red.withValues(alpha: 0.3),
                               blurRadius: 4,
                               spreadRadius: 1,
                             ),
@@ -346,7 +358,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
               );
             },
           ),
-          
+
           // PRO button
           Container(
             margin: const EdgeInsets.only(right: 12),
@@ -357,11 +369,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
                   color: theme.colorScheme.primary,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.star,
-                  color: Colors.white,
-                  size: 20,
-                ),
+                child: const Icon(Icons.star, color: Colors.white, size: 20),
               ),
               onPressed: () async {
                 HapticFeedback.lightImpact();
@@ -384,12 +392,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
         bottom: false,
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
-          slivers: [            
+          slivers: [
             SliverToBoxAdapter(
               child: Column(
                 children: [
                   const SizedBox(height: 16),
-                  
+
                   // Card carousel
                   SizedBox(
                     height: 520,
@@ -414,9 +422,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
                       },
                     ),
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   // Page indicators
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -439,23 +447,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
                             borderRadius: BorderRadius.circular(4),
                             color: isActive
                                 ? theme.primaryColor
-                                : theme.primaryColor.withOpacity(0.3),
+                                : theme.primaryColor.withValues(alpha: 0.3),
                           ),
                         ),
                       );
                     }),
                   ),
-                  
+
                   const SizedBox(height: 16),
                 ],
               ),
             ),
-
-            // Тонкий баннер выше HRI статуса для free пользователей
-            if (!subscription.isPro)
-              const SliverToBoxAdapter(
-                child: AdBannerCard(),
-              ),
 
             SliverToBoxAdapter(
               child: HRIStatusCard(
@@ -463,9 +465,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
                 fastingSchedule: _fastingSchedule,
               ),
             ),
-            
+
             SliverPadding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 80),
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).padding.bottom + 80,
+              ),
               sliver: const SliverToBoxAdapter(child: SizedBox.shrink()),
             ),
           ],
@@ -484,7 +488,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
       l10n.friday,
       l10n.saturday,
     ];
-    
+
     final months = [
       l10n.january,
       l10n.february,
@@ -499,10 +503,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Au
       l10n.november,
       l10n.december,
     ];
-    
+
     final weekday = weekdays[date.weekday % 7];
     final month = months[date.month - 1];
-    
+
     return l10n.dateFormat(weekday, date.day, month);
   }
 }

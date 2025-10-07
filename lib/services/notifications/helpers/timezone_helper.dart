@@ -3,6 +3,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:hydracoach/utils/app_logger.dart';
+
 import '../notification_config.dart';
 
 /// Helper для работы с временными зонами
@@ -24,23 +26,27 @@ class TimezoneHelper {
       // Мапим популярные смещения на тайм-зоны
       timeZoneName = _getTimezoneByOffset(offset);
 
-      print('🌍 Detected timezone offset: ${offset.inHours}h, using: $timeZoneName');
+      logger.i(
+        '🌍 Detected timezone offset: ${offset.inHours}h, using: $timeZoneName',
+      );
     } catch (e) {
-      print('⚠️ Failed to detect timezone: $e');
+      logger.i('⚠️ Failed to detect timezone: $e');
       // Fallback на сохраненную или дефолтную
       final prefs = await SharedPreferences.getInstance();
-      timeZoneName = prefs.getString(NotificationConfig.prefUserTimezone) ?? 'Europe/Madrid';
+      timeZoneName =
+          prefs.getString(NotificationConfig.prefUserTimezone) ??
+          'Europe/Madrid';
     }
 
     try {
       tz.setLocalLocation(tz.getLocation(timeZoneName));
-      print('🌍 Timezone set to: $timeZoneName');
+      logger.i('🌍 Timezone set to: $timeZoneName');
 
       // Сохраняем для будущего использования
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(NotificationConfig.prefUserTimezone, timeZoneName);
     } catch (e) {
-      print('⚠️ Failed to set timezone $timeZoneName, using UTC');
+      logger.i('⚠️ Failed to set timezone $timeZoneName, using UTC');
       tz.setLocalLocation(tz.UTC);
     }
   }
@@ -48,7 +54,7 @@ class TimezoneHelper {
   /// Определение временной зоны по смещению
   static String _getTimezoneByOffset(Duration offset) {
     final hours = offset.inHours;
-    
+
     switch (hours) {
       case 0:
         return 'Europe/London'; // GMT
@@ -88,13 +94,14 @@ class TimezoneHelper {
   /// Проверка, находится ли время в указанном диапазоне
   static bool isTimeInRange(DateTime time, String startStr, String endStr) {
     final currentMinutes = time.hour * 60 + time.minute;
-    
+
     final startParts = startStr.split(':');
     final endParts = endStr.split(':');
-    
-    final startMinutes = int.parse(startParts[0]) * 60 + int.parse(startParts[1]);
+
+    final startMinutes =
+        int.parse(startParts[0]) * 60 + int.parse(startParts[1]);
     final endMinutes = int.parse(endParts[0]) * 60 + int.parse(endParts[1]);
-    
+
     if (startMinutes > endMinutes) {
       // Интервал через полночь
       return currentMinutes >= startMinutes || currentMinutes < endMinutes;
@@ -115,7 +122,7 @@ class TimezoneHelper {
     }
 
     final endParts = rangeEnd.split(':');
-    
+
     // Переносим на конец диапазона
     DateTime adjusted = DateTime(
       scheduledTime.year,
@@ -124,12 +131,12 @@ class TimezoneHelper {
       int.parse(endParts[0]),
       int.parse(endParts[1]),
     );
-    
+
     // Если это время уже прошло, переносим на завтра
     if (adjusted.isBefore(DateTime.now())) {
       adjusted = adjusted.add(const Duration(days: 1));
     }
-    
+
     return adjusted;
   }
 

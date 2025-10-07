@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../models/achievement.dart';
 import '../l10n/app_localizations.dart';
+import 'package:hydracoach/utils/app_logger.dart';
 
 class AchievementOverlay extends StatefulWidget {
   final Achievement achievement;
@@ -70,8 +71,8 @@ class _AchievementOverlayState extends State<AchievementOverlay>
 
   String _getLocalizedTitle(AppLocalizations l10n) {
     // Проверяем name напрямую - он должен содержать ключ локализации
-    print('DEBUG: achievement.name = "${widget.achievement.name}"');
-    
+    logger.d('DEBUG: achievement.name = "${widget.achievement.name}"');
+
     switch (widget.achievement.name) {
       case 'achievementFirstGlass':
         return l10n.achievementFirstGlass;
@@ -323,7 +324,7 @@ class _AchievementOverlayState extends State<AchievementOverlay>
         child: Container(
           width: screenSize.width,
           height: screenSize.height,
-          color: Colors.black.withOpacity(0.3),
+          color: Colors.black.withValues(alpha: 0.3),
           child: Center(
             child: AnimatedBuilder(
               animation: _controller,
@@ -331,10 +332,7 @@ class _AchievementOverlayState extends State<AchievementOverlay>
                 return Transform.scale(
                   scale: Curves.elasticOut.transform(_controller.value),
                   child: Transform.translate(
-                    offset: Offset(
-                      0,
-                      (1 - _controller.value) * 50,
-                    ),
+                    offset: Offset(0, (1 - _controller.value) * 50),
                     child: Opacity(
                       opacity: _controller.value,
                       child: Container(
@@ -345,7 +343,7 @@ class _AchievementOverlayState extends State<AchievementOverlay>
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 20,
                               offset: const Offset(0, 10),
                             ),
@@ -359,7 +357,9 @@ class _AchievementOverlayState extends State<AchievementOverlay>
                               height: 3,
                               margin: const EdgeInsets.only(bottom: 20),
                               decoration: BoxDecoration(
-                                color: theme.colorScheme.outline.withOpacity(0.2),
+                                color: theme.colorScheme.outline.withValues(
+                                  alpha: 0.2,
+                                ),
                                 borderRadius: BorderRadius.circular(2),
                               ),
                               child: AnimatedBuilder(
@@ -393,24 +393,27 @@ class _AchievementOverlayState extends State<AchievementOverlay>
 
                             // Achievement icon
                             Container(
-                              width: 80,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                color: _getRarityColor(widget.achievement.rarity)
-                                    .withOpacity(0.1),
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: _getRarityColor(widget.achievement.rarity),
-                                  width: 2,
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  widget.achievement.icon,
-                                  style: const TextStyle(fontSize: 36),
-                                ),
-                              ),
-                            )
+                                  width: 80,
+                                  height: 80,
+                                  decoration: BoxDecoration(
+                                    color: _getRarityColor(
+                                      widget.achievement.rarity,
+                                    ).withValues(alpha: 0.1),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: _getRarityColor(
+                                        widget.achievement.rarity,
+                                      ),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      widget.achievement.icon,
+                                      style: const TextStyle(fontSize: 36),
+                                    ),
+                                  ),
+                                )
                                 .animate()
                                 .scale(delay: 300.ms, duration: 600.ms)
                                 .then()
@@ -433,7 +436,9 @@ class _AchievementOverlayState extends State<AchievementOverlay>
                             Text(
                               _getLocalizedDescription(l10n),
                               style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurface.withOpacity(0.7),
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.7,
+                                ),
                               ),
                               textAlign: TextAlign.center,
                             ).animate().fadeIn(delay: 500.ms),
@@ -447,7 +452,9 @@ class _AchievementOverlayState extends State<AchievementOverlay>
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: _getRarityColor(widget.achievement.rarity),
+                                color: _getRarityColor(
+                                  widget.achievement.rarity,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(

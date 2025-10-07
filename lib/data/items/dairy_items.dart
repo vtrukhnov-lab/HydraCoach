@@ -241,9 +241,9 @@ class DairyItems {
     return getAllItems().where((item) {
       final id = item.id;
       return id.contains('yogurt') ||
-             id.contains('kefir') ||
-             id.contains('ryazhenka') ||
-             id.contains('cottage');
+          id.contains('kefir') ||
+          id.contains('ryazhenka') ||
+          id.contains('cottage');
     }).toList();
   }
 

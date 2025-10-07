@@ -13,7 +13,7 @@ enum AlcoholType {
   final double defaultAbv;
 
   const AlcoholType(this.key, this.icon, this.defaultAbv);
-  
+
   // Метод для получения локализованного названия
   String getLabel(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -51,13 +51,13 @@ class AlcoholIntake {
     this.sugar, // Добавлено: опциональный параметр сахара
     this.name,
     this.emoji,
-  })  : id = id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-        standardDrinks = _calculateStandardDrinks(volumeMl, abv);
+  }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+       standardDrinks = _calculateStandardDrinks(volumeMl, abv);
 
   static double _calculateStandardDrinks(double volumeMl, double abv) {
     const double standardDrinkGrams = 10.0;
     const double alcoholDensity = 0.789;
-    
+
     double pureAlcoholMl = volumeMl * (abv / 100);
     double pureAlcoholGrams = pureAlcoholMl * alcoholDensity;
     return pureAlcoholGrams / standardDrinkGrams;
@@ -66,7 +66,7 @@ class AlcoholIntake {
   // Метод для получения содержания сахара (с дефолтными значениями если не указано)
   double getSugarContent() {
     if (sugar != null) return sugar!;
-    
+
     // Дефолтные значения сахара по типам напитков (г на 100 мл)
     switch (type) {
       case AlcoholType.beer:
@@ -76,7 +76,8 @@ class AlcoholIntake {
       case AlcoholType.spirits:
         return 0; // Крепкий алкоголь обычно без сахара
       case AlcoholType.cocktail:
-        return (volumeMl / 100) * 12.0; // ~12г на 100мл (много сахара в коктейлях)
+        return (volumeMl / 100) *
+            12.0; // ~12г на 100мл (много сахара в коктейлях)
     }
   }
 
@@ -97,16 +98,16 @@ class AlcoholIntake {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'timestamp': timestamp.toIso8601String(),
-        'type': type.index,
-        'volumeMl': volumeMl,
-        'abv': abv,
-        'standardDrinks': standardDrinks,
-        'sugar': sugar, // Добавлено: сохранение сахара
-        if (name != null) 'name': name,
-        if (emoji != null) 'emoji': emoji,
-      };
+    'id': id,
+    'timestamp': timestamp.toIso8601String(),
+    'type': type.index,
+    'volumeMl': volumeMl,
+    'abv': abv,
+    'standardDrinks': standardDrinks,
+    'sugar': sugar, // Добавлено: сохранение сахара
+    if (name != null) 'name': name,
+    if (emoji != null) 'emoji': emoji,
+  };
 
   factory AlcoholIntake.fromJson(Map<String, dynamic> json) {
     return AlcoholIntake(
@@ -152,7 +153,7 @@ class AlcoholCheckin {
   List<String> getRecommendations(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     List<String> recommendations = [];
-    
+
     if (feelingScore <= 2) {
       recommendations.add('💧 ${l10n.drinkMoreWaterToday}');
       recommendations.add('🧂 ${l10n.addElectrolytesToWater}');
@@ -161,24 +162,24 @@ class AlcoholCheckin {
       recommendations.add('💧 ${l10n.increaseWater10}');
       recommendations.add('🧂 ${l10n.dontForgetElectrolytes}');
     }
-    
+
     if (!hadWater) {
       recommendations.add('💧 ${l10n.startDayWithWater}');
     }
-    
+
     if (!hadElectrolytes) {
       recommendations.add('🧂 ${l10n.takeElectrolytesMorning}');
     }
-    
+
     return recommendations;
   }
 
   Map<String, dynamic> toJson() => {
-        'date': date.toIso8601String(),
-        'feelingScore': feelingScore,
-        'hadWater': hadWater,
-        'hadElectrolytes': hadElectrolytes,
-      };
+    'date': date.toIso8601String(),
+    'feelingScore': feelingScore,
+    'hadWater': hadWater,
+    'hadElectrolytes': hadElectrolytes,
+  };
 
   factory AlcoholCheckin.fromJson(Map<String, dynamic> json) {
     return AlcoholCheckin(

@@ -48,7 +48,7 @@ class SupplementItems {
         },
         isPro: false,
       ),
-      
+
       // PRO minerals (6)
       CatalogItem(
         id: 'supplement_mg_citrate',
@@ -186,7 +186,7 @@ class SupplementItems {
         },
         isPro: false,
       ),
-      
+
       // PRO vitamins (6)
       CatalogItem(
         id: 'supplement_b_complex',
@@ -321,7 +321,7 @@ class SupplementItems {
         },
         isPro: false,
       ),
-      
+
       // PRO other (6)
       CatalogItem(
         id: 'supplement_collagen',
@@ -412,11 +412,7 @@ class SupplementItems {
 
   // Получить все элементы
   static List<CatalogItem> getAllItems() {
-    return [
-      ...getMinerals(),
-      ...getVitamins(),
-      ...getOther(),
-    ];
+    return [...getMinerals(), ...getVitamins(), ...getOther()];
   }
 
   // Получить быстрые дозировки для типа добавки
@@ -459,10 +455,11 @@ class SupplementItems {
         'creatine': [3, 5, 10], // g
         'ashwagandha': [300, 600, 900], // mg
         'trace_minerals': [5, 10, 15], // drops
-      }
+      },
     };
 
     final unitSystem = units == 'imperial' ? 'imperial' : 'metric';
-    return quickDosages[unitSystem]?[type] ?? quickDosages[unitSystem]!['default']!;
+    return quickDosages[unitSystem]?[type] ??
+        quickDosages[unitSystem]!['default']!;
   }
 }

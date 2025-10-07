@@ -8,36 +8,33 @@ class ProBadge extends StatelessWidget {
   final bool showAlways; // Показывать всегда или только для FREE пользователей
   final double size;
   final bool interactive; // Можно ли нажать для открытия пейвола
-  
+
   const ProBadge({
     super.key,
     this.showAlways = false,
     this.size = 16,
     this.interactive = true,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Consumer<SubscriptionProvider>(
       builder: (context, subscriptionProvider, _) {
         final isPro = subscriptionProvider.isPro;
-        
+
         // Если пользователь PRO и не нужно показывать всегда - скрываем
         if (isPro && !showAlways) {
           return const SizedBox.shrink();
         }
-        
+
         // Определяем цвет звездочки
-        final color = isPro 
-          ? Colors.amber // Золотая для PRO пользователей
-          : Colors.grey.shade400; // Серая для FREE пользователей
-        
-        Widget badge = Icon(
-          Icons.star,
-          size: size,
-          color: color,
-        );
-        
+        final color = isPro
+            ? Colors
+                  .amber // Золотая для PRO пользователей
+            : Colors.grey.shade400; // Серая для FREE пользователей
+
+        Widget badge = Icon(Icons.star, size: size, color: color);
+
         // Если интерактивная и пользователь FREE - добавляем возможность нажатия
         if (interactive && !isPro) {
           badge = GestureDetector(
@@ -45,19 +42,17 @@ class ProBadge extends StatelessWidget {
             child: badge,
           );
         }
-        
+
         return badge;
       },
     );
   }
-  
+
   void _showPaywall(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const PaywallScreen(
-          showCloseButton: true,
-          source: 'pro_badge',
-        ),
+        builder: (context) =>
+            const PaywallScreen(showCloseButton: true, source: 'pro_badge'),
         fullscreenDialog: true,
       ),
     );
@@ -71,7 +66,7 @@ class ProListTile extends StatelessWidget {
   final IconData? leading;
   final VoidCallback? onTap;
   final bool isPro; // Является ли эта функция PRO
-  
+
   const ProListTile({
     super.key,
     required this.title,
@@ -80,20 +75,17 @@ class ProListTile extends StatelessWidget {
     this.onTap,
     this.isPro = false,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Consumer<SubscriptionProvider>(
       builder: (context, subscriptionProvider, _) {
         final hasAccess = !isPro || subscriptionProvider.isPro;
-        
+
         return ListTile(
-          leading: leading != null 
-            ? Icon(
-                leading,
-                color: hasAccess ? null : Colors.grey.shade400,
-              )
-            : null,
+          leading: leading != null
+              ? Icon(leading, color: hasAccess ? null : Colors.grey.shade400)
+              : null,
           title: Row(
             children: [
               Expanded(
@@ -111,15 +103,15 @@ class ProListTile extends StatelessWidget {
             ],
           ),
           subtitle: subtitle != null
-            ? Text(
-                subtitle!,
-                style: TextStyle(
-                  color: hasAccess 
-                    ? Theme.of(context).textTheme.bodySmall?.color 
-                    : Colors.grey.shade400,
-                ),
-              )
-            : null,
+              ? Text(
+                  subtitle!,
+                  style: TextStyle(
+                    color: hasAccess
+                        ? Theme.of(context).textTheme.bodySmall?.color
+                        : Colors.grey.shade400,
+                  ),
+                )
+              : null,
           onTap: () {
             if (hasAccess && onTap != null) {
               onTap!();
@@ -132,14 +124,12 @@ class ProListTile extends StatelessWidget {
       },
     );
   }
-  
+
   void _showPaywall(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const PaywallScreen(
-          showCloseButton: true,
-          source: 'pro_list_tile',
-        ),
+        builder: (context) =>
+            const PaywallScreen(showCloseButton: true, source: 'pro_list_tile'),
         fullscreenDialog: true,
       ),
     );
@@ -153,7 +143,7 @@ class ProButton extends StatelessWidget {
   final bool isPro;
   final IconData? icon;
   final ButtonStyle? style;
-  
+
   const ProButton({
     super.key,
     required this.text,
@@ -162,13 +152,13 @@ class ProButton extends StatelessWidget {
     this.icon,
     this.style,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Consumer<SubscriptionProvider>(
       builder: (context, subscriptionProvider, _) {
         final hasAccess = !isPro || subscriptionProvider.isPro;
-        
+
         return ElevatedButton(
           onPressed: () {
             if (hasAccess && onPressed != null) {
@@ -177,9 +167,11 @@ class ProButton extends StatelessWidget {
               _showPaywall(context);
             }
           },
-          style: style ?? ElevatedButton.styleFrom(
-            backgroundColor: hasAccess ? null : Colors.grey.shade300,
-          ),
+          style:
+              style ??
+              ElevatedButton.styleFrom(
+                backgroundColor: hasAccess ? null : Colors.grey.shade300,
+              ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -198,14 +190,12 @@ class ProButton extends StatelessWidget {
       },
     );
   }
-  
+
   void _showPaywall(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const PaywallScreen(
-          showCloseButton: true,
-          source: 'pro_card',
-        ),
+        builder: (context) =>
+            const PaywallScreen(showCloseButton: true, source: 'pro_card'),
         fullscreenDialog: true,
       ),
     );
@@ -218,7 +208,7 @@ class ProCard extends StatelessWidget {
   final bool isPro;
   final EdgeInsetsGeometry? margin;
   final VoidCallback? onTap;
-  
+
   const ProCard({
     super.key,
     required this.child,
@@ -226,13 +216,13 @@ class ProCard extends StatelessWidget {
     this.margin,
     this.onTap,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Consumer<SubscriptionProvider>(
       builder: (context, subscriptionProvider, _) {
         final hasAccess = !isPro || subscriptionProvider.isPro;
-        
+
         return Card(
           margin: margin,
           child: InkWell(
@@ -248,19 +238,13 @@ class ProCard extends StatelessWidget {
               children: [
                 Opacity(
                   opacity: hasAccess ? 1.0 : 0.6,
-                  child: AbsorbPointer(
-                    absorbing: !hasAccess,
-                    child: child,
-                  ),
+                  child: AbsorbPointer(absorbing: !hasAccess, child: child),
                 ),
                 if (isPro)
                   Positioned(
                     top: 8,
                     right: 8,
-                    child: ProBadge(
-                      size: 20,
-                      interactive: !hasAccess,
-                    ),
+                    child: ProBadge(size: 20, interactive: !hasAccess),
                   ),
               ],
             ),
@@ -269,14 +253,12 @@ class ProCard extends StatelessWidget {
       },
     );
   }
-  
+
   void _showPaywall(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const PaywallScreen(
-          showCloseButton: true,
-          source: 'pro_row',
-        ),
+        builder: (context) =>
+            const PaywallScreen(showCloseButton: true, source: 'pro_row'),
         fullscreenDialog: true,
       ),
     );

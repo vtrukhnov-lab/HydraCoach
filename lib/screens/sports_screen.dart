@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
+import 'package:hydracoach/utils/app_logger.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/quick_favorites.dart';
@@ -35,28 +36,28 @@ class SportsScreen extends StatefulWidget {
 class _SportsScreenState extends State<SportsScreen> {
   // Catalog
   final ItemsCatalog _catalog = ItemsCatalog();
-  
+
   // Favorites manager
   final QuickFavoritesManager _favoritesManager = QuickFavoritesManager();
-  
+
   // Remote config
   final RemoteConfigService _remoteConfig = RemoteConfigService.instance;
-  
+
   // PRO status
   bool _isPro = false;
-  
+
   // Units
   String _units = 'metric';
-  
+
   // Selected category
   String _selectedCategory = 'cardio';
-  
+
   // User weight for calculations
   double _userWeight = 70;
-  
+
   // Show tips card
   bool _showTipsCard = false;
-  
+
   @override
   void initState() {
     super.initState();
@@ -64,48 +65,51 @@ class _SportsScreenState extends State<SportsScreen> {
     _loadUserWeight();
     _initializePro();
   }
-  
+
   Future<void> _initializePro() async {
     await Future.delayed(Duration.zero);
     if (!mounted) return;
-    
-    final subscription = Provider.of<SubscriptionProvider>(context, listen: false);
+
+    final subscription = Provider.of<SubscriptionProvider>(
+      context,
+      listen: false,
+    );
     _isPro = subscription.isPro;
     await _favoritesManager.init(_isPro);
     if (mounted) setState(() {});
   }
-  
+
   void _loadUserWeight() {
     final provider = Provider.of<HydrationProvider>(context, listen: false);
     setState(() {
       _userWeight = provider.weight;
     });
   }
-  
+
   // Get current items based on selected category
   List<CatalogItem> _getCurrentItems() {
     // Get all sport items
     final allItems = _catalog.getSportItems();
-    
+
     // Filter by selected category
     return allItems.where((item) {
       final itemCategory = item.properties['category'] as String?;
       return itemCategory == _selectedCategory;
     }).toList();
   }
-  
+
   // Get today's workout stats
   Map<String, dynamic> _getTodayStats() {
     try {
       final hriService = Provider.of<HRIService>(context, listen: false);
       final workouts = hriService.todayWorkouts;
       final losses = hriService.getTodaysWorkoutLosses();
-      
+
       int totalMinutes = 0;
       for (final workout in workouts) {
         totalMinutes += workout.durationMinutes;
       }
-      
+
       return {
         'workoutCount': workouts.length,
         'totalMinutes': totalMinutes,
@@ -115,7 +119,7 @@ class _SportsScreenState extends State<SportsScreen> {
         'magnesiumLoss': losses['magnesium'] ?? 0,
       };
     } catch (e) {
-      print('Error getting workout stats: $e');
+      logger.e('Error getting workout stats: $e');
       return {
         'workoutCount': 0,
         'totalMinutes': 0,
@@ -126,7 +130,7 @@ class _SportsScreenState extends State<SportsScreen> {
       };
     }
   }
-  
+
   // Show workout dialog using VolumeSelectionDialog
   Future<void> _showWorkoutDialog(CatalogItem item) async {
     // Check if PRO item
@@ -140,11 +144,11 @@ class _SportsScreenState extends State<SportsScreen> {
       );
       return;
     }
-    
+
     // ИСПРАВЛЕНО: Сохраняем ссылки на провайдеры ДО открытия диалога
     final provider = Provider.of<HydrationProvider>(context, listen: false);
     final hriService = Provider.of<HRIService>(context, listen: false);
-    
+
     // Use universal VolumeSelectionDialog with duration mode
     await VolumeSelectionDialog.show(
       context: context,
@@ -165,7 +169,7 @@ class _SportsScreenState extends State<SportsScreen> {
       sliderColor: Colors.teal,
     );
   }
-  
+
   // НОВЫЙ МЕТОД: Логирование тренировки с передачей провайдеров
   Future<void> _logWorkoutWithProviders({
     required CatalogItem item,
@@ -175,7 +179,7 @@ class _SportsScreenState extends State<SportsScreen> {
   }) async {
     try {
       final l10n = AppLocalizations.of(context);
-      
+
       // Сначала добавляем тренировку в HRIService напрямую
       await hriService.addWorkout(
         type: item.id,
@@ -186,34 +190,36 @@ class _SportsScreenState extends State<SportsScreen> {
         name: item.getName(l10n),
         emoji: item.icon is String ? item.icon as String : null,
       );
-      
+
       // Затем синхронизируем с HydrationProvider
       await provider.syncWithHRIService(hriService);
-      
+
       // Рассчитываем потери для отображения
       final losses = HRIService.calculateWorkoutLosses(
         item: item,
         durationMinutes: durationMinutes,
         userWeight: _userWeight,
       );
-      
+
       // Schedule post-workout reminder (PRO only)
       if (_isPro) {
         try {
           final notificationService = NotificationService();
-          final workoutEndTime = DateTime.now().add(Duration(minutes: durationMinutes));
+          final workoutEndTime = DateTime.now().add(
+            Duration(minutes: durationMinutes),
+          );
           await notificationService.sendWorkoutReminder(
             workoutEndTime: workoutEndTime,
           );
         } catch (e) {
-          print('Failed to schedule workout reminder: $e');
+          logger.e('Failed to schedule workout reminder: $e');
         }
       }
-      
+
       // Show success message
       if (mounted) {
         final waterStr = UnitsService.instance.formatVolume(losses.waterLossMl);
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Column(
@@ -226,25 +232,29 @@ class _SportsScreenState extends State<SportsScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text('${l10n.waterLoss}: $waterStr'),
-                Text('Na ${losses.sodiumLossMg}mg, K ${losses.potassiumLossMg}mg'),
-                Text('${l10n.target}: +${UnitsService.instance.formatVolume(losses.waterLossMl)}'),
+                Text(
+                  'Na ${losses.sodiumLossMg}mg, K ${losses.potassiumLossMg}mg',
+                ),
+                Text(
+                  '${l10n.target}: +${UnitsService.instance.formatVolume(losses.waterLossMl)}',
+                ),
               ],
             ),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 4),
           ),
         );
-        
+
         // Show tips card
         setState(() {
           _showTipsCard = true;
         });
-        
+
         // Force refresh the stats
         setState(() {});
       }
     } catch (e) {
-      print('Error logging workout: $e');
+      logger.e('Error logging workout: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -255,25 +265,25 @@ class _SportsScreenState extends State<SportsScreen> {
       }
     }
   }
-  
+
   // Save to favorites
   Future<void> _saveToFavorites(CatalogItem item, int duration) async {
     final l10n = AppLocalizations.of(context);
-    
+
     final slot = await FavoriteSlotSelector.show(
       context: context,
       favoritesManager: _favoritesManager,
       isPro: _isPro,
     );
-    
+
     if (slot == null) return;
-    
+
     final losses = HRIService.calculateWorkoutLosses(
       item: item,
       durationMinutes: duration,
       userWeight: _userWeight,
     );
-    
+
     final favorite = QuickFavorite(
       id: 'sport_${item.id}_$duration',
       type: 'sport',
@@ -283,14 +293,11 @@ class _SportsScreenState extends State<SportsScreen> {
       sodiumMg: losses.sodiumLossMg,
       potassiumMg: losses.potassiumLossMg,
       magnesiumMg: losses.magnesiumLossMg,
-      metadata: {
-        'sportId': item.id,
-        'duration': duration,
-      },
+      metadata: {'sportId': item.id, 'duration': duration},
     );
-    
+
     await _favoritesManager.saveFavorite(slot, favorite);
-    
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -300,25 +307,25 @@ class _SportsScreenState extends State<SportsScreen> {
       );
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    
+
     // Update PRO status
     final subscription = Provider.of<SubscriptionProvider>(context);
     _isPro = subscription.isPro;
-    
+
     // Listen to HRIService changes to update stats
     final hriService = Provider.of<HRIService>(context);
-    
+
     // Get stats
     final stats = _getTodayStats();
-    
+
     // Get current items
     final items = _getCurrentItems();
-    
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
@@ -371,7 +378,10 @@ class _SportsScreenState extends State<SportsScreen> {
                         Colors.blue,
                       ),
                       _buildStatItem(
-                        UnitsService.instance.formatVolume(stats['waterLoss'], shortUnit: true),
+                        UnitsService.instance.formatVolume(
+                          stats['waterLoss'],
+                          shortUnit: true,
+                        ),
                         l10n.waterLoss,
                         Colors.red,
                       ),
@@ -383,13 +393,17 @@ class _SportsScreenState extends State<SportsScreen> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.warning_amber_rounded, size: 16, color: Colors.orange[700]),
+                          Icon(
+                            Icons.warning_amber_rounded,
+                            size: 16,
+                            color: Colors.orange[700],
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             '${l10n.needsToReplenish}: Na ${stats['sodiumLoss']}mg, K ${stats['potassiumLoss']}mg',
@@ -404,12 +418,9 @@ class _SportsScreenState extends State<SportsScreen> {
                     ),
                 ],
               ),
-            ).animate()
-              .fadeIn(duration: 300.ms)
-              .slideY(begin: -0.1, end: 0),
-          
-          if (stats['workoutCount'] > 0)
-            const SizedBox(height: 16),
+            ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.1, end: 0),
+
+          if (stats['workoutCount'] > 0) const SizedBox(height: 16),
 
           // Баннер для бесплатных пользователей
           if (!_isPro) const AdBannerCard(),
@@ -417,51 +428,56 @@ class _SportsScreenState extends State<SportsScreen> {
 
           // Category selector
           Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              children: ['cardio', 'strength', 'sports'].map((category) {
-                final isSelected = category == _selectedCategory;
-                return Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      setState(() => _selectedCategory = category);
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Colors.teal : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        _getCategoryName(category, l10n),
-                        style: TextStyle(
-                          color: isSelected 
-                            ? Colors.white 
-                            : theme.colorScheme.onSurfaceVariant,
-                          fontWeight: isSelected 
-                            ? FontWeight.bold 
-                            : FontWeight.normal,
-                          fontSize: 14,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.3,
                   ),
-                );
-              }).toList(),
-            ),
-          ).animate()
-            .fadeIn(duration: 300.ms, delay: 100.ms)
-            .slideX(begin: -0.1, end: 0),
-          
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: ['cardio', 'strength', 'sports'].map((category) {
+                    final isSelected = category == _selectedCategory;
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          setState(() => _selectedCategory = category);
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Colors.teal
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            _getCategoryName(category, l10n),
+                            style: TextStyle(
+                              color: isSelected
+                                  ? Colors.white
+                                  : theme.colorScheme.onSurfaceVariant,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              fontSize: 14,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              )
+              .animate()
+              .fadeIn(duration: 300.ms, delay: 100.ms)
+              .slideX(begin: -0.1, end: 0),
+
           const SizedBox(height: 20),
-          
+
           // Items grid
           ItemsGrid(
             items: items,
@@ -469,11 +485,10 @@ class _SportsScreenState extends State<SportsScreen> {
             onItemSelected: _showWorkoutDialog,
             title: _getCategoryTitle(_selectedCategory, l10n),
             childAspectRatio: 0.85,
-          ).animate()
-            .fadeIn(duration: 300.ms, delay: 200.ms),
-          
+          ).animate().fadeIn(duration: 300.ms, delay: 200.ms),
+
           const SizedBox(height: 24),
-          
+
           // Tips card
           if (_showTipsCard)
             HydrationTipsCard(
@@ -490,7 +505,7 @@ class _SportsScreenState extends State<SportsScreen> {
       ),
     );
   }
-  
+
   Widget _buildStatItem(String value, String label, Color color) {
     return Column(
       children: [
@@ -503,17 +518,11 @@ class _SportsScreenState extends State<SportsScreen> {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
       ],
     );
   }
-  
+
   String _getCategoryName(String category, AppLocalizations l10n) {
     switch (category) {
       case 'cardio':
@@ -526,7 +535,7 @@ class _SportsScreenState extends State<SportsScreen> {
         return category;
     }
   }
-  
+
   String _getCategoryTitle(String category, AppLocalizations l10n) {
     switch (category) {
       case 'cardio':

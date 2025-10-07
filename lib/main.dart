@@ -50,9 +50,7 @@ import 'providers/hydration_provider.dart';
 // Background message handler
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 }
 
 // Helper function to load or create userId
@@ -100,7 +98,9 @@ void main() async {
 
   // Initialize AppLovin MAX SDK
   try {
-    await AppLovinMAX.initialize('5AAhiuFzwRBZXL6NRkfMQIFE9TpJ-fX4qinXb1VVTh4_1ANSv1qJJ3TSWLnV_Jaq1LLcMr7rXCqTMC0FDqZXu6');
+    await AppLovinMAX.initialize(
+      '5AAhiuFzwRBZXL6NRkfMQIFE9TpJ-fX4qinXb1VVTh4_1ANSv1qJJ3TSWLnV_Jaq1LLcMr7rXCqTMC0FDqZXu6',
+    );
   } catch (e) {
     // Log AppLovin MAX initialization error but don't block app startup
     debugPrint('AppLovin MAX initialization error: $e');
@@ -123,7 +123,8 @@ void main() async {
     'app_version': '2.1.4',
     'locale': LocaleService.instance.currentLocale.toString(),
     'tz': DateTime.now().timeZoneName,
-    'onboarding_completed': onboardingCompleted.toString(),  // преобразуем в строку
+    'onboarding_completed': onboardingCompleted
+        .toString(), // преобразуем в строку
     'consent_given': consentService.hasConsent.toString(),
   });
 
@@ -133,9 +134,7 @@ void main() async {
   ]);
 
   // Настройка edge-to-edge дисплея
-  SystemChrome.setEnabledSystemUIMode(
-    SystemUiMode.edgeToEdge,
-  );
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -313,7 +312,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   bool _isInitializing = false;
   final ConsentService _consentService = ConsentService();
-  
+
   @override
   void initState() {
     super.initState();
@@ -332,9 +331,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
     try {
       // Initialize subscription БЕЗ await в том же контексте
-      final subscriptionProvider =
-          Provider.of<SubscriptionProvider>(context, listen: false);
-      
+      final subscriptionProvider = Provider.of<SubscriptionProvider>(
+        context,
+        listen: false,
+      );
+
       // Выполняем инициализацию асинхронно
       await Future.microtask(() async {
         await subscriptionProvider.initialize();
@@ -342,21 +343,24 @@ class _SplashScreenState extends State<SplashScreen> {
 
       // Initialize alcohol service
       if (!mounted) return;
-      final alcoholService = Provider.of<AlcoholService>(context, listen: false);
+      final alcoholService = Provider.of<AlcoholService>(
+        context,
+        listen: false,
+      );
       await alcoholService.init();
 
       // Check onboarding
       final prefs = await SharedPreferences.getInstance();
-      
+
       // ОТЛАДКА: Выводим текущее состояние онбординга
       final completed = prefs.getBool('onboardingCompleted') ?? false;
       // RELEASE: Debug logging disabled
       // debugPrint('🔍 DEBUG: onboardingCompleted = $completed');
-      
+
       // ВРЕМЕННО: Для тестирования - раскомментируйте эту строку чтобы сбросить онбординг
       // await prefs.setBool('onboardingCompleted', false);
       // debugPrint('⚠️ DEBUG: Onboarding reset to false for testing');
-      
+
       // Log user properties to AppsFlyer
       final dietMode = prefs.getString('diet_mode') ?? 'normal';
       await AnalyticsService().log('user_properties', {
@@ -371,11 +375,11 @@ class _SplashScreenState extends State<SplashScreen> {
       await AnalyticsService().log('splash_screen_completed', {
         'destination': completed ? 'main_shell' : 'onboarding',
       });
-      
+
       // Check if we need to show consent banner FIRST - before any navigation
       if (await _consentService.shouldShowConsentBanner()) {
         // RELEASE: Debug logging disabled
-      // debugPrint('🎯 DEBUG: Showing consent banner FIRST before any screens');
+        // debugPrint('🎯 DEBUG: Showing consent banner FIRST before any screens');
 
         if (mounted) {
           await _showConsentBanner();
@@ -386,7 +390,9 @@ class _SplashScreenState extends State<SplashScreen> {
       // debugPrint('🚀 DEBUG: Navigating to ${completed ? "MainShell" : "OnboardingScreen"}');
 
       // Navigate to the appropriate screen AFTER consent is handled
-      Widget targetScreen = completed ? const MainShell() : const OnboardingScreen();
+      Widget targetScreen = completed
+          ? const MainShell()
+          : const OnboardingScreen();
 
       if (mounted) {
         await Navigator.of(context).pushAndRemoveUntil(
@@ -399,23 +405,25 @@ class _SplashScreenState extends State<SplashScreen> {
       // debugPrint('❌ ERROR during initialization: $e');
       // RELEASE: Debug logging disabled
       // debugPrint('Stack trace: ${StackTrace.current}');
-      
+
       // Log initialization error
       await AnalyticsService().log('splash_screen_error', {
         'error': e.toString(),
       });
-      
+
       // В случае ошибки проверяем онбординг еще раз
       try {
         final prefs = await SharedPreferences.getInstance();
         final completed = prefs.getBool('onboardingCompleted') ?? false;
         // RELEASE: Debug logging disabled
-      // debugPrint('🔄 DEBUG: After error, onboardingCompleted = $completed');
-        
+        // debugPrint('🔄 DEBUG: After error, onboardingCompleted = $completed');
+
         if (mounted) {
           // Если онбординг не пройден - показываем его даже после ошибки
-          Widget fallbackScreen = completed ? const MainShell() : const OnboardingScreen();
-          
+          Widget fallbackScreen = completed
+              ? const MainShell()
+              : const OnboardingScreen();
+
           await Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (_) => fallbackScreen),
             (route) => false,
@@ -423,7 +431,7 @@ class _SplashScreenState extends State<SplashScreen> {
         }
       } catch (fallbackError) {
         // RELEASE: Debug logging disabled
-      // debugPrint('❌ CRITICAL: Fallback navigation failed: $fallbackError');
+        // debugPrint('❌ CRITICAL: Fallback navigation failed: $fallbackError');
         // В крайнем случае показываем MainShell
         if (mounted) {
           await Navigator.of(context).pushAndRemoveUntil(
@@ -461,11 +469,10 @@ class _SplashScreenState extends State<SplashScreen> {
       await AnalyticsService().log('consent_banner_shown', {
         'location': 'app_start',
       });
-
     } catch (e) {
       // RELEASE: Debug logging disabled
       // debugPrint('Error showing consent banner: $e');
-      
+
       // Log consent banner error
       await AnalyticsService().log('consent_banner_error', {
         'error': e.toString(),
@@ -481,11 +488,10 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('💧', style: TextStyle(fontSize: 80))
-                .animate()
-                .scale(duration: 500.ms)
-                .then()
-                .shake(delay: 500.ms),
+            const Text(
+              '💧',
+              style: TextStyle(fontSize: 80),
+            ).animate().scale(duration: 500.ms).then().shake(delay: 500.ms),
             const SizedBox(height: 20),
             const Text(
               'HydroCoach',

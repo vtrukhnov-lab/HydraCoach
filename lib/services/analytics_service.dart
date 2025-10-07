@@ -2,6 +2,7 @@
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hydracoach/utils/app_logger.dart';
 
 import 'devtodev_analytics_service.dart';
 import 'appsflyer_service.dart';
@@ -33,7 +34,7 @@ class AnalyticsService {
       try {
         await backend.initialize();
       } catch (e) {
-        print('Error initializing analytics backend: $e');
+        logger.e('Error initializing analytics backend: $e');
       }
     }
 
@@ -50,52 +51,58 @@ class AnalyticsService {
     try {
       final appsFlyerUID = await _appsFlyer.getAppsFlyerUID();
       if (appsFlyerUID != null) {
-        print('📱 AppsFlyer UID: $appsFlyerUID');
-        print('🔍 Используйте этот ID в SDK Integration Test:');
-        print('   https://dev.appsflyer.com/hc/docs/testing-flutter#sdk-integration-test');
+        logger.d('📱 AppsFlyer UID: $appsFlyerUID');
+        logger.d('🔍 Используйте этот ID в SDK Integration Test:');
+        logger.d(
+          '   https://dev.appsflyer.com/hc/docs/testing-flutter#sdk-integration-test',
+        );
       }
 
       // Для Android также пытаемся получить Advertising ID
       if (defaultTargetPlatform == TargetPlatform.android) {
-        print('💡 Для поиска событий в Raw Data Export:');
-        print('   1. Откройте настройки Android → Google → Реклама');
-        print('   2. Скопируйте Advertising ID (GAID)');
-        print('   3. Используйте его для фильтрации в Raw Data Export');
+        logger.d('💡 Для поиска событий в Raw Data Export:');
+        logger.d('   1. Откройте настройки Android → Google → Реклама');
+        logger.d('   2. Скопируйте Advertising ID (GAID)');
+        logger.d('   3. Используйте его для фильтрации в Raw Data Export');
       }
     } catch (e) {
-      print('❌ Ошибка получения debug IDs: $e');
+      logger.d('❌ Ошибка получения debug IDs: $e');
     }
   }
 
   Future<void> checkAndEnableAppsFlyer() async {
     if (kDebugMode) {
-      print('🔧 НАЧИНАЕМ checkAndEnableAppsFlyer()...');
+      logger.d('🔧 НАЧИНАЕМ checkAndEnableAppsFlyer()...');
     }
 
     try {
       // 🔥 КРИТИЧЕСКАЯ ПОСЛЕДОВАТЕЛЬНОСТЬ для Purchase Connector:
       // 1. initialize() - инициализирует SDK с manualStart: true (НЕ запускает!)
       if (kDebugMode) {
-        print('🔧 Шаг 1: Инициализация AppsFlyer SDK...');
+        logger.d('🔧 Шаг 1: Инициализация AppsFlyer SDK...');
       }
       await _appsFlyer.initialize();
       if (kDebugMode) {
-        print('✅ AppsFlyer инициализирован (но НЕ запущен из-за manualStart: true)');
+        logger.d(
+          '✅ AppsFlyer инициализирован (но НЕ запущен из-за manualStart: true)',
+        );
       }
 
       // 2. startSDK() - запускает SDK ПОСЛЕ обработки согласий пользователя
       if (kDebugMode) {
-        print('🔧 Шаг 2: Запуск AppsFlyer SDK...');
+        logger.d('🔧 Шаг 2: Запуск AppsFlyer SDK...');
       }
       await _appsFlyer.startSDK();
       if (kDebugMode) {
-        print('🚀 AppsFlyer SDK запущен после согласий пользователя');
-        print('✅ КРИТИЧЕСКАЯ ПОСЛЕДОВАТЕЛЬНОСТЬ для Purchase Connector выполнена успешно!');
+        logger.d('🚀 AppsFlyer SDK запущен после согласий пользователя');
+        logger.d(
+          '✅ КРИТИЧЕСКАЯ ПОСЛЕДОВАТЕЛЬНОСТЬ для Purchase Connector выполнена успешно!',
+        );
       }
 
       // 3. Инициализируем Purchase Connector для автоматической генерации af_ars_ событий
       if (kDebugMode) {
-        print('🔧 Шаг 3: Инициализация Purchase Connector...');
+        logger.d('🔧 Шаг 3: Инициализация Purchase Connector...');
       }
 
       // Ждем 1 секунду после запуска SDK (рекомендация AppsFlyer)
@@ -105,30 +112,28 @@ class AnalyticsService {
       await purchaseConnector.initializeAndStart();
 
       if (kDebugMode) {
-        print('🎯 Purchase Connector запущен - события af_ars_ будут генерироваться автоматически');
+        logger.d(
+          '🎯 Purchase Connector запущен - события af_ars_ будут генерироваться автоматически',
+        );
       }
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        print('❌ Error enabling AppsFlyer: $e');
-        print('❌ StackTrace: $stackTrace');
+        logger.d('❌ Error enabling AppsFlyer: $e');
+        logger.d('❌ StackTrace: $stackTrace');
       }
     }
 
     if (kDebugMode) {
-      print('🔧 ЗАВЕРШИЛИ checkAndEnableAppsFlyer()');
+      logger.d('🔧 ЗАВЕРШИЛИ checkAndEnableAppsFlyer()');
     }
   }
 
   Future<void> _setUserId(String? userId) async {
-    await _broadcast(
-      (backend) => backend.setUserId(userId),
-    );
+    await _broadcast((backend) => backend.setUserId(userId));
   }
 
   Future<void> _setUserProperty(String name, String value) async {
-    await _broadcast(
-      (backend) => backend.setUserProperty(name, value),
-    );
+    await _broadcast((backend) => backend.setUserProperty(name, value));
   }
 
   Future<void> _logScreenViewInternal({
@@ -150,10 +155,7 @@ class AnalyticsService {
     Map<String, dynamic>? parameters,
   }) async {
     await _broadcast(
-      (backend) => backend.logEvent(
-        name: name,
-        parameters: parameters,
-      ),
+      (backend) => backend.logEvent(name: name, parameters: parameters),
     );
   }
 
@@ -182,7 +184,7 @@ class AnalyticsService {
     await setDefaultUserProperties();
 
     if (kDebugMode) {
-      print('📊 Analytics Service initialized');
+      logger.d('📊 Analytics Service initialized');
     }
   }
 
@@ -196,7 +198,7 @@ class AnalyticsService {
   }
 
   // ==================== UNIFIED LOGGING ====================
-  
+
   /// Main unified logging method - sends to Firebase Analytics
   Future<void> log(String eventName, [Map<String, dynamic>? parameters]) async {
     // Send to Firebase Analytics
@@ -204,7 +206,7 @@ class AnalyticsService {
   }
 
   // ==================== USER PROPERTIES ====================
-  
+
   /// Set diet mode
   Future<void> setDietMode(String mode) async {
     await _setUserProperty('diet_mode', mode);
@@ -226,7 +228,7 @@ class AnalyticsService {
   }
 
   // ==================== SCREEN VIEW EVENTS ====================
-  
+
   /// Universal method for logging screen views
   Future<void> logScreenView({
     required String screenName,
@@ -238,7 +240,7 @@ class AnalyticsService {
     );
 
     if (kDebugMode) {
-      print('📊 Screen view: $screenName');
+      logger.d('📊 Screen view: $screenName');
     }
   }
 
@@ -250,9 +252,9 @@ class AnalyticsService {
     await _logEventInternal(name: name, parameters: parameters);
 
     if (kDebugMode) {
-      print('📊 Firebase Event: $name');
+      logger.d('📊 Firebase Event: $name');
       if (parameters != null) {
-        print('   Parameters: $parameters');
+        logger.d('   Parameters: $parameters');
       }
     }
   }
@@ -267,7 +269,9 @@ class AnalyticsService {
     required String transactionId,
   }) async {
     // Определяем тип события в зависимости от продукта
-    final eventName = productId.contains('trial') ? 'af_start_trial' : 'af_subscribe';
+    final eventName = productId.contains('trial')
+        ? 'af_start_trial'
+        : 'af_subscribe';
 
     // Отправляем через AppsFlyer SDK для отображения в Live Events
     await _appsFlyer.logEvent(
@@ -294,15 +298,15 @@ class AnalyticsService {
     );
 
     if (kDebugMode) {
-      print('💰 Subscription purchased: $productId');
-      print('   Event: $eventName');
-      print('   Price: $price $currency');
-      print('   Transaction: $transactionId');
+      logger.d('💰 Subscription purchased: $productId');
+      logger.d('   Event: $eventName');
+      logger.d('   Price: $price $currency');
+      logger.d('   Transaction: $transactionId');
     }
   }
 
   // ==================== NOTIFICATION EVENTS ====================
-  
+
   /// Notification scheduled
   Future<void> logNotificationScheduled({
     required String type,
@@ -318,9 +322,11 @@ class AnalyticsService {
         'day_of_week': scheduledTime.weekday,
       },
     );
-    
+
     if (kDebugMode) {
-      print('📊 Event: notification_scheduled - $type at ${scheduledTime.hour}:${scheduledTime.minute}');
+      logger.d(
+        '📊 Event: notification_scheduled - $type at ${scheduledTime.hour}:${scheduledTime.minute}',
+      );
     }
   }
 
@@ -337,9 +343,9 @@ class AnalyticsService {
         'hour': DateTime.now().hour,
       },
     );
-    
+
     if (kDebugMode) {
-      print('📊 Event: notification_sent - $type');
+      logger.d('📊 Event: notification_sent - $type');
     }
   }
 
@@ -350,10 +356,7 @@ class AnalyticsService {
   }) async {
     await logEvent(
       name: 'notification_opened',
-      parameters: {
-        'notification_type': type,
-        'action': action ?? 'none',
-      },
+      parameters: {'notification_type': type, 'action': action ?? 'none'},
     );
   }
 
@@ -378,19 +381,16 @@ class AnalyticsService {
   }) async {
     await logEvent(
       name: 'notification_duplicate',
-      parameters: {
-        'notification_type': type,
-        'duplicate_count': count,
-      },
+      parameters: {'notification_type': type, 'duplicate_count': count},
     );
-    
+
     if (kDebugMode) {
-      print('⚠️ Duplicate notification detected: $type x$count');
+      logger.d('⚠️ Duplicate notification detected: $type x$count');
     }
   }
 
   // ==================== CORE TRACKING EVENTS ====================
-  
+
   /// Log water intake - IMPORTANT EVENT FOR APPSFLYER
   Future<void> logWaterIntake({
     required int amount,
@@ -421,15 +421,10 @@ class AnalyticsService {
   }
 
   /// Log coffee intake
-  Future<void> logCoffeeIntake({
-    required int cups,
-  }) async {
+  Future<void> logCoffeeIntake({required int cups}) async {
     await logEvent(
       name: 'coffee_logged',
-      parameters: {
-        'cups': cups,
-        'hour': DateTime.now().hour,
-      },
+      parameters: {'cups': cups, 'hour': DateTime.now().hour},
     );
   }
 
@@ -449,7 +444,7 @@ class AnalyticsService {
   }
 
   // ==================== GOAL & PROGRESS EVENTS ====================
-  
+
   /// Goal reached - IMPORTANT EVENT FOR APPSFLYER
   Future<void> logGoalReached({
     required String goalType,
@@ -466,9 +461,7 @@ class AnalyticsService {
 
   /// Water goal milestone events - ВАЖНЫЕ СОБЫТИЯ ДЛЯ КОГОРТНОГО АНАЛИЗА
   /// Отправляются ОДИН РАЗ при первом достижении milestone
-  Future<void> logWaterGoalMilestone({
-    required int totalDays,
-  }) async {
+  Future<void> logWaterGoalMilestone({required int totalDays}) async {
     // Определяем название события в зависимости от количества дней
     String eventName;
     switch (totalDays) {
@@ -499,9 +492,7 @@ class AnalyticsService {
 
     await logEvent(
       name: eventName,
-      parameters: {
-        'total_days_with_100_percent': totalDays,
-      },
+      parameters: {'total_days_with_100_percent': totalDays},
     );
   }
 
@@ -523,9 +514,7 @@ class AnalyticsService {
   }
 
   /// Hydration status
-  Future<void> logHydrationStatus({
-    required String status,
-  }) async {
+  Future<void> logHydrationStatus({required String status}) async {
     await logEvent(
       name: 'hydration_status',
       parameters: {
@@ -536,7 +525,7 @@ class AnalyticsService {
   }
 
   // ==================== SUBSCRIPTION EVENTS - CRITICAL FOR APPSFLYER ROI360 ====================
-  
+
   /// Paywall shown
   Future<void> logPaywallShown({
     required String source,
@@ -574,10 +563,7 @@ class AnalyticsService {
   }) async {
     await logEvent(
       name: 'paywall_trial_toggled',
-      parameters: {
-        'source': source,
-        'enabled': enabled ? 'true' : 'false',
-      },
+      parameters: {'source': source, 'enabled': enabled ? 'true' : 'false'},
     );
   }
 
@@ -603,10 +589,7 @@ class AnalyticsService {
   }) async {
     await logEvent(
       name: 'paywall_dismissed',
-      parameters: {
-        'source': source,
-        if (reason != null) 'reason': reason,
-      },
+      parameters: {'source': source, if (reason != null) 'reason': reason},
     );
   }
 
@@ -626,7 +609,6 @@ class AnalyticsService {
     );
   }
 
-
   /// Результат покупки подписки
   Future<void> logSubscriptionPurchaseResult({
     required String product,
@@ -642,21 +624,16 @@ class AnalyticsService {
         'source': source,
         'success': success ? 'true' : 'false',
         'trial_enabled': trialEnabled ? 'true' : 'false',
-        if (error != null && error.isNotEmpty)
-          'error': error.substring(0, 80),
+        if (error != null && error.isNotEmpty) 'error': error.substring(0, 80),
       },
     );
   }
 
   /// Попытка восстановления подписки
-  Future<void> logSubscriptionRestoreAttempt({
-    required String source,
-  }) async {
+  Future<void> logSubscriptionRestoreAttempt({required String source}) async {
     await logEvent(
       name: 'subscription_restore_attempt',
-      parameters: {
-        'source': source,
-      },
+      parameters: {'source': source},
     );
   }
 
@@ -667,17 +644,12 @@ class AnalyticsService {
   }) async {
     await logEvent(
       name: 'subscription_restore_result',
-      parameters: {
-        'source': source,
-        'success': success ? 'true' : 'false',
-      },
+      parameters: {'source': source, 'success': success ? 'true' : 'false'},
     );
   }
 
   /// PRO функция заблокирована
-  Future<void> logProFeatureGate({
-    required String feature,
-  }) async {
+  Future<void> logProFeatureGate({required String feature}) async {
     await logEvent(
       name: 'pro_feature_gate_hit',
       parameters: {
@@ -687,11 +659,9 @@ class AnalyticsService {
   }
 
   // ==================== ENGAGEMENT EVENTS ====================
-  
+
   /// Report viewed
-  Future<void> logReportViewed({
-    required String type,
-  }) async {
+  Future<void> logReportViewed({required String type}) async {
     await logEvent(
       name: 'report_viewed',
       parameters: {
@@ -704,9 +674,7 @@ class AnalyticsService {
   Future<void> logCSVExported() async {
     await logEvent(
       name: 'csv_exported',
-      parameters: {
-        'date': DateTime.now().toIso8601String().split('T')[0],
-      },
+      parameters: {'date': DateTime.now().toIso8601String().split('T')[0]},
     );
   }
 
@@ -717,10 +685,7 @@ class AnalyticsService {
   }) async {
     await logEvent(
       name: 'settings_changed',
-      parameters: {
-        'setting': setting,
-        'value': value.toString(),
-      },
+      parameters: {'setting': setting, 'value': value.toString()},
     );
   }
 
@@ -731,18 +696,15 @@ class AnalyticsService {
   }) async {
     await logEvent(
       name: 'diet_mode_changed',
-      parameters: {
-        'from': from,
-        'to': to,
-      },
+      parameters: {'from': from, 'to': to},
     );
-    
+
     // Also update user property
     await setDietMode(to);
   }
 
   // ==================== ONBOARDING EVENTS ====================
-  
+
   /// Onboarding start
   Future<void> logOnboardingStart() async {
     await logEvent(name: 'onboarding_start');
@@ -776,10 +738,7 @@ class AnalyticsService {
   }) async {
     await logEvent(
       name: 'onboarding_step_completed',
-      parameters: {
-        'step_id': stepId,
-        'step_index': stepIndex,
-      },
+      parameters: {'step_id': stepId, 'step_index': stepIndex},
     );
   }
 
@@ -791,11 +750,7 @@ class AnalyticsService {
   }) async {
     await logEvent(
       name: 'onboarding_option_selected',
-      parameters: {
-        'step_id': stepId,
-        'option': option,
-        'value': value,
-      },
+      parameters: {'step_id': stepId, 'option': option, 'value': value},
     );
   }
 
@@ -809,15 +764,8 @@ class AnalyticsService {
   }
 
   /// Onboarding skip
-  Future<void> logOnboardingSkip({
-    required int step,
-  }) async {
-    await logEvent(
-      name: 'onboarding_skip',
-      parameters: {
-        'step': step,
-      },
-    );
+  Future<void> logOnboardingSkip({required int step}) async {
+    await logEvent(name: 'onboarding_skip', parameters: {'step': step});
   }
 
   /// Сохранение профиля пользователя на финальном шаге онбординга
@@ -845,10 +793,7 @@ class AnalyticsService {
   }) async {
     await logEvent(
       name: 'permission_prompt',
-      parameters: {
-        'permission': permission,
-        'context': context,
-      },
+      parameters: {'permission': permission, 'context': context},
     );
   }
 
@@ -869,34 +814,23 @@ class AnalyticsService {
   }
 
   // ==================== APP LIFECYCLE ====================
-  
+
   /// App opened
   Future<void> logAppOpen() async {
     await logEvent(name: 'app_open');
   }
 
   /// Session
-  Future<void> logSession({
-    required int durationSeconds,
-  }) async {
+  Future<void> logSession({required int durationSeconds}) async {
     await logEvent(
       name: 'session',
-      parameters: {
-        'duration_seconds': durationSeconds,
-      },
+      parameters: {'duration_seconds': durationSeconds},
     );
   }
 
   /// Выбор вкладки нижней навигации
-  Future<void> logNavigationTabSelected({
-    required String tab,
-  }) async {
-    await logEvent(
-      name: 'navigation_tab_selected',
-      parameters: {
-        'tab': tab,
-      },
-    );
+  Future<void> logNavigationTabSelected({required String tab}) async {
+    await logEvent(name: 'navigation_tab_selected', parameters: {'tab': tab});
   }
 
   /// Открытие меню быстрого добавления напитков
@@ -905,7 +839,7 @@ class AnalyticsService {
   }
 
   // ==================== DEBUG HELPERS ====================
-  
+
   /// Test event for verification
   Future<void> logTestEvent() async {
     await logEvent(
@@ -915,9 +849,9 @@ class AnalyticsService {
         'debug': kDebugMode,
       },
     );
-    
+
     if (kDebugMode) {
-      print('📊 Test event sent to Analytics');
+      logger.d('📊 Test event sent to Analytics');
     }
   }
 
@@ -927,7 +861,7 @@ class AnalyticsService {
       (backend) => backend.setAnalyticsCollectionEnabled(enabled),
     );
   }
-  
+
   // ==================== ACHIEVEMENT EVENTS ====================
 
   /// Achievement unlocked
@@ -946,9 +880,9 @@ class AnalyticsService {
         'reward_points': rewardPoints,
       },
     );
-    
+
     if (kDebugMode) {
-      print('📊 Achievement unlocked: $achievementName');
+      logger.d('📊 Achievement unlocked: $achievementName');
     }
   }
 
@@ -960,7 +894,7 @@ class AnalyticsService {
     );
 
     if (kDebugMode) {
-      print('📊 Achievements screen viewed');
+      logger.d('📊 Achievements screen viewed');
     }
   }
 
@@ -980,9 +914,9 @@ class AnalyticsService {
         'is_unlocked': isUnlocked,
       },
     );
-    
+
     if (kDebugMode) {
-      print('📊 Achievement viewed: $achievementName');
+      logger.d('📊 Achievement viewed: $achievementName');
     }
   }
 
@@ -1039,7 +973,7 @@ class _FirebaseAnalyticsBackend implements _AnalyticsBackend {
       await _analytics.setUserId(id: userId);
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Error setting Firebase userId: $error');
+        logger.d('❌ Error setting Firebase userId: $error');
       }
     }
   }
@@ -1050,7 +984,7 @@ class _FirebaseAnalyticsBackend implements _AnalyticsBackend {
       await _analytics.setUserProperty(name: name, value: value);
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Error setting Firebase user property $name: $error');
+        logger.d('❌ Error setting Firebase user property $name: $error');
       }
     }
   }
@@ -1067,7 +1001,7 @@ class _FirebaseAnalyticsBackend implements _AnalyticsBackend {
       );
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Error logging Firebase screen: $screenName ($error)');
+        logger.d('❌ Error logging Firebase screen: $screenName ($error)');
       }
     }
   }
@@ -1082,13 +1016,10 @@ class _FirebaseAnalyticsBackend implements _AnalyticsBackend {
     );
 
     try {
-      await _analytics.logEvent(
-        name: name,
-        parameters: firebaseParams,
-      );
+      await _analytics.logEvent(name: name, parameters: firebaseParams);
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Error logging Firebase event $name: $error');
+        logger.d('❌ Error logging Firebase event $name: $error');
       }
     }
   }
@@ -1099,7 +1030,7 @@ class _FirebaseAnalyticsBackend implements _AnalyticsBackend {
       await _analytics.setAnalyticsCollectionEnabled(enabled);
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Error toggling Firebase analytics collection: $error');
+        logger.d('❌ Error toggling Firebase analytics collection: $error');
       }
     }
   }
@@ -1183,10 +1114,7 @@ class _AppsFlyerAnalyticsBackend implements _AnalyticsBackend {
   }) async {
     await _appsFlyer.logEvent(
       eventName: 'screen_view',
-      eventValues: {
-        'screen_name': screenName,
-        'screen_class': screenClass,
-      },
+      eventValues: {'screen_name': screenName, 'screen_class': screenClass},
     );
   }
 

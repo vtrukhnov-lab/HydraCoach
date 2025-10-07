@@ -1,6 +1,6 @@
 // ============================================================================
 // FILE: lib/providers/hydration_provider.dart
-// 
+//
 // PURPOSE: Provider for hydration tracking and goals management
 // UPDATED: Added workout losses integration with HRIService + HistoryService integration
 // ============================================================================
@@ -32,16 +32,10 @@ import '../data/catalog_item.dart'; // Added for CatalogItem
 import '../widgets/home/sugar_intake_card.dart'; // Added for SugarIntakeData
 import '../services/achievement_tracker.dart';
 import '../services/water_milestone_tracker.dart';
-
-
+import '../utils/app_logger.dart';
 
 // Internal status enum for logic (not exposed to UI)
-enum _HydrationStatusInternal {
-  normal,
-  diluted,
-  dehydrated,
-  lowSalt,
-}
+enum _HydrationStatusInternal { normal, diluted, dehydrated, lowSalt }
 
 class HydrationProvider extends ChangeNotifier {
   double weight = 70;
@@ -50,23 +44,23 @@ class HydrationProvider extends ChangeNotifier {
   int dailyCaloriesGoal = 2000; // Цель по калориям на основе веса
   List<Intake> todayIntakes = [];
   List<FoodIntake> todayFoodIntakes = [];
-  
+
   double weatherWaterAdjustment = 0;
   int weatherSodiumAdjustment = 0;
-  
+
   // Alcohol adjustments
   double alcoholWaterAdjustment = 0;
   int alcoholSodiumAdjustment = 0;
-  
+
   // NEW: Workout adjustments from HRIService
   double workoutWaterAdjustment = 0;
   int workoutSodiumAdjustment = 0;
   int workoutPotassiumAdjustment = 0;
   int workoutMagnesiumAdjustment = 0;
-  
+
   // Track last reschedule time to prevent too frequent updates
   DateTime? _lastRescheduleTime;
-  
+
   // Store BuildContext for AchievementService
   BuildContext? _context;
 
@@ -77,7 +71,7 @@ class HydrationProvider extends ChangeNotifier {
 
   final RemoteConfigService _remoteConfig = RemoteConfigService.instance;
   final AnalyticsService _analytics = AnalyticsService();
-  
+
   HydrationProvider() {
     _calculateGoals();
     _achievementTracker.initialize();
@@ -85,7 +79,7 @@ class HydrationProvider extends ChangeNotifier {
     _checkAndResetDaily();
     _subscribeFCMTopics();
   }
-  
+
   // Set context for AchievementService
   void setContext(BuildContext context) {
     _context = context;
@@ -109,28 +103,28 @@ class HydrationProvider extends ChangeNotifier {
   // NEW: Get workout losses from HRIService and update goals
   Future<void> syncWithHRIService(HRIService hriService) async {
     final losses = hriService.getTodaysWorkoutLosses();
-    print('=== SYNC DEBUG ===');
-    print('Losses from HRI: ${losses['water']} ml');
-    print('Old water goal: ${goals.waterOpt}');
-    
+    logger.d('=== SYNC DEBUG ===');
+    logger.d('Losses from HRI: ${losses['water']} ml');
+    logger.d('Old water goal: ${goals.waterOpt}');
+
     // ИСПРАВЛЕНО: обновляем adjustments напрямую
     workoutWaterAdjustment = losses['water']!.toDouble();
     workoutSodiumAdjustment = losses['sodium']!;
     workoutPotassiumAdjustment = losses['potassium']!;
     workoutMagnesiumAdjustment = losses['magnesium']!;
-    
+
     // КРИТИЧНО: пересчитать цели после обновления adjustments
     _calculateGoals();
-    
-    print('New water goal: ${goals.waterOpt}');
-    print('=================');
-    
+
+    logger.d('New water goal: ${goals.waterOpt}');
+    logger.d('=================');
+
     // КРИТИЧНО: уведомить слушателей об изменениях
     notifyListeners();
   }
-  
+
   // ============ SUGAR INTAKE METHODS (UPDATED) ============
-  
+
   /// Calculate sugar intake data for today including alcohol
   SugarIntakeData getSugarIntakeData(BuildContext context) {
     double totalSugar = 0;
@@ -160,107 +154,121 @@ class HydrationProvider extends ChangeNotifier {
       } else {
         // Fallback to calculating sugar based on intake type (legacy)
 
-      // Calculate sugar based on intake type
-      switch (intake.type) {
-        case 'juice':
-          // Natural sugar from juice ~12g/100ml
-          sugarGrams = (intake.volume / 100) * (_remoteConfig.getDouble('sugar_juice_per_100ml') ?? 12.0);
-          category = 'drinks';
-          isNatural = true;
-          bySource['juice'] = (bySource['juice'] ?? 0) + sugarGrams;
-          break;
-          
-        case 'soda':
-          // Added sugar from soda ~10g/100ml
-          sugarGrams = (intake.volume / 100) * (_remoteConfig.getDouble('sugar_soda_per_100ml') ?? 10.0);
-          category = 'drinks';
-          bySource['soda'] = (bySource['soda'] ?? 0) + sugarGrams;
-          break;
-          
-        case 'energy':
-          // Added sugar from energy drinks ~11g/100ml
-          sugarGrams = (intake.volume / 100) * (_remoteConfig.getDouble('sugar_energy_per_100ml') ?? 11.0);
-          category = 'drinks';
-          bySource['energy'] = (bySource['energy'] ?? 0) + sugarGrams;
-          break;
-          
-        case 'sports_drink':
-          // Added sugar from sports drinks ~6g/100ml
-          sugarGrams = (intake.volume / 100) * (_remoteConfig.getDouble('sugar_sports_per_100ml') ?? 6.0);
-          category = 'drinks';
-          bySource['sports'] = (bySource['sports'] ?? 0) + sugarGrams;
-          break;
-          
-        case 'coffee_latte':
-        case 'coffee_cappuccino':
-        case 'coffee_flat_white':
-          // Milk sugar (natural) ~5g + possible syrup
-          double milkSugar = _remoteConfig.getDouble('sugar_coffee_milk_base') ?? 5.0;
-          // For now, assume no syrup unless we track it separately
-          sugarGrams = milkSugar;
-          category = 'drinks';
-          isNatural = true;
-          bySource['coffee'] = (bySource['coffee'] ?? 0) + sugarGrams;
-          break;
-          
-        case 'tea_sweet':
-          // Sweet tea - added sugar
-          sugarGrams = _remoteConfig.getDouble('sugar_sweet_tea') ?? 8.0;
-          category = 'drinks';
-          bySource['tea'] = (bySource['tea'] ?? 0) + sugarGrams;
-          break;
-          
-        case 'smoothie':
-          // Natural sugar from fruits in smoothie
-          sugarGrams = (intake.volume / 250) * (_remoteConfig.getDouble('sugar_smoothie_per_250ml') ?? 20.0);
-          category = 'drinks';
-          isNatural = true;
-          bySource['smoothie'] = (bySource['smoothie'] ?? 0) + sugarGrams;
-          break;
-          
-        case 'protein_shake':
-          // May contain added sugar
-          sugarGrams = _remoteConfig.getDouble('sugar_protein_shake') ?? 5.0;
-          category = 'drinks';
-          bySource['protein'] = (bySource['protein'] ?? 0) + sugarGrams;
-          break;
-          
-        case 'kombucha':
-          // Mix of natural and added sugar
-          sugarGrams = (intake.volume / 100) * (_remoteConfig.getDouble('sugar_kombucha_per_100ml') ?? 3.0);
-          category = 'drinks';
-          isNatural = true;
-          bySource['kombucha'] = (bySource['kombucha'] ?? 0) + sugarGrams;
-          break;
-          
-        // Skip old alcohol cases as alcohol is now tracked separately
-        case 'alcohol_beer':
-        case 'alcohol_wine':
-        case 'alcohol_cocktail':
-          continue;
-          
-        // For food items, we would need metadata or additional tracking
-        // For now, we'll estimate based on common values
-        case 'snack':
-          // Estimate for typical snack
-          sugarGrams = _remoteConfig.getDouble('sugar_snack_average') ?? 10.0;
-          category = 'snacks';
-          bySource['snack'] = (bySource['snack'] ?? 0) + sugarGrams;
-          break;
-          
-        case 'meal':
-          // Hidden sugars in meals (sauces, etc.)
-          sugarGrams = _remoteConfig.getDouble('sugar_meal_hidden') ?? 5.0;
-          category = 'food';
-          isHidden = true;
-          bySource['meal'] = (bySource['meal'] ?? 0) + sugarGrams;
-          break;
-      }
+        // Calculate sugar based on intake type
+        switch (intake.type) {
+          case 'juice':
+            // Natural sugar from juice ~12g/100ml
+            sugarGrams =
+                (intake.volume / 100) *
+                (_remoteConfig.getDouble('sugar_juice_per_100ml'));
+            category = 'drinks';
+            isNatural = true;
+            bySource['juice'] = (bySource['juice'] ?? 0) + sugarGrams;
+            break;
+
+          case 'soda':
+            // Added sugar from soda ~10g/100ml
+            sugarGrams =
+                (intake.volume / 100) *
+                (_remoteConfig.getDouble('sugar_soda_per_100ml'));
+            category = 'drinks';
+            bySource['soda'] = (bySource['soda'] ?? 0) + sugarGrams;
+            break;
+
+          case 'energy':
+            // Added sugar from energy drinks ~11g/100ml
+            sugarGrams =
+                (intake.volume / 100) *
+                (_remoteConfig.getDouble('sugar_energy_per_100ml'));
+            category = 'drinks';
+            bySource['energy'] = (bySource['energy'] ?? 0) + sugarGrams;
+            break;
+
+          case 'sports_drink':
+            // Added sugar from sports drinks ~6g/100ml
+            sugarGrams =
+                (intake.volume / 100) *
+                (_remoteConfig.getDouble('sugar_sports_per_100ml'));
+            category = 'drinks';
+            bySource['sports'] = (bySource['sports'] ?? 0) + sugarGrams;
+            break;
+
+          case 'coffee_latte':
+          case 'coffee_cappuccino':
+          case 'coffee_flat_white':
+            // Milk sugar (natural) ~5g + possible syrup
+            double milkSugar = _remoteConfig.getDouble(
+              'sugar_coffee_milk_base',
+            );
+            // For now, assume no syrup unless we track it separately
+            sugarGrams = milkSugar;
+            category = 'drinks';
+            isNatural = true;
+            bySource['coffee'] = (bySource['coffee'] ?? 0) + sugarGrams;
+            break;
+
+          case 'tea_sweet':
+            // Sweet tea - added sugar
+            sugarGrams = _remoteConfig.getDouble('sugar_sweet_tea');
+            category = 'drinks';
+            bySource['tea'] = (bySource['tea'] ?? 0) + sugarGrams;
+            break;
+
+          case 'smoothie':
+            // Natural sugar from fruits in smoothie
+            sugarGrams =
+                (intake.volume / 250) *
+                (_remoteConfig.getDouble('sugar_smoothie_per_250ml'));
+            category = 'drinks';
+            isNatural = true;
+            bySource['smoothie'] = (bySource['smoothie'] ?? 0) + sugarGrams;
+            break;
+
+          case 'protein_shake':
+            // May contain added sugar
+            sugarGrams = _remoteConfig.getDouble('sugar_protein_shake');
+            category = 'drinks';
+            bySource['protein'] = (bySource['protein'] ?? 0) + sugarGrams;
+            break;
+
+          case 'kombucha':
+            // Mix of natural and added sugar
+            sugarGrams =
+                (intake.volume / 100) *
+                (_remoteConfig.getDouble('sugar_kombucha_per_100ml'));
+            category = 'drinks';
+            isNatural = true;
+            bySource['kombucha'] = (bySource['kombucha'] ?? 0) + sugarGrams;
+            break;
+
+          // Skip old alcohol cases as alcohol is now tracked separately
+          case 'alcohol_beer':
+          case 'alcohol_wine':
+          case 'alcohol_cocktail':
+            continue;
+
+          // For food items, we would need metadata or additional tracking
+          // For now, we'll estimate based on common values
+          case 'snack':
+            // Estimate for typical snack
+            sugarGrams = _remoteConfig.getDouble('sugar_snack_average');
+            category = 'snacks';
+            bySource['snack'] = (bySource['snack'] ?? 0) + sugarGrams;
+            break;
+
+          case 'meal':
+            // Hidden sugars in meals (sauces, etc.)
+            sugarGrams = _remoteConfig.getDouble('sugar_meal_hidden');
+            category = 'food';
+            isHidden = true;
+            bySource['meal'] = (bySource['meal'] ?? 0) + sugarGrams;
+            break;
+        }
       } // End else block for legacy calculation
 
       // Sum up by categories
       totalSugar += sugarGrams;
-      
+
       if (isNatural) {
         naturalSugar += sugarGrams;
       } else if (isHidden) {
@@ -268,7 +276,7 @@ class HydrationProvider extends ChangeNotifier {
       } else if (sugarGrams > 0) {
         addedSugar += sugarGrams;
       }
-      
+
       switch (category) {
         case 'drinks':
           drinksGrams += sugarGrams;
@@ -281,15 +289,18 @@ class HydrationProvider extends ChangeNotifier {
           break;
       }
     }
-    
+
     // NEW: Add sugar from alcoholic drinks
     try {
-      final alcoholService = Provider.of<AlcoholService>(context, listen: false);
+      final alcoholService = Provider.of<AlcoholService>(
+        context,
+        listen: false,
+      );
       final alcoholIntakes = alcoholService.todayIntakes;
-      
+
       for (final intake in alcoholIntakes) {
         double sugarGrams = 0;
-        
+
         // Use the sugar value if explicitly set, otherwise use default
         if (intake.sugar != null) {
           sugarGrams = intake.sugar!;
@@ -297,16 +308,16 @@ class HydrationProvider extends ChangeNotifier {
           // Use getSugarContent() method from updated AlcoholIntake model
           sugarGrams = intake.getSugarContent();
         }
-        
+
         if (sugarGrams > 0) {
           // Alcohol sugar is considered "hidden"
           totalSugar += sugarGrams;
           hiddenSugar += sugarGrams;
           drinksGrams += sugarGrams;
-          
+
           // Add to sources
           bySource['alcohol'] = (bySource['alcohol'] ?? 0) + sugarGrams;
-          
+
           // Detailed breakdown by alcohol type
           switch (intake.type) {
             case AlcoholType.beer:
@@ -326,7 +337,7 @@ class HydrationProvider extends ChangeNotifier {
       }
     } catch (e) {
       // If AlcoholService is not available or error occurred
-      print('Could not get alcohol sugar data: $e');
+      logger.e('Could not get alcohol sugar data: $e');
     }
 
     // NEW: Add sugar from food intakes
@@ -378,66 +389,69 @@ class HydrationProvider extends ChangeNotifier {
 
     // Natural sugars from fruits, milk, etc.
     return name.contains('fruit') ||
-           name.contains('milk') ||
-           name.contains('apple') ||
-           name.contains('orange') ||
-           type.contains('juice') ||
-           type.contains('smoothie') ||
-           type.contains('kombucha');
+        name.contains('milk') ||
+        name.contains('apple') ||
+        name.contains('orange') ||
+        type.contains('juice') ||
+        type.contains('smoothie') ||
+        type.contains('kombucha');
   }
 
   /// Get sugar impact on HRI (updated to use context)
   double getSugarHRIImpact(BuildContext context) {
     final sugarData = getSugarIntakeData(context);
-    final threshold = _remoteConfig.getDouble('sugar_hri_threshold_grams') ?? 50.0;
-    final multiplier = _remoteConfig.getDouble('sugar_hri_multiplier') ?? 0.2;
-    
+    final threshold = _remoteConfig.getDouble('sugar_hri_threshold_grams');
+    final multiplier = _remoteConfig.getDouble('sugar_hri_multiplier');
+
     if (sugarData.totalGrams <= threshold) return 0;
-    
+
     final excess = sugarData.totalGrams - threshold;
     return (excess * multiplier).clamp(0, 10);
   }
-  
+
   /// Check if sugar intake is high for notifications (updated to use context)
   bool isSugarIntakeHigh(BuildContext context) {
     final sugarData = getSugarIntakeData(context);
-    final warningThreshold = _remoteConfig.getDouble('sugar_warning_threshold_grams') ?? 50.0;
-    
+    final warningThreshold = _remoteConfig.getDouble(
+      'sugar_warning_threshold_grams',
+    );
+
     return sugarData.totalGrams > warningThreshold;
   }
-  
+
   /// Get sugar reduction tips
   List<String> getSugarReductionTips(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final sugarData = getSugarIntakeData(context);
     List<String> tips = [];
-    
+
     if (sugarData.drinksGrams > 20) {
       tips.add(l10n.tip_reduce_sweet_drinks);
     }
-    
+
     if (sugarData.addedSugarGrams > 25) {
       tips.add(l10n.tip_avoid_added_sugar);
     }
-    
+
     if (sugarData.hiddenSugarGrams > 10) {
       tips.add(l10n.tip_check_labels);
     }
-    
+
     if (sugarData.bySource['soda'] != null && sugarData.bySource['soda']! > 0) {
       tips.add(l10n.tip_replace_soda);
     }
-    
+
     // New tip for alcohol sugar
-    if (sugarData.bySource['alcohol'] != null && sugarData.bySource['alcohol']! > 15) {
+    if (sugarData.bySource['alcohol'] != null &&
+        sugarData.bySource['alcohol']! > 15) {
       tips.add('Consider lower-sugar alcohol options like spirits or dry wine');
     }
-    
+
     return tips;
   }
-  
+
   // ============ HRI SERVICE INTEGRATION ============
-  
+
   // Log workout with proper loss tracking
   Future<void> logWorkout({
     required String type,
@@ -447,13 +461,15 @@ class HydrationProvider extends ChangeNotifier {
     String? name,
     String? emoji,
   }) async {
-    print('=== LOGWORKOUT DEBUG ===');
-    print('Logging workout: $type, $intensity, ${durationMinutes}min, weight: $weight');
-    print('Item: ${item?.id}');
-    
+    logger.d('=== LOGWORKOUT DEBUG ===');
+    logger.d(
+      'Logging workout: $type, $intensity, ${durationMinutes}min, weight: $weight',
+    );
+    logger.d('Item: ${item?.id}');
+
     // ИСПРАВЛЕНО: используем Provider.of для получения существующего HRIService
     final hriService = Provider.of<HRIService>(_context!, listen: false);
-    
+
     // Add workout with full loss calculations
     await hriService.addWorkout(
       type: type,
@@ -464,27 +480,27 @@ class HydrationProvider extends ChangeNotifier {
       name: name,
       emoji: emoji,
     );
-    
+
     // NEW: Sync workout losses back to goals
     await syncWithHRIService(hriService);
-    
+
     notifyListeners();
   }
-  
+
   // Log caffeine
   Future<void> logCoffeeIntake(int caffeineMg) async {
     final hriService = HRIService();
     await hriService.addCoffeeIntake(caffeineMg);
     notifyListeners();
   }
-  
+
   // Log alcohol through HRI
   Future<void> logAlcoholIntake(double standardDrinks) async {
     final hriService = HRIService();
     await hriService.addAlcoholIntake(standardDrinks);
     notifyListeners();
   }
-  
+
   // Update HRI with full data (updated to include sugar)
   Future<void> updateHRI({
     required BuildContext context,
@@ -496,16 +512,16 @@ class HydrationProvider extends ChangeNotifier {
     int totalSodium = 0;
     int totalPotassium = 0;
     int totalMagnesium = 0;
-    
+
     for (var intake in todayIntakes) {
       totalSodium += intake.sodium;
       totalPotassium += intake.potassium;
       totalMagnesium += intake.magnesium;
     }
-    
+
     // Get sugar intake for HRI
     final sugarData = getSugarIntakeData(context);
-    
+
     // Call full HRI calculation
     await hriService.calculateHRI(
       waterIntake: totalWaterToday,
@@ -522,17 +538,23 @@ class HydrationProvider extends ChangeNotifier {
       userWeightKg: weight,
       // NEW: Add food data
       foodWaterContent: totalWaterFromFoodToday,
-      foodSodiumIntake: todayFoodIntakes.fold(0.0, (sum, food) => sum + food.sodium),
+      foodSodiumIntake: todayFoodIntakes.fold(
+        0.0,
+        (sum, food) => sum + food.sodium,
+      ),
       foodCount: todayFoodIntakes.length,
-      foodSugarIntake: todayFoodIntakes.fold(0.0, (sum, food) => sum + food.sugar),
+      foodSugarIntake: todayFoodIntakes.fold(
+        0.0,
+        (sum, food) => sum + food.sugar,
+      ),
     );
 
     // NEW: Sync workout losses back to update goals
     await syncWithHRIService(hriService);
   }
-  
+
   // ============ GETTERS ============
-  
+
   double get totalWaterToday {
     double total = 0;
     for (var intake in todayIntakes) {
@@ -544,7 +566,7 @@ class HydrationProvider extends ChangeNotifier {
     }
     return total;
   }
-  
+
   int get totalSodiumToday {
     int total = 0;
     for (var intake in todayIntakes) {
@@ -552,7 +574,7 @@ class HydrationProvider extends ChangeNotifier {
     }
     return total;
   }
-  
+
   int get totalPotassiumToday {
     int total = 0;
     for (var intake in todayIntakes) {
@@ -560,7 +582,7 @@ class HydrationProvider extends ChangeNotifier {
     }
     return total;
   }
-  
+
   int get totalMagnesiumToday {
     int total = 0;
     for (var intake in todayIntakes) {
@@ -568,165 +590,174 @@ class HydrationProvider extends ChangeNotifier {
     }
     return total;
   }
-  
+
   int get coffeeCupsToday {
     return todayIntakes.where((intake) => intake.type == 'coffee').length;
   }
-  
+
   DateTime? get lastIntakeTime {
     if (todayIntakes.isEmpty) return null;
     return todayIntakes.last.timestamp;
   }
-  
+
   // ============ CORE METHODS ============
-  
+
   void _subscribeFCMTopics() async {
     final messaging = FirebaseMessaging.instance;
     await messaging.subscribeToTopic('all_users');
-    
+
     if (dietMode == 'keto') {
       await messaging.subscribeToTopic('keto_users');
     } else if (dietMode == 'fasting') {
       await messaging.subscribeToTopic('fasting_users');
     }
-    
+
     await messaging.subscribeToTopic('weather_alerts');
   }
-  
+
   void _calculateGoals() {
-  // 🔥 УПРОЩЕНО: Используем константы из ТЗ вместо Remote Config
+    // 🔥 УПРОЩЕНО: Используем константы из ТЗ вместо Remote Config
 
-  // Константы формул воды (мл на кг веса) - из ТЗ
-  const double waterMinPerKg = 22.0;
-  const double waterOptPerKg = 30.0;
-  const double waterMaxPerKg = 36.0;
+    // Константы формул воды (мл на кг веса) - из ТЗ
+    const double waterMinPerKg = 22.0;
+    const double waterOptPerKg = 30.0;
+    const double waterMaxPerKg = 36.0;
 
-  // Константы электролитов (мг в день) - из ТЗ
-  const int sodiumNormal = 2500;
-  const int sodiumKeto = 3500;
-  const int potassiumNormal = 3000;
-  const int potassiumKeto = 3500;
-  const int magnesiumNormal = 350;
-  const int magnesiumKeto = 400;
+    // Константы электролитов (мг в день) - из ТЗ
+    const int sodiumNormal = 2500;
+    const int sodiumKeto = 3500;
+    const int potassiumNormal = 3000;
+    const int potassiumKeto = 3500;
+    const int magnesiumNormal = 350;
+    const int magnesiumKeto = 400;
 
-  // Безопасная проверка веса
-  final double safeWeight = weight > 0 ? weight : 70.0;
+    // Безопасная проверка веса
+    final double safeWeight = weight > 0 ? weight : 70.0;
 
-  // Расчет цели по калориям (25 ккал на кг веса)
-  dailyCaloriesGoal = (25 * safeWeight).round();
-  
-  // Базовые цели воды
-  int baseWaterMin = (waterMinPerKg * safeWeight).round();
-  int baseWaterOpt = (waterOptPerKg * safeWeight).round();
-  int baseWaterMax = (waterMaxPerKg * safeWeight).round();
-  
-  // Отладочная информация
-  print('=== GOALS CALCULATION DEBUG ===');
-  print('Weight: $safeWeight kg');
-  print('Base goals: min=$baseWaterMin, opt=$baseWaterOpt, max=$baseWaterMax ml');
-  
-  // Start with base values
-  int waterMin = baseWaterMin;
-  int waterOpt = baseWaterOpt;
-  int waterMax = baseWaterMax;
-  
-  // Apply weather correction (percentage increase from BASE)
-  if (weatherWaterAdjustment > 0) {
-    waterMin = (baseWaterMin * (1 + weatherWaterAdjustment)).round();
-    waterOpt = (baseWaterOpt * (1 + weatherWaterAdjustment)).round();
-    waterMax = (baseWaterMax * (1 + weatherWaterAdjustment)).round();
-    print('After weather adjustment (+${(weatherWaterAdjustment*100).toInt()}%): opt=$waterOpt ml');
+    // Расчет цели по калориям (25 ккал на кг веса)
+    dailyCaloriesGoal = (25 * safeWeight).round();
+
+    // Базовые цели воды
+    int baseWaterMin = (waterMinPerKg * safeWeight).round();
+    int baseWaterOpt = (waterOptPerKg * safeWeight).round();
+    int baseWaterMax = (waterMaxPerKg * safeWeight).round();
+
+    // Отладочная информация
+    logger.d('=== GOALS CALCULATION DEBUG ===');
+    logger.d('Weight: $safeWeight kg');
+    logger.d(
+      'Base goals: min=$baseWaterMin, opt=$baseWaterOpt, max=$baseWaterMax ml',
+    );
+
+    // Start with base values
+    int waterMin = baseWaterMin;
+    int waterOpt = baseWaterOpt;
+    int waterMax = baseWaterMax;
+
+    // Apply weather correction (percentage increase from BASE)
+    if (weatherWaterAdjustment > 0) {
+      waterMin = (baseWaterMin * (1 + weatherWaterAdjustment)).round();
+      waterOpt = (baseWaterOpt * (1 + weatherWaterAdjustment)).round();
+      waterMax = (baseWaterMax * (1 + weatherWaterAdjustment)).round();
+      logger.d(
+        'After weather adjustment (+${(weatherWaterAdjustment * 100).toInt()}%): opt=$waterOpt ml',
+      );
+    }
+
+    // Apply alcohol correction (addition to already corrected values)
+    if (alcoholWaterAdjustment > 0) {
+      waterMin += alcoholWaterAdjustment.round();
+      waterOpt += alcoholWaterAdjustment.round();
+      waterMax += alcoholWaterAdjustment.round();
+      logger.d(
+        'After alcohol adjustment (+${alcoholWaterAdjustment.round()} ml): opt=$waterOpt ml',
+      );
+    }
+
+    // Apply workout correction (addition to already corrected values)
+    if (workoutWaterAdjustment > 0) {
+      waterMin += workoutWaterAdjustment.round();
+      waterOpt += workoutWaterAdjustment.round();
+      waterMax += workoutWaterAdjustment.round();
+      logger.d(
+        'After workout adjustment (+${workoutWaterAdjustment.round()} ml): opt=$waterOpt ml',
+      );
+    }
+
+    // Базовые электролиты по режиму питания
+    int baseSodium = (dietMode == 'keto' || dietMode == 'fasting')
+        ? sodiumKeto
+        : sodiumNormal;
+
+    int basePotassium = (dietMode == 'keto' || dietMode == 'fasting')
+        ? potassiumKeto
+        : potassiumNormal;
+
+    int baseMagnesium = (dietMode == 'keto' || dietMode == 'fasting')
+        ? magnesiumKeto
+        : magnesiumNormal;
+
+    // Start with base values
+    int sodium = baseSodium;
+    int potassium = basePotassium;
+    int magnesium = baseMagnesium;
+
+    // Add weather salt correction
+    sodium += weatherSodiumAdjustment;
+
+    // Add alcohol salt correction
+    sodium += alcoholSodiumAdjustment;
+
+    // Add workout corrections
+    sodium += workoutSodiumAdjustment;
+    potassium += workoutPotassiumAdjustment;
+    magnesium += workoutMagnesiumAdjustment;
+
+    logger.d('Electrolytes: Na=$sodium, K=$potassium, Mg=$magnesium mg');
+
+    // Create final goals
+    goals = DailyGoals(
+      waterMin: waterMin,
+      waterOpt: waterOpt,
+      waterMax: waterMax,
+      sodium: sodium,
+      potassium: potassium,
+      magnesium: magnesium,
+    );
+
+    logger.d('Final water goal: ${goals.waterOpt} ml');
+    logger.d('==============================');
+
+    // Update water progress cache whenever goals change
+    _updateWaterProgressCache();
+
+    // Сохраняем цели дня в Firestore для истории
+    _saveDailyGoals();
   }
-  
-  // Apply alcohol correction (addition to already corrected values)
-  if (alcoholWaterAdjustment > 0) {
-    waterMin += alcoholWaterAdjustment.round();
-    waterOpt += alcoholWaterAdjustment.round();
-    waterMax += alcoholWaterAdjustment.round();
-    print('After alcohol adjustment (+${alcoholWaterAdjustment.round()} ml): opt=$waterOpt ml');
-  }
 
-  // Apply workout correction (addition to already corrected values)
-  if (workoutWaterAdjustment > 0) {
-    waterMin += workoutWaterAdjustment.round();
-    waterOpt += workoutWaterAdjustment.round();
-    waterMax += workoutWaterAdjustment.round();
-    print('After workout adjustment (+${workoutWaterAdjustment.round()} ml): opt=$waterOpt ml');
-  }
-  
-  // Базовые электролиты по режиму питания
-  int baseSodium = (dietMode == 'keto' || dietMode == 'fasting') 
-      ? sodiumKeto 
-      : sodiumNormal;
-      
-  int basePotassium = (dietMode == 'keto' || dietMode == 'fasting') 
-      ? potassiumKeto 
-      : potassiumNormal;
-      
-  int baseMagnesium = (dietMode == 'keto' || dietMode == 'fasting') 
-      ? magnesiumKeto 
-      : magnesiumNormal;
-  
-  // Start with base values
-  int sodium = baseSodium;
-  int potassium = basePotassium;
-  int magnesium = baseMagnesium;
-  
-  // Add weather salt correction
-  sodium += weatherSodiumAdjustment;
-  
-  // Add alcohol salt correction
-  sodium += alcoholSodiumAdjustment;
-
-  // Add workout corrections
-  sodium += workoutSodiumAdjustment;
-  potassium += workoutPotassiumAdjustment;
-  magnesium += workoutMagnesiumAdjustment;
-  
-  print('Electrolytes: Na=$sodium, K=$potassium, Mg=$magnesium mg');
-  
-  // Create final goals
-  goals = DailyGoals(
-    waterMin: waterMin,
-    waterOpt: waterOpt,
-    waterMax: waterMax,
-    sodium: sodium,
-    potassium: potassium,
-    magnesium: magnesium,
-  );
-  
-  print('Final water goal: ${goals.waterOpt} ml');
-  print('==============================');
-  
-  // Update water progress cache whenever goals change
-  _updateWaterProgressCache();
-  
-  // Сохраняем цели дня в Firestore для истории
-  _saveDailyGoals();
-}
-  
   void updateAlcoholAdjustments(double waterAdjustment, int sodiumAdjustment) {
     alcoholWaterAdjustment = waterAdjustment;
     alcoholSodiumAdjustment = sodiumAdjustment;
     _calculateGoals();
     notifyListeners();
   }
-  
+
   void updateWeatherAdjustments(double waterAdjustment, int sodiumAdjustment) {
     weatherWaterAdjustment = waterAdjustment;
     weatherSodiumAdjustment = sodiumAdjustment;
     _calculateGoals();
     notifyListeners();
   }
-  
+
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
     weight = prefs.getDouble('weight') ?? 70;
     dietMode = prefs.getString('dietMode') ?? 'normal';
     activityLevel = prefs.getString('activityLevel') ?? 'medium';
     dailyCaloriesGoal = prefs.getInt('dailyCaloriesGoal') ?? 2000;
-    
-    final todayKey = 'intakes_${DateTime.now().toIso8601String().split('T')[0]}';
+
+    final todayKey =
+        'intakes_${DateTime.now().toIso8601String().split('T')[0]}';
     final intakesJson = prefs.getStringList(todayKey) ?? [];
 
     todayIntakes = intakesJson.map((json) {
@@ -746,41 +777,46 @@ class HydrationProvider extends ChangeNotifier {
     }).toList();
 
     // Load food intakes
-    final todayFoodKey = 'food_intakes_${DateTime.now().toIso8601String().split('T')[0]}';
+    final todayFoodKey =
+        'food_intakes_${DateTime.now().toIso8601String().split('T')[0]}';
     final foodIntakesJson = prefs.getStringList(todayFoodKey) ?? [];
 
-    todayFoodIntakes = foodIntakesJson.map((json) {
-      try {
-        final data = json.split('|');
-        return FoodIntake(
-          id: data[0],
-          timestamp: DateTime.parse(data[1]),
-          foodId: data[2],
-          foodName: data[3],
-          weight: double.parse(data[4]),
-          calories: int.parse(data[5]),
-          waterContent: double.parse(data[6]),
-          sodium: int.parse(data[7]),
-          potassium: int.parse(data[8]),
-          magnesium: int.parse(data[9]),
-          sugar: double.parse(data[10]),
-          hasCaffeine: data[11] == 'true',
-          emoji: data.length > 12 && data[12].isNotEmpty ? data[12] : null,
-        );
-      } catch (e) {
-        print('Error parsing food intake: $e');
-        return null;
-      }
-    }).where((intake) => intake != null).cast<FoodIntake>().toList();
-    
+    todayFoodIntakes = foodIntakesJson
+        .map((json) {
+          try {
+            final data = json.split('|');
+            return FoodIntake(
+              id: data[0],
+              timestamp: DateTime.parse(data[1]),
+              foodId: data[2],
+              foodName: data[3],
+              weight: double.parse(data[4]),
+              calories: int.parse(data[5]),
+              waterContent: double.parse(data[6]),
+              sodium: int.parse(data[7]),
+              potassium: int.parse(data[8]),
+              magnesium: int.parse(data[9]),
+              sugar: double.parse(data[10]),
+              hasCaffeine: data[11] == 'true',
+              emoji: data.length > 12 && data[12].isNotEmpty ? data[12] : null,
+            );
+          } catch (e) {
+            logger.e('Error parsing food intake: $e');
+            return null;
+          }
+        })
+        .where((intake) => intake != null)
+        .cast<FoodIntake>()
+        .toList();
+
     _calculateGoals();
-    
+
     // Update water progress cache after loading data
     await _updateWaterProgressCache();
-    
+
     notifyListeners();
   }
-  
+
   // Сохранение целей дня в Firestore
   Future<void> _saveDailyGoals() async {
     try {
@@ -795,56 +831,59 @@ class HydrationProvider extends ChangeNotifier {
         magnesium: goals.magnesium,
       );
     } catch (e) {
-      print('Error saving daily goals: $e');
+      logger.e('Error saving daily goals: $e');
       // Не блокируем работу приложения при ошибке
     }
   }
-  
+
   // NEW: Update water progress cache for notifications
   Future<void> _updateWaterProgressCache() async {
     final consumedMl = totalWaterToday.round();
     final goalMl = goals.waterOpt;
     await WaterProgressCache.set(consumedMl: consumedMl, goalMl: goalMl);
-    print('Water progress cached: $consumedMl / $goalMl ml (${(consumedMl * 100 / goalMl).round()}%)');
-    
+    logger.d(
+      'Water progress cached: $consumedMl / $goalMl ml (${(consumedMl * 100 / goalMl).round()}%)',
+    );
+
     // Reschedule notifications with debouncing (max once per second)
     final now = DateTime.now();
-    if (_lastRescheduleTime == null || 
+    if (_lastRescheduleTime == null ||
         now.difference(_lastRescheduleTime!).inSeconds > 1) {
       _lastRescheduleTime = now;
       try {
         await notif.NotificationService().scheduleSmartReminders();
-        print('Notifications rescheduled with updated progress');
+        logger.d('Notifications rescheduled with updated progress');
       } catch (e) {
-        print('Failed to reschedule notifications: $e');
+        logger.e('Failed to reschedule notifications: $e');
       }
     }
   }
-  
+
   // Save method
   Future<void> _saveIntakes() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final todayKey = 'intakes_${DateTime.now().toIso8601String().split('T')[0]}';
-      
+      final todayKey =
+          'intakes_${DateTime.now().toIso8601String().split('T')[0]}';
+
       final intakesJson = todayIntakes.map((intake) {
         return '${intake.id}|${intake.timestamp.toIso8601String()}|${intake.type}|'
-               '${intake.volume}|${intake.sodium}|${intake.potassium}|${intake.magnesium}|'
-               '${intake.name ?? ""}|${intake.emoji ?? ""}';
+            '${intake.volume}|${intake.sodium}|${intake.potassium}|${intake.magnesium}|'
+            '${intake.name ?? ""}|${intake.emoji ?? ""}';
       }).toList();
-      
+
       await prefs.setStringList(todayKey, intakesJson);
-      
+
       final progress = getProgress();
       await prefs.setDouble('waterProgress', progress['waterPercent']!);
-      
+
       // Update water progress cache after saving
       await _updateWaterProgressCache();
     } catch (e) {
-      print('Error saving intakes: $e');
+      logger.e('Error saving intakes: $e');
     }
   }
-  
+
   void _checkAndResetDaily() {
     final now = DateTime.now();
     const lastResetKey = 'lastReset';
@@ -871,17 +910,17 @@ class HydrationProvider extends ChangeNotifier {
           // Reset weather adjustments
           weatherWaterAdjustment = 0;
           weatherSodiumAdjustment = 0;
-          
+
           await prefs.setString(lastResetKey, now.toIso8601String());
-          
+
           // Recalculate goals after reset
           _calculateGoals();
-          
+
           // Reset water progress cache for new day
           await _updateWaterProgressCache();
-          
+
           notifyListeners();
-          
+
           notif.NotificationService().scheduleEveningReport();
         }
       } else {
@@ -889,7 +928,7 @@ class HydrationProvider extends ChangeNotifier {
       }
     });
   }
-  
+
   void updateProfile({
     required double weight,
     required String dietMode,
@@ -904,7 +943,7 @@ class HydrationProvider extends ChangeNotifier {
     _subscribeFCMTopics();
     notifyListeners();
   }
-  
+
   Future<void> _saveProfile() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble('weight', weight);
@@ -912,35 +951,37 @@ class HydrationProvider extends ChangeNotifier {
     await prefs.setString('activityLevel', activityLevel);
     await prefs.setInt('dailyCaloriesGoal', dailyCaloriesGoal);
   }
-  
+
   // NEW: Save intake to Firestore via HistoryService
   Future<void> _saveToFirestore(Intake intake) async {
     try {
       final historyService = HistoryService();
       await historyService.saveIntake(intake);
-      print('Intake saved to Firestore: ${intake.type} ${intake.volume}ml');
+      logger.d('Intake saved to Firestore: ${intake.type} ${intake.volume}ml');
     } catch (e) {
-      print('Error saving to Firestore: $e');
+      logger.e('Error saving to Firestore: $e');
       // Не блокируем UI если Firestore недоступен - данные остаются в SharedPreferences
     }
   }
-  
+
   // UPDATED: Added achievement service integration with control parameter
-  void addIntake(String type, int volume, {
+  void addIntake(
+    String type,
+    int volume, {
     int sodium = 0,
     int potassium = 0,
     int magnesium = 0,
-    double sugar = 0,  // NEW: Sugar content in grams
-    bool showAchievement = true,  // NEW: Control achievement notification
+    double sugar = 0, // NEW: Sugar content in grams
+    bool showAchievement = true, // NEW: Control achievement notification
     String source = 'manual_entry',
-    String? name,  // NEW: Specific product name
+    String? name, // NEW: Specific product name
     String? emoji, // NEW: Product emoji
   }) {
     // Calculate old percentage BEFORE adding intake
-    final oldPercent = goals.waterOpt > 0 
+    final oldPercent = goals.waterOpt > 0
         ? (totalWaterToday / goals.waterOpt * 100).clamp(0.0, 200.0)
         : 0.0;
-    
+
     // Add to list
     final newIntake = Intake(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -982,29 +1023,32 @@ class HydrationProvider extends ChangeNotifier {
 
     // NEW: Save to Firestore via HistoryService
     _saveToFirestore(newIntake);
-    
+
     // Haptic feedback
     HapticFeedback.lightImpact();
-    
+
     // Calculate new percentage AFTER adding intake (only for water types)
     if (type == 'water' || type == 'electrolyte' || type == 'broth') {
-      final newPercent = goals.waterOpt > 0 
+      final newPercent = goals.waterOpt > 0
           ? (totalWaterToday / goals.waterOpt * 100).clamp(0.0, 200.0)
           : 0.0;
-      
+
       // Check and show achievement if context is available AND showAchievement is true
       if (showAchievement && _context != null && _context!.mounted) {
         // Get units service for formatting
-        final unitsService = Provider.of<UnitsService>(_context!, listen: false);
+        final unitsService = Provider.of<UnitsService>(
+          _context!,
+          listen: false,
+        );
         final formattedVolume = unitsService.formatVolume(volume);
-        
+
         // Track achievement progress - only once per day per achievement type
         _achievementTracker.trackWaterIntake(
           volumeMl: volume,
           currentProgress: totalWaterToday,
           goalProgress: newPercent,
         );
-        
+
         AchievementService.checkAndShow(
           context: _context!,
           oldPercent: oldPercent,
@@ -1026,11 +1070,11 @@ class HydrationProvider extends ChangeNotifier {
       final currentSodium = totalSodiumToday;
       final currentPotassium = totalPotassiumToday;
       final currentMagnesium = totalMagnesiumToday;
-      
+
       final reachedSodiumGoal = currentSodium >= goals.sodium;
       final reachedPotassiumGoal = currentPotassium >= goals.potassium;
       final reachedMagnesiumGoal = currentMagnesium >= goals.magnesium;
-      
+
       // Вызываем отслеживание электролитов для достижений
       _achievementTracker.trackElectrolyteIntake(
         sodiumMg: sodium,
@@ -1040,45 +1084,49 @@ class HydrationProvider extends ChangeNotifier {
         reachedPotassiumGoal: reachedPotassiumGoal,
         reachedMagnesiumGoal: reachedMagnesiumGoal,
       );
-      
-      print('Electrolyte tracking called: Na=$sodium, K=$potassium, Mg=$magnesium');
+
+      logger.d(
+        'Electrolyte tracking called: Na=$sodium, K=$potassium, Mg=$magnesium',
+      );
     }
-    
+
     // First notify UI about changes
     notifyListeners();
-    
+
     // Then save asynchronously (includes water progress cache update)
-    _saveIntakes().then((_) {
-      print('Intake saved successfully');
-    }).catchError((error) {
-      print('Error saving intake: $error');
-    });
-    
+    _saveIntakes()
+        .then((_) {
+          logger.d('Intake saved successfully');
+        })
+        .catchError((error) {
+          logger.e('Error saving intake: $error');
+        });
+
     // Schedule post-coffee reminder if it's coffee
     if (type == 'coffee') {
       // FIXED: Ensure locale is loaded before scheduling notification
       _schedulePostCoffeeWithLocale();
-      
+
       // Log coffee to HRI (approximately 80mg caffeine per cup)
       logCoffeeIntake(80);
     }
   }
-  
+
   // NEW: Helper method to ensure locale is loaded before scheduling
   Future<void> _schedulePostCoffeeWithLocale() async {
     try {
       // Load current locale from preferences
       await NotificationTexts.loadLocale();
-      
+
       // Now schedule the notification with correct locale
       await notif.NotificationService().schedulePostCoffeeReminder();
-      
-      print('Post-coffee reminder scheduled with correct locale');
+
+      logger.d('Post-coffee reminder scheduled with correct locale');
     } catch (e) {
-      print('Error scheduling post-coffee reminder: $e');
+      logger.e('Error scheduling post-coffee reminder: $e');
     }
   }
-  
+
   void removeIntake(String id) {
     todayIntakes.removeWhere((intake) => intake.id == id);
 
@@ -1087,7 +1135,7 @@ class HydrationProvider extends ChangeNotifier {
 
     // Then save (includes water progress cache update)
     _saveIntakes().then((_) {
-      print('Intake removed successfully');
+      logger.d('Intake removed successfully');
     });
   }
 
@@ -1143,7 +1191,8 @@ class HydrationProvider extends ChangeNotifier {
     // Handle caffeine from food (like chocolate)
     if (foodIntake.hasCaffeine) {
       // Estimate caffeine content (rough estimate for food)
-      final estimatedCaffeine = (foodIntake.weight * 0.1).round(); // ~10mg per 100g
+      final estimatedCaffeine = (foodIntake.weight * 0.1)
+          .round(); // ~10mg per 100g
       logCoffeeIntake(estimatedCaffeine);
     }
 
@@ -1172,11 +1221,18 @@ class HydrationProvider extends ChangeNotifier {
       // Remove the water that was added from this food
       Intake? waterIntakeToRemove;
       try {
-        waterIntakeToRemove = todayIntakes.where((intake) =>
-            intake.id.contains(foodIntake!.id) ||
-            (intake.timestamp.difference(foodIntake.timestamp).abs().inMinutes < 1 &&
-             intake.volume == foodIntake.waterContent.round())
-        ).first;
+        waterIntakeToRemove = todayIntakes
+            .where(
+              (intake) =>
+                  intake.id.contains(foodIntake!.id) ||
+                  (intake.timestamp
+                              .difference(foodIntake.timestamp)
+                              .abs()
+                              .inMinutes <
+                          1 &&
+                      intake.volume == foodIntake.waterContent.round()),
+            )
+            .first;
       } catch (e) {
         waterIntakeToRemove = null;
       }
@@ -1193,7 +1249,7 @@ class HydrationProvider extends ChangeNotifier {
 
     // Save
     _saveFoodIntakes().then((_) {
-      print('Food intake removed successfully');
+      logger.d('Food intake removed successfully');
     });
   }
 
@@ -1201,19 +1257,20 @@ class HydrationProvider extends ChangeNotifier {
   Future<void> _saveFoodIntakes() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final todayFoodKey = 'food_intakes_${DateTime.now().toIso8601String().split('T')[0]}';
+      final todayFoodKey =
+          'food_intakes_${DateTime.now().toIso8601String().split('T')[0]}';
 
       final foodIntakesJson = todayFoodIntakes.map((intake) {
         return '${intake.id}|${intake.timestamp.toIso8601String()}|${intake.foodId}|'
-               '${intake.foodName}|${intake.weight}|${intake.calories}|${intake.waterContent}|'
-               '${intake.sodium}|${intake.potassium}|${intake.magnesium}|${intake.sugar}|${intake.hasCaffeine}|'
-               '${intake.emoji ?? ""}';
+            '${intake.foodName}|${intake.weight}|${intake.calories}|${intake.waterContent}|'
+            '${intake.sodium}|${intake.potassium}|${intake.magnesium}|${intake.sugar}|${intake.hasCaffeine}|'
+            '${intake.emoji ?? ""}';
       }).toList();
 
       await prefs.setStringList(todayFoodKey, foodIntakesJson);
-      print('Food intakes saved successfully');
+      logger.d('Food intakes saved successfully');
     } catch (e) {
-      print('Error saving food intakes: $e');
+      logger.e('Error saving food intakes: $e');
     }
   }
 
@@ -1225,9 +1282,9 @@ class HydrationProvider extends ChangeNotifier {
       // Save food intake using the proper saveFoodIntake method
       await historyService.saveFoodIntake(foodIntake);
 
-      print('Food intake saved to Firestore: ${foodIntake.foodName}');
+      logger.d('Food intake saved to Firestore: ${foodIntake.foodName}');
     } catch (e) {
-      print('Error saving food to Firestore: $e');
+      logger.e('Error saving food to Firestore: $e');
       // Don't block the app on Firestore errors
     }
   }
@@ -1247,7 +1304,10 @@ class HydrationProvider extends ChangeNotifier {
 
   /// Get today's water from food
   double get totalWaterFromFoodToday {
-    return todayFoodIntakes.fold(0.0, (sum, intake) => sum + intake.waterContent);
+    return todayFoodIntakes.fold(
+      0.0,
+      (sum, intake) => sum + intake.waterContent,
+    );
   }
 
   /// Get food intake progress/summary
@@ -1258,7 +1318,10 @@ class HydrationProvider extends ChangeNotifier {
     final foodCount = todayFoodIntakes.length;
 
     // Calculate additional sodium from food
-    final additionalSodium = todayFoodIntakes.fold(0, (sum, intake) => sum + intake.sodium);
+    final additionalSodium = todayFoodIntakes.fold(
+      0,
+      (sum, intake) => sum + intake.sodium,
+    );
 
     // Calculate calories from different food categories
     int fruitCalories = 0;
@@ -1300,41 +1363,49 @@ class HydrationProvider extends ChangeNotifier {
       },
     };
   }
-  
+
   Map<String, double> getProgress() {
     int totalWater = 0;
     int totalSodium = 0;
     int totalPotassium = 0;
     int totalMagnesium = 0;
-    
+
     for (var intake in todayIntakes) {
-      if (intake.type == 'water' || intake.type == 'electrolyte' || intake.type == 'broth') {
+      if (intake.type == 'water' ||
+          intake.type == 'electrolyte' ||
+          intake.type == 'broth') {
         totalWater += intake.volume;
       }
       totalSodium += intake.sodium;
       totalPotassium += intake.potassium;
       totalMagnesium += intake.magnesium;
     }
-    
+
     return {
       'water': totalWater.toDouble(),
       'waterPercent': math.min((totalWater / goals.waterOpt) * 100, 100),
       'sodium': totalSodium.toDouble(),
       'sodiumPercent': math.min((totalSodium / goals.sodium) * 100, 100),
       'potassium': totalPotassium.toDouble(),
-      'potassiumPercent': math.min((totalPotassium / goals.potassium) * 100, 100),
+      'potassiumPercent': math.min(
+        (totalPotassium / goals.potassium) * 100,
+        100,
+      ),
       'magnesium': totalMagnesium.toDouble(),
-      'magnesiumPercent': math.min((totalMagnesium / goals.magnesium) * 100, 100),
+      'magnesiumPercent': math.min(
+        (totalMagnesium / goals.magnesium) * 100,
+        100,
+      ),
     };
   }
-  
+
   // Private method to get internal status enum (for logic)
   _HydrationStatusInternal _getInternalHydrationStatus() {
     final progress = getProgress();
     final waterRatio = progress['water']! / goals.waterOpt;
     final sodiumRatio = progress['sodium']! / goals.sodium;
-    
-    if (waterRatio > _remoteConfig.dilutionWaterThreshold && 
+
+    if (waterRatio > _remoteConfig.dilutionWaterThreshold &&
         sodiumRatio < _remoteConfig.dilutionSodiumThreshold) {
       return _HydrationStatusInternal.diluted;
     } else if (waterRatio < _remoteConfig.dehydrationThreshold) {
@@ -1345,11 +1416,11 @@ class HydrationProvider extends ChangeNotifier {
       return _HydrationStatusInternal.normal;
     }
   }
-  
+
   // Public method to get localized status string
   String getHydrationStatus(AppLocalizations l10n) {
     final status = _getInternalHydrationStatus();
-    
+
     switch (status) {
       case _HydrationStatusInternal.normal:
         return l10n.hydrationStatusNormal;
@@ -1361,14 +1432,14 @@ class HydrationProvider extends ChangeNotifier {
         return l10n.hydrationStatusLowSalt;
     }
   }
-  
+
   // DEPRECATED: Old getHRI method - kept for compatibility
   // Use HRIService directly
   @deprecated
   int getHRI(AlcoholService? alcoholService) {
     final status = _getInternalHydrationStatus();
     int baseHRI = 0;
-    
+
     // Use internal enum for logic
     switch (status) {
       case _HydrationStatusInternal.normal:
@@ -1384,25 +1455,25 @@ class HydrationProvider extends ChangeNotifier {
         baseHRI = 65;
         break;
     }
-    
+
     // Add weather risk
     if (weatherWaterAdjustment > 0.1) {
       baseHRI += 10;
     }
-    
+
     // Add alcohol risk
     if (alcoholService != null) {
       baseHRI += alcoholService.totalHRIModifier.round();
     }
-    
+
     return math.min(baseHRI, 100);
   }
-  
+
   /// Проверка одинаковый ли день
   bool _isSameDay(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
-           date1.month == date2.month &&
-           date1.day == date2.day;
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
 
   @override

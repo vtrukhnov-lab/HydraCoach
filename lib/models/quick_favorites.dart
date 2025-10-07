@@ -6,7 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Быстрый фаворит для главного экрана
 class QuickFavorite {
   final String id;
-  final String type; // water, electrolyte, alcohol, coffee, tea, broth, juice, milk, soda, hot, supplement
+  final String
+  type; // water, electrolyte, alcohol, coffee, tea, broth, juice, milk, soda, hot, supplement
   final String label;
   final String emoji;
   final int? volumeMl;
@@ -29,41 +30,41 @@ class QuickFavorite {
   }) : metadata = metadata ?? customData;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'type': type,
-        'label': label,
-        'emoji': emoji,
-        if (volumeMl != null) 'volumeMl': volumeMl,
-        if (sodiumMg != null) 'sodiumMg': sodiumMg,
-        if (potassiumMg != null) 'potassiumMg': potassiumMg,
-        if (magnesiumMg != null) 'magnesiumMg': magnesiumMg,
-        if (metadata != null) 'metadata': metadata,
-        if (metadata != null) 'customData': metadata, // обратная совместимость
-      };
+    'id': id,
+    'type': type,
+    'label': label,
+    'emoji': emoji,
+    if (volumeMl != null) 'volumeMl': volumeMl,
+    if (sodiumMg != null) 'sodiumMg': sodiumMg,
+    if (potassiumMg != null) 'potassiumMg': potassiumMg,
+    if (magnesiumMg != null) 'magnesiumMg': magnesiumMg,
+    if (metadata != null) 'metadata': metadata,
+    if (metadata != null) 'customData': metadata, // обратная совместимость
+  };
 
   factory QuickFavorite.fromJson(Map<String, dynamic> json) => QuickFavorite(
-        id: json['id'] as String,
-        type: json['type'] as String,
-        label: json['label'] as String,
-        emoji: json['emoji'] as String,
-        volumeMl: json['volumeMl'] as int?,
-        sodiumMg: json['sodiumMg'] as int? ?? 0,
-        potassiumMg: json['potassiumMg'] as int? ?? 0,
-        magnesiumMg: json['magnesiumMg'] as int? ?? 0,
-        metadata: (json['metadata'] ?? json['customData']) as Map<String, dynamic>?,
-      );
+    id: json['id'] as String,
+    type: json['type'] as String,
+    label: json['label'] as String,
+    emoji: json['emoji'] as String,
+    volumeMl: json['volumeMl'] as int?,
+    sodiumMg: json['sodiumMg'] as int? ?? 0,
+    potassiumMg: json['potassiumMg'] as int? ?? 0,
+    magnesiumMg: json['magnesiumMg'] as int? ?? 0,
+    metadata: (json['metadata'] ?? json['customData']) as Map<String, dynamic>?,
+  );
 
   /// Дефолтный фаворит — вода 500 мл
   static QuickFavorite get defaultWater => QuickFavorite(
-        id: 'default_water_500',
-        type: 'water',
-        label: 'Water',
-        emoji: '💧',
-        volumeMl: 500,
-        sodiumMg: 0,
-        potassiumMg: 0,
-        magnesiumMg: 0,
-      );
+    id: 'default_water_500',
+    type: 'water',
+    label: 'Water',
+    emoji: '💧',
+    volumeMl: 500,
+    sodiumMg: 0,
+    potassiumMg: 0,
+    magnesiumMg: 0,
+  );
 }
 
 /// Менеджер быстрых фаворитов (Singleton + ChangeNotifier)
@@ -73,11 +74,13 @@ class QuickFavoritesManager extends ChangeNotifier {
   static const int maxFreeFavorites = 1;
   static const int maxProFavorites = 3;
 
-  static final QuickFavoritesManager _instance = QuickFavoritesManager._internal();
+  static final QuickFavoritesManager _instance =
+      QuickFavoritesManager._internal();
   factory QuickFavoritesManager() => _instance;
   QuickFavoritesManager._internal();
 
-  final Future<SharedPreferences> _prefsFuture = SharedPreferences.getInstance();
+  final Future<SharedPreferences> _prefsFuture =
+      SharedPreferences.getInstance();
 
   List<QuickFavorite?> _favorites = [null, null, null];
   bool _isPro = false;
@@ -115,7 +118,9 @@ class QuickFavoritesManager extends ChangeNotifier {
       _favorites = List.generate(3, (index) {
         if (index < jsonList.length && jsonList[index] != null) {
           try {
-            return QuickFavorite.fromJson(jsonList[index] as Map<String, dynamic>);
+            return QuickFavorite.fromJson(
+              jsonList[index] as Map<String, dynamic>,
+            );
           } catch (e) {
             debugPrint('Error parsing favorite at index $index: $e');
             return null;

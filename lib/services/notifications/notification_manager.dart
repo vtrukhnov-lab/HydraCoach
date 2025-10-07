@@ -3,6 +3,8 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:convert';
 
+import 'package:hydracoach/utils/app_logger.dart';
+
 import 'notification_types.dart';
 import 'notification_sender.dart';
 import '../notification_texts.dart';
@@ -24,7 +26,7 @@ class NotificationManager {
   Future<void> cancelNotification(int id) async {
     await _localNotifications.cancel(id);
     _notificationSender.pendingNotificationIds.remove(id);
-    print('🚫 Notification cancelled: $id');
+    logger.i('🚫 Notification cancelled: $id');
   }
 
   /// Отмена всех уведомлений
@@ -32,36 +34,36 @@ class NotificationManager {
     await _localNotifications.cancelAll();
     _notificationSender.pendingNotificationIds.clear();
     _notificationSender.lastNotificationIds.clear();
-    print('🗑️ All notifications cancelled');
+    logger.i('🗑️ All notifications cancelled');
   }
 
   /// Отмена уведомлений по типам
   Future<void> cancelByTypes(Set<NotificationType> types) async {
     final pending = await getPendingNotifications();
     final typeIdxSet = types.map((t) => t.index).toSet();
-    
+
     for (final notification in pending) {
       final decoded = NotificationSender.decodeNotificationId(notification.id);
       if (typeIdxSet.contains(decoded.typeIdx)) {
         await cancelNotification(notification.id);
       }
     }
-    
-    print('🚫 Cancelled notifications for types: $types');
+
+    logger.i('🚫 Cancelled notifications for types: $types');
   }
 
   /// Отмена уведомлений на конкретный день
   Future<void> cancelForDay(int dayOfYear) async {
     final pending = await getPendingNotifications();
-    
+
     for (final notification in pending) {
       final decoded = NotificationSender.decodeNotificationId(notification.id);
       if (decoded.dayFromId == dayOfYear) {
         await cancelNotification(notification.id);
       }
     }
-    
-    print('🚫 Cancelled notifications for day: $dayOfYear');
+
+    logger.i('🚫 Cancelled notifications for day: $dayOfYear');
   }
 
   /// Получение списка запланированных уведомлений
@@ -72,59 +74,68 @@ class NotificationManager {
   /// Подробный статус уведомлений с группировкой по типам
   Future<void> printNotificationStatus() async {
     final pending = await getPendingNotifications();
-    print('\n📋 ===== NOTIFICATION STATUS =====');
-    print('📋 Pending notifications: ${pending.length}');
+    logger.i('\n📋 ===== NOTIFICATION STATUS =====');
+    logger.i('📋 Pending notifications: ${pending.length}');
 
     if (pending.isNotEmpty) {
       // Группируем по типам
       final Map<String, int> typeCount = {};
-      final Map<String, List<PendingNotificationRequest>> typeNotifications = {};
-      
+      final Map<String, List<PendingNotificationRequest>> typeNotifications =
+          {};
+
       for (final notification in pending) {
-        final decoded = NotificationSender.decodeNotificationId(notification.id);
-        final typeName = decoded.typeIdx < NotificationType.values.length 
-            ? NotificationType.values[decoded.typeIdx].name 
+        final decoded = NotificationSender.decodeNotificationId(
+          notification.id,
+        );
+        final typeName = decoded.typeIdx < NotificationType.values.length
+            ? NotificationType.values[decoded.typeIdx].name
             : 'unknown_${decoded.typeIdx}';
-        
+
         typeCount[typeName] = (typeCount[typeName] ?? 0) + 1;
         typeNotifications.putIfAbsent(typeName, () => []).add(notification);
       }
-      
+
       // Показываем статистику по типам
-      print('\n📋 Notifications by type:');
+      logger.i('\n📋 Notifications by type:');
       typeCount.forEach((type, count) {
-        print('  - $type: $count notifications');
+        logger.i('  - $type: $count notifications');
       });
-      
+
       // Показываем ближайшие 3 уведомления
-      print('\n📋 Next 3 notifications:');
+      logger.i('\n📋 Next 3 notifications:');
       for (int i = 0; i < pending.length && i < 3; i++) {
         final notification = pending[i];
-        final decoded = NotificationSender.decodeNotificationId(notification.id);
-        final typeName = decoded.typeIdx < NotificationType.values.length 
-            ? NotificationType.values[decoded.typeIdx].name 
+        final decoded = NotificationSender.decodeNotificationId(
+          notification.id,
+        );
+        final typeName = decoded.typeIdx < NotificationType.values.length
+            ? NotificationType.values[decoded.typeIdx].name
             : 'unknown';
-        
-        print('  ${i + 1}. [$typeName] ${notification.title}');
-        print('     Time: Day ${decoded.dayFromId}, ${decoded.hour}:${decoded.minute.toString().padLeft(2, '0')}');
+
+        logger.i('  ${i + 1}. [$typeName] ${notification.title}');
+        logger.i(
+          '     Time: Day ${decoded.dayFromId}, ${decoded.hour}:${decoded.minute.toString().padLeft(2, '0')}',
+        );
       }
 
       // Детальная разбивка по дням (первые 7 дней)
-      print('\n📋 Schedule by days (next 7):');
+      logger.i('\n📋 Schedule by days (next 7):');
       final Map<int, int> dayCount = {};
       for (final notification in pending) {
-        final decoded = NotificationSender.decodeNotificationId(notification.id);
+        final decoded = NotificationSender.decodeNotificationId(
+          notification.id,
+        );
         dayCount[decoded.dayFromId] = (dayCount[decoded.dayFromId] ?? 0) + 1;
       }
-      
+
       final sortedDays = dayCount.keys.toList()..sort();
       for (int i = 0; i < sortedDays.length && i < 7; i++) {
         final day = sortedDays[i];
-        print('  Day $day: ${dayCount[day]} notifications');
+        logger.i('  Day $day: ${dayCount[day]} notifications');
       }
     }
 
-    print('📋 =================================\n');
+    logger.i('📋 =================================\n');
   }
 
   /// Получение статистики уведомлений
@@ -132,13 +143,13 @@ class NotificationManager {
     final pending = await getPendingNotifications();
     final Map<String, int> typeCount = {};
     final Map<int, int> dayCount = {};
-    
+
     for (final notification in pending) {
       final decoded = NotificationSender.decodeNotificationId(notification.id);
-      final typeName = decoded.typeIdx < NotificationType.values.length 
-          ? NotificationType.values[decoded.typeIdx].name 
+      final typeName = decoded.typeIdx < NotificationType.values.length
+          ? NotificationType.values[decoded.typeIdx].name
           : 'unknown';
-      
+
       typeCount[typeName] = (typeCount[typeName] ?? 0) + 1;
       dayCount[decoded.dayFromId] = (dayCount[decoded.dayFromId] ?? 0) + 1;
     }
@@ -147,26 +158,27 @@ class NotificationManager {
       'total': pending.length,
       'byType': typeCount,
       'byDay': dayCount,
-      'nextNotifications': pending.take(5).map((n) => {
-        'id': n.id,
-        'title': n.title,
-        'body': n.body,
-      }).toList(),
+      'nextNotifications': pending
+          .take(5)
+          .map((n) => {'id': n.id, 'title': n.title, 'body': n.body})
+          .toList(),
     };
   }
 
   /// Поиск уведомлений по типу
-  Future<List<PendingNotificationRequest>> findNotificationsByType(NotificationType type) async {
+  Future<List<PendingNotificationRequest>> findNotificationsByType(
+    NotificationType type,
+  ) async {
     final pending = await getPendingNotifications();
     final result = <PendingNotificationRequest>[];
-    
+
     for (final notification in pending) {
       final decoded = NotificationSender.decodeNotificationId(notification.id);
       if (decoded.typeIdx == type.index) {
         result.add(notification);
       }
     }
-    
+
     return result;
   }
 
@@ -179,7 +191,7 @@ class NotificationManager {
   /// Тестовое уведомление (немедленная отправка)
   Future<void> sendTestNotification() async {
     await NotificationTexts.ensureLoaded();
-    
+
     await _notificationSender.sendNotification(
       type: NotificationType.custom,
       title: NotificationTexts.testTitle,
@@ -189,13 +201,13 @@ class NotificationManager {
     );
 
     await _analytics.logTestEvent();
-    print('🧪 Test notification sent');
+    logger.i('🧪 Test notification sent');
   }
 
   /// Тестовое запланированное уведомление (через 1 минуту)
   Future<void> scheduleTestIn1Minute() async {
     await NotificationTexts.ensureLoaded();
-    
+
     final scheduledTime = DateTime.now().add(const Duration(minutes: 1));
 
     await _notificationSender.sendNotification(
@@ -207,7 +219,7 @@ class NotificationManager {
       skipChecks: true,
     );
 
-    print('🧪 Test notification scheduled for 1 minute');
+    logger.i('🧪 Test notification scheduled for 1 minute');
   }
 
   /// Очистка просроченных уведомлений (которые должны были уже сработать)
@@ -215,23 +227,23 @@ class NotificationManager {
     final pending = await getPendingNotifications();
     final now = DateTime.now();
     int cleanedCount = 0;
-    
+
     for (final notification in pending) {
       final decoded = NotificationSender.decodeNotificationId(notification.id);
-      
+
       // Примерная дата из ID (может быть неточной без года)
       final notificationDay = decoded.dayFromId;
       final currentDay = now.difference(DateTime(now.year, 1, 1)).inDays + 1;
-      
+
       // Если уведомление было запланировано на вчера или раньше
       if (notificationDay < currentDay - 1) {
         await cancelNotification(notification.id);
         cleanedCount++;
       }
     }
-    
+
     if (cleanedCount > 0) {
-      print('🧹 Cleaned up $cleanedCount expired notifications');
+      logger.i('🧹 Cleaned up $cleanedCount expired notifications');
     }
   }
 
@@ -239,13 +251,13 @@ class NotificationManager {
   Future<String> exportNotificationsToJson() async {
     final pending = await getPendingNotifications();
     final List<Map<String, dynamic>> exportData = [];
-    
+
     for (final notification in pending) {
       final decoded = NotificationSender.decodeNotificationId(notification.id);
-      final typeName = decoded.typeIdx < NotificationType.values.length 
-          ? NotificationType.values[decoded.typeIdx].name 
+      final typeName = decoded.typeIdx < NotificationType.values.length
+          ? NotificationType.values[decoded.typeIdx].name
           : 'unknown';
-      
+
       exportData.add({
         'id': notification.id,
         'type': typeName,
@@ -258,13 +270,13 @@ class NotificationManager {
         'payload': notification.payload,
       });
     }
-    
+
     final result = {
       'exportTime': DateTime.now().toIso8601String(),
       'totalCount': pending.length,
       'notifications': exportData,
     };
-    
+
     return jsonEncode(result);
   }
 }

@@ -10,116 +10,95 @@ import '../../../widgets/ion_character.dart';
 
 class FirstIntakeTutorial extends StatefulWidget {
   final VoidCallback onComplete;
-  
-  const FirstIntakeTutorial({
-    super.key,
-    required this.onComplete,
-  });
+
+  const FirstIntakeTutorial({super.key, required this.onComplete});
 
   @override
   State<FirstIntakeTutorial> createState() => _FirstIntakeTutorialState();
 }
 
-class _FirstIntakeTutorialState extends State<FirstIntakeTutorial> 
+class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
     with TickerProviderStateMixin {
   // Текущий шаг туториала
   int _currentStep = 0;
-  
+
   // Симулированный прогресс воды (не влияет на реальные данные)
   int _simulatedWater = 0;
-  
+
   // Флаги для показа текста "TAP"
   bool _showTapText = false;
-  
+
   // Позиция круга прогресса
   Offset? _circlePosition;
   Size? _circleSize;
-  
+
   // Анимационные контроллеры
   late AnimationController _pulseController;
   late AnimationController _fingerTapController;
   late AnimationController _rippleController;
   late AnimationController _textFadeController;
-  
+
   // Анимации
   late Animation<double> _pulseAnimation;
   late Animation<double> _fingerTapAnimation;
   late Animation<double> _rippleAnimation;
   late Animation<double> _textFadeAnimation;
-  
+
   @override
   void initState() {
     super.initState();
     _initAnimations();
-    
+
     // Запускаем анимации после построения виджета
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _findCirclePosition();
       _startFingerAnimation();
     });
   }
-  
+
   void _initAnimations() {
     // Пульсация подсветки круга
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     // Анимация нажатия пальца
     _fingerTapController = AnimationController(
       duration: const Duration(milliseconds: 100),
       vsync: this,
     );
-    
+
     // Расходящиеся круги
     _rippleController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     )..repeat();
-    
+
     // Появление первого текста TAP
     _textFadeController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    
-    
+
     // Настройка анимаций
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.15,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
-    
-    _fingerTapAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.75,
-    ).animate(CurvedAnimation(
-      parent: _fingerTapController,
-      curve: Curves.easeInOut,
-    ));
-    
-    _rippleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _rippleController,
-      curve: Curves.easeOut,
-    ));
-    
-    _textFadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _textFadeController,
-      curve: Curves.easeOut,
-    ));
-    
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
+    _fingerTapAnimation = Tween<double>(begin: 1.0, end: 0.75).animate(
+      CurvedAnimation(parent: _fingerTapController, curve: Curves.easeInOut),
+    );
+
+    _rippleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _rippleController, curve: Curves.easeOut),
+    );
+
+    _textFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _textFadeController, curve: Curves.easeOut),
+    );
   }
-  
+
   @override
   void dispose() {
     _pulseController.dispose();
@@ -128,7 +107,7 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
     _textFadeController.dispose();
     super.dispose();
   }
-  
+
   void _findCirclePosition() {
     final size = MediaQuery.of(context).size;
     setState(() {
@@ -136,67 +115,69 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
       _circleSize = const Size(200, 200);
     });
   }
-  
+
   void _startFingerAnimation() {
     if (!mounted || _currentStep >= 2) return;
-    
+
     Future.delayed(const Duration(milliseconds: 1000), () async {
       if (!mounted) return;
-      
+
       // if (_currentStep == 1) {
       //   // Анимация двойного тапа для второго шага
       //   await _animateDoubleTap();
       // } else {
-        // Анимация одиночного тапа для первого шага
-        await _animateSingleTap();
+      // Анимация одиночного тапа для первого шага
+      await _animateSingleTap();
       // }
-      
+
       // Повторяем цикл
       if (_currentStep < 2 && mounted) {
         _startFingerAnimation();
       }
     });
   }
-  
+
   Future<void> _animateSingleTap() async {
     // Палец опускается
     _fingerTapController.forward();
     await Future.delayed(const Duration(milliseconds: 150));
-    
+
     // Показываем TAP
     setState(() => _showTapText = true);
     _textFadeController.forward();
-    
+
     await Future.delayed(const Duration(milliseconds: 200));
-    
+
     // Палец поднимается
     _fingerTapController.reverse();
-    
+
     await Future.delayed(const Duration(milliseconds: 300));
-    
+
     // Скрываем TAP
     _textFadeController.reverse();
     await Future.delayed(const Duration(milliseconds: 200));
     setState(() => _showTapText = false);
   }
-  
-  
+
   void _handleSingleTap() {
     if (_currentStep != 0) return;
-    
+
     HapticFeedback.lightImpact();
-    
+
     final unitsService = UnitsService.instance;
     final volumeToAdd = unitsService.getQuickVolumeMl(1); // 250ml или ~8oz
-    
+
     setState(() {
       _simulatedWater += volumeToAdd;
     });
-    
+
     // Показываем мотивационное сообщение с правильными единицами
-    final volumeDisplay = unitsService.formatVolume(volumeToAdd, hideUnit: false);
+    final volumeDisplay = unitsService.formatVolume(
+      volumeToAdd,
+      hideUnit: false,
+    );
     _showMotivationalMessage('+$volumeDisplay', '💧');
-    
+
     // Переходим сразу к финальному шагу после задержки
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
@@ -210,36 +191,40 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
       }
     });
   }
-  
-  
+
   void _showMotivationalMessage(String text, String emoji) {
     // Дополнительная вибрация для обратной связи
     HapticFeedback.selectionClick();
-    
+
     // Показываем overlay с анимацией
     final overlay = Overlay.of(context);
     late OverlayEntry overlayEntry;
-    
+
     overlayEntry = OverlayEntry(
       builder: (context) => _MotivationalOverlay(
         text: text,
         emoji: emoji,
-        position: _circlePosition ?? Offset(MediaQuery.of(context).size.width * 0.5, MediaQuery.of(context).size.height * 0.35),
+        position:
+            _circlePosition ??
+            Offset(
+              MediaQuery.of(context).size.width * 0.5,
+              MediaQuery.of(context).size.height * 0.35,
+            ),
         onComplete: () {
           overlayEntry.remove();
         },
       ),
     );
-    
+
     overlay.insert(overlayEntry);
   }
-  
+
   void _completeTutorial() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('tutorialCompleted', true);
     widget.onComplete();
   }
-  
+
   String _getStepText(AppLocalizations l10n, UnitsService unitsService) {
     switch (_currentStep) {
       case 0:
@@ -254,19 +239,19 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
         return '';
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final size = MediaQuery.of(context).size;
     final unitsService = UnitsService.instance;
     final provider = Provider.of<HydrationProvider>(context, listen: false);
-    
+
     final waterGoal = provider.goals.waterOpt;
-    final simulatedProgress = waterGoal > 0 
+    final simulatedProgress = waterGoal > 0
         ? (_simulatedWater / waterGoal * 100).clamp(0.0, 100.0)
         : 0.0;
-    
+
     return Material(
       color: Colors.transparent,
       child: Stack(
@@ -277,9 +262,11 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
             height: double.infinity,
             color: Colors.black87,
           ),
-          
+
           // Подсветка круга с пульсирующими кольцами
-          if (_circlePosition != null && _circleSize != null && _currentStep < 2)
+          if (_circlePosition != null &&
+              _circleSize != null &&
+              _currentStep < 2)
             AnimatedBuilder(
               animation: Listenable.merge([_pulseAnimation, _rippleAnimation]),
               builder: (context, child) {
@@ -287,14 +274,16 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
                   size: Size(size.width, size.height),
                   painter: _SpotlightPainter(
                     spotlightCenter: _circlePosition!,
-                    spotlightRadius: (_circleSize!.width / 2) * _pulseAnimation.value,
-                    glowRadius: (_circleSize!.width / 2) * _pulseAnimation.value * 1.5,
+                    spotlightRadius:
+                        (_circleSize!.width / 2) * _pulseAnimation.value,
+                    glowRadius:
+                        (_circleSize!.width / 2) * _pulseAnimation.value * 1.5,
                     rippleProgress: _rippleAnimation.value,
                   ),
                 );
               },
             ),
-          
+
           // Симулированный круг прогресса
           if (_circlePosition != null && _currentStep < 2)
             Positioned(
@@ -311,7 +300,7 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
                 ),
               ),
             ),
-          
+
           // Текст TAP над кругом
           if (_circlePosition != null && _currentStep < 2)
             Positioned(
@@ -341,7 +330,9 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
                                     borderRadius: BorderRadius.circular(25),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: const Color(0xFF2EC5FF).withOpacity(0.6),
+                                        color: const Color(
+                                          0xFF2EC5FF,
+                                        ).withValues(alpha: 0.6),
                                         blurRadius: 20,
                                         spreadRadius: 2,
                                       ),
@@ -361,7 +352,7 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
                             );
                           },
                         ),
-                      
+
                       // Второй TAP (только для двойного тапа)
                       // if (_showSecondTap && _currentStep == 1)
                       //   Padding(
@@ -383,7 +374,7 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
                       //                 borderRadius: BorderRadius.circular(25),
                       //                 boxShadow: [
                       //                   BoxShadow(
-                      //                     color: const Color(0xFF2EC5FF).withOpacity(0.6),
+                      //                     color: const Color(0xFF2EC5FF).withValues(alpha: 0.6),
                       //                     blurRadius: 20,
                       //                     spreadRadius: 2,
                       //                   ),
@@ -409,7 +400,7 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
                 ),
               ),
             ),
-          
+
           // Анимированный палец на круге
           if (_circlePosition != null && _currentStep < 2)
             Positioned(
@@ -425,11 +416,11 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.95),
+                          color: Colors.white.withValues(alpha: 0.95),
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.3),
+                              color: Colors.black.withValues(alpha: 0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 4),
                             ),
@@ -446,13 +437,13 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
                 ),
               ),
             ),
-          
+
           // Ion персонаж с инструкциями
           SafeArea(
             child: Column(
               children: [
                 const Spacer(flex: 3),
-                
+
                 // Ion и текст
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 24),
@@ -465,9 +456,9 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
                         showGlow: true,
                         showElectrolytes: false,
                       ),
-                      
+
                       const SizedBox(height: 20),
-                      
+
                       // Речевой пузырь
                       Container(
                         padding: const EdgeInsets.all(20),
@@ -477,7 +468,7 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 20,
                               offset: const Offset(0, 4),
                             ),
@@ -495,10 +486,10 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            
+
                             if (_currentStep == 2) ...[
                               const SizedBox(height: 24),
-                              
+
                               // Кнопка завершения
                               ElevatedButton(
                                 onPressed: _completeTutorial,
@@ -529,9 +520,9 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 40),
-                
+
                 // Индикатор шагов (теперь только 2 шага)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -547,12 +538,12 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
                         borderRadius: BorderRadius.circular(4),
                         color: stepIndex <= _currentStep
                             ? const Color(0xFF2EC5FF)
-                            : Colors.white.withOpacity(0.3),
+                            : Colors.white.withValues(alpha: 0.3),
                       ),
                     );
                   }),
                 ),
-                
+
                 const Spacer(),
               ],
             ),
@@ -569,35 +560,35 @@ class _SimulatedProgressCircle extends StatelessWidget {
   final int waterConsumed;
   final int waterGoal;
   final UnitsService units;
-  
+
   const _SimulatedProgressCircle({
     required this.progress,
     required this.waterConsumed,
     required this.waterGoal,
     required this.units,
   });
-  
+
   Color _getProgressColor(double percent) {
     if (percent < 30) return Colors.red.shade400;
     if (percent < 60) return Colors.orange.shade400;
     if (percent < 90) return Colors.blue.shade400;
     return Colors.green.shade400;
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final displayVolume = units.formatVolume(waterConsumed);
     final color = _getProgressColor(progress);
-    
+
     return Container(
       width: 200,
       height: 200,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.white.withOpacity(0.95),
+        color: Colors.white.withValues(alpha: 0.95),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF2EC5FF).withOpacity(0.3),
+            color: const Color(0xFF2EC5FF).withValues(alpha: 0.3),
             blurRadius: 20,
             spreadRadius: 5,
           ),
@@ -631,9 +622,12 @@ class _SimulatedProgressCircle extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -659,77 +653,73 @@ class _SpotlightPainter extends CustomPainter {
   final double spotlightRadius;
   final double glowRadius;
   final double rippleProgress;
-  
+
   _SpotlightPainter({
     required this.spotlightCenter,
     required this.spotlightRadius,
     required this.glowRadius,
     this.rippleProgress = 0.0,
   });
-  
+
   @override
   void paint(Canvas canvas, Size size) {
     // Создаем путь для всего экрана
     final screenPath = Path()
       ..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
-    
+
     // Создаем путь для освещенной области
     final spotlightPath = Path()
-      ..addOval(Rect.fromCircle(
-        center: spotlightCenter,
-        radius: spotlightRadius,
-      ));
-    
+      ..addOval(
+        Rect.fromCircle(center: spotlightCenter, radius: spotlightRadius),
+      );
+
     // Вырезаем освещенную область из затемнения
     final maskPath = Path.combine(
       PathOperation.difference,
       screenPath,
       spotlightPath,
     );
-    
+
     // Рисуем затемнение с вырезом
-    canvas.drawPath(
-      maskPath,
-      Paint()..color = Colors.black87,
-    );
-    
+    canvas.drawPath(maskPath, Paint()..color = Colors.black87);
+
     // Рисуем пульсирующие кольца
     for (int i = 0; i < 3; i++) {
       final progress = (rippleProgress + i * 0.33) % 1.0;
       final opacity = (1.0 - progress) * 0.3;
       final radius = spotlightRadius + (progress * 50);
-      
+
       canvas.drawCircle(
         spotlightCenter,
         radius,
         Paint()
-          ..color = const Color(0xFF2EC5FF).withOpacity(opacity)
+          ..color = const Color(0xFF2EC5FF).withValues(alpha: opacity)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2,
       );
     }
-    
+
     // Добавляем светящуюся рамку
     canvas.drawCircle(
       spotlightCenter,
       spotlightRadius,
       Paint()
-        ..color = const Color(0xFF2EC5FF).withOpacity(0.5)
+        ..color = const Color(0xFF2EC5FF).withValues(alpha: 0.5)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10),
     );
-    
+
     // Внешнее свечение с градиентом
     final gradient = RadialGradient(
       colors: [
-        const Color(0xFF2EC5FF).withOpacity(0.3),
-        const Color(0xFF2EC5FF).withOpacity(0.1),
-        const Color(0xFF2EC5FF).withOpacity(0.0),
+        const Color(0xFF2EC5FF).withValues(alpha: 0.3),
+        const Color(0xFF2EC5FF).withValues(alpha: 0.1),
+        const Color(0xFF2EC5FF).withValues(alpha: 0.0),
       ],
       stops: const [0.3, 0.6, 1.0],
     );
-    
+
     canvas.drawCircle(
       spotlightCenter,
       glowRadius,
@@ -739,13 +729,13 @@ class _SpotlightPainter extends CustomPainter {
         ),
     );
   }
-  
+
   @override
   bool shouldRepaint(covariant _SpotlightPainter oldDelegate) {
     return oldDelegate.spotlightCenter != spotlightCenter ||
-           oldDelegate.spotlightRadius != spotlightRadius ||
-           oldDelegate.glowRadius != glowRadius ||
-           oldDelegate.rippleProgress != rippleProgress;
+        oldDelegate.spotlightRadius != spotlightRadius ||
+        oldDelegate.glowRadius != glowRadius ||
+        oldDelegate.rippleProgress != rippleProgress;
   }
 }
 
@@ -755,14 +745,14 @@ class _MotivationalOverlay extends StatefulWidget {
   final String emoji;
   final Offset position;
   final VoidCallback onComplete;
-  
+
   const _MotivationalOverlay({
     required this.text,
     required this.emoji,
     required this.position,
     required this.onComplete,
   });
-  
+
   @override
   State<_MotivationalOverlay> createState() => _MotivationalOverlayState();
 }
@@ -773,51 +763,49 @@ class _MotivationalOverlayState extends State<_MotivationalOverlay>
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  
+
   @override
   void initState() {
     super.initState();
-    
+
     _controller = AnimationController(
       duration: const Duration(milliseconds: 1800),
       vsync: this,
     );
-    
-    _scaleAnimation = Tween<double>(
-      begin: 0.5,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.0, 0.3, curve: Curves.elasticOut),
-    ));
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.0, 0.2, curve: Curves.easeIn),
-    ));
-    
-    _slideAnimation = Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(0.0, -0.5),
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.3, 1.0, curve: Curves.easeInOut),
-    ));
-    
+
+    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.3, curve: Curves.elasticOut),
+      ),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.2, curve: Curves.easeIn),
+      ),
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: Offset.zero, end: const Offset(0.0, -0.5)).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.3, 1.0, curve: Curves.easeInOut),
+          ),
+        );
+
     _controller.forward().then((_) {
       widget.onComplete();
     });
   }
-  
+
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -829,10 +817,12 @@ class _MotivationalOverlayState extends State<_MotivationalOverlay>
           return SlideTransition(
             position: _slideAnimation,
             child: FadeTransition(
-              opacity: ReverseAnimation(CurvedAnimation(
-                parent: _controller,
-                curve: const Interval(0.8, 1.0, curve: Curves.easeOut),
-              )),
+              opacity: ReverseAnimation(
+                CurvedAnimation(
+                  parent: _controller,
+                  curve: const Interval(0.8, 1.0, curve: Curves.easeOut),
+                ),
+              ),
               child: ScaleTransition(
                 scale: _scaleAnimation,
                 child: Container(
@@ -848,7 +838,7 @@ class _MotivationalOverlayState extends State<_MotivationalOverlay>
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF2EC5FF).withOpacity(0.4),
+                          color: const Color(0xFF2EC5FF).withValues(alpha: 0.4),
                           blurRadius: 16,
                           spreadRadius: 2,
                         ),

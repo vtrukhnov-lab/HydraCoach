@@ -32,40 +32,55 @@ class DietPage extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 10),
-          const IonCharacter(size: 100, mood: IonMood.happy, showGlow: false)
-            .animate().fadeIn(),
-          
+          const IonCharacter(
+            size: 100,
+            mood: IonMood.happy,
+            showGlow: false,
+          ).animate().fadeIn(),
+
           const SizedBox(height: 20),
-          
+
           Text(
             l10n.dietPageTitle,
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           Text(
             l10n.dietPageSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 15, color: Colors.grey[600]),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           _buildFastingOption(l10n),
-          
+
           if (isPracticingFasting) ...[
             const SizedBox(height: 16),
             _buildFastingSchedules(l10n),
           ],
-          
+
           const SizedBox(height: 16),
-          
-          _buildDietOption('normal', '🍽️', l10n.normalDiet, l10n.normalDietDesc, l10n),
-          
+
+          _buildDietOption(
+            'normal',
+            '🍽️',
+            l10n.normalDiet,
+            l10n.normalDietDesc,
+            l10n,
+          ),
+
           const SizedBox(height: 10),
-          
-          _buildDietOption('keto', '🥑', l10n.ketoDiet, l10n.ketoDietDesc, l10n),
+
+          _buildDietOption(
+            'keto',
+            '🥑',
+            l10n.ketoDiet,
+            l10n.ketoDietDesc,
+            l10n,
+          ),
         ],
       ),
     );
@@ -80,14 +95,14 @@ class DietPage extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: isPracticingFasting 
-            ? const Color(0xFF2EC5FF).withOpacity(0.1)
-            : Colors.white,
+          color: isPracticingFasting
+              ? const Color(0xFF2EC5FF).withValues(alpha: 0.1)
+              : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isPracticingFasting 
-              ? const Color(0xFF2EC5FF)
-              : Colors.grey[300]!,
+            color: isPracticingFasting
+                ? const Color(0xFF2EC5FF)
+                : Colors.grey[300]!,
             width: isPracticingFasting ? 2 : 1,
           ),
         ),
@@ -99,18 +114,18 @@ class DietPage extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isPracticingFasting 
-                    ? const Color(0xFF2EC5FF)
-                    : Colors.grey[400]!,
+                  color: isPracticingFasting
+                      ? const Color(0xFF2EC5FF)
+                      : Colors.grey[400]!,
                   width: 2,
                 ),
-                color: isPracticingFasting 
-                  ? const Color(0xFF2EC5FF)
-                  : Colors.transparent,
+                color: isPracticingFasting
+                    ? const Color(0xFF2EC5FF)
+                    : Colors.transparent,
               ),
               child: isPracticingFasting
-                ? const Icon(Icons.check, size: 14, color: Colors.white)
-                : null,
+                  ? const Icon(Icons.check, size: 14, color: Colors.white)
+                  : null,
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -122,9 +137,9 @@ class DietPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: isPracticingFasting 
-                        ? const Color(0xFF2EC5FF)
-                        : Colors.black,
+                      color: isPracticingFasting
+                          ? const Color(0xFF2EC5FF)
+                          : Colors.black,
                     ),
                   ),
                   Text(
@@ -146,7 +161,9 @@ class DietPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2EC5FF).withOpacity(0.3)),
+        border: Border.all(
+          color: const Color(0xFF2EC5FF).withValues(alpha: 0.3),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,15 +173,31 @@ class DietPage extends StatelessWidget {
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
-          _buildFastingScheduleOption('16:8', l10n.fasting16_8, l10n.fasting16_8Desc),
-          _buildFastingScheduleOption('OMAD', l10n.fastingOMAD, l10n.fastingOMADDesc),
-          _buildFastingScheduleOption('ADF', l10n.fastingADF, l10n.fastingADFDesc),
+          _buildFastingScheduleOption(
+            '16:8',
+            l10n.fasting16_8,
+            l10n.fasting16_8Desc,
+          ),
+          _buildFastingScheduleOption(
+            'OMAD',
+            l10n.fastingOMAD,
+            l10n.fastingOMADDesc,
+          ),
+          _buildFastingScheduleOption(
+            'ADF',
+            l10n.fastingADF,
+            l10n.fastingADFDesc,
+          ),
         ],
       ),
     ).animate().slideY(begin: 0.1, end: 0, duration: 300.ms);
   }
 
-  Widget _buildFastingScheduleOption(String value, String title, String subtitle) {
+  Widget _buildFastingScheduleOption(
+    String value,
+    String title,
+    String subtitle,
+  ) {
     return GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
@@ -185,8 +218,17 @@ class DietPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)),
-                  Text(subtitle, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                  ),
                 ],
               ),
             ),
@@ -196,10 +238,15 @@ class DietPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDietOption(String value, String icon, String title, 
-      String subtitle, AppLocalizations l10n) {
+  Widget _buildDietOption(
+    String value,
+    String icon,
+    String title,
+    String subtitle,
+    AppLocalizations l10n,
+  ) {
     final isSelected = dietMode == value && !isPracticingFasting;
-    
+
     return GestureDetector(
       onTap: () {
         if (!isPracticingFasting) {
@@ -210,14 +257,12 @@ class DietPage extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: isSelected 
-            ? const Color(0xFF2EC5FF).withOpacity(0.1)
-            : Colors.white,
+          color: isSelected
+              ? const Color(0xFF2EC5FF).withValues(alpha: 0.1)
+              : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected 
-              ? const Color(0xFF2EC5FF)
-              : Colors.grey[300]!,
+            color: isSelected ? const Color(0xFF2EC5FF) : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -234,15 +279,24 @@ class DietPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: isSelected ? const Color(0xFF2EC5FF) : Colors.black,
+                      color: isSelected
+                          ? const Color(0xFF2EC5FF)
+                          : Colors.black,
                     ),
                   ),
-                  Text(subtitle, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                  Text(
+                    subtitle,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
                 ],
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check_circle, color: Color(0xFF2EC5FF), size: 22),
+              const Icon(
+                Icons.check_circle,
+                color: Color(0xFF2EC5FF),
+                size: 22,
+              ),
           ],
         ),
       ),

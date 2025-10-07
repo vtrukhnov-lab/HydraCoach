@@ -48,8 +48,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   };
 
   // User data
-  double _weight = 70;  // Дефолтный вес в кг (универсальное внутреннее хранение)
-  String _units = '';  // Пустое значение - логика выбора в UnitsPage
+  double _weight = 70; // Дефолтный вес в кг (универсальное внутреннее хранение)
+  String _units = ''; // Пустое значение - логика выбора в UnitsPage
   String _dietMode = 'normal';
   String _fastingSchedule = 'none';
   bool _isPracticingFasting = false;
@@ -69,7 +69,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _trackStepView(_currentPage);
     });
   }
-  
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -89,10 +89,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _trackStepCompleted(int index) {
     final stepId = _stepIdFor(index);
-    _analytics.logOnboardingStepCompleted(
-      stepId: stepId,
-      stepIndex: index,
-    );
+    _analytics.logOnboardingStepCompleted(stepId: stepId, stepIndex: index);
   }
 
   void _completeStep(int index) {
@@ -169,10 +166,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  void _advanceFromLocation({
-    required String status,
-    bool isSkip = false,
-  }) {
+  void _advanceFromLocation({required String status, bool isSkip = false}) {
     if (isSkip) {
       _analytics.logOnboardingSkip(step: 7);
     }
@@ -201,17 +195,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final statusString = _locationStatusToString(status);
     _advanceFromLocation(status: statusString);
   }
-  
+
   @override
   Widget build(BuildContext context) {
     // Устанавливаем цвет системных панелей
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      systemNavigationBarColor: Colors.transparent,
-      systemNavigationBarDividerColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ));
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+    );
 
     final l10n = AppLocalizations.of(context);
 
@@ -223,9 +219,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         child: Column(
           children: [
             // Progress indicator (не для welcome page)
-            if (_currentPage > 0 && _currentPage < 5)
-              _buildProgressIndicator(),
-            
+            if (_currentPage > 0 && _currentPage < 5) _buildProgressIndicator(),
+
             // Page content
             Expanded(
               child: PageView(
@@ -239,10 +234,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
                   // 0 - Welcome Page
-                  WelcomePage(
-                    onStart: _goToNextPage,
-                  ),
-                  
+                  WelcomePage(onStart: _goToNextPage),
+
                   // 1 - Units Page
                   UnitsPage(
                     selectedUnits: _units,
@@ -260,7 +253,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     },
                     onNext: _goToNextPage,
                   ),
-                  
+
                   // 2 - Weight Page
                   WeightPage(
                     weight: _weight,
@@ -271,7 +264,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       });
                     },
                   ),
-                  
+
                   // 3 - Diet Page
                   DietPage(
                     isPracticingFasting: _isPracticingFasting,
@@ -315,7 +308,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       );
                     },
                   ),
-                  
+
                   // 4 - Complete Page
                   CompletePage(
                     weight: _weight,
@@ -326,7 +319,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onContinue: _completeBasicOnboarding,
                     onBack: _goToPreviousPage,
                   ),
-                  
+
                   // 5 - Notification Examples
                   NotificationExamplesPage(
                     onSkip: () {
@@ -362,7 +355,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ],
               ),
             ),
-            
+
             // Navigation buttons
             if (_shouldShowNavigationButtons())
               SafeArea(
@@ -376,39 +369,43 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
   }
-  
+
   Widget _buildProgressIndicator() {
     final totalSteps = 4;
     final currentStep = _currentPage > 4 ? 4 : _currentPage;
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       child: Row(
-        children: List.generate(totalSteps, (index) => Expanded(
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            height: 4,
-            decoration: BoxDecoration(
-              color: index < currentStep 
-                ? const Color(0xFF2EC5FF) 
-                : Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ).animate().scaleX(
-            begin: index < currentStep ? 0 : 1,
-            end: 1,
-            duration: 300.ms,
+        children: List.generate(
+          totalSteps,
+          (index) => Expanded(
+            child:
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: index < currentStep
+                        ? const Color(0xFF2EC5FF)
+                        : Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ).animate().scaleX(
+                  begin: index < currentStep ? 0 : 1,
+                  end: 1,
+                  duration: 300.ms,
+                ),
           ),
-        )),
+        ),
       ),
     );
   }
-  
+
   bool _shouldShowNavigationButtons() {
     // Показываем кнопки только для Weight и Diet страниц
     return _currentPage == 2 || _currentPage == 3;
   }
-  
+
   Widget _buildNavigationButtons(AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -420,7 +417,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           )
         else
           const SizedBox(width: 80),
-        
+
         ElevatedButton(
           onPressed: _goToNextPage,
           style: ElevatedButton.styleFrom(
@@ -432,12 +429,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
             elevation: 0,
           ),
-          child: Text(l10n.next, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          child: Text(
+            l10n.next,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
         ),
       ],
     );
   }
-  
+
   // Navigation methods
   void _goToNextPage() {
     _completeStep(_currentPage);
@@ -448,7 +448,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       );
     }
   }
-  
+
   void _goToPreviousPage() {
     _pageController.previousPage(
       duration: const Duration(milliseconds: 300),
@@ -471,7 +471,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       curve: Curves.easeInOut,
     );
   }
-  
+
   void _skipPermission() {
     if (_currentPage == 5) {
       _advanceFromNotifications(status: 'skipped', isSkip: true);
@@ -487,7 +487,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void _skipLocationPermission() {
     _advanceFromLocation(status: 'skipped', isSkip: true);
   }
-  
+
   // Permission methods (старые - не используются)
   Future<void> _requestNotificationPermission() async {
     try {
@@ -498,26 +498,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       debugPrint('Notification permission error: $e');
     }
   }
-  
+
   Future<void> _requestLocationPermission() async {
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         debugPrint('Location services are disabled');
       }
-      
+
       var permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
-      
+
       HapticFeedback.lightImpact();
       debugPrint('Location permission: $permission');
     } catch (e) {
       debugPrint('Location permission error: $e');
     }
   }
-  
+
   // Data management methods
   Future<void> _saveBasicData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -534,10 +534,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     await prefs.setString('activityLevel', 'medium');
     await prefs.setString('fastingSchedule', _fastingSchedule);
     await prefs.setInt('dailyCaloriesGoal', dailyCaloriesGoal);
-    
+
     // Сохраняем выбранные единицы в UnitsService
     await UnitsService.instance.setUnits(unitsToSave);
-    
+
     if (mounted) {
       final provider = Provider.of<HydrationProvider>(context, listen: false);
       provider.updateProfile(
@@ -548,7 +548,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       );
     }
   }
-  
+
   Future<void> _completeOnboarding() async {
     // Сохраняем данные перед завершением
     await _saveBasicData();
@@ -564,14 +564,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       // Показываем paywall
       final bool? purchased = await Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => const PaywallScreen(
-            showCloseButton: true,
-            source: 'onboarding',
-          ),
+          builder: (_) =>
+              const PaywallScreen(showCloseButton: true, source: 'onboarding'),
           fullscreenDialog: true,
         ),
       );
-      
+
       if (mounted) {
         // Продолжаем независимо от результата покупки
         // purchased == true: пользователь купил PRO
@@ -604,13 +602,13 @@ class _MainShellWithTutorial extends StatefulWidget {
 
 class _MainShellWithTutorialState extends State<_MainShellWithTutorial> {
   bool _showTutorial = true;
-  
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         const MainShell(),
-        
+
         if (_showTutorial)
           FirstIntakeTutorial(
             onComplete: () async {

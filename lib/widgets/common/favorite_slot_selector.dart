@@ -34,7 +34,7 @@ class FavoriteSlotSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    
+
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -54,14 +54,14 @@ class FavoriteSlotSelector extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          
+
           // Title
           Text(
             l10n.selectFavoriteSlot,
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
-          
+
           // Slots
           for (int i = 0; i < 3; i++) ...[
             _SlotOption(
@@ -76,12 +76,13 @@ class FavoriteSlotSelector extends StatelessWidget {
               onProRequired: (slot) async {
                 // КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: НЕ закрываем селектор до пейвола
                 HapticFeedback.lightImpact();
-                
+
                 // Открываем пейвол и ждем результат
                 final upgraded = await Navigator.push<bool>(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const PaywallScreen(source: 'favorite_slot_selector'),
+                    builder: (_) =>
+                        const PaywallScreen(source: 'favorite_slot_selector'),
                     fullscreenDialog: true,
                   ),
                 );
@@ -124,7 +125,7 @@ class _SlotOption extends StatelessWidget {
     if (isLocked) {
       return Container(
         decoration: BoxDecoration(
-          color: Colors.purple.shade50.withOpacity(0.5),
+          color: Colors.purple.shade50.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.purple.shade200),
         ),
@@ -139,29 +140,29 @@ class _SlotOption extends StatelessWidget {
         ),
       );
     }
-    
+
     return Container(
       decoration: BoxDecoration(
-        color: currentFavorite != null 
-          ? Colors.orange.shade50 
-          : Colors.green.shade50,
+        color: currentFavorite != null
+            ? Colors.orange.shade50
+            : Colors.green.shade50,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: currentFavorite != null 
-            ? Colors.orange.shade200 
-            : Colors.green.shade200,
+          color: currentFavorite != null
+              ? Colors.orange.shade200
+              : Colors.green.shade200,
         ),
       ),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: currentFavorite != null 
-            ? Colors.orange.shade100 
-            : Colors.green.shade100,
+          backgroundColor: currentFavorite != null
+              ? Colors.orange.shade100
+              : Colors.green.shade100,
           child: Icon(
             currentFavorite != null ? Icons.star : Icons.add,
-            color: currentFavorite != null 
-              ? Colors.orange.shade600 
-              : Colors.green.shade600,
+            color: currentFavorite != null
+                ? Colors.orange.shade600
+                : Colors.green.shade600,
           ),
         ),
         title: Text('${l10n.slot} ${slot + 1}'),
@@ -169,50 +170,49 @@ class _SlotOption extends StatelessWidget {
           currentFavorite?.label ?? l10n.emptySlot,
           style: TextStyle(
             fontSize: 13,
-            color: currentFavorite != null 
-              ? Colors.grey.shade700 
-              : Colors.grey.shade500,
+            color: currentFavorite != null
+                ? Colors.grey.shade700
+                : Colors.grey.shade500,
           ),
         ),
         trailing: currentFavorite != null
-          ? PopupMenuButton<String>(
-              icon: Icon(Icons.more_vert, color: Colors.grey[600]),
-              onSelected: (value) {
-                if (value == 'change') {
-                  onTap(slot);
-                } else if (value == 'remove') {
-                  // TODO: Implement remove functionality
-                  HapticFeedback.lightImpact();
-                }
-              },
-              itemBuilder: (BuildContext context) => [
-                PopupMenuItem<String>(
-                  value: 'change',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.edit, size: 20),
-                      const SizedBox(width: 12),
-                      Text(l10n.changeFavorite),
-                    ],
+            ? PopupMenuButton<String>(
+                icon: Icon(Icons.more_vert, color: Colors.grey[600]),
+                onSelected: (value) {
+                  if (value == 'change') {
+                    onTap(slot);
+                  } else if (value == 'remove') {
+                    // TODO: Implement remove functionality
+                    HapticFeedback.lightImpact();
+                  }
+                },
+                itemBuilder: (BuildContext context) => [
+                  PopupMenuItem<String>(
+                    value: 'change',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.edit, size: 20),
+                        const SizedBox(width: 12),
+                        Text(l10n.changeFavorite),
+                      ],
+                    ),
                   ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'remove',
-                  child: Row(
-                    children: [
-                      const Icon(Icons.delete, size: 20, color: Colors.red),
-                      const SizedBox(width: 12),
-                      Text(l10n.removeFavorite, 
-                        style: const TextStyle(color: Colors.red)),
-                    ],
+                  PopupMenuItem<String>(
+                    value: 'remove',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.delete, size: 20, color: Colors.red),
+                        const SizedBox(width: 12),
+                        Text(
+                          l10n.removeFavorite,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            )
-          : Icon(
-              Icons.chevron_right, 
-              color: Colors.grey.shade400,
-            ),
+                ],
+              )
+            : Icon(Icons.chevron_right, color: Colors.grey.shade400),
         onTap: () => onTap(slot),
       ),
     );

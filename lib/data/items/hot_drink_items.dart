@@ -21,7 +21,7 @@ class HotDrinkItems {
       ),
       CatalogItem(
         id: 'hot_americano',
-        getName: (l10n) => l10n.drink_americano ?? 'Americano',
+        getName: (l10n) => l10n.drink_americano,
         icon: '☕',
         properties: {
           'type': 'coffee',
@@ -43,7 +43,7 @@ class HotDrinkItems {
         isPro: false,
         color: const Color(0xFF8D6E63),
       ),
-      
+
       // PRO coffee drinks (9)
       CatalogItem(
         id: 'hot_espresso',
@@ -77,7 +77,7 @@ class HotDrinkItems {
           'type': 'coffee',
           'defaultVolume': {'metric': 180, 'imperial': 6},
           'caffeineMgPer100ml': 42,
-          'sugar': 10.0,  // ~10g from milk (180ml drink, ~120ml milk)
+          'sugar': 10.0, // ~10g from milk (180ml drink, ~120ml milk)
         },
         isPro: true,
         color: const Color(0xFF6D4C41),
@@ -90,7 +90,7 @@ class HotDrinkItems {
           'type': 'coffee',
           'defaultVolume': {'metric': 250, 'imperial': 8},
           'caffeineMgPer100ml': 30,
-          'sugar': 17.0,  // ~17g from milk (250ml drink, ~200ml milk)
+          'sugar': 17.0, // ~17g from milk (250ml drink, ~200ml milk)
         },
         isPro: true,
         color: const Color(0xFF8D6E63),
@@ -103,7 +103,7 @@ class HotDrinkItems {
           'type': 'coffee',
           'defaultVolume': {'metric': 160, 'imperial': 5},
           'caffeineMgPer100ml': 50,
-          'sugar': 9.0,  // ~9g from milk (160ml drink, ~110ml milk)
+          'sugar': 9.0, // ~9g from milk (160ml drink, ~110ml milk)
         },
         isPro: true,
         color: const Color(0xFF795548),
@@ -116,7 +116,7 @@ class HotDrinkItems {
           'type': 'coffee',
           'defaultVolume': {'metric': 60, 'imperial': 2},
           'caffeineMgPer100ml': 150,
-          'sugar': 2.0,  // ~2g from small amount of milk foam
+          'sugar': 2.0, // ~2g from small amount of milk foam
         },
         isPro: true,
         color: const Color(0xFF5D4037),
@@ -129,7 +129,7 @@ class HotDrinkItems {
           'type': 'coffee',
           'defaultVolume': {'metric': 250, 'imperial': 8},
           'caffeineMgPer100ml': 35,
-          'sugar': 20.0,  // Mocha contains chocolate/sugar + milk
+          'sugar': 20.0, // Mocha contains chocolate/sugar + milk
         },
         isPro: true,
         color: const Color(0xFF4E342E),
@@ -158,7 +158,7 @@ class HotDrinkItems {
         isPro: true,
         color: const Color(0xFFA1887F),
       ),
-      
+
       // ========== TEA DRINKS (11 items) ==========
       // FREE tea drinks (3)
       CatalogItem(
@@ -197,7 +197,7 @@ class HotDrinkItems {
         isPro: false,
         color: const Color(0xFF388E3C),
       ),
-      
+
       // PRO tea drinks (8)
       CatalogItem(
         id: 'hot_matcha',
@@ -207,7 +207,7 @@ class HotDrinkItems {
           'type': 'matcha',
           'defaultVolume': {'metric': 200, 'imperial': 6},
           'caffeineMgPer100ml': 35,
-          'sugar': 12.0,  // Often served as matcha latte with milk
+          'sugar': 12.0, // Often served as matcha latte with milk
         },
         isPro: true,
         color: const Color(0xFF1B5E20),
@@ -244,7 +244,7 @@ class HotDrinkItems {
           'type': 'chai_tea',
           'defaultVolume': {'metric': 250, 'imperial': 8},
           'caffeineMgPer100ml': 20,
-          'sugar': 15.0,  // Chai latte with milk and sweeteners
+          'sugar': 15.0, // Chai latte with milk and sweeteners
         },
         isPro: true,
         color: const Color(0xFF8D6E63),
@@ -297,7 +297,7 @@ class HotDrinkItems {
         isPro: true,
         color: const Color(0xFFD84315),
       ),
-      
+
       // ========== OTHER HOT DRINKS (8 items) ==========
       // FREE other drinks (2)
       CatalogItem(
@@ -308,7 +308,7 @@ class HotDrinkItems {
           'type': 'hot_chocolate',
           'defaultVolume': {'metric': 250, 'imperial': 8},
           'caffeineMgPer100ml': 2,
-          'sugar': 25.0,  // 25g sugar per serving
+          'sugar': 25.0, // 25g sugar per serving
         },
         isPro: false,
         color: const Color(0xFFA1887F),
@@ -325,7 +325,7 @@ class HotDrinkItems {
         isPro: false,
         color: const Color(0xFF90CAF9),
       ),
-      
+
       // PRO other drinks (6 - without bone broth)
       CatalogItem(
         id: 'hot_cocoa',
@@ -335,7 +335,7 @@ class HotDrinkItems {
           'type': 'hot_cocoa',
           'defaultVolume': {'metric': 250, 'imperial': 8},
           'caffeineMgPer100ml': 3,
-          'sugar': 28.0,  // High sugar content
+          'sugar': 28.0, // High sugar content
         },
         isPro: true,
         color: const Color(0xFF8D6E63),
@@ -348,7 +348,7 @@ class HotDrinkItems {
           'type': 'white_chocolate',
           'defaultVolume': {'metric': 250, 'imperial': 8},
           'caffeineMgPer100ml': 0,
-          'sugar': 30.0,  // Very high sugar
+          'sugar': 30.0, // Very high sugar
         },
         isPro: true,
         color: const Color(0xFFE0E0E0),
@@ -361,7 +361,7 @@ class HotDrinkItems {
           'type': 'turmeric_latte',
           'defaultVolume': {'metric': 250, 'imperial': 8},
           'caffeineMgPer100ml': 0,
-          'sugar': 8.0,  // Some sugar from milk
+          'sugar': 8.0, // Some sugar from milk
         },
         isPro: true,
         color: const Color(0xFFFFB300),
@@ -374,7 +374,7 @@ class HotDrinkItems {
           'type': 'apple_cider',
           'defaultVolume': {'metric': 250, 'imperial': 8},
           'caffeineMgPer100ml': 0,
-          'sugar': 24.0,  // Natural sugars from apples
+          'sugar': 24.0, // Natural sugars from apples
         },
         isPro: true,
         color: const Color(0xFFFF6F00),
@@ -409,7 +409,7 @@ class HotDrinkItems {
   // Получить быстрые объемы для типа напитка
   static List<int> getQuickVolumes(String type, String units) {
     final isImperial = units == 'imperial';
-    
+
     switch (type) {
       case 'espresso':
       case 'double_espresso':

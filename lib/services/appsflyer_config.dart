@@ -6,10 +6,7 @@ class AppsFlyerConfig {
     required this.appId,
   });
 
-  const AppsFlyerConfig.empty()
-      : devKey = '',
-        bundleId = '',
-        appId = '';
+  const AppsFlyerConfig.empty() : devKey = '', bundleId = '', appId = '';
 
   final String devKey;
   final String bundleId;
@@ -41,10 +38,7 @@ const AppsFlyerConfig appsFlyerIosConfig = AppsFlyerConfig(
     'IOS_BUNDLE_ID',
     defaultValue: 'com.playcus.hydracoach',
   ),
-  appId: String.fromEnvironment(
-    'IOS_APP_ID',
-    defaultValue: '6752772787',
-  ),
+  appId: String.fromEnvironment('IOS_APP_ID', defaultValue: '6752772787'),
 );
 
 /// AdMob конфигурация
@@ -110,9 +104,7 @@ const AdMobConfig adMobIosConfig = AdMobConfig(
 
 /// MAX SDK конфигурация (одинаковая для всех платформ)
 class MaxSdkConfig {
-  const MaxSdkConfig({
-    required this.sdkKey,
-  });
+  const MaxSdkConfig({required this.sdkKey});
 
   final String sdkKey;
 
@@ -122,6 +114,7 @@ class MaxSdkConfig {
 const MaxSdkConfig maxSdkConfig = MaxSdkConfig(
   sdkKey: String.fromEnvironment(
     'MAX_SDK_KEY',
-    defaultValue: '5AAhiuFzwRBZXL6NRkfMQIFE9TpJ-fX4qinXb1VVTh4_1ANSv1qJJ3TSWLnV_Jaq1LLcMr7rXCqTMC0FDqZXu6',
+    defaultValue:
+        '5AAhiuFzwRBZXL6NRkfMQIFE9TpJ-fX4qinXb1VVTh4_1ANSv1qJJ3TSWLnV_Jaq1LLcMr7rXCqTMC0FDqZXu6',
   ),
 );

@@ -30,9 +30,7 @@ class CaloriesIntakeCard extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => const FoodCatalogScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => const FoodCatalogScreen()),
         );
       },
       child: Container(
@@ -104,7 +102,10 @@ class CaloriesIntakeCard extends StatelessWidget {
                   ),
                   // Водный баланс от еды
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
@@ -225,7 +226,11 @@ class CaloriesIntakeCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCalorieProgress(BuildContext context, int totalCalories, AppLocalizations l10n) {
+  Widget _buildCalorieProgress(
+    BuildContext context,
+    int totalCalories,
+    AppLocalizations l10n,
+  ) {
     final provider = Provider.of<HydrationProvider>(context, listen: false);
     final goal = provider.calorieGoal; // Dynamic calorie goal based on weight
     final progress = (totalCalories / goal).clamp(0.0, 1.0);
@@ -274,7 +279,12 @@ class CaloriesIntakeCard extends StatelessWidget {
     );
   }
 
-  Widget _buildNutrientCard(String value, String label, IconData icon, Color bgColor) {
+  Widget _buildNutrientCard(
+    String value,
+    String label,
+    IconData icon,
+    Color bgColor,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
@@ -284,11 +294,7 @@ class CaloriesIntakeCard extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            color: Colors.white,
-            size: 14,
-          ),
+          Icon(icon, color: Colors.white, size: 14),
           const SizedBox(width: 4),
           Expanded(
             child: Column(
@@ -450,7 +456,8 @@ class CaloriesIntakeCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          l10n?.trackYourDailyCalorieIntake ?? 'Track your daily calorie intake from food',
+                          l10n?.trackYourDailyCalorieIntake ??
+                              'Track your daily calorie intake from food',
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 14,
@@ -462,7 +469,10 @@ class CaloriesIntakeCard extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
@@ -487,14 +497,11 @@ class CaloriesIntakeCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.star,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                    const Icon(Icons.star, color: Colors.white, size: 20),
                     const SizedBox(width: 8),
                     Text(
-                      l10n?.unlockFoodTrackingFeatures ?? 'Unlock food tracking features',
+                      l10n?.unlockFoodTrackingFeatures ??
+                          'Unlock food tracking features',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 14,

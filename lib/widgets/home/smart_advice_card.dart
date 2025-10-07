@@ -23,7 +23,14 @@ class SmartAdviceCard extends StatelessWidget {
     final units = Provider.of<UnitsService>(context, listen: false);
     final l10n = AppLocalizations.of(context);
 
-    final advice = _getSmartAdvice(provider, alcohol, hri, weather, units, l10n);
+    final advice = _getSmartAdvice(
+      provider,
+      alcohol,
+      hri,
+      weather,
+      units,
+      l10n,
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -57,12 +64,20 @@ class SmartAdviceCard extends StatelessWidget {
                 children: [
                   Text(
                     advice['title'] as String,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: advice['border'] as Color),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: advice['border'] as Color,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     advice['body'] as String,
-                    style: TextStyle(fontSize: 13.5, color: Colors.grey[800], height: 1.3),
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      color: Colors.grey[800],
+                      height: 1.3,
+                    ),
                   ),
                 ],
               ),
@@ -90,19 +105,23 @@ class SmartAdviceCard extends StatelessWidget {
     var highestValue = 0.0;
 
     hriComponents.forEach((component, value) {
-      if (value > highestValue && value > 2.0) { // Only consider significant factors
+      if (value > highestValue && value > 2.0) {
+        // Only consider significant factors
         highestValue = value;
         highestComponent = component;
       }
     });
 
     // CRITICAL: Handle severe overhydration first
-    final waterRatio = provider.goals.waterOpt > 0 ? provider.totalWaterToday / provider.goals.waterOpt : 0.0;
+    final waterRatio = provider.goals.waterOpt > 0
+        ? provider.totalWaterToday / provider.goals.waterOpt
+        : 0.0;
     if (waterRatio > 2.0) {
       final volumeToShow = units.formatVolume(500);
       return {
         'title': l10n.adviceOverhydrationSevere,
-        'body': 'Critical! Stop drinking. Add $volumeToShow with 800mg sodium. Could reduce HRI by ${highestValue.round()} points.',
+        'body':
+            'Critical! Stop drinking. Add $volumeToShow with 800mg sodium. Could reduce HRI by ${highestValue.round()} points.',
         'tone': const Color(0xFFFFEBEE),
         'border': Colors.red.shade600,
         'ionMood': IonMood.worried,
@@ -113,28 +132,69 @@ class SmartAdviceCard extends StatelessWidget {
     // HRI-BASED PRIORITY RECOMMENDATIONS
     switch (highestComponent) {
       case 'water':
-        return _getWaterAdvice(hriComponents['water']!, provider, units, l10n, waterRatio);
+        return _getWaterAdvice(
+          hriComponents['water']!,
+          provider,
+          units,
+          l10n,
+          waterRatio,
+        );
 
       case 'sodium':
-        return _getSodiumAdvice(hriComponents['sodium']!, provider, units, l10n);
+        return _getSodiumAdvice(
+          hriComponents['sodium']!,
+          provider,
+          units,
+          l10n,
+        );
 
       case 'potassium':
-        return _getPotassiumAdvice(hriComponents['potassium']!, provider, units, l10n);
+        return _getPotassiumAdvice(
+          hriComponents['potassium']!,
+          provider,
+          units,
+          l10n,
+        );
 
       case 'magnesium':
-        return _getMagnesiumAdvice(hriComponents['magnesium']!, provider, units, l10n);
+        return _getMagnesiumAdvice(
+          hriComponents['magnesium']!,
+          provider,
+          units,
+          l10n,
+        );
 
       case 'workouts':
-        return _getWorkoutAdvice(hriComponents['workouts']!, hriService, units, l10n);
+        return _getWorkoutAdvice(
+          hriComponents['workouts']!,
+          hriService,
+          units,
+          l10n,
+        );
 
       case 'dehydration':
-        return _getDehydrationAdvice(hriComponents['dehydration']!, hriService, units, l10n);
+        return _getDehydrationAdvice(
+          hriComponents['dehydration']!,
+          hriService,
+          units,
+          l10n,
+        );
 
       case 'caffeine':
-        return _getCaffeineAdvice(hriComponents['caffeine']!, hriService, units, l10n);
+        return _getCaffeineAdvice(
+          hriComponents['caffeine']!,
+          hriService,
+          units,
+          l10n,
+        );
 
       case 'alcohol':
-        return _getAlcoholAdvice(hriComponents['alcohol']!, alcoholService, units, l10n);
+        return _getAlcoholAdvice(
+          hriComponents['alcohol']!,
+          alcoholService,
+          units,
+          l10n,
+        );
 
       case 'sugar':
         return _getSugarAdvice(hriComponents['sugar']!, provider, units, l10n);
@@ -143,22 +203,34 @@ class SmartAdviceCard extends StatelessWidget {
         return _getFoodAdvice(hriComponents['food']!, provider, units, l10n);
 
       case 'timeSinceIntake':
-        return _getTimeAdvice(hriComponents['timeSinceIntake']!, hriService, units, l10n);
+        return _getTimeAdvice(
+          hriComponents['timeSinceIntake']!,
+          hriService,
+          units,
+          l10n,
+        );
 
       case 'morning':
         return _getMorningAdvice(hriComponents['morning']!, units, l10n);
 
       case 'heat':
-        return _getHeatAdvice(hriComponents['heat']!, weatherService, units, l10n);
+        return _getHeatAdvice(
+          hriComponents['heat']!,
+          weatherService,
+          units,
+          l10n,
+        );
     }
 
     // Perfect state
     if (currentHRI < 30) {
-      final waterNeed = (provider.goals.waterOpt - provider.totalWaterToday).clamp(100, 500);
+      final waterNeed = (provider.goals.waterOpt - provider.totalWaterToday)
+          .clamp(100, 500);
       final displayNeed = units.formatVolume(waterNeed.toInt(), hideUnit: true);
       return {
         'title': '🎯 Excellent hydration!',
-        'body': 'HRI: ${currentHRI.round()}/100. Stay on track with ~$displayNeed ${units.volumeUnit} more.',
+        'body':
+            'HRI: ${currentHRI.round()}/100. Stay on track with ~$displayNeed ${units.volumeUnit} more.',
         'tone': Colors.green.shade50,
         'border': Colors.green.shade400,
         'ionMood': IonMood.happy,
@@ -167,11 +239,13 @@ class SmartAdviceCard extends StatelessWidget {
     }
 
     // Default good state
-    final waterNeed = (provider.goals.waterOpt - provider.totalWaterToday).clamp(200, 600);
+    final waterNeed = (provider.goals.waterOpt - provider.totalWaterToday)
+        .clamp(200, 600);
     final displayNeed = units.formatVolume(waterNeed.toInt(), hideUnit: true);
     return {
       'title': '✅ Good balance',
-      'body': 'HRI: ${currentHRI.round()}/100. Continue with ~$displayNeed ${units.volumeUnit} more.',
+      'body':
+          'HRI: ${currentHRI.round()}/100. Continue with ~$displayNeed ${units.volumeUnit} more.',
       'tone': Colors.green.shade50,
       'border': Colors.green.shade300,
       'ionMood': IonMood.happy,
@@ -181,12 +255,19 @@ class SmartAdviceCard extends StatelessWidget {
 
   // ========== COMPONENT-SPECIFIC ADVICE METHODS ==========
 
-  Map<String, dynamic> _getWaterAdvice(double component, HydrationProvider provider, UnitsService units, AppLocalizations l10n, double waterRatio) {
+  Map<String, dynamic> _getWaterAdvice(
+    double component,
+    HydrationProvider provider,
+    UnitsService units,
+    AppLocalizations l10n,
+    double waterRatio,
+  ) {
     if (component > 30) {
       final volumeToShow = units.formatVolume(300);
       return {
         'title': '🚨 Severe dehydration',
-        'body': 'Drink $volumeToShow immediately with salt. Could reduce HRI by ${component.round()} points.',
+        'body':
+            'Drink $volumeToShow immediately with salt. Could reduce HRI by ${component.round()} points.',
         'tone': Colors.red.shade50,
         'border': Colors.red.shade400,
         'ionMood': IonMood.worried,
@@ -198,7 +279,8 @@ class SmartAdviceCard extends StatelessWidget {
       final volumeToShow = units.formatVolume(400);
       return {
         'title': '💧 Dehydration risk',
-        'body': 'Drink $volumeToShow now. Could reduce HRI by ${component.round()} points.',
+        'body':
+            'Drink $volumeToShow now. Could reduce HRI by ${component.round()} points.',
         'tone': Colors.blue.shade50,
         'border': Colors.blue.shade400,
         'ionMood': IonMood.worried,
@@ -209,7 +291,8 @@ class SmartAdviceCard extends StatelessWidget {
     if (waterRatio > 1.3) {
       return {
         'title': '⚠️ Overhydration',
-        'body': 'Slow down water intake. Add electrolytes instead. Could reduce HRI by ${component.round()} points.',
+        'body':
+            'Slow down water intake. Add electrolytes instead. Could reduce HRI by ${component.round()} points.',
         'tone': Colors.orange.shade50,
         'border': Colors.orange.shade400,
         'ionMood': IonMood.thinking,
@@ -220,7 +303,8 @@ class SmartAdviceCard extends StatelessWidget {
     final volumeToShow = units.formatVolume(250);
     return {
       'title': '💧 Water needed',
-      'body': 'Drink $volumeToShow soon. Could reduce HRI by ${component.round()} points.',
+      'body':
+          'Drink $volumeToShow soon. Could reduce HRI by ${component.round()} points.',
       'tone': Colors.blue.shade50,
       'border': Colors.blue.shade300,
       'ionMood': IonMood.thinking,
@@ -228,11 +312,18 @@ class SmartAdviceCard extends StatelessWidget {
     };
   }
 
-  Map<String, dynamic> _getSodiumAdvice(double component, HydrationProvider provider, UnitsService units, AppLocalizations l10n) {
-    final sodiumNeed = (provider.goals.sodium - provider.totalSodiumToday).clamp(200, 1000);
+  Map<String, dynamic> _getSodiumAdvice(
+    double component,
+    HydrationProvider provider,
+    UnitsService units,
+    AppLocalizations l10n,
+  ) {
+    final sodiumNeed = (provider.goals.sodium - provider.totalSodiumToday)
+        .clamp(200, 1000);
     return {
       'title': '🧂 Low sodium',
-      'body': 'Add ${sodiumNeed.round()}mg sodium (pinch of salt). Could reduce HRI by ${component.round()} points.',
+      'body':
+          'Add ${sodiumNeed.round()}mg sodium (pinch of salt). Could reduce HRI by ${component.round()} points.',
       'tone': Colors.amber.shade50,
       'border': Colors.amber.shade400,
       'ionMood': IonMood.thinking,
@@ -240,10 +331,16 @@ class SmartAdviceCard extends StatelessWidget {
     };
   }
 
-  Map<String, dynamic> _getPotassiumAdvice(double component, HydrationProvider provider, UnitsService units, AppLocalizations l10n) {
+  Map<String, dynamic> _getPotassiumAdvice(
+    double component,
+    HydrationProvider provider,
+    UnitsService units,
+    AppLocalizations l10n,
+  ) {
     return {
       'title': '🍌 Low potassium',
-      'body': 'Eat banana, avocado, or coconut water. Could reduce HRI by ${component.round()} points.',
+      'body':
+          'Eat banana, avocado, or coconut water. Could reduce HRI by ${component.round()} points.',
       'tone': Colors.yellow.shade50,
       'border': Colors.yellow.shade400,
       'ionMood': IonMood.thinking,
@@ -251,10 +348,16 @@ class SmartAdviceCard extends StatelessWidget {
     };
   }
 
-  Map<String, dynamic> _getMagnesiumAdvice(double component, HydrationProvider provider, UnitsService units, AppLocalizations l10n) {
+  Map<String, dynamic> _getMagnesiumAdvice(
+    double component,
+    HydrationProvider provider,
+    UnitsService units,
+    AppLocalizations l10n,
+  ) {
     return {
       'title': '🥜 Low magnesium',
-      'body': 'Eat nuts, seeds, or dark chocolate. Could reduce HRI by ${component.round()} points.',
+      'body':
+          'Eat nuts, seeds, or dark chocolate. Could reduce HRI by ${component.round()} points.',
       'tone': Colors.brown.shade50,
       'border': Colors.brown.shade400,
       'ionMood': IonMood.thinking,
@@ -262,11 +365,17 @@ class SmartAdviceCard extends StatelessWidget {
     };
   }
 
-  Map<String, dynamic> _getWorkoutAdvice(double component, HRIService hriService, UnitsService units, AppLocalizations l10n) {
+  Map<String, dynamic> _getWorkoutAdvice(
+    double component,
+    HRIService hriService,
+    UnitsService units,
+    AppLocalizations l10n,
+  ) {
     final volumeToShow = units.formatVolume(500);
     return {
       'title': '🏃 Post-workout recovery',
-      'body': 'Drink $volumeToShow with electrolytes to recover. Could reduce HRI by ${component.round()} points.',
+      'body':
+          'Drink $volumeToShow with electrolytes to recover. Could reduce HRI by ${component.round()} points.',
       'tone': Colors.purple.shade50,
       'border': Colors.purple.shade400,
       'ionMood': IonMood.thinking,
@@ -274,11 +383,17 @@ class SmartAdviceCard extends StatelessWidget {
     };
   }
 
-  Map<String, dynamic> _getDehydrationAdvice(double component, HRIService hriService, UnitsService units, AppLocalizations l10n) {
+  Map<String, dynamic> _getDehydrationAdvice(
+    double component,
+    HRIService hriService,
+    UnitsService units,
+    AppLocalizations l10n,
+  ) {
     final volumeToShow = units.formatVolume(400);
     return {
       'title': '🚰 Workout dehydration',
-      'body': 'Compensate workout losses: $volumeToShow + salt. Could reduce HRI by ${component.round()} points.',
+      'body':
+          'Compensate workout losses: $volumeToShow + salt. Could reduce HRI by ${component.round()} points.',
       'tone': Colors.red.shade50,
       'border': Colors.red.shade400,
       'ionMood': IonMood.worried,
@@ -286,11 +401,17 @@ class SmartAdviceCard extends StatelessWidget {
     };
   }
 
-  Map<String, dynamic> _getCaffeineAdvice(double component, HRIService hriService, UnitsService units, AppLocalizations l10n) {
+  Map<String, dynamic> _getCaffeineAdvice(
+    double component,
+    HRIService hriService,
+    UnitsService units,
+    AppLocalizations l10n,
+  ) {
     final volumeToShow = units.formatVolume(300);
     return {
       'title': '☕ High caffeine',
-      'body': 'Drink extra $volumeToShow to counter caffeine. Could reduce HRI by ${component.round()} points.',
+      'body':
+          'Drink extra $volumeToShow to counter caffeine. Could reduce HRI by ${component.round()} points.',
       'tone': Colors.brown.shade50,
       'border': Colors.brown.shade400,
       'ionMood': IonMood.thinking,
@@ -298,11 +419,17 @@ class SmartAdviceCard extends StatelessWidget {
     };
   }
 
-  Map<String, dynamic> _getAlcoholAdvice(double component, AlcoholService alcoholService, UnitsService units, AppLocalizations l10n) {
+  Map<String, dynamic> _getAlcoholAdvice(
+    double component,
+    AlcoholService alcoholService,
+    UnitsService units,
+    AppLocalizations l10n,
+  ) {
     final volumeToShow = units.formatVolume(400);
     return {
       'title': '🍷 Alcohol recovery',
-      'body': 'No more alcohol! Drink $volumeToShow slowly + salt. Could reduce HRI by ${component.round()} points.',
+      'body':
+          'No more alcohol! Drink $volumeToShow slowly + salt. Could reduce HRI by ${component.round()} points.',
       'tone': Colors.orange.shade50,
       'border': Colors.orange.shade400,
       'ionMood': IonMood.worried,
@@ -310,11 +437,17 @@ class SmartAdviceCard extends StatelessWidget {
     };
   }
 
-  Map<String, dynamic> _getSugarAdvice(double component, HydrationProvider provider, UnitsService units, AppLocalizations l10n) {
+  Map<String, dynamic> _getSugarAdvice(
+    double component,
+    HydrationProvider provider,
+    UnitsService units,
+    AppLocalizations l10n,
+  ) {
     final volumeToShow = units.formatVolume(300);
     return {
       'title': '🍭 High sugar intake',
-      'body': 'Drink extra $volumeToShow to process sugar. Could reduce HRI by ${component.round()} points.',
+      'body':
+          'Drink extra $volumeToShow to process sugar. Could reduce HRI by ${component.round()} points.',
       'tone': Colors.pink.shade50,
       'border': Colors.pink.shade400,
       'ionMood': IonMood.thinking,
@@ -322,11 +455,17 @@ class SmartAdviceCard extends StatelessWidget {
     };
   }
 
-  Map<String, dynamic> _getFoodAdvice(double component, HydrationProvider provider, UnitsService units, AppLocalizations l10n) {
+  Map<String, dynamic> _getFoodAdvice(
+    double component,
+    HydrationProvider provider,
+    UnitsService units,
+    AppLocalizations l10n,
+  ) {
     final volumeToShow = units.formatVolume(300);
     return {
       'title': '🍟 Processed food',
-      'body': 'High sodium/dry food detected. Drink $volumeToShow extra. Could reduce HRI by ${component.round()} points.',
+      'body':
+          'High sodium/dry food detected. Drink $volumeToShow extra. Could reduce HRI by ${component.round()} points.',
       'tone': Colors.orange.shade50,
       'border': Colors.orange.shade400,
       'ionMood': IonMood.thinking,
@@ -334,12 +473,18 @@ class SmartAdviceCard extends StatelessWidget {
     };
   }
 
-  Map<String, dynamic> _getTimeAdvice(double component, HRIService hriService, UnitsService units, AppLocalizations l10n) {
+  Map<String, dynamic> _getTimeAdvice(
+    double component,
+    HRIService hriService,
+    UnitsService units,
+    AppLocalizations l10n,
+  ) {
     final volumeToShow = units.formatVolume(300);
     final hours = component ~/ 2; // Rough conversion
     return {
       'title': '⏰ Long time without water',
-      'body': '${hours}h since last drink. Have $volumeToShow now. Could reduce HRI by ${component.round()} points.',
+      'body':
+          '${hours}h since last drink. Have $volumeToShow now. Could reduce HRI by ${component.round()} points.',
       'tone': Colors.blue.shade50,
       'border': Colors.blue.shade400,
       'ionMood': IonMood.thinking,
@@ -347,11 +492,16 @@ class SmartAdviceCard extends StatelessWidget {
     };
   }
 
-  Map<String, dynamic> _getMorningAdvice(double component, UnitsService units, AppLocalizations l10n) {
+  Map<String, dynamic> _getMorningAdvice(
+    double component,
+    UnitsService units,
+    AppLocalizations l10n,
+  ) {
     final volumeToShow = units.formatVolume(400);
     return {
       'title': '🌅 Poor morning indicators',
-      'body': 'Weight loss/dark urine detected. Drink $volumeToShow + salt. Could reduce HRI by ${component.round()} points.',
+      'body':
+          'Weight loss/dark urine detected. Drink $volumeToShow + salt. Could reduce HRI by ${component.round()} points.',
       'tone': Colors.orange.shade50,
       'border': Colors.orange.shade400,
       'ionMood': IonMood.worried,
@@ -359,11 +509,17 @@ class SmartAdviceCard extends StatelessWidget {
     };
   }
 
-  Map<String, dynamic> _getHeatAdvice(double component, WeatherService weatherService, UnitsService units, AppLocalizations l10n) {
+  Map<String, dynamic> _getHeatAdvice(
+    double component,
+    WeatherService weatherService,
+    UnitsService units,
+    AppLocalizations l10n,
+  ) {
     final volumeToShow = units.formatVolume(400);
     return {
       'title': '🌡️ Hot weather',
-      'body': 'High temperature detected. Drink $volumeToShow extra. Could reduce HRI by ${component.round()} points.',
+      'body':
+          'High temperature detected. Drink $volumeToShow extra. Could reduce HRI by ${component.round()} points.',
       'tone': Colors.red.shade50,
       'border': Colors.red.shade400,
       'ionMood': IonMood.worried,

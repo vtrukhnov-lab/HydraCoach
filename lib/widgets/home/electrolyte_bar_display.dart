@@ -25,11 +25,26 @@ class ElectrolyteBarDisplay extends StatelessWidget {
       padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
       child: Column(
         children: [
-          _buildCompactBar("Na", sodiumCurrent, sodiumGoal, const Color(0xFFFF6B6B)),
+          _buildCompactBar(
+            "Na",
+            sodiumCurrent,
+            sodiumGoal,
+            const Color(0xFFFF6B6B),
+          ),
           const SizedBox(height: 6),
-          _buildCompactBar("K", potassiumCurrent, potassiumGoal, const Color(0xFF4ECDC4)),
+          _buildCompactBar(
+            "K",
+            potassiumCurrent,
+            potassiumGoal,
+            const Color(0xFF4ECDC4),
+          ),
           const SizedBox(height: 6),
-          _buildCompactBar("Mg", magnesiumCurrent, magnesiumGoal, const Color(0xFF95E1D3)),
+          _buildCompactBar(
+            "Mg",
+            magnesiumCurrent,
+            magnesiumGoal,
+            const Color(0xFF95E1D3),
+          ),
         ],
       ),
     );
@@ -45,7 +60,7 @@ class ElectrolyteBarDisplay extends StatelessWidget {
           width: 26,
           height: 26,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
+            color: color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Center(
@@ -82,7 +97,7 @@ class ElectrolyteBarDisplay extends StatelessWidget {
                 borderRadius: BorderRadius.circular(3),
                 child: LinearProgressIndicator(
                   value: percent,
-                  backgroundColor: color.withOpacity(0.15),
+                  backgroundColor: color.withValues(alpha: 0.15),
                   valueColor: AlwaysStoppedAnimation(color),
                   minHeight: 5,
                 ),

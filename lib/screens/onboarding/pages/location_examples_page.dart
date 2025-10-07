@@ -41,23 +41,20 @@ class LocationExamplesPage extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.onSurface,
                 ),
-              ).animate()
-                .fadeIn(duration: 400.ms)
-                .slideY(begin: -0.2, end: 0),
-              
+              ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.2, end: 0),
+
               const SizedBox(height: 12),
-              
+
               // Подзаголовок
               Text(
                 l10n.onboardingLocationExamplesSubtitle,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
-              ).animate()
-                .fadeIn(duration: 500.ms, delay: 100.ms),
-              
+              ).animate().fadeIn(duration: 500.ms, delay: 100.ms),
+
               const SizedBox(height: 32),
-              
+
               // Примеры использования геолокации
               Expanded(
                 child: SingleChildScrollView(
@@ -74,7 +71,7 @@ class LocationExamplesPage extends StatelessWidget {
                         theme: theme,
                         isLight: isLight,
                       ),
-                      
+
                       _buildLocationExample(
                         context: context,
                         icon: Icons.thermostat,
@@ -86,7 +83,7 @@ class LocationExamplesPage extends StatelessWidget {
                         theme: theme,
                         isLight: isLight,
                       ),
-                      
+
                       _buildLocationExample(
                         context: context,
                         icon: Icons.water_drop,
@@ -98,7 +95,7 @@ class LocationExamplesPage extends StatelessWidget {
                         theme: theme,
                         isLight: isLight,
                       ),
-                      
+
                       _buildLocationExample(
                         context: context,
                         icon: Icons.ac_unit,
@@ -114,74 +111,79 @@ class LocationExamplesPage extends StatelessWidget {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Кнопки действий
               Row(
                 children: [
                   // Кнопка "Назад"
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        onBack();
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: BorderSide(
-                          color: theme.colorScheme.outline.withOpacity(0.5),
+                        child: OutlinedButton(
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            onBack();
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            side: BorderSide(
+                              color: theme.colorScheme.outline.withValues(
+                                alpha: 0.5,
+                              ),
+                            ),
+                          ),
+                          child: Text(
+                            l10n.back,
+                            style: TextStyle(
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        l10n.back,
-                        style: TextStyle(
-                          color: theme.colorScheme.onSurface,
-                        ),
-                      ),
-                    ),
-                  ).animate()
-                    .fadeIn(duration: 600.ms, delay: 500.ms)
-                    .slideX(begin: -0.2, end: 0),
-                  
+                      )
+                      .animate()
+                      .fadeIn(duration: 600.ms, delay: 500.ms)
+                      .slideX(begin: -0.2, end: 0),
+
                   const SizedBox(width: 16),
-                  
+
                   // Кнопка "Разрешить геолокацию"
                   Expanded(
-                    flex: 2,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        HapticFeedback.lightImpact();
-                        _analytics.logPermissionPrompt(
-                          permission: 'location',
-                          context: 'onboarding',
-                        );
-                        final status =
-                            await _requestLocationPermission(context);
-                        onPermissionResult(status);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: theme.colorScheme.primary,
-                        foregroundColor: theme.colorScheme.onPrimary,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.location_on, size: 20),
-                          const SizedBox(width: 8),
-                          Text(l10n.onboardingAllowLocation),
-                        ],
-                      ),
-                    ),
-                  ).animate()
-                    .fadeIn(duration: 600.ms, delay: 600.ms)
-                    .slideX(begin: 0.2, end: 0),
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            HapticFeedback.lightImpact();
+                            _analytics.logPermissionPrompt(
+                              permission: 'location',
+                              context: 'onboarding',
+                            );
+                            final status = await _requestLocationPermission(
+                              context,
+                            );
+                            onPermissionResult(status);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: theme.colorScheme.primary,
+                            foregroundColor: theme.colorScheme.onPrimary,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.location_on, size: 20),
+                              const SizedBox(width: 8),
+                              Text(l10n.onboardingAllowLocation),
+                            ],
+                          ),
+                        ),
+                      )
+                      .animate()
+                      .fadeIn(duration: 600.ms, delay: 600.ms)
+                      .slideX(begin: 0.2, end: 0),
                 ],
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Кнопка "Пропустить"
               Center(
                 child: TextButton(
@@ -191,13 +193,10 @@ class LocationExamplesPage extends StatelessWidget {
                   },
                   child: Text(
                     l10n.onboardingEnableLater,
-                    style: TextStyle(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
                   ),
                 ),
-              ).animate()
-                .fadeIn(duration: 600.ms, delay: 700.ms),
+              ).animate().fadeIn(duration: 600.ms, delay: 700.ms),
             ],
           ),
         ),
@@ -214,9 +213,7 @@ class LocationExamplesPage extends StatelessWidget {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
     try {
@@ -262,79 +259,77 @@ class LocationExamplesPage extends StatelessWidget {
     required bool isLight,
   }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isLight 
-            ? Colors.white 
-            : theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isLight ? 0.08 : 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: isLight
+                ? Colors.white
+                : theme.colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isLight ? 0.08 : 0.2),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Иконка с эмодзи
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Icon(
-                  icon,
-                  color: iconColor.withOpacity(0.3),
-                  size: 24,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Иконка с эмодзи
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                Text(
-                  emoji,
-                  style: const TextStyle(fontSize: 16),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(
+                      icon,
+                      color: iconColor.withValues(alpha: 0.3),
+                      size: 24,
+                    ),
+                    Text(emoji, style: const TextStyle(fontSize: 16)),
+                  ],
                 ),
-              ],
-            ),
+              ),
+
+              const SizedBox(width: 12),
+
+              // Содержимое примера
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      body,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          
-          const SizedBox(width: 12),
-          
-          // Содержимое примера
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  body,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ).animate()
-      .fadeIn(duration: 500.ms, delay: delay)
-      .slideX(begin: 0.1, end: 0);
+        )
+        .animate()
+        .fadeIn(duration: 500.ms, delay: delay)
+        .slideX(begin: 0.1, end: 0);
   }
 }

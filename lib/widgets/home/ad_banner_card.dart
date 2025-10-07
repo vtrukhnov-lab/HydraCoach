@@ -18,7 +18,8 @@ class AdBannerCard extends StatefulWidget {
 }
 
 class _AdBannerCardState extends State<AdBannerCard> {
-  static const String _adUnitId = '93ba29d40d0c9ed1'; // Banner Unit ID для Android
+  static const String _adUnitId =
+      '93ba29d40d0c9ed1'; // Banner Unit ID для Android
   bool _isAdLoaded = false;
 
   void _onPremiumTap() async {
@@ -42,7 +43,8 @@ class _AdBannerCardState extends State<AdBannerCard> {
 
       // Создаем дополнительные параметры согласно инструкции AppLovin MAX
       Map<String, dynamic> additionalParams = {
-        'country': 'US', // Можно получить через MaxSdk.getConfiguration().countryCode
+        'country':
+            'US', // Можно получить через MaxSdk.getConfiguration().countryCode
         'ad_unit': ad.adUnitId,
         'ad_type': ad.adFormat.toString(),
         'placement': ad.placement ?? '',
@@ -60,7 +62,9 @@ class _AdBannerCardState extends State<AdBannerCard> {
       });
 
       if (mounted) {
-        debugPrint('💰 Banner Ad Revenue tracked: \$${ad.revenue} from ${ad.networkName}');
+        debugPrint(
+          '💰 Banner Ad Revenue tracked: \$${ad.revenue} from ${ad.networkName}',
+        );
       }
     } catch (e) {
       debugPrint('❌ Error tracking Banner ad revenue: $e');
@@ -140,21 +144,14 @@ class _AdBannerCardState extends State<AdBannerCard> {
           gradient: LinearGradient(
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
-            colors: [
-              Colors.purple.shade400,
-              Colors.purple.shade600,
-            ],
+            colors: [Colors.purple.shade400, Colors.purple.shade600],
           ),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.star_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
+            Icon(Icons.star_rounded, color: Colors.white, size: 20),
             const SizedBox(width: 8),
             Text(
               'Remove ads with Premium',

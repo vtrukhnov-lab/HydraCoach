@@ -1,6 +1,6 @@
 // ============================================================================
 // FILE: lib/models/intake.dart
-// 
+//
 // PURPOSE: Data model for liquid intake tracking
 // ============================================================================
 
@@ -106,7 +106,7 @@ class Intake {
   // Get formatted time string
   String get formattedTime {
     return '${timestamp.hour.toString().padLeft(2, '0')}:'
-           '${timestamp.minute.toString().padLeft(2, '0')}';
+        '${timestamp.minute.toString().padLeft(2, '0')}';
   }
 
   // Check if intake contains water
@@ -125,7 +125,7 @@ class Intake {
   @override
   String toString() {
     return 'Intake(id: $id, timestamp: $timestamp, type: $type, '
-           'volume: $volume, sodium: $sodium, potassium: $potassium, magnesium: $magnesium, sugar: $sugar)';
+        'volume: $volume, sodium: $sodium, potassium: $potassium, magnesium: $magnesium, sugar: $sugar)';
   }
 
   @override
@@ -133,29 +133,29 @@ class Intake {
     if (identical(this, other)) return true;
 
     return other is Intake &&
-      other.id == id &&
-      other.timestamp == timestamp &&
-      other.type == type &&
-      other.volume == volume &&
-      other.sodium == sodium &&
-      other.potassium == potassium &&
-      other.magnesium == magnesium &&
-      other.sugar == sugar &&
-      other.name == name &&
-      other.emoji == emoji;
+        other.id == id &&
+        other.timestamp == timestamp &&
+        other.type == type &&
+        other.volume == volume &&
+        other.sodium == sodium &&
+        other.potassium == potassium &&
+        other.magnesium == magnesium &&
+        other.sugar == sugar &&
+        other.name == name &&
+        other.emoji == emoji;
   }
 
   @override
   int get hashCode {
     return id.hashCode ^
-      timestamp.hashCode ^
-      type.hashCode ^
-      volume.hashCode ^
-      sodium.hashCode ^
-      potassium.hashCode ^
-      magnesium.hashCode ^
-      sugar.hashCode ^
-      name.hashCode ^
-      emoji.hashCode;
+        timestamp.hashCode ^
+        type.hashCode ^
+        volume.hashCode ^
+        sodium.hashCode ^
+        potassium.hashCode ^
+        magnesium.hashCode ^
+        sugar.hashCode ^
+        name.hashCode ^
+        emoji.hashCode;
   }
 }

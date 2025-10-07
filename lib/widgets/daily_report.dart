@@ -7,31 +7,28 @@ import '../l10n/app_localizations.dart';
 
 class DailyReportCard extends StatelessWidget {
   const DailyReportCard({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    
+
     return Consumer<HydrationProvider>(
       builder: (context, provider, child) {
         final progress = provider.getProgress();
         final status = provider.getHydrationStatus(l10n);
-        
+
         return Container(
           margin: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                Colors.blue.shade400,
-                Colors.blue.shade600,
-              ],
+              colors: [Colors.blue.shade400, Colors.blue.shade600],
             ),
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.blue.withOpacity(0.3),
+                color: Colors.blue.withValues(alpha: 0.3),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -44,7 +41,7 @@ class DailyReportCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(24),
                     topRight: Radius.circular(24),
@@ -57,7 +54,10 @@ class DailyReportCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          l10n.dailyReportTitle.replaceAll('📊 ', ''), // Remove emoji if present
+                          l10n.dailyReportTitle.replaceAll(
+                            '📊 ',
+                            '',
+                          ), // Remove emoji if present
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 24,
@@ -65,9 +65,13 @@ class DailyReportCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          l10n.dateFormat(_getWeekday(l10n), DateTime.now().day, _getMonth(l10n)),
+                          l10n.dateFormat(
+                            _getWeekday(l10n),
+                            DateTime.now().day,
+                            _getMonth(l10n),
+                          ),
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             fontSize: 14,
                           ),
                         ),
@@ -76,7 +80,7 @@ class DailyReportCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -88,14 +92,14 @@ class DailyReportCard extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Daily progress chart
               Container(
                 height: 200,
                 padding: const EdgeInsets.all(20),
                 child: _buildDayProgressChart(provider),
               ),
-              
+
               // Statistics
               Padding(
                 padding: const EdgeInsets.all(20),
@@ -131,13 +135,13 @@ class DailyReportCard extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Recommendations
               Container(
                 margin: const EdgeInsets.all(20),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(
@@ -165,7 +169,7 @@ class DailyReportCard extends StatelessWidget {
                     Text(
                       _getRecommendation(status, progress, l10n),
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 14,
                         height: 1.5,
                       ),
@@ -173,7 +177,7 @@ class DailyReportCard extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Share button
               Padding(
                 padding: const EdgeInsets.all(20),
@@ -195,23 +199,21 @@ class DailyReportCard extends StatelessWidget {
               ),
             ],
           ),
-        ).animate()
-          .fadeIn(duration: 500.ms)
-          .slideY(begin: 0.1, end: 0);
+        ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.1, end: 0);
       },
     );
   }
-  
+
   Widget _buildDayProgressChart(HydrationProvider provider) {
     // Simulate daily data (by hours)
     final spots = <FlSpot>[];
     for (int i = 7; i <= 22; i++) {
-      final progress = i <= DateTime.now().hour 
-        ? (i - 7) / 15 * provider.getProgress()['waterPercent']!
-        : 0.0;
+      final progress = i <= DateTime.now().hour
+          ? (i - 7) / 15 * provider.getProgress()['waterPercent']!
+          : 0.0;
       spots.add(FlSpot(i.toDouble(), progress));
     }
-    
+
     return LineChart(
       LineChartData(
         gridData: FlGridData(
@@ -220,7 +222,7 @@ class DailyReportCard extends StatelessWidget {
           horizontalInterval: 25,
           getDrawingHorizontalLine: (value) {
             return FlLine(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
               strokeWidth: 1,
             );
           },
@@ -234,7 +236,7 @@ class DailyReportCard extends StatelessWidget {
                 return Text(
                   '${value.toInt()}%',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white.withValues(alpha: 0.6),
                     fontSize: 10,
                   ),
                 );
@@ -251,7 +253,7 @@ class DailyReportCard extends StatelessWidget {
                   return Text(
                     '${value.toInt()}:00',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.white.withValues(alpha: 0.6),
                       fontSize: 10,
                     ),
                   );
@@ -283,30 +285,32 @@ class DailyReportCard extends StatelessWidget {
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
             ),
           ),
         ],
       ),
     );
   }
-  
-  Widget _buildStatRow(String label, String value, double percent, Color color) {
+
+  Widget _buildStatRow(
+    String label,
+    String value,
+    double percent,
+    Color color,
+  ) {
     return Row(
       children: [
         Container(
           width: 8,
           height: 8,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 12),
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
             fontSize: 14,
           ),
         ),
@@ -338,14 +342,14 @@ class DailyReportCard extends StatelessWidget {
       ],
     );
   }
-  
+
   Color _getPercentColor(double percent) {
     if (percent >= 90) return Colors.green;
     if (percent >= 70) return Colors.yellow.shade700;
     if (percent >= 50) return Colors.orange;
     return Colors.red;
   }
-  
+
   IconData _getStatusIcon(String status, AppLocalizations l10n) {
     // Compare with localized strings
     if (status == l10n.hydrationStatusNormal) {
@@ -360,9 +364,14 @@ class DailyReportCard extends StatelessWidget {
       return Icons.info;
     }
   }
-  
-  String _getRecommendation(String status, Map<String, double> progress, AppLocalizations l10n) {
-    if (status == l10n.hydrationStatusNormal && progress['waterPercent']! >= 90) {
+
+  String _getRecommendation(
+    String status,
+    Map<String, double> progress,
+    AppLocalizations l10n,
+  ) {
+    if (status == l10n.hydrationStatusNormal &&
+        progress['waterPercent']! >= 90) {
       return l10n.recommendationExcellent;
     } else if (status == l10n.hydrationStatusDiluted) {
       return l10n.recommendationDiluted;
@@ -374,37 +383,58 @@ class DailyReportCard extends StatelessWidget {
       return l10n.recommendationGeneral;
     }
   }
-  
+
   String _getWeekday(AppLocalizations l10n) {
     final now = DateTime.now();
     switch (now.weekday) {
-      case 1: return l10n.monday;
-      case 2: return l10n.tuesday;
-      case 3: return l10n.wednesday;
-      case 4: return l10n.thursday;
-      case 5: return l10n.friday;
-      case 6: return l10n.saturday;
-      case 7: return l10n.sunday;
-      default: return l10n.monday;
+      case 1:
+        return l10n.monday;
+      case 2:
+        return l10n.tuesday;
+      case 3:
+        return l10n.wednesday;
+      case 4:
+        return l10n.thursday;
+      case 5:
+        return l10n.friday;
+      case 6:
+        return l10n.saturday;
+      case 7:
+        return l10n.sunday;
+      default:
+        return l10n.monday;
     }
   }
-  
+
   String _getMonth(AppLocalizations l10n) {
     final now = DateTime.now();
     switch (now.month) {
-      case 1: return l10n.january;
-      case 2: return l10n.february;
-      case 3: return l10n.march;
-      case 4: return l10n.april;
-      case 5: return l10n.may;
-      case 6: return l10n.june;
-      case 7: return l10n.july;
-      case 8: return l10n.august;
-      case 9: return l10n.september;
-      case 10: return l10n.october;
-      case 11: return l10n.november;
-      case 12: return l10n.december;
-      default: return l10n.january;
+      case 1:
+        return l10n.january;
+      case 2:
+        return l10n.february;
+      case 3:
+        return l10n.march;
+      case 4:
+        return l10n.april;
+      case 5:
+        return l10n.may;
+      case 6:
+        return l10n.june;
+      case 7:
+        return l10n.july;
+      case 8:
+        return l10n.august;
+      case 9:
+        return l10n.september;
+      case 10:
+        return l10n.october;
+      case 11:
+        return l10n.november;
+      case 12:
+        return l10n.december;
+      default:
+        return l10n.january;
     }
   }
 }

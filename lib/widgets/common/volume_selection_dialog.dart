@@ -99,7 +99,8 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
       maxValue = 120;
 
       // Initialize with default duration
-      sliderValue = (widget.item.properties['defaultMinutes'] as int? ?? 30).toDouble();
+      sliderValue = (widget.item.properties['defaultMinutes'] as int? ?? 30)
+          .toDouble();
 
       // Calculate initial workout losses
       if (widget.userWeight != null) {
@@ -116,7 +117,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
     } else if (widget.showDosage) {
       // Dosage mode for supplements
       displayUnit = widget.item.getDosageUnit(widget.units);
-      
+
       // Set min/max based on dosage unit
       switch (displayUnit) {
         case 'IU':
@@ -148,13 +149,13 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
           maxValue = 4;
           break;
       }
-      
+
       // Initialize with default dosage
       sliderValue = widget.item.getDefaultDosage(widget.units).toDouble();
     } else {
       // Regular volume mode
       displayUnit = widget.units == 'imperial' ? 'oz' : 'ml';
-      
+
       // Set min/max based on type
       if (widget.showAlcoholInfo) {
         minValue = widget.units == 'imperial' ? 1.0 : 30.0;
@@ -166,18 +167,18 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
         minValue = widget.units == 'imperial' ? 4.0 : 100.0;
         maxValue = widget.units == 'imperial' ? 40.0 : 1000.0;
       }
-      
+
       // Initialize with default volume
       sliderValue = widget.item.getDefaultVolume(widget.units).toDouble();
     }
-    
+
     // Ensure value is within bounds
     sliderValue = sliderValue.clamp(minValue, maxValue);
   }
 
   void _calculateWorkoutLosses() {
     if (!widget.showDuration || widget.userWeight == null) return;
-    
+
     workoutLosses = HRIService.calculateWorkoutLosses(
       item: widget.item,
       durationMinutes: sliderValue.round(),
@@ -225,8 +226,10 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
     if (widget.showDosage) {
       final magnesium = widget.item.getMagnesiumContent(widget.units);
       return {
-        'sodium': ((widget.item.properties['sodium'] ?? 0) * sliderValue).round(),
-        'potassium': ((widget.item.properties['potassium'] ?? 0) * sliderValue).round(),
+        'sodium': ((widget.item.properties['sodium'] ?? 0) * sliderValue)
+            .round(),
+        'potassium': ((widget.item.properties['potassium'] ?? 0) * sliderValue)
+            .round(),
         'magnesium': (magnesium * sliderValue).round(),
       };
     }
@@ -236,9 +239,15 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
       try {
         final weightGrams = getVolumeMl(); // Returns weight in grams for food
         return {
-          'sodium': ((widget.item.properties['sodium'] ?? 0) * weightGrams / 100).round(),
-          'potassium': ((widget.item.properties['potassium'] ?? 0) * weightGrams / 100).round(),
-          'magnesium': ((widget.item.properties['magnesium'] ?? 0) * weightGrams / 100).round(),
+          'sodium':
+              ((widget.item.properties['sodium'] ?? 0) * weightGrams / 100)
+                  .round(),
+          'potassium':
+              ((widget.item.properties['potassium'] ?? 0) * weightGrams / 100)
+                  .round(),
+          'magnesium':
+              ((widget.item.properties['magnesium'] ?? 0) * weightGrams / 100)
+                  .round(),
         };
       } catch (e) {
         return {'sodium': 0, 'potassium': 0, 'magnesium': 0};
@@ -252,13 +261,18 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
 
     try {
       final baseVolume = widget.item.getDefaultVolume(widget.units).toDouble();
-      final baseVolumeMl = widget.units == 'imperial' ? baseVolume * 29.5735 : baseVolume;
+      final baseVolumeMl = widget.units == 'imperial'
+          ? baseVolume * 29.5735
+          : baseVolume;
       final multiplier = getVolumeMl() / baseVolumeMl;
 
       return {
-        'sodium': ((widget.item.properties['sodium'] ?? 0) * multiplier).round(),
-        'potassium': ((widget.item.properties['potassium'] ?? 0) * multiplier).round(),
-        'magnesium': ((widget.item.properties['magnesium'] ?? 0) * multiplier).round(),
+        'sodium': ((widget.item.properties['sodium'] ?? 0) * multiplier)
+            .round(),
+        'potassium': ((widget.item.properties['potassium'] ?? 0) * multiplier)
+            .round(),
+        'magnesium': ((widget.item.properties['magnesium'] ?? 0) * multiplier)
+            .round(),
       };
     } catch (e) {
       return {'sodium': 0, 'potassium': 0, 'magnesium': 0};
@@ -270,21 +284,23 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
     if (widget.showDuration && workoutLosses != null) {
       return workoutLosses!.waterLossMl.toDouble();
     }
-    
+
     if (widget.showDosage) return 0; // Supplements don't have hydration value
-    
+
     final hydration = widget.item.properties['hydration'] as num? ?? 1.0;
     return getVolumeMl() * hydration.toDouble();
   }
 
   double getTotalSugar() {
-    if (widget.showDosage || widget.showDuration) return 0; // Supplements and workouts don't have sugar
+    if (widget.showDosage || widget.showDuration)
+      return 0; // Supplements and workouts don't have sugar
 
     // For food items, calculate sugar based on weight
     if (widget.showFoodInfo) {
       try {
         final weightGrams = getVolumeMl(); // Returns weight in grams for food
-        final sugarPer100g = (widget.item.properties['sugarPer100g'] ?? 0.0) as num;
+        final sugarPer100g =
+            (widget.item.properties['sugarPer100g'] ?? 0.0) as num;
         return (sugarPer100g * weightGrams / 100.0);
       } catch (e) {
         return 0.0;
@@ -294,7 +310,9 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
     // For drinks, calculate sugar based on volume
     try {
       final baseVolume = widget.item.getDefaultVolume(widget.units).toDouble();
-      final baseVolumeMl = widget.units == 'imperial' ? baseVolume * 29.5735 : baseVolume;
+      final baseVolumeMl = widget.units == 'imperial'
+          ? baseVolume * 29.5735
+          : baseVolume;
       final baseSugar = (widget.item.properties['sugar'] ?? 0.0) as num;
       return (baseSugar * getVolumeMl() / baseVolumeMl);
     } catch (e) {
@@ -307,7 +325,8 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
 
     try {
       final weightGrams = getVolumeMl(); // Returns weight in grams for food
-      final caloriesPer100g = (widget.item.properties['caloriesPer100g'] ?? 0) as int;
+      final caloriesPer100g =
+          (widget.item.properties['caloriesPer100g'] ?? 0) as int;
       return ((caloriesPer100g * weightGrams) / 100).round();
     } catch (e) {
       return 0;
@@ -315,10 +334,12 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
   }
 
   double getCaffeine() {
-    if (widget.showDosage || widget.showDuration) return 0; // Supplements and workouts don't have caffeine
-    
+    if (widget.showDosage || widget.showDuration)
+      return 0; // Supplements and workouts don't have caffeine
+
     try {
-      final baseCaffeine = (widget.item.properties['caffeineMgPer100ml'] ?? 0.0) as num;
+      final baseCaffeine =
+          (widget.item.properties['caffeineMgPer100ml'] ?? 0.0) as num;
       return (baseCaffeine * getVolumeMl() / 100);
     } catch (e) {
       return 0.0;
@@ -327,7 +348,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
 
   double getStandardDrinks() {
     if (!widget.showAlcoholInfo || widget.calculateSD == null) return 0.0;
-    
+
     final abv = widget.item.properties['abv'] as num? ?? 0.0;
     return widget.calculateSD!(getVolumeMl(), abv.toDouble());
   }
@@ -342,30 +363,32 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
     if (widget.showDuration && workoutLosses != null) {
       // Higher water loss = worse HRI impact
       final waterLossFactor = workoutLosses!.waterLossMl / 100.0;
-      final intensityFactor = (widget.item.properties['intensityValue'] as int? ?? 3) / 3.0;
+      final intensityFactor =
+          (widget.item.properties['intensityValue'] as int? ?? 3) / 3.0;
       final durationFactor = sliderValue / 30.0;
-      
+
       return waterLossFactor * intensityFactor * durationFactor;
     }
-    
+
     // Supplements don't affect HRI directly (only through electrolytes)
     if (widget.showDosage) return 0.0;
-    
+
     try {
       final volumeMl = getVolumeMl();
-      
+
       // For alcohol, HRI impact is positive (bad)
       if (widget.showAlcoholInfo) {
         final sd = getStandardDrinks();
         return sd * 3.0; // 3 points per standard drink
       }
-      
-      final hydrationFactor = (widget.item.properties['hydration'] as num? ?? 1.0).toDouble();
+
+      final hydrationFactor =
+          (widget.item.properties['hydration'] as num? ?? 1.0).toDouble();
       final effectiveVolume = volumeMl * hydrationFactor;
-      
+
       // Base impact (negative is good)
       double impact = -(effectiveVolume / 2000.0 * 10);
-      
+
       // Electrolyte bonus
       if (widget.showElectrolytes) {
         final electrolytes = getElectrolytes();
@@ -376,7 +399,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
           impact -= 1;
         }
       }
-      
+
       // Sugar penalty
       final sugar = getTotalSugar();
       if (sugar > 50) {
@@ -384,13 +407,13 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
       } else if (sugar > 25) {
         impact += (sugar - 25) * 0.1;
       }
-      
+
       // Caffeine impact
       final caffeine = getCaffeine();
       if (caffeine > 0) {
         impact += (caffeine * 0.02).clamp(0, 5);
       }
-      
+
       return impact;
     } catch (e) {
       return 0.0;
@@ -399,7 +422,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
 
   List<Color> getHRIGradientColors() {
     final impact = getHRIImpact();
-    
+
     // For workouts, invert the color scheme (positive impact = bad)
     if (widget.showDuration) {
       if (impact <= 2) {
@@ -412,7 +435,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
         return [Colors.red.shade400, Colors.red.shade600];
       }
     }
-    
+
     // Regular color scheme
     if (impact <= -5) {
       return [Colors.green.shade400, Colors.green.shade600];
@@ -450,11 +473,15 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
   }
 
   bool get hasSignificantElectrolytes {
-    if (!widget.showElectrolytes && !widget.showDosage && !widget.showDuration && !widget.showFoodInfo) return false;
+    if (!widget.showElectrolytes &&
+        !widget.showDosage &&
+        !widget.showDuration &&
+        !widget.showFoodInfo)
+      return false;
     final e = getElectrolytes();
     return (e['sodium'] ?? 0) > 0 ||
-           (e['potassium'] ?? 0) > 0 ||
-           (e['magnesium'] ?? 0) > 0;
+        (e['potassium'] ?? 0) > 0 ||
+        (e['magnesium'] ?? 0) > 0;
   }
 
   String _formatValue(double value) {
@@ -462,17 +489,17 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
     if (widget.showDosage && (displayUnit == 'caps' || displayUnit == 'tabs')) {
       return value.toInt().toString();
     }
-    
+
     // For duration, show as integer minutes
     if (widget.showDuration) {
       return value.toInt().toString();
     }
-    
+
     // For other values, show decimal if needed
     if (value == value.toInt()) {
       return value.toInt().toString();
     }
-    
+
     return value.toStringAsFixed(1);
   }
 
@@ -480,7 +507,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
     if (widget.showDuration) {
       return 23; // 5 to 120 minutes in 5-minute increments
     }
-    
+
     if (widget.showDosage) {
       switch (displayUnit) {
         case 'IU':
@@ -501,11 +528,11 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
           return 3; // 1 to 4
       }
     }
-    
+
     // Regular volume divisions
-    return widget.showAlcoholInfo 
-      ? (widget.units == 'imperial' ? 19 : 47)
-      : (widget.units == 'imperial' ? 36 : 90);
+    return widget.showAlcoholInfo
+        ? (widget.units == 'imperial' ? 19 : 47)
+        : (widget.units == 'imperial' ? 36 : 90);
   }
 
   @override
@@ -514,11 +541,15 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
     final theme = Theme.of(context);
     final itemName = widget.item.getName(l10n);
     final hydration = (widget.item.properties['hydration'] as num? ?? 1.0);
-    final sliderActiveColor = widget.sliderColor ??
-      (widget.showDuration ? Colors.teal :
-       widget.showFoodInfo ? Colors.deepOrange :
-       widget.showDosage ? Colors.purple :
-       Colors.blue);
+    final sliderActiveColor =
+        widget.sliderColor ??
+        (widget.showDuration
+            ? Colors.teal
+            : widget.showFoodInfo
+            ? Colors.deepOrange
+            : widget.showDosage
+            ? Colors.purple
+            : Colors.blue);
     final caffeine = getCaffeine();
     final sugar = getTotalSugar();
     final abv = widget.item.properties['abv'] as num?;
@@ -531,8 +562,11 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
       iconWidget = Icon(
         widget.item.icon as IconData,
         size: 28,
-        color: widget.showDosage ? Colors.purple[600] : 
-               widget.showDuration ? Colors.teal[600] : null,
+        color: widget.showDosage
+            ? Colors.purple[600]
+            : widget.showDuration
+            ? Colors.teal[600]
+            : null,
       );
     } else {
       // For items with emoji
@@ -543,9 +577,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
     }
 
     return AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       title: Row(
         children: [
           iconWidget,
@@ -554,11 +586,9 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  itemName,
-                  style: const TextStyle(fontSize: 18),
-                ),
-                if (widget.showDuration && widget.item.properties['met'] != null)
+                Text(itemName, style: const TextStyle(fontSize: 18)),
+                if (widget.showDuration &&
+                    widget.item.properties['met'] != null)
                   Text(
                     'MET ${(widget.item.properties['met'] as num).toStringAsFixed(1)}',
                     style: TextStyle(
@@ -585,7 +615,9 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                       fontWeight: FontWeight.normal,
                     ),
                   )
-                else if (!widget.showElectrolytes && !widget.showDosage && hydration != 1.0)
+                else if (!widget.showElectrolytes &&
+                    !widget.showDosage &&
+                    hydration != 1.0)
                   Text(
                     '${(hydration * 100).toInt()}% ${l10n.hydration.toLowerCase()}',
                     style: TextStyle(
@@ -618,39 +650,47 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      widget.showDuration ? l10n.duration :
-                      widget.showFoodInfo ? l10n.weight :
-                      widget.showDosage ? l10n.dosage :
-                      l10n.volume,
+                      widget.showDuration
+                          ? l10n.duration
+                          : widget.showFoodInfo
+                          ? l10n.weight
+                          : widget.showDosage
+                          ? l10n.dosage
+                          : l10n.volume,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: widget.showDuration
-                          ? Colors.teal.withOpacity(0.1)
-                          : widget.showFoodInfo
+                            ? Colors.teal.withValues(alpha: 0.1)
+                            : widget.showFoodInfo
                             ? Colors.deepOrange.shade100
-                          : widget.showDosage
+                            : widget.showDosage
                             ? Colors.purple.shade100
-                            : theme.colorScheme.primaryContainer.withOpacity(0.5),
+                            : theme.colorScheme.primaryContainer.withValues(
+                                alpha: 0.5,
+                              ),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        widget.showDuration 
-                          ? '${_formatValue(sliderValue)} ${l10n.minutes}'
-                          : '${_formatValue(sliderValue)} $displayUnit',
+                        widget.showDuration
+                            ? '${_formatValue(sliderValue)} ${l10n.minutes}'
+                            : '${_formatValue(sliderValue)} $displayUnit',
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: widget.showDuration
-                            ? Colors.teal[700]
-                            : widget.showFoodInfo
+                              ? Colors.teal[700]
+                              : widget.showFoodInfo
                               ? Colors.deepOrange[700]
-                            : widget.showDosage
+                              : widget.showDosage
                               ? Colors.purple[700]
                               : theme.colorScheme.primary,
                         ),
@@ -662,11 +702,15 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                     activeTrackColor: sliderActiveColor,
-                    inactiveTrackColor: sliderActiveColor.withOpacity(0.2),
+                    inactiveTrackColor: sliderActiveColor.withValues(
+                      alpha: 0.2,
+                    ),
                     thumbColor: sliderActiveColor,
-                    overlayColor: sliderActiveColor.withOpacity(0.1),
+                    overlayColor: sliderActiveColor.withValues(alpha: 0.1),
                     trackHeight: 6,
-                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+                    thumbShape: const RoundSliderThumbShape(
+                      enabledThumbRadius: 10,
+                    ),
                   ),
                   child: Slider(
                     value: sliderValue.clamp(minValue, maxValue),
@@ -687,7 +731,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
               ],
             ),
             const SizedBox(height: 20),
-            
+
             // Metrics display - different for workouts
             if (widget.showDuration && workoutLosses != null) ...[
               // For workouts, show water loss and HRI impact
@@ -712,7 +756,10 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            UnitsService.instance.formatVolume(workoutLosses!.waterLossMl, shortUnit: true),
+                            UnitsService.instance.formatVolume(
+                              workoutLosses!.waterLossMl,
+                              shortUnit: true,
+                            ),
                             style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -723,7 +770,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                             l10n.waterLoss,
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -762,7 +809,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                             l10n.hriImpact,
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -786,7 +833,11 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.add_circle_outline, color: Colors.teal[700], size: 20),
+                        Icon(
+                          Icons.add_circle_outline,
+                          color: Colors.teal[700],
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           l10n.needsToReplenish,
@@ -825,15 +876,22 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                     if (getCaloriesBurned() > 0) ...[
                       const SizedBox(height: 12),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.1),
+                          color: Colors.orange.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.local_fire_department, size: 16, color: Colors.orange[700]),
+                            Icon(
+                              Icons.local_fire_department,
+                              size: 16,
+                              color: Colors.orange[700],
+                            ),
                             const SizedBox(width: 6),
                             Text(
                               '${getCaloriesBurned()} kcal',
@@ -860,7 +918,10 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Colors.green.shade400, Colors.green.shade600],
+                          colors: [
+                            Colors.green.shade400,
+                            Colors.green.shade600,
+                          ],
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -884,7 +945,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                             l10n.kcal,
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -905,11 +966,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                       ),
                       child: Column(
                         children: [
-                          const Icon(
-                            Icons.cake,
-                            color: Colors.white,
-                            size: 24,
-                          ),
+                          const Icon(Icons.cake, color: Colors.white, size: 24),
                           const SizedBox(height: 8),
                           Text(
                             getTotalSugar().toStringAsFixed(1),
@@ -923,7 +980,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                             l10n.gramsSugar,
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -941,7 +998,10 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Colors.deepOrange.shade50, Colors.deepOrange.shade100],
+                      colors: [
+                        Colors.deepOrange.shade50,
+                        Colors.deepOrange.shade100,
+                      ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -1067,7 +1127,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                               l10n.standardDrinksUnit,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.white.withValues(alpha: 0.9),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -1105,7 +1165,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                               l10n.hriImpact,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.white.withValues(alpha: 0.9),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -1146,7 +1206,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                               l10n.gramsSugar,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.white.withValues(alpha: 0.9),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -1157,7 +1217,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                   ],
                 ],
               ),
-              
+
               // Electrolyte content for regular items
               if (widget.showElectrolytes && hasSignificantElectrolytes) ...[
                 const SizedBox(height: 16),
@@ -1191,12 +1251,17 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                 ),
               ],
             ],
-            
+
             // Caffeine display (not for supplements or workouts)
-            if (!widget.showDosage && !widget.showDuration && caffeine > 0.5) ...[
+            if (!widget.showDosage &&
+                !widget.showDuration &&
+                caffeine > 0.5) ...[
               const SizedBox(height: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.brown.shade50,
                   borderRadius: BorderRadius.circular(8),
@@ -1232,24 +1297,31 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
               child: ElevatedButton.icon(
                 onPressed: () {
                   // For workouts pass duration, for supplements pass dosage, for others pass volume in ml
-                  final value = widget.showDuration ? sliderValue : 
-                               widget.showDosage ? sliderValue : 
-                               getVolumeMl();
+                  final value = widget.showDuration
+                      ? sliderValue
+                      : widget.showDosage
+                      ? sliderValue
+                      : getVolumeMl();
                   widget.onConfirm(value);
                   HapticFeedback.mediumImpact();
                   Navigator.of(context).pop();
                 },
                 icon: const Icon(Icons.add),
                 label: Text(
-                  widget.showDuration ? l10n.logActivity :
-                  widget.showFoodInfo ? l10n.addFood :
-                  l10n.add
+                  widget.showDuration
+                      ? l10n.logActivity
+                      : widget.showFoodInfo
+                      ? l10n.addFood
+                      : l10n.add,
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: widget.showDuration ? Colors.teal :
-                                 widget.showFoodInfo ? const Color.fromARGB(255, 98, 179, 246) :
-                                 widget.showDosage ? const Color.fromARGB(255, 98, 179, 246) :
-                                 const Color.fromARGB(255, 98, 179, 246),
+                  backgroundColor: widget.showDuration
+                      ? Colors.teal
+                      : widget.showFoodInfo
+                      ? const Color.fromARGB(255, 98, 179, 246)
+                      : widget.showDosage
+                      ? const Color.fromARGB(255, 98, 179, 246)
+                      : const Color.fromARGB(255, 98, 179, 246),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -1265,9 +1337,11 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
                 onPressed: () async {
                   HapticFeedback.lightImpact();
                   // For workouts pass duration, for supplements pass dosage, for others pass volume in ml
-                  final value = widget.showDuration ? sliderValue : 
-                               widget.showDosage ? sliderValue : 
-                               getVolumeMl();
+                  final value = widget.showDuration
+                      ? sliderValue
+                      : widget.showDosage
+                      ? sliderValue
+                      : getVolumeMl();
                   await widget.onSaveToFavorites(value);
                 },
                 icon: const Icon(Icons.star_border),
@@ -1299,7 +1373,7 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
           width: 28,
           height: 28,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Center(
@@ -1316,18 +1390,9 @@ class _VolumeSelectionDialogState extends State<VolumeSelectionDialog> {
         const SizedBox(height: 8),
         Text(
           '$value',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
-        Text(
-          'mg',
-          style: TextStyle(
-            fontSize: 10,
-            color: Colors.grey.shade600,
-          ),
-        ),
+        Text('mg', style: TextStyle(fontSize: 10, color: Colors.grey.shade600)),
       ],
     );
   }

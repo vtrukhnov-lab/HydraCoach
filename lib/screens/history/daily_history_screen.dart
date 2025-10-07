@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:hydracoach/utils/app_logger.dart';
 import 'package:intl/intl.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -44,18 +45,18 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
   late final UnitsService _unitsService;
   late final FeatureGateService _featureGateService;
 
- @override
+  @override
   void initState() {
     super.initState();
-    
+
     // Инициализация сервисов
     _historyService = HistoryService();
     _unitsService = UnitsService.instance;
     _featureGateService = FeatureGateService.instance;
-    
+
     // Загрузка начальных данных
     _loadDayData();
-    
+
     // Подписка на изменения провайдера
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -64,14 +65,14 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
       }
     });
   }
-  
-   void _onProviderChanged() {
+
+  void _onProviderChanged() {
     if (_isToday() && mounted) {
-      print('Provider changed, reloading today data');
+      logger.e('Provider changed, reloading today data');
       _loadDayData();
     }
   }
-  
+
   @override
   void dispose() {
     final provider = Provider.of<HydrationProvider>(context, listen: false);
@@ -79,39 +80,46 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     super.dispose();
   }
 
- Future<void> _loadDayData() async {
+  Future<void> _loadDayData() async {
     if (_isLoading) return;
-    
-    print('=== LOADING DAY DATA ===');
-    print('Date: $_selectedDate');
-    print('Is today: ${_isToday()}');
-    
+
+    logger.d('=== LOADING DAY DATA ===');
+    logger.d('Date: $_selectedDate');
+    logger.d('Is today: ${_isToday()}');
+
     setState(() => _isLoading = true);
 
     try {
       if (_isToday()) {
         // Для сегодняшнего дня берем данные из провайдера
         final provider = Provider.of<HydrationProvider>(context, listen: false);
-        final alcoholService = Provider.of<AlcoholService>(context, listen: false);
+        final alcoholService = Provider.of<AlcoholService>(
+          context,
+          listen: false,
+        );
         final hriService = Provider.of<HRIService>(context, listen: false);
-        
+
         setState(() {
           _intakes = provider.todayIntakes;
           _alcoholIntakes = alcoholService.todayIntakes;
           _foodIntakes = provider.todayFoodIntakes;
-          _caffeineIntakes = hriService.todayCaffeineIntakes.map((c) => {
-            'timestamp': c.timestamp.millisecondsSinceEpoch,
-            'amount': c.caffeineMg,
-            'source': c.source,
-          }).toList();
+          _caffeineIntakes = hriService.todayCaffeineIntakes
+              .map(
+                (c) => {
+                  'timestamp': c.timestamp.millisecondsSinceEpoch,
+                  'amount': c.caffeineMg,
+                  'source': c.source,
+                },
+              )
+              .toList();
           _workouts = hriService.todayWorkouts;
           _daySummary = {}; // Для сегодня не нужно
           _isLoading = false;
         });
-        
-        print('Today data from providers:');
-        print('Intakes: ${_intakes.length}');
-        print('Caffeine: ${_caffeineIntakes.length}');
+
+        logger.e('Today data from providers:');
+        logger.e('Intakes: ${_intakes.length}');
+        logger.e('Caffeine: ${_caffeineIntakes.length}');
       } else {
         // Для прошлых дней загружаем из истории
         final results = await Future.wait([
@@ -122,10 +130,10 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
           _historyService.getWorkoutsForDate(_selectedDate),
           _historyService.getDaySummary(_selectedDate),
         ]);
-        
-        print('Historical data loaded:');
-        print('Intakes: ${(results[0] as List).length}');
-        
+
+        logger.e('Historical data loaded:');
+        logger.e('Intakes: ${(results[0] as List).length}');
+
         if (mounted) {
           setState(() {
             _intakes = results[0] as List<Intake>;
@@ -138,9 +146,9 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
           });
         }
       }
-      print('========================');
+      logger.e('========================');
     } catch (e) {
-      print('ERROR loading day data: $e');
+      logger.e('ERROR loading day data: $e');
       if (mounted) {
         setState(() => _isLoading = false);
         _showErrorSnackBar('Failed to load day data: $e');
@@ -150,10 +158,10 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
 
   void _changeDate(DateTime newDate) {
     if (newDate.isAfter(DateTime.now())) return;
-    
+
     final yearAgo = DateTime.now().subtract(const Duration(days: 365));
     if (newDate.isBefore(yearAgo)) return;
-    
+
     if (_isSameDay(newDate, _selectedDate)) return;
 
     setState(() => _selectedDate = newDate);
@@ -162,8 +170,8 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
 
   bool _isSameDay(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
-           date1.month == date2.month &&
-           date1.day == date2.day;
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
 
   bool _canGoForward() {
@@ -174,8 +182,8 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
   bool _isToday() {
     final now = DateTime.now();
     return _selectedDate.year == now.year &&
-           _selectedDate.month == now.month &&
-           _selectedDate.day == now.day;
+        _selectedDate.month == now.month &&
+        _selectedDate.day == now.day;
   }
 
   void _showErrorSnackBar(String message) {
@@ -210,58 +218,80 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    
-    return Consumer4<HydrationProvider, HRIService, AlcoholService, UnitsService>(
-      builder: (context, hydrationProvider, hriService, alcoholService, unitsService, child) {
-        return Scaffold(
-          // Полностью убираем AppBar
-          body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  _buildDateSelector(l10n),
-                  const SizedBox(height: 20),
 
-                  if (_isLoading)
-                    const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(32),
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
+    return Consumer4<
+      HydrationProvider,
+      HRIService,
+      AlcoholService,
+      UnitsService
+    >(
+      builder:
+          (
+            context,
+            hydrationProvider,
+            hriService,
+            alcoholService,
+            unitsService,
+            child,
+          ) {
+            return Scaffold(
+              // Полностью убираем AppBar
+              body: SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      _buildDateSelector(l10n),
+                      const SizedBox(height: 20),
 
-                  if (!_isLoading) ...[
-                    _buildDayOverviewCard(l10n, hydrationProvider, hriService, alcoholService),
-                    const SizedBox(height: 16),
+                      if (_isLoading)
+                        const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(32),
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
 
-                    // Баннер для бесплатных пользователей
-                    Consumer<SubscriptionProvider>(
-                      builder: (context, subscriptionProvider, child) {
-                        if (!subscriptionProvider.isPro) {
-                          return const Column(
-                            children: [
-                              AdBannerCard(),
-                              SizedBox(height: 16),
-                            ],
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
+                      if (!_isLoading) ...[
+                        _buildDayOverviewCard(
+                          l10n,
+                          hydrationProvider,
+                          hriService,
+                          alcoholService,
+                        ),
+                        const SizedBox(height: 16),
 
-                    _buildFilters(l10n, alcoholService),
-                    const SizedBox(height: 20),
-                    _buildEventsList(l10n, hydrationProvider, alcoholService),
-                  ],
+                        // Баннер для бесплатных пользователей
+                        Consumer<SubscriptionProvider>(
+                          builder: (context, subscriptionProvider, child) {
+                            if (!subscriptionProvider.isPro) {
+                              return const Column(
+                                children: [
+                                  AdBannerCard(),
+                                  SizedBox(height: 16),
+                                ],
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
 
-                  const SizedBox(height: 100),
-                ],
+                        _buildFilters(l10n, alcoholService),
+                        const SizedBox(height: 20),
+                        _buildEventsList(
+                          l10n,
+                          hydrationProvider,
+                          alcoholService,
+                        ),
+                      ],
+
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
-        );
-      },
+            );
+          },
     );
   }
 
@@ -273,7 +303,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -286,7 +316,9 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
             icon: const Icon(Icons.chevron_left),
             onPressed: () {
               final newDate = _selectedDate.subtract(const Duration(days: 1));
-              final yearAgo = DateTime.now().subtract(const Duration(days: 365));
+              final yearAgo = DateTime.now().subtract(
+                const Duration(days: 365),
+              );
               if (newDate.isAfter(yearAgo)) {
                 HapticFeedback.lightImpact();
                 _changeDate(newDate);
@@ -318,7 +350,11 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.calendar_today, size: 18, color: Colors.blue.shade700),
+                  Icon(
+                    Icons.calendar_today,
+                    size: 18,
+                    color: Colors.blue.shade700,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     _formatDate(_selectedDate, l10n),
@@ -335,18 +371,24 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
 
           IconButton(
             icon: const Icon(Icons.chevron_right),
-            onPressed: _canGoForward() ? () {
-              HapticFeedback.lightImpact();
-              _changeDate(_selectedDate.add(const Duration(days: 1)));
-            } : null,
+            onPressed: _canGoForward()
+                ? () {
+                    HapticFeedback.lightImpact();
+                    _changeDate(_selectedDate.add(const Duration(days: 1)));
+                  }
+                : null,
           ),
         ],
       ),
     ).animate().fadeIn();
   }
 
-  Widget _buildDayOverviewCard(AppLocalizations l10n, HydrationProvider provider, 
-                              HRIService hriService, AlcoholService alcoholService) {
+  Widget _buildDayOverviewCard(
+    AppLocalizations l10n,
+    HydrationProvider provider,
+    HRIService hriService,
+    AlcoholService alcoholService,
+  ) {
     // Получение данных в зависимости от дня
     int waterCurrent = 0;
     int waterGoal = 2000;
@@ -361,35 +403,43 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     bool hasAlcohol = false;
     bool hasWorkouts = false;
 
-      if (_isToday()) {
+    if (_isToday()) {
       // Данные текущего дня - используем динамические цели с корректировками
       waterCurrent = provider.totalWaterToday.round();
-      waterGoal = provider.goals.waterOpt; // С учетом погоды/тренировок/алкоголя
-      waterPercent = waterGoal > 0 ? (waterCurrent / waterGoal * 100).clamp(0.0, 200.0) : 0.0;
+      waterGoal =
+          provider.goals.waterOpt; // С учетом погоды/тренировок/алкоголя
+      waterPercent = waterGoal > 0
+          ? (waterCurrent / waterGoal * 100).clamp(0.0, 200.0)
+          : 0.0;
       hydrationStatus = provider.getHydrationStatus(l10n);
       hri = hriService.currentHRI;
       hriStatus = hriService.hriStatus;
       totalEvents = provider.todayIntakes.length;
       workoutCount = hriService.todayWorkouts.length;
       alcoholSD = hriService.todayAlcoholSD;
-      workoutMinutes = hriService.todayWorkouts.fold(0, (sum, w) => sum + w.durationMinutes);
+      workoutMinutes = hriService.todayWorkouts.fold(
+        0,
+        (sum, w) => sum + w.durationMinutes,
+      );
       hasAlcohol = alcoholSD > 0;
       hasWorkouts = workoutCount > 0;
     } else {
       // Исторические данные - используем базовую цель без корректировок
       if (_daySummary.isNotEmpty) {
         waterCurrent = _daySummary['water'] ?? 0;
-        
+
         // ИСПРАВЛЕНО: базовая цель только от веса, без сегодняшних корректировок
         final remoteConfig = RemoteConfigService.instance;
         waterGoal = (remoteConfig.waterOptPerKg * provider.weight).round();
-        
-        waterPercent = waterGoal > 0 ? (waterCurrent / waterGoal * 100).clamp(0.0, 200.0) : 0.0;
-        
+
+        waterPercent = waterGoal > 0
+            ? (waterCurrent / waterGoal * 100).clamp(0.0, 200.0)
+            : 0.0;
+
         if (_daySummary['hri'] != null) {
           hri = _daySummary['hri'];
           hriStatus = _daySummary['hriStatus'] ?? '--';
-          
+
           if (waterPercent >= 80) {
             hydrationStatus = l10n.hydrationStatusNormal;
           } else if (waterPercent >= 50) {
@@ -402,7 +452,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
           hriStatus = '--';
           hydrationStatus = l10n.noDataForDay;
         }
-        
+
         totalEvents = _daySummary['intakeEvents'] ?? 0;
         workoutCount = _daySummary['workoutCount'] ?? 0;
         alcoholSD = _daySummary['alcoholSD'] ?? 0.0;
@@ -418,10 +468,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Colors.blue.shade50,
-            Colors.blue.shade100,
-          ],
+          colors: [Colors.blue.shade50, Colors.blue.shade100],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.blue.shade200, width: 1),
@@ -432,7 +479,11 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
           // Заголовок
           Row(
             children: [
-              Icon(Icons.analytics_outlined, color: Colors.blue.shade700, size: 24),
+              Icon(
+                Icons.analytics_outlined,
+                color: Colors.blue.shade700,
+                size: 24,
+              ),
               const SizedBox(width: 8),
               Text(
                 l10n.dayOverview,
@@ -445,7 +496,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
             ],
           ),
           const SizedBox(height: 20),
-          
+
           // Прогресс воды
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -455,7 +506,11 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.water_drop, color: Colors.blue.shade600, size: 20),
+                      Icon(
+                        Icons.water_drop,
+                        color: Colors.blue.shade600,
+                        size: 20,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         l10n.water,
@@ -478,7 +533,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                 ],
               ),
               const SizedBox(height: 4),
-              
+
               // Прогресс-бар
               Container(
                 height: 8,
@@ -498,7 +553,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                 ),
               ),
               const SizedBox(height: 4),
-              
+
               Text(
                 '${_unitsService.formatVolume(waterCurrent)} / ${_unitsService.formatVolume(waterGoal)}',
                 style: TextStyle(
@@ -509,9 +564,9 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Статус гидратации и HRI
           Row(
             children: [
@@ -534,7 +589,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -547,7 +602,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    if (hri > 0) 
+                    if (hri > 0)
                       Text(
                         'HRI: $hriStatus',
                         style: TextStyle(
@@ -560,20 +615,35 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Счетчик событий и дополнительные индикаторы
-          _buildEventCounters(l10n, totalEvents, workoutCount, alcoholSD, workoutMinutes, 
-                             hasAlcohol, hasWorkouts, alcoholService),
+          _buildEventCounters(
+            l10n,
+            totalEvents,
+            workoutCount,
+            alcoholSD,
+            workoutMinutes,
+            hasAlcohol,
+            hasWorkouts,
+            alcoholService,
+          ),
         ],
       ),
     ).animate().slideY(delay: 100.ms);
   }
 
-  Widget _buildEventCounters(AppLocalizations l10n, int totalEvents, int workoutCount, 
-                           double alcoholSD, int workoutMinutes, bool hasAlcohol, 
-                           bool hasWorkouts, AlcoholService alcoholService) {
+  Widget _buildEventCounters(
+    AppLocalizations l10n,
+    int totalEvents,
+    int workoutCount,
+    double alcoholSD,
+    int workoutMinutes,
+    bool hasAlcohol,
+    bool hasWorkouts,
+    AlcoholService alcoholService,
+  ) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -582,7 +652,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.white.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: Colors.blue.shade200),
           ),
@@ -602,13 +672,13 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
             ],
           ),
         ),
-        
+
         // Индикатор алкоголя
         if (hasAlcohol && !alcoholService.soberModeEnabled)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.15),
+              color: Colors.orange.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.orange.shade300),
             ),
@@ -628,20 +698,24 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
               ],
             ),
           ),
-        
+
         // Индикатор спорта
         if (hasWorkouts)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.15),
+              color: Colors.green.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.green.shade300),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.fitness_center, color: Colors.green.shade700, size: 14),
+                Icon(
+                  Icons.fitness_center,
+                  color: Colors.green.shade700,
+                  size: 14,
+                ),
                 const SizedBox(width: 4),
                 Text(
                   '${workoutMinutes}m',
@@ -658,21 +732,25 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     );
   }
 
-  String _buildEventsCountText(AppLocalizations l10n, int totalEvents, int workoutCount) {
+  String _buildEventsCountText(
+    AppLocalizations l10n,
+    int totalEvents,
+    int workoutCount,
+  ) {
     if (totalEvents == 0 && workoutCount == 0) {
       return l10n.noRecordsThisDay;
     }
-    
+
     List<String> parts = [];
-    
+
     if (totalEvents > 0) {
       parts.add('$totalEvents records');
     }
-    
+
     if (workoutCount > 0) {
       parts.add('$workoutCount workouts');
     }
-    
+
     return parts.join(' • ');
   }
 
@@ -683,37 +761,53 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
       {'key': 'electrolyte', 'label': l10n.electrolyte, 'icon': Icons.bolt},
       {'key': 'coffee', 'label': l10n.coffee, 'icon': Icons.coffee},
     ];
-    
+
     if (_foodIntakes.isNotEmpty) {
-      filters.add({'key': 'food', 'label': l10n.food, 'icon': Icons.restaurant});
+      filters.add({
+        'key': 'food',
+        'label': l10n.food,
+        'icon': Icons.restaurant,
+      });
     }
 
     if (_workouts.isNotEmpty) {
-      filters.add({'key': 'workout', 'label': l10n.todaysWorkouts, 'icon': Icons.fitness_center});
+      filters.add({
+        'key': 'workout',
+        'label': l10n.todaysWorkouts,
+        'icon': Icons.fitness_center,
+      });
     }
 
     if (_alcoholIntakes.isNotEmpty && !alcoholService.soberModeEnabled) {
-      filters.add({'key': 'alcohol', 'label': l10n.alcohol, 'icon': Icons.local_bar});
+      filters.add({
+        'key': 'alcohol',
+        'label': l10n.alcohol,
+        'icon': Icons.local_bar,
+      });
     }
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: filters.map((filter) => Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: _buildFilterChip(
-            filter['label'] as String, 
-            filter['key'] as String, 
-            filter['icon'] as IconData,
-          ),
-        )).toList(),
+        children: filters
+            .map(
+              (filter) => Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: _buildFilterChip(
+                  filter['label'] as String,
+                  filter['key'] as String,
+                  filter['icon'] as IconData,
+                ),
+              ),
+            )
+            .toList(),
       ),
     );
   }
 
   Widget _buildFilterChip(String label, String value, IconData icon) {
     final isSelected = _selectedFilter == value;
-    
+
     return GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
@@ -727,13 +821,15 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
           border: Border.all(
             color: isSelected ? Colors.blue : Colors.grey.shade300,
           ),
-          boxShadow: isSelected ? [
-            BoxShadow(
-              color: Colors.blue.withOpacity(0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ] : null,
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.blue.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -758,10 +854,13 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     );
   }
 
-  Widget _buildEventsList(AppLocalizations l10n, HydrationProvider provider, 
-                         AlcoholService alcoholService) {
+  Widget _buildEventsList(
+    AppLocalizations l10n,
+    HydrationProvider provider,
+    AlcoholService alcoholService,
+  ) {
     final filteredEvents = _getFilteredEvents(alcoholService);
-    
+
     if (filteredEvents.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(32),
@@ -772,18 +871,11 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
         child: Center(
           child: Column(
             children: [
-              Icon(
-                _getEmptyStateIcon(),
-                size: 48,
-                color: Colors.grey.shade400,
-              ),
+              Icon(_getEmptyStateIcon(), size: 48, color: Colors.grey.shade400),
               const SizedBox(height: 12),
               Text(
                 _getEmptyStateMessage(l10n),
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 16,
-                ),
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -798,7 +890,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -822,12 +914,17 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     );
   }
 
-  Widget _buildEventItem(Map<String, dynamic> event, AppLocalizations l10n,
-                        HydrationProvider provider, AlcoholService alcoholService, int index) {
+  Widget _buildEventItem(
+    Map<String, dynamic> event,
+    AppLocalizations l10n,
+    HydrationProvider provider,
+    AlcoholService alcoholService,
+    int index,
+  ) {
     final type = event['type'] as String;
-    
+
     Widget content;
-    
+
     switch (type) {
       case 'intake':
         content = _buildIntakeItem(event['data'] as Intake, l10n, provider);
@@ -836,10 +933,17 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
         content = _buildFoodItem(event['data'] as FoodIntake, l10n);
         break;
       case 'alcohol':
-        content = _buildAlcoholItem(event['data'] as AlcoholIntake, l10n, alcoholService);
+        content = _buildAlcoholItem(
+          event['data'] as AlcoholIntake,
+          l10n,
+          alcoholService,
+        );
         break;
       case 'caffeine':
-        content = _buildCaffeineItem(event['data'] as Map<String, dynamic>, l10n);
+        content = _buildCaffeineItem(
+          event['data'] as Map<String, dynamic>,
+          l10n,
+        );
         break;
       case 'workout':
         content = _buildWorkoutItem(event['data'] as Workout, l10n);
@@ -847,11 +951,17 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
       default:
         return const SizedBox.shrink();
     }
-    
-    return content.animate().fadeIn(delay: Duration(milliseconds: 50 * index.clamp(0, 10)));
+
+    return content.animate().fadeIn(
+      delay: Duration(milliseconds: 50 * index.clamp(0, 10)),
+    );
   }
 
-  Widget _buildIntakeItem(Intake intake, AppLocalizations l10n, HydrationProvider provider) {
+  Widget _buildIntakeItem(
+    Intake intake,
+    AppLocalizations l10n,
+    HydrationProvider provider,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -860,20 +970,17 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: _getIntakeTypeColor(intake.type).withOpacity(0.15),
+              color: _getIntakeTypeColor(intake.type).withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
               child: intake.emoji != null
-                ? Text(
-                    intake.emoji!,
-                    style: const TextStyle(fontSize: 24),
-                  )
-                : Icon(
-                    _getIntakeTypeIcon(intake.type),
-                    color: _getIntakeTypeColor(intake.type),
-                    size: 24,
-                  ),
+                  ? Text(intake.emoji!, style: const TextStyle(fontSize: 24))
+                  : Icon(
+                      _getIntakeTypeIcon(intake.type),
+                      color: _getIntakeTypeColor(intake.type),
+                      size: 24,
+                    ),
             ),
           ),
           const SizedBox(width: 16),
@@ -892,18 +999,12 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                 const SizedBox(height: 2),
                 Text(
                   _unitsService.formatVolume(intake.volume),
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                 ),
-                if (intake.totalElectrolytes > 0) 
+                if (intake.totalElectrolytes > 0)
                   Text(
                     'Na: ${intake.sodium}${l10n.mg}, K: ${intake.potassium}${l10n.mg}, Mg: ${intake.magnesium}${l10n.mg}',
-                    style: TextStyle(
-                      color: Colors.grey.shade500,
-                      fontSize: 11,
-                    ),
+                    style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
                   ),
               ],
             ),
@@ -936,7 +1037,11 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     );
   }
 
-  Widget _buildAlcoholItem(AlcoholIntake intake, AppLocalizations l10n, AlcoholService alcoholService) {
+  Widget _buildAlcoholItem(
+    AlcoholIntake intake,
+    AppLocalizations l10n,
+    AlcoholService alcoholService,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -945,20 +1050,13 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.15),
+              color: Colors.orange.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
               child: intake.emoji != null
-                ? Text(
-                    intake.emoji!,
-                    style: const TextStyle(fontSize: 24),
-                  )
-                : Icon(
-                    intake.type.icon,
-                    color: Colors.orange,
-                    size: 24,
-                  ),
+                  ? Text(intake.emoji!, style: const TextStyle(fontSize: 24))
+                  : Icon(intake.type.icon, color: Colors.orange, size: 24),
             ),
           ),
           const SizedBox(width: 16),
@@ -977,10 +1075,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                 const SizedBox(height: 2),
                 Text(
                   '${_unitsService.formatVolume(intake.volumeMl.round())}, ${intake.abv}%',
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                 ),
                 Text(
                   '${intake.standardDrinks.toStringAsFixed(1)} SD',
@@ -1030,20 +1125,13 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.15),
+              color: Colors.green.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
               child: food.emoji != null
-                ? Text(
-                    food.emoji!,
-                    style: const TextStyle(fontSize: 24),
-                  )
-                : const Icon(
-                    Icons.restaurant,
-                    color: Colors.green,
-                    size: 24,
-                  ),
+                  ? Text(food.emoji!, style: const TextStyle(fontSize: 24))
+                  : const Icon(Icons.restaurant, color: Colors.green, size: 24),
             ),
           ),
           const SizedBox(width: 16),
@@ -1062,10 +1150,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                 const SizedBox(height: 2),
                 Text(
                   '${food.weight.toStringAsFixed(0)} g',
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                 ),
                 Text(
                   '${food.calories} kcal',
@@ -1096,7 +1181,10 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     );
   }
 
-  Widget _buildCaffeineItem(Map<String, dynamic> intake, AppLocalizations l10n) {
+  Widget _buildCaffeineItem(
+    Map<String, dynamic> intake,
+    AppLocalizations l10n,
+  ) {
     final timestamp = DateTime.fromMillisecondsSinceEpoch(intake['timestamp']);
     final amount = intake['amount'] as num;
     final source = intake['source'] as String;
@@ -1109,15 +1197,11 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.brown.withOpacity(0.15),
+              color: Colors.brown.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Center(
-              child: Icon(
-                Icons.coffee,
-                color: Colors.brown,
-                size: 24,
-              ),
+              child: Icon(Icons.coffee, color: Colors.brown, size: 24),
             ),
           ),
           const SizedBox(width: 16),
@@ -1136,10 +1220,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                 const SizedBox(height: 2),
                 Text(
                   '${amount.toStringAsFixed(0)} ${l10n.mg} ${l10n.caffeine}',
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                 ),
               ],
             ),
@@ -1155,10 +1236,12 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                   fontSize: 14,
                 ),
               ),
-              
+
               // Кнопка удаления для кофеина пока не реализована
               if (_isToday())
-                const SizedBox(height: 48), // Пустое место вместо кнопки для выравнивания
+                const SizedBox(
+                  height: 48,
+                ), // Пустое место вместо кнопки для выравнивания
             ],
           ),
         ],
@@ -1175,20 +1258,17 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.15),
+              color: Colors.green.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
               child: workout.emoji != null
-                ? Text(
-                    workout.emoji!,
-                    style: const TextStyle(fontSize: 24),
-                  )
-                : const Icon(
-                    Icons.fitness_center,
-                    color: Colors.green,
-                    size: 24,
-                  ),
+                  ? Text(workout.emoji!, style: const TextStyle(fontSize: 24))
+                  : const Icon(
+                      Icons.fitness_center,
+                      color: Colors.green,
+                      size: 24,
+                    ),
             ),
           ),
           const SizedBox(width: 16),
@@ -1207,18 +1287,12 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
                 const SizedBox(height: 2),
                 Text(
                   '${workout.durationMinutes} ${l10n.minutes}, ${l10n.intensity} ${workout.intensity}/5',
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
                 ),
                 if (workout.waterLossMl > 0)
                   Text(
                     '-${_unitsService.formatVolume(workout.waterLossMl)} ${l10n.sweatLoss}',
-                    style: TextStyle(
-                      color: Colors.blue.shade600,
-                      fontSize: 11,
-                    ),
+                    style: TextStyle(color: Colors.blue.shade600, fontSize: 11),
                   ),
               ],
             ),
@@ -1226,27 +1300,30 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
 
           Text(
             DateFormat('HH:mm').format(workout.timestamp),
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _deleteIntake(Intake intake, HydrationProvider provider, AppLocalizations l10n) async {
+  Future<void> _deleteIntake(
+    Intake intake,
+    HydrationProvider provider,
+    AppLocalizations l10n,
+  ) async {
     HapticFeedback.mediumImpact();
-    
+
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.deleteRecord),
-        content: Text(l10n.deleteRecordMessage(
-          _getIntakeTypeName(intake.type, l10n),
-          intake.volume,
-        )),
+        content: Text(
+          l10n.deleteRecordMessage(
+            _getIntakeTypeName(intake.type, l10n),
+            intake.volume,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -1263,9 +1340,9 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
 
     if (shouldDelete == true) {
       final deletedIntake = intake;
-      
+
       provider.removeIntake(intake.id);
-      
+
       setState(() {
         _intakes.removeWhere((i) => i.id == intake.id);
       });
@@ -1288,17 +1365,23 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     }
   }
 
-  Future<void> _deleteAlcohol(AlcoholIntake intake, AlcoholService alcoholService, AppLocalizations l10n) async {
+  Future<void> _deleteAlcohol(
+    AlcoholIntake intake,
+    AlcoholService alcoholService,
+    AppLocalizations l10n,
+  ) async {
     HapticFeedback.mediumImpact();
-    
+
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.deleteRecord),
-        content: Text(l10n.deleteRecordMessage(
-          intake.type.getLabel(context),
-          intake.volumeMl.toInt(),
-        )),
+        content: Text(
+          l10n.deleteRecordMessage(
+            intake.type.getLabel(context),
+            intake.volumeMl.toInt(),
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -1315,7 +1398,7 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
 
     if (shouldDelete == true) {
       await alcoholService.removeIntake(intake.id);
-      
+
       setState(() {
         _alcoholIntakes.removeWhere((i) => i.id == intake.id);
       });
@@ -1331,17 +1414,20 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     }
   }
 
-  Future<void> _deleteFood(FoodIntake food, HydrationProvider provider, AppLocalizations l10n) async {
+  Future<void> _deleteFood(
+    FoodIntake food,
+    HydrationProvider provider,
+    AppLocalizations l10n,
+  ) async {
     HapticFeedback.mediumImpact();
 
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.deleteRecord),
-        content: Text(l10n.deleteRecordMessage(
-          food.foodName,
-          food.weight.toInt(),
-        )),
+        content: Text(
+          l10n.deleteRecordMessage(food.foodName, food.weight.toInt()),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -1363,27 +1449,30 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
         _foodIntakes.removeWhere((f) => f.id == food.id);
       });
 
-      _showUndoSnackBar(
-        l10n.itemDeleted(food.foodName),
-        () {
-          provider.addFoodIntake(food);
-          _loadDayData();
-        },
-      );
+      _showUndoSnackBar(l10n.itemDeleted(food.foodName), () {
+        provider.addFoodIntake(food);
+        _loadDayData();
+      });
     }
   }
 
-  Future<void> _deleteWorkout(Workout workout, HRIService hriService, AppLocalizations l10n) async {
+  Future<void> _deleteWorkout(
+    Workout workout,
+    HRIService hriService,
+    AppLocalizations l10n,
+  ) async {
     HapticFeedback.mediumImpact();
 
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.deleteRecord),
-        content: Text(l10n.deleteRecordMessage(
-          workout.name ?? _getWorkoutTypeName(workout.type, l10n),
-          workout.durationMinutes,
-        )),
+        content: Text(
+          l10n.deleteRecordMessage(
+            workout.name ?? _getWorkoutTypeName(workout.type, l10n),
+            workout.durationMinutes,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -1416,11 +1505,11 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     }
   }
 
-
   List<Map<String, dynamic>> _getFilteredEvents(AlcoholService alcoholService) {
     List<Map<String, dynamic>> events = [];
 
-    if (_selectedFilter == 'all' || _selectedFilter != 'alcohol' && _selectedFilter != 'workout') {
+    if (_selectedFilter == 'all' ||
+        _selectedFilter != 'alcohol' && _selectedFilter != 'workout') {
       for (final intake in _intakes) {
         if (_selectedFilter == 'all' || intake.type == _selectedFilter) {
           events.add({
@@ -1435,15 +1524,12 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     // Add food intakes
     if (_selectedFilter == 'all' || _selectedFilter == 'food') {
       for (final food in _foodIntakes) {
-        events.add({
-          'type': 'food',
-          'timestamp': food.timestamp,
-          'data': food,
-        });
+        events.add({'type': 'food', 'timestamp': food.timestamp, 'data': food});
       }
     }
 
-    if (!alcoholService.soberModeEnabled && (_selectedFilter == 'all' || _selectedFilter == 'alcohol')) {
+    if (!alcoholService.soberModeEnabled &&
+        (_selectedFilter == 'all' || _selectedFilter == 'alcohol')) {
       for (final alcohol in _alcoholIntakes) {
         events.add({
           'type': 'alcohol',
@@ -1464,20 +1550,20 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
     }
 
     events.sort((a, b) => b['timestamp'].compareTo(a['timestamp']));
-    
+
     return events;
   }
 
   String _formatDate(DateTime date, AppLocalizations l10n) {
     final now = DateTime.now();
     final yesterday = now.subtract(const Duration(days: 1));
-    
+
     if (_isSameDay(date, now)) {
       return l10n.today;
     } else if (_isSameDay(date, yesterday)) {
       return l10n.yesterday;
     }
-    
+
     final locale = Localizations.localeOf(context).toString();
     final formatter = DateFormat.MMMMd(locale);
     return formatter.format(date);
@@ -1496,124 +1582,152 @@ class _DailyHistoryScreenState extends State<DailyHistoryScreen> {
   }
 
   Color _getIntakeTypeColor(String type) {
-  switch (type) {
-    case 'water': 
-      return Colors.blue;
-    case 'electrolyte': 
-      return Colors.orange;
-    case 'broth': 
-      return Colors.amber;
-    case 'coffee': 
-      return Colors.brown;
-    case 'supplement':
-    case 'supplement_minerals':
-    case 'supplement_vitamins':
-    case 'supplement_other':
-      return Colors.purple;
-    case 'vitamin':
-      return Colors.green;
-    default:
-      if (type.startsWith('supplement_')) {
+    switch (type) {
+      case 'water':
+        return Colors.blue;
+      case 'electrolyte':
+        return Colors.orange;
+      case 'broth':
+        return Colors.amber;
+      case 'coffee':
+        return Colors.brown;
+      case 'supplement':
+      case 'supplement_minerals':
+      case 'supplement_vitamins':
+      case 'supplement_other':
         return Colors.purple;
-      }
-      return Colors.grey;
+      case 'vitamin':
+        return Colors.green;
+      default:
+        if (type.startsWith('supplement_')) {
+          return Colors.purple;
+        }
+        return Colors.grey;
+    }
   }
-}
 
   IconData _getIntakeTypeIcon(String type) {
-  switch (type) {
-    case 'water': 
-      return Icons.water_drop;
-    case 'electrolyte': 
-      return Icons.bolt;
-    case 'broth': 
-      return Icons.soup_kitchen;
-    case 'coffee': 
-      return Icons.coffee;
-    case 'supplement':
-    case 'supplement_minerals':
-    case 'supplement_vitamins':
-    case 'supplement_other':
-      return Icons.medication;
-    case 'vitamin':
-      return Icons.medication_liquid;
-    default:
-      if (type.startsWith('supplement_')) {
+    switch (type) {
+      case 'water':
+        return Icons.water_drop;
+      case 'electrolyte':
+        return Icons.bolt;
+      case 'broth':
+        return Icons.soup_kitchen;
+      case 'coffee':
+        return Icons.coffee;
+      case 'supplement':
+      case 'supplement_minerals':
+      case 'supplement_vitamins':
+      case 'supplement_other':
         return Icons.medication;
-      }
-      return Icons.local_drink;
+      case 'vitamin':
+        return Icons.medication_liquid;
+      default:
+        if (type.startsWith('supplement_')) {
+          return Icons.medication;
+        }
+        return Icons.local_drink;
+    }
   }
-}
 
   String _getIntakeTypeName(String type, AppLocalizations l10n) {
-  switch (type) {
-    case 'water': 
-      return l10n.water;
-    case 'electrolyte': 
-      return l10n.electrolyte;
-    case 'broth': 
-      return l10n.broth;
-    case 'coffee': 
-      return l10n.coffee;
-    case 'supplement':
-    case 'supplement_minerals':
-    case 'supplement_vitamins':
-    case 'supplement_other':
-      return l10n.supplements;
-    case 'vitamin':
-      return l10n.vitamins;
-    default:
-      if (type.startsWith('supplement_')) {
+    switch (type) {
+      case 'water':
+        return l10n.water;
+      case 'electrolyte':
+        return l10n.electrolyte;
+      case 'broth':
+        return l10n.broth;
+      case 'coffee':
+        return l10n.coffee;
+      case 'supplement':
+      case 'supplement_minerals':
+      case 'supplement_vitamins':
+      case 'supplement_other':
         return l10n.supplements;
-      }
-      return l10n.drink;
+      case 'vitamin':
+        return l10n.vitamins;
+      default:
+        if (type.startsWith('supplement_')) {
+          return l10n.supplements;
+        }
+        return l10n.drink;
+    }
   }
-}
 
   String _getWorkoutTypeName(String type, AppLocalizations l10n) {
     switch (type) {
-      case 'cardio': return 'Cardio';
-      case 'strength': return 'Strength';
-      case 'yoga': return 'Yoga';
-      case 'running': return l10n.running;
-      case 'cycling': return l10n.cycling;
-      case 'sauna': return l10n.sauna;
-      default: return 'Workout';
+      case 'cardio':
+        return 'Cardio';
+      case 'strength':
+        return 'Strength';
+      case 'yoga':
+        return 'Yoga';
+      case 'running':
+        return l10n.running;
+      case 'cycling':
+        return l10n.cycling;
+      case 'sauna':
+        return l10n.sauna;
+      default:
+        return 'Workout';
     }
   }
 
   IconData _getEmptyStateIcon() {
     switch (_selectedFilter) {
-      case 'water': return Icons.water_drop_outlined;
-      case 'electrolyte': return Icons.bolt;
-      case 'coffee': return Icons.coffee_outlined;
-      case 'food': return Icons.restaurant_outlined;
-      case 'alcohol': return Icons.local_bar_outlined;
-      case 'workout': return Icons.fitness_center_outlined;
-      default: return Icons.history_outlined;
+      case 'water':
+        return Icons.water_drop_outlined;
+      case 'electrolyte':
+        return Icons.bolt;
+      case 'coffee':
+        return Icons.coffee_outlined;
+      case 'food':
+        return Icons.restaurant_outlined;
+      case 'alcohol':
+        return Icons.local_bar_outlined;
+      case 'workout':
+        return Icons.fitness_center_outlined;
+      default:
+        return Icons.history_outlined;
     }
   }
 
   String _getEmptyStateMessage(AppLocalizations l10n) {
     if (_isToday()) {
       switch (_selectedFilter) {
-        case 'water': return l10n.noRecordsToday;
-        case 'electrolyte': return l10n.noRecordsToday;
-        case 'coffee': return l10n.noRecordsToday;
-        case 'food': return l10n.noRecordsToday;
-        case 'alcohol': return l10n.noAlcoholToday;
-        case 'workout': return l10n.noRecordsToday;
-        default: return l10n.noRecordsToday;
+        case 'water':
+          return l10n.noRecordsToday;
+        case 'electrolyte':
+          return l10n.noRecordsToday;
+        case 'coffee':
+          return l10n.noRecordsToday;
+        case 'food':
+          return l10n.noRecordsToday;
+        case 'alcohol':
+          return l10n.noAlcoholToday;
+        case 'workout':
+          return l10n.noRecordsToday;
+        default:
+          return l10n.noRecordsToday;
       }
     } else {
       switch (_selectedFilter) {
-        case 'water': return l10n.noRecordsThisDay;
-        case 'electrolyte': return l10n.noRecordsThisDay;
-        case 'coffee': return l10n.noRecordsThisDay;
-        case 'food': return l10n.noRecordsThisDay;
-        case 'alcohol': return l10n.noRecordsThisDay;
-        case 'workout': return l10n.noRecordsThisDay;
-        default: return l10n.noRecordsThisDay;
+        case 'water':
+          return l10n.noRecordsThisDay;
+        case 'electrolyte':
+          return l10n.noRecordsThisDay;
+        case 'coffee':
+          return l10n.noRecordsThisDay;
+        case 'food':
+          return l10n.noRecordsThisDay;
+        case 'alcohol':
+          return l10n.noRecordsThisDay;
+        case 'workout':
+          return l10n.noRecordsThisDay;
+        default:
+          return l10n.noRecordsThisDay;
       }
     }
   }

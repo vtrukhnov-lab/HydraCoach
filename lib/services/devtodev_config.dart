@@ -10,10 +10,7 @@ class DevToDevCredentials {
     required this.apiKey,
   });
 
-  const DevToDevCredentials.empty()
-      : appId = '',
-        secretKey = '',
-        apiKey = '';
+  const DevToDevCredentials.empty() : appId = '', secretKey = '', apiKey = '';
 
   final String appId;
   final String secretKey;

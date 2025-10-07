@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'analytics_service.dart';
+import 'package:hydracoach/utils/app_logger.dart';
 
 /// Сервис для отслеживания milestone событий достижения 100% воды
 /// Отправляет уникальные события в AppsFlyer для когортного анализа
@@ -101,7 +102,9 @@ class WaterMilestoneTracker {
             final eventName = milestone == 1
                 ? 'water_goal_100_first'
                 : 'water_goal_100_${milestone}days';
-            print('🎯 Milestone: $eventName (reached 100% in $milestone total days)');
+            logger.i(
+              '🎯 Milestone: $eventName (reached 100% in $milestone total days)',
+            );
           }
         }
       }
@@ -124,7 +127,7 @@ class WaterMilestoneTracker {
     await prefs.setBool(_onboardingCompleteKey, true);
 
     if (kDebugMode) {
-      print('🎯 Milestone: onboarding_complete (one-time event)');
+      logger.i('🎯 Milestone: onboarding_complete (one-time event)');
     }
   }
 
@@ -147,13 +150,13 @@ class WaterMilestoneTracker {
     await prefs.remove(_lastGoalDateKey);
     await prefs.remove(_installDateKey);
 
-    print('🔄 All milestones reset for testing');
+    logger.i('🔄 All milestones reset for testing');
   }
 
   /// Проверка одинаковый ли день
   bool _isSameDay(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
-           date1.month == date2.month &&
-           date1.day == date2.day;
+        date1.month == date2.month &&
+        date1.day == date2.day;
   }
 }

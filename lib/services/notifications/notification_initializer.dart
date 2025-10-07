@@ -6,6 +6,8 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 
+import 'package:hydracoach/utils/app_logger.dart';
+
 import 'notification_config.dart';
 import '../notification_texts.dart';
 import 'helpers/timezone_helper.dart';
@@ -24,7 +26,7 @@ class NotificationInitializer {
 
   /// Полная инициализация системы уведомлений БЕЗ запроса разрешений
   Future<void> initialize() async {
-    print('🚀 Initializing notification system...');
+    logger.i('🚀 Initializing notification system...');
 
     try {
       // 1. Инициализация временных зон
@@ -44,38 +46,39 @@ class NotificationInitializer {
 
       // 6. НЕ ЗАПРАШИВАЕМ разрешения автоматически!
       // Разрешения будут запрошены только когда пользователь нажмёт кнопку
-      print('✅ Notification system initialized (permissions not requested)');
-
+      logger.i('✅ Notification system initialized (permissions not requested)');
     } catch (e) {
-      print('❌ Critical error during initialization: $e');
+      logger.i('❌ Critical error during initialization: $e');
       rethrow;
     }
   }
 
   /// Инициализация временных зон
   Future<void> _initializeTimezone() async {
-    print('🌍 Initializing timezone...');
+    logger.i('🌍 Initializing timezone...');
     await TimezoneHelper.initialize();
   }
 
   /// Инициализация текстов уведомлений
   Future<void> _initializeTexts() async {
-    print('📝 Initializing notification texts...');
+    logger.i('📝 Initializing notification texts...');
     await NotificationTexts.initialize();
     await NotificationTexts.loadLocale();
   }
 
   /// Инициализация локальных уведомлений БЕЗ запроса разрешений
   Future<void> _initializeLocalNotifications() async {
-    print('📱 Initializing local notifications (without permission request)...');
+    logger.i(
+      '📱 Initializing local notifications (without permission request)...',
+    );
 
     const androidSettings = AndroidInitializationSettings('notification_icon');
 
     // КРИТИЧНО: Отключаем автоматический запрос разрешений на iOS
     const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: false,  // НЕ запрашиваем автоматически
-      requestBadgePermission: false,  // НЕ запрашиваем автоматически
-      requestSoundPermission: false,  // НЕ запрашиваем автоматически
+      requestAlertPermission: false, // НЕ запрашиваем автоматически
+      requestBadgePermission: false, // НЕ запрашиваем автоматически
+      requestSoundPermission: false, // НЕ запрашиваем автоматически
       defaultPresentAlert: true,
       defaultPresentBadge: true,
       defaultPresentSound: true,
@@ -89,36 +92,43 @@ class NotificationInitializer {
     await _localNotifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
-      onDidReceiveBackgroundNotificationResponse: _onBackgroundNotificationTapped,
+      onDidReceiveBackgroundNotificationResponse:
+          _onBackgroundNotificationTapped,
     );
 
     // Создание каналов для Android
     if (Platform.isAndroid) {
       await _createAndroidChannels();
     }
-    
-    print('✅ Local notifications initialized without permission request');
+
+    logger.i('✅ Local notifications initialized without permission request');
   }
 
   /// Создание каналов Android с локализованными названиями
   Future<void> _createAndroidChannels() async {
-    print('🔧 Creating Android notification channels...');
+    logger.i('🔧 Creating Android notification channels...');
 
     final androidPlugin = _localNotifications
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
 
     if (androidPlugin == null) {
-      print('⚠️ Android plugin not available');
+      logger.i('⚠️ Android plugin not available');
       return;
     }
 
     final currentLocale = NotificationTexts.currentLocale;
-    
+
     // Генерация ID каналов с учетом локали
-    final defaultChannelId = '${NotificationConfig.channelPrefix}_${NotificationConfig.defaultChannelSuffix}_$currentLocale';
-    final urgentChannelId = '${NotificationConfig.channelPrefix}_${NotificationConfig.urgentChannelSuffix}_$currentLocale';
-    final reportChannelId = '${NotificationConfig.channelPrefix}_${NotificationConfig.reportChannelSuffix}_$currentLocale';
-    final silentChannelId = '${NotificationConfig.channelPrefix}_${NotificationConfig.silentChannelSuffix}_$currentLocale';
+    final defaultChannelId =
+        '${NotificationConfig.channelPrefix}_${NotificationConfig.defaultChannelSuffix}_$currentLocale';
+    final urgentChannelId =
+        '${NotificationConfig.channelPrefix}_${NotificationConfig.urgentChannelSuffix}_$currentLocale';
+    final reportChannelId =
+        '${NotificationConfig.channelPrefix}_${NotificationConfig.reportChannelSuffix}_$currentLocale';
+    final silentChannelId =
+        '${NotificationConfig.channelPrefix}_${NotificationConfig.silentChannelSuffix}_$currentLocale';
 
     // Канал по умолчанию - гидратация
     await androidPlugin.createNotificationChannel(
@@ -172,23 +182,25 @@ class NotificationInitializer {
       ),
     );
 
-    print('✅ Created Android channels for locale: $currentLocale');
+    logger.i('✅ Created Android channels for locale: $currentLocale');
   }
 
   /// Инициализация Firebase Messaging БЕЗ запроса разрешений
   Future<void> _initializeFirebaseMessaging() async {
-    print('🔥 Initializing Firebase Messaging (without permission request)...');
+    logger.i(
+      '🔥 Initializing Firebase Messaging (without permission request)...',
+    );
 
     // Получение и сохранение FCM токена (работает без разрешений)
     final token = await _messaging.getToken();
     if (token != null) {
       await _saveFCMTokenToPrefs(token);
-      print('📱 FCM token obtained: ${token.substring(0, 20)}...');
+      logger.i('📱 FCM token obtained: ${token.substring(0, 20)}...');
     }
 
     // Подписка на обновления токена
     _messaging.onTokenRefresh.listen((newToken) {
-      print('🔄 FCM token refreshed');
+      logger.i('🔄 FCM token refreshed');
       _saveFCMTokenToPrefs(newToken);
     });
 
@@ -196,10 +208,12 @@ class NotificationInitializer {
     // Только проверяем текущий статус без показа диалога
     if (Platform.isIOS) {
       final settings = await _messaging.getNotificationSettings();
-      print('📱 iOS current permission status: ${settings.authorizationStatus}');
+      logger.i(
+        '📱 iOS current permission status: ${settings.authorizationStatus}',
+      );
     }
 
-    print('✅ Firebase Messaging initialized without permission request');
+    logger.i('✅ Firebase Messaging initialized without permission request');
   }
 
   /// Сохранение FCM токена в SharedPreferences
@@ -210,32 +224,40 @@ class NotificationInitializer {
 
   /// Инициализация Remote Config
   Future<void> _initializeRemoteConfig() async {
-    print('📡 Initializing Remote Config...');
+    logger.i('📡 Initializing Remote Config...');
 
     try {
       // Настройки Remote Config
-      await _remoteConfig.setConfigSettings(RemoteConfigSettings(
-        fetchTimeout: const Duration(minutes: 1),
-        minimumFetchInterval: const Duration(hours: 1),
-      ));
+      await _remoteConfig.setConfigSettings(
+        RemoteConfigSettings(
+          fetchTimeout: const Duration(minutes: 1),
+          minimumFetchInterval: const Duration(hours: 1),
+        ),
+      );
 
       // Установка значений по умолчанию
       await _remoteConfig.setDefaults({
         // Задержки уведомлений
-        NotificationConfig.rcPostCoffeeDelay: NotificationConfig.postCoffeeDelayMinutes,
-        
+        NotificationConfig.rcPostCoffeeDelay:
+            NotificationConfig.postCoffeeDelayMinutes,
+
         // Лимиты FREE пользователей
-        NotificationConfig.rcMaxFreeNotifications: NotificationConfig.maxFreeNotificationsDaily,
-        NotificationConfig.rcAntiSpamInterval: NotificationConfig.freeAntiSpamMinutes,
-        
+        NotificationConfig.rcMaxFreeNotifications:
+            NotificationConfig.maxFreeNotificationsDaily,
+        NotificationConfig.rcAntiSpamInterval:
+            NotificationConfig.freeAntiSpamMinutes,
+
         // Лимиты PRO пользователей
         NotificationConfig.rcProDailyCap: NotificationConfig.proDailySoftCap,
         NotificationConfig.rcProHardCap: NotificationConfig.proDailyHardCap,
 
         // Алкоголь
-        NotificationConfig.rcStandardDrinkGrams: NotificationConfig.standardDrinkGrams,
-        NotificationConfig.rcAlcoholDrinkBonus: NotificationConfig.waterPerStandardDrink,
-        NotificationConfig.rcSodiumPerDrink: NotificationConfig.sodiumPerStandardDrink,
+        NotificationConfig.rcStandardDrinkGrams:
+            NotificationConfig.standardDrinkGrams,
+        NotificationConfig.rcAlcoholDrinkBonus:
+            NotificationConfig.waterPerStandardDrink,
+        NotificationConfig.rcSodiumPerDrink:
+            NotificationConfig.sodiumPerStandardDrink,
         NotificationConfig.rcMagnesiumAfterAlc: 200,
         NotificationConfig.rcAlcoholHriRisk: 5,
         NotificationConfig.rcAlcoholHriCap: 30,
@@ -244,10 +266,9 @@ class NotificationInitializer {
 
       // Попытка загрузить актуальные значения
       await _remoteConfig.fetchAndActivate();
-      print('📡 Remote Config loaded and activated');
-
+      logger.i('📡 Remote Config loaded and activated');
     } catch (e) {
-      print('⚠️ Remote Config error (using defaults): $e');
+      logger.i('⚠️ Remote Config error (using defaults): $e');
     }
   }
 
@@ -255,8 +276,10 @@ class NotificationInitializer {
   /// Вызывается ТОЛЬКО когда пользователь нажимает кнопку
   /// Запрашивает базовые разрешения на уведомления
   /// НЕ запрашивает SCHEDULE_EXACT_ALARM для Google Play Store compliance
-  Future<void> requestSystemNotificationPermissions({bool requestExactAlarms = false}) async {
-    print('🔐 Explicitly requesting notification permissions...');
+  Future<void> requestSystemNotificationPermissions({
+    bool requestExactAlarms = false,
+  }) async {
+    logger.i('🔐 Explicitly requesting notification permissions...');
 
     // iOS разрешения
     if (Platform.isIOS) {
@@ -270,34 +293,42 @@ class NotificationInitializer {
         provisional: false,
       );
 
-      print('📱 iOS permissions (prompted): ${settings.authorizationStatus}');
+      logger.i(
+        '📱 iOS permissions (prompted): ${settings.authorizationStatus}',
+      );
     }
 
     // Android разрешения
     if (Platform.isAndroid) {
       final androidPlugin = _localNotifications
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
 
       if (androidPlugin != null) {
         // Базовые уведомления (Android 13+)
         final granted = await androidPlugin.requestNotificationsPermission();
-        print('🤖 Android notifications permission: ${granted == true ? "granted" : "denied"}');
-        
+        logger.i(
+          '🤖 Android notifications permission: ${granted == true ? "granted" : "denied"}',
+        );
+
         // УДАЛЕНО: Точные будильники (Android 12+)
         // НЕ запрашиваем SCHEDULE_EXACT_ALARM для Google Play Store compliance
         // Используем только AndroidScheduleMode.inexactAllowWhileIdle
         if (requestExactAlarms) {
-          print('🤖 Exact alarms не запрашиваются - используем inexact scheduling');
+          logger.i(
+            '🤖 Exact alarms не запрашиваются - используем inexact scheduling',
+          );
         }
-        
-        print('🤖 Android permissions requested (prompted)');
+
+        logger.i('🤖 Android permissions requested (prompted)');
       }
     }
   }
 
   /// Очистка и восстановление состояния уведомлений
   Future<Map<String, dynamic>> restoreNotificationState() async {
-    print('🔄 Restoring notification state...');
+    logger.i('🔄 Restoring notification state...');
 
     final pending = await _localNotifications.pendingNotificationRequests();
     final Set<int> pendingIds = pending.map((n) => n.id).toSet();
@@ -305,14 +336,16 @@ class NotificationInitializer {
     // Восстановление времени последнего кофе для защиты от дублей
     final prefs = await SharedPreferences.getInstance();
     DateTime? lastCoffeeTime;
-    final lastCoffeeTimeMs = prefs.getInt(NotificationConfig.prefLastCoffeeNotificationTime);
+    final lastCoffeeTimeMs = prefs.getInt(
+      NotificationConfig.prefLastCoffeeNotificationTime,
+    );
     if (lastCoffeeTimeMs != null) {
       lastCoffeeTime = DateTime.fromMillisecondsSinceEpoch(lastCoffeeTimeMs);
     }
 
-    print('📅 Found ${pending.length} pending notifications');
+    logger.i('📅 Found ${pending.length} pending notifications');
     if (lastCoffeeTime != null) {
-      print('☕ Last coffee notification: $lastCoffeeTime');
+      logger.i('☕ Last coffee notification: $lastCoffeeTime');
     }
 
     return {
@@ -327,16 +360,27 @@ class NotificationInitializer {
     final prefs = await SharedPreferences.getInstance();
 
     return {
-      'notificationsEnabled': prefs.getBool(NotificationConfig.prefNotificationsEnabled) ?? true,
+      'notificationsEnabled':
+          prefs.getBool(NotificationConfig.prefNotificationsEnabled) ?? true,
       'isPro': prefs.getBool(NotificationConfig.prefIsPro) ?? false,
-      'quietHoursEnabled': prefs.getBool(NotificationConfig.prefQuietHoursEnabled) ?? true,
-      'quietHoursStart': prefs.getString(NotificationConfig.prefQuietHoursStart) ?? NotificationConfig.defaultQuietHoursStart,
-      'quietHoursEnd': prefs.getString(NotificationConfig.prefQuietHoursEnd) ?? NotificationConfig.defaultQuietHoursEnd,
-      'eveningReportTime': prefs.getString(NotificationConfig.prefEveningReportTime) ?? NotificationConfig.defaultEveningReportTime,
+      'quietHoursEnabled':
+          prefs.getBool(NotificationConfig.prefQuietHoursEnabled) ?? true,
+      'quietHoursStart':
+          prefs.getString(NotificationConfig.prefQuietHoursStart) ??
+          NotificationConfig.defaultQuietHoursStart,
+      'quietHoursEnd':
+          prefs.getString(NotificationConfig.prefQuietHoursEnd) ??
+          NotificationConfig.defaultQuietHoursEnd,
+      'eveningReportTime':
+          prefs.getString(NotificationConfig.prefEveningReportTime) ??
+          NotificationConfig.defaultEveningReportTime,
       'dietMode': prefs.getString(NotificationConfig.prefDietMode) ?? 'normal',
-      'fastingWindowStart': prefs.getInt(NotificationConfig.prefFastingWindowStart) ?? 20,
-      'fastingWindowEnd': prefs.getInt(NotificationConfig.prefFastingWindowEnd) ?? 12,
-      'quietFastingMode': prefs.getBool(NotificationConfig.prefQuietFastingMode) ?? false,
+      'fastingWindowStart':
+          prefs.getInt(NotificationConfig.prefFastingWindowStart) ?? 20,
+      'fastingWindowEnd':
+          prefs.getInt(NotificationConfig.prefFastingWindowEnd) ?? 12,
+      'quietFastingMode':
+          prefs.getBool(NotificationConfig.prefQuietFastingMode) ?? false,
       'waterReminderTimes': prefs.getString('water_reminder_times'),
     };
   }
@@ -345,11 +389,11 @@ class NotificationInitializer {
   Future<void> recreateChannelsForLocale(String localeCode) async {
     if (!Platform.isAndroid) return;
 
-    print('🔧 Recreating Android channels for locale: $localeCode');
-    
+    logger.i('🔧 Recreating Android channels for locale: $localeCode');
+
     // Обновляем тексты
     await NotificationTexts.setLocale(localeCode);
-    
+
     // Пересоздаем каналы
     await _createAndroidChannels();
   }
@@ -360,10 +404,13 @@ class NotificationInitializer {
 
     if (Platform.isAndroid) {
       final androidPlugin = _localNotifications
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-      
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
+
       if (androidPlugin != null) {
-        result['notifications'] = await androidPlugin.areNotificationsEnabled() ?? false;
+        result['notifications'] =
+            await androidPlugin.areNotificationsEnabled() ?? false;
         // УДАЛЕНО: Проверка exact alarms для Google Play Store compliance
         // Используем только inexact scheduling, поэтому проверка не нужна
         result['exactAlarms'] = false; // Всегда false, так как не используем
@@ -372,7 +419,8 @@ class NotificationInitializer {
 
     if (Platform.isIOS) {
       final settings = await _messaging.getNotificationSettings();
-      result['notifications'] = settings.authorizationStatus == AuthorizationStatus.authorized;
+      result['notifications'] =
+          settings.authorizationStatus == AuthorizationStatus.authorized;
       result['badges'] = settings.badge == AppleNotificationSetting.enabled;
       result['sounds'] = settings.sound == AppleNotificationSetting.enabled;
     }
@@ -384,14 +432,14 @@ class NotificationInitializer {
 
   /// Обработка тапа по уведомлению
   static void _onNotificationTapped(NotificationResponse response) {
-    print('📱 Notification tapped: ${response.payload}');
+    logger.i('📱 Notification tapped: ${response.payload}');
     // Логику обработки переносим в FCMHandler
   }
 
   /// Обработка тапа по уведомлению в фоне
   @pragma('vm:entry-point')
   static void _onBackgroundNotificationTapped(NotificationResponse response) {
-    print('📱 Background notification tapped: ${response.payload}');
+    logger.i('📱 Background notification tapped: ${response.payload}');
     // Логику обработки переносим в FCMHandler
   }
 }

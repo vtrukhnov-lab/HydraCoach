@@ -460,12 +460,7 @@ class AlcoholItems {
 
   // Получить все элементы
   static List<CatalogItem> getAllItems() {
-    return [
-      ...getBeer(),
-      ...getWine(),
-      ...getSpirits(),
-      ...getCocktails(),
-    ];
+    return [...getBeer(), ...getWine(), ...getSpirits(), ...getCocktails()];
   }
 
   // Получить элементы по типу

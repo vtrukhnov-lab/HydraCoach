@@ -31,29 +31,23 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+      ),
+    );
 
-    _slideAnimation = Tween<double>(
-      begin: 50.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.2, 0.8, curve: Curves.easeOut),
-    ));
+    _slideAnimation = Tween<double>(begin: 50.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.2, 0.8, curve: Curves.easeOut),
+      ),
+    );
 
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.1,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
 
     _controller.forward();
     _pulseController.repeat(reverse: true);
@@ -69,13 +63,15 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
   @override
   Widget build(BuildContext context) {
     // Устанавливаем цвет системных панелей
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      systemNavigationBarColor: Colors.transparent,
-      systemNavigationBarDividerColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarIconBrightness: Brightness.light,
-    ));
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
+    );
 
     final l10n = AppLocalizations.of(context);
     final screenHeight = MediaQuery.of(context).size.height;
@@ -98,31 +94,33 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
             colors: [
               const Color(0xFF4A90E2),
               const Color(0xFF50C9C3),
-              const Color(0xFF4A90E2).withOpacity(0.8),
+              const Color(0xFF4A90E2).withValues(alpha: 0.8),
             ],
             stops: const [0.0, 0.5, 1.0],
           ),
         ),
         child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, child) {
-              return Transform.translate(
-                offset: Offset(0, _slideAnimation.value),
-                child: Opacity(
-                  opacity: _fadeAnimation.value,
-                  child: SafeArea(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.only(
-                        left: isTablet ? screenWidth * 0.15 : screenWidth * 0.06,
-                        right: isTablet ? screenWidth * 0.15 : screenWidth * 0.06,
-                        top: screenHeight * 0.03,
-                        bottom: screenHeight * 0.03,
-                      ),
-                      child: Column(
-                        children: [
+          animation: _controller,
+          builder: (context, child) {
+            return Transform.translate(
+              offset: Offset(0, _slideAnimation.value),
+              child: Opacity(
+                opacity: _fadeAnimation.value,
+                child: SafeArea(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.only(
+                      left: isTablet ? screenWidth * 0.15 : screenWidth * 0.06,
+                      right: isTablet ? screenWidth * 0.15 : screenWidth * 0.06,
+                      top: screenHeight * 0.03,
+                      bottom: screenHeight * 0.03,
+                    ),
+                    child: Column(
+                      children: [
                         // Большая радостная иконка с пульсацией
                         SizedBox(
-                          height: isTablet ? screenHeight * 0.2 : screenHeight * 0.25,
+                          height: isTablet
+                              ? screenHeight * 0.2
+                              : screenHeight * 0.25,
                           child: Center(
                             child: AnimatedBuilder(
                               animation: _pulseAnimation,
@@ -130,14 +128,22 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
                                 return Transform.scale(
                                   scale: _pulseAnimation.value,
                                   child: Container(
-                                    width: isTablet ? screenWidth * 0.15 : screenWidth * 0.25,
-                                    height: isTablet ? screenWidth * 0.15 : screenWidth * 0.25,
+                                    width: isTablet
+                                        ? screenWidth * 0.15
+                                        : screenWidth * 0.25,
+                                    height: isTablet
+                                        ? screenWidth * 0.15
+                                        : screenWidth * 0.25,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      color: Colors.white.withOpacity(0.1),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.1,
+                                      ),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.white.withOpacity(0.3),
+                                          color: Colors.white.withValues(
+                                            alpha: 0.3,
+                                          ),
                                           blurRadius: 20,
                                           spreadRadius: 5,
                                         ),
@@ -147,7 +153,9 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
                                       child: Text(
                                         '🎉',
                                         style: TextStyle(
-                                          fontSize: isTablet ? screenWidth * 0.08 : screenWidth * 0.15,
+                                          fontSize: isTablet
+                                              ? screenWidth * 0.08
+                                              : screenWidth * 0.15,
                                         ),
                                       ),
                                     ),
@@ -166,7 +174,9 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
                               Text(
                                 l10n.proWelcomeTitle,
                                 style: TextStyle(
-                                  fontSize: isTablet ? screenWidth * 0.04 : screenWidth * 0.07,
+                                  fontSize: isTablet
+                                      ? screenWidth * 0.04
+                                      : screenWidth * 0.07,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                   height: 1.2,
@@ -177,13 +187,14 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
                               Text(
                                 l10n.proTrialActivated,
                                 style: TextStyle(
-                                  fontSize: isTablet ? screenWidth * 0.025 : screenWidth * 0.045,
-                                  color: Colors.white.withOpacity(0.9),
+                                  fontSize: isTablet
+                                      ? screenWidth * 0.025
+                                      : screenWidth * 0.045,
+                                  color: Colors.white.withValues(alpha: 0.9),
                                   fontWeight: FontWeight.w500,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-
                             ],
                           ),
                         ),
@@ -195,64 +206,64 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
                             bottom: screenHeight * 0.015,
                           ),
                           child: Column(
-                                children: [
-                                  _buildFeatureCard(
-                                    '🚫',
-                                    l10n.proFeatureNoMoreAds,
-                                    l10n.proFeatureNoMoreAdsDescription,
-                                    0,
-                                    screenWidth,
-                                  ),
-                                  _buildFeatureCard(
-                                    '💧',
-                                    l10n.proFeaturePersonalizedRecommendations,
-                                    l10n.proFeaturePersonalizedDescription,
-                                    200,
-                                    screenWidth,
-                                  ),
-                                  _buildFeatureCard(
-                                    '📊',
-                                    l10n.proFeatureAdvancedAnalytics,
-                                    l10n.proFeatureAdvancedDescription,
-                                    400,
-                                    screenWidth,
-                                  ),
-                                  _buildFeatureCard(
-                                    '🏃‍♂️',
-                                    l10n.proFeatureWorkoutTracking,
-                                    l10n.proFeatureWorkoutDescription,
-                                    600,
-                                    screenWidth,
-                                  ),
-                                  _buildFeatureCard(
-                                    '🧂',
-                                    l10n.proFeatureElectrolyteControl,
-                                    l10n.proFeatureElectrolyteDescription,
-                                    800,
-                                    screenWidth,
-                                  ),
-                                  _buildFeatureCard(
-                                    '🎯',
-                                    l10n.proFeatureSmartReminders,
-                                    l10n.proFeatureSmartDescription,
-                                    1000,
-                                    screenWidth,
-                                  ),
-                                  _buildFeatureCard(
-                                    '📈',
-                                    l10n.proFeatureHriIndex,
-                                    l10n.proFeatureHriDescription,
-                                    1200,
-                                    screenWidth,
-                                  ),
-                                  _buildFeatureCard(
-                                    '🏆',
-                                    l10n.proFeatureAchievements,
-                                    l10n.proFeatureAchievementsDescription,
-                                    1400,
-                                    screenWidth,
-                                  ),
-                                ],
+                            children: [
+                              _buildFeatureCard(
+                                '🚫',
+                                l10n.proFeatureNoMoreAds,
+                                l10n.proFeatureNoMoreAdsDescription,
+                                0,
+                                screenWidth,
+                              ),
+                              _buildFeatureCard(
+                                '💧',
+                                l10n.proFeaturePersonalizedRecommendations,
+                                l10n.proFeaturePersonalizedDescription,
+                                200,
+                                screenWidth,
+                              ),
+                              _buildFeatureCard(
+                                '📊',
+                                l10n.proFeatureAdvancedAnalytics,
+                                l10n.proFeatureAdvancedDescription,
+                                400,
+                                screenWidth,
+                              ),
+                              _buildFeatureCard(
+                                '🏃‍♂️',
+                                l10n.proFeatureWorkoutTracking,
+                                l10n.proFeatureWorkoutDescription,
+                                600,
+                                screenWidth,
+                              ),
+                              _buildFeatureCard(
+                                '🧂',
+                                l10n.proFeatureElectrolyteControl,
+                                l10n.proFeatureElectrolyteDescription,
+                                800,
+                                screenWidth,
+                              ),
+                              _buildFeatureCard(
+                                '🎯',
+                                l10n.proFeatureSmartReminders,
+                                l10n.proFeatureSmartDescription,
+                                1000,
+                                screenWidth,
+                              ),
+                              _buildFeatureCard(
+                                '📈',
+                                l10n.proFeatureHriIndex,
+                                l10n.proFeatureHriDescription,
+                                1200,
+                                screenWidth,
+                              ),
+                              _buildFeatureCard(
+                                '🏆',
+                                l10n.proFeatureAchievements,
+                                l10n.proFeatureAchievementsDescription,
+                                1400,
+                                screenWidth,
+                              ),
+                            ],
                           ),
                         ),
 
@@ -272,7 +283,9 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
                                   backgroundColor: Colors.white,
                                   foregroundColor: const Color(0xFF4A90E2),
                                   elevation: 8,
-                                  shadowColor: Colors.black.withOpacity(0.3),
+                                  shadowColor: Colors.black.withValues(
+                                    alpha: 0.3,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
                                   ),
@@ -280,7 +293,9 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
                                 child: Text(
                                   l10n.startUsing,
                                   style: TextStyle(
-                                    fontSize: isTablet ? screenWidth * 0.025 : screenWidth * 0.045,
+                                    fontSize: isTablet
+                                        ? screenWidth * 0.025
+                                        : screenWidth * 0.045,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -289,13 +304,13 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
                           ),
                         ),
                       ],
-                      ),
                     ),
                   ),
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -322,15 +337,15 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
               margin: EdgeInsets.only(bottom: screenWidth * 0.025),
               padding: EdgeInsets.all(screenWidth * 0.035),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   width: 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -342,7 +357,7 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
                     width: screenWidth * 0.12,
                     height: screenWidth * 0.12,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(
@@ -370,7 +385,7 @@ class _ProWelcomeScreenState extends State<ProWelcomeScreen>
                           description,
                           style: TextStyle(
                             fontSize: screenWidth * 0.035,
-                            color: Colors.white.withOpacity(0.85),
+                            color: Colors.white.withValues(alpha: 0.85),
                             height: 1.3,
                           ),
                         ),

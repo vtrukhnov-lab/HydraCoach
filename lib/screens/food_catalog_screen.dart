@@ -23,14 +23,7 @@ import '../widgets/common/volume_selection_dialog.dart';
 import '../widgets/common/favorite_slot_selector.dart';
 
 // Food categories enum
-enum FoodCategory {
-  fruits,
-  vegetables,
-  soups,
-  dairy,
-  meat,
-  fastFood,
-}
+enum FoodCategory { fruits, vegetables, soups, dairy, meat, fastFood }
 
 class FoodCatalogScreen extends StatefulWidget {
   const FoodCatalogScreen({super.key});
@@ -41,7 +34,6 @@ class FoodCatalogScreen extends StatefulWidget {
 
 class _FoodCatalogScreenState extends State<FoodCatalogScreen>
     with SingleTickerProviderStateMixin {
-
   // Animation controller
   late AnimationController _animController;
 
@@ -77,7 +69,10 @@ class _FoodCatalogScreenState extends State<FoodCatalogScreen>
     await Future.delayed(Duration.zero);
     if (!mounted) return;
 
-    final subscription = Provider.of<SubscriptionProvider>(context, listen: false);
+    final subscription = Provider.of<SubscriptionProvider>(
+      context,
+      listen: false,
+    );
     _isPro = subscription.isPro;
     await _favoritesManager.init(_isPro);
     if (mounted) setState(() {});
@@ -275,7 +270,8 @@ class _FoodCatalogScreenState extends State<FoodCatalogScreen>
         ? '${(weight / 28.3495).round()}oz'
         : '${weight.round()}g';
     final itemName = item.getName(l10n);
-    final calories = ((item.properties['caloriesPer100g'] as int) * weight / 100).round();
+    final calories =
+        ((item.properties['caloriesPer100g'] as int) * weight / 100).round();
 
     final favorite = QuickFavorite(
       id: 'food_${item.id}_${weight.toInt()}',
@@ -310,7 +306,6 @@ class _FoodCatalogScreenState extends State<FoodCatalogScreen>
       );
     }
   }
-
 
   // Get status color based on food intake
   Color _getStatusColor(Map<String, dynamic> intake) {
@@ -363,9 +358,7 @@ class _FoodCatalogScreenState extends State<FoodCatalogScreen>
             statusColor: statusColor,
             l10n: l10n,
             units: _units,
-          ).animate()
-            .fadeIn(duration: 300.ms)
-            .slideY(begin: -0.1, end: 0),
+          ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.1, end: 0),
 
           const SizedBox(height: 16),
 
@@ -376,16 +369,17 @@ class _FoodCatalogScreenState extends State<FoodCatalogScreen>
 
           // Category selector
           FoodCategorySelector(
-            selectedCategory: _selectedCategory,
-            onCategoryChanged: (category) {
-              setState(() {
-                _selectedCategory = category;
-              });
-              HapticFeedback.selectionClick();
-            },
-          ).animate()
-            .fadeIn(duration: 300.ms, delay: 100.ms)
-            .slideX(begin: -0.1, end: 0),
+                selectedCategory: _selectedCategory,
+                onCategoryChanged: (category) {
+                  setState(() {
+                    _selectedCategory = category;
+                  });
+                  HapticFeedback.selectionClick();
+                },
+              )
+              .animate()
+              .fadeIn(duration: 300.ms, delay: 100.ms)
+              .slideX(begin: -0.1, end: 0),
 
           const SizedBox(height: 20),
 
@@ -400,15 +394,13 @@ class _FoodCatalogScreenState extends State<FoodCatalogScreen>
             showElectrolyteIndicators: true,
             showSugarIndicators: true,
             showCaffeineIndicators: true,
-          ).animate()
-            .fadeIn(duration: 300.ms, delay: 200.ms),
+          ).animate().fadeIn(duration: 300.ms, delay: 200.ms),
 
           const SizedBox(height: 24),
         ],
       ),
     );
   }
-
 }
 
 // Food Status Card - matches liquid catalog design
@@ -488,11 +480,7 @@ class FoodStatusCard extends StatelessWidget {
                   color: statusColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  Icons.restaurant,
-                  color: statusColor,
-                  size: 24,
-                ),
+                child: Icon(Icons.restaurant, color: statusColor, size: 24),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -511,7 +499,10 @@ class FoodStatusCard extends StatelessWidget {
                         if (calories > 0) ...[
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: statusColor.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(10),
@@ -532,10 +523,12 @@ class FoodStatusCard extends StatelessWidget {
                       count == 0
                           ? l10n.noFoodToday
                           : lastFood != null
-                              ? '${l10n.last}: ${lastFood.foodName} ${_formatTimeAgo(timeSinceLastFood!)}'
-                              : l10n.foodItemsCount(count),
+                          ? '${l10n.last}: ${lastFood.foodName} ${_formatTimeAgo(timeSinceLastFood!)}'
+                          : l10n.foodItemsCount(count),
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.7,
+                        ),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -582,7 +575,9 @@ class FoodStatusCard extends StatelessWidget {
                       'of $dailyCalorieGoal daily',
                       style: TextStyle(
                         fontSize: 10,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.6,
+                        ),
                       ),
                     ),
                   ],
@@ -595,7 +590,11 @@ class FoodStatusCard extends StatelessWidget {
               Expanded(
                 child: Column(
                   children: [
-                    _buildCompactStat('💧', UnitsService.instance.formatVolume(water.round()), l10n.water),
+                    _buildCompactStat(
+                      '💧',
+                      UnitsService.instance.formatVolume(water.round()),
+                      l10n.water,
+                    ),
                     const SizedBox(height: 8),
                     _buildCompactStat('🍯', '${sugar.round()}g', l10n.sugar),
                   ],
@@ -656,17 +655,11 @@ class FoodStatusCard extends StatelessWidget {
           children: [
             Text(
               value,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
             ),
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 9,
-                color: Colors.grey,
-              ),
+              style: const TextStyle(fontSize: 9, color: Colors.grey),
             ),
           ],
         ),
@@ -710,18 +703,9 @@ class FoodStatusCard extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           '$value',
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
         ),
-        Text(
-          'mg',
-          style: const TextStyle(
-            fontSize: 9,
-            color: Colors.grey,
-          ),
-        ),
+        Text('mg', style: const TextStyle(fontSize: 9, color: Colors.grey)),
       ],
     );
   }
@@ -735,17 +719,11 @@ class FoodStatusCard extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          icon,
-          style: const TextStyle(fontSize: 20),
-        ),
+        Text(icon, style: const TextStyle(fontSize: 20)),
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         Text(
           label,
@@ -765,7 +743,8 @@ class FoodStatusCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const PaywallScreen(source: 'food_intake_card'),
+            builder: (context) =>
+                const PaywallScreen(source: 'food_intake_card'),
             fullscreenDialog: true,
           ),
         );
@@ -774,10 +753,7 @@ class FoodStatusCard extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Colors.grey.shade700,
-              Colors.grey.shade800,
-            ],
+            colors: [Colors.grey.shade700, Colors.grey.shade800],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -796,10 +772,7 @@ class FoodStatusCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.amber.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.amber,
-                  width: 2,
-                ),
+                border: Border.all(color: Colors.amber, width: 2),
               ),
               child: const Icon(
                 Icons.restaurant,
@@ -852,10 +825,7 @@ class FoodStatusCard extends StatelessWidget {
 
             // Unlock button
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 10,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Colors.amber.shade600, Colors.orange.shade600],
@@ -872,11 +842,7 @@ class FoodStatusCard extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
-                    Icons.lock_open,
-                    color: Colors.white,
-                    size: 14,
-                  ),
+                  const Icon(Icons.lock_open, color: Colors.white, size: 14),
                   const SizedBox(width: 6),
                   Text(
                     l10n.unlock,

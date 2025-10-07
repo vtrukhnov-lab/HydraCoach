@@ -30,7 +30,7 @@ class HRIStatusCard extends StatelessWidget {
     final status = provider.getHydrationStatus(l10n);
     final localizedHRIStatus = _getLocalizedHRIStatus(hri, l10n);
     final components = hri.getComponentsBreakdown();
-    
+
     // Получаем данные о сахаре
     final sugarData = provider.getSugarIntakeData(context);
     final sugarGrams = sugarData.totalGrams;
@@ -44,7 +44,7 @@ class HRIStatusCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -56,11 +56,29 @@ class HRIStatusCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(l10n.hydrationStatus, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+              Text(
+                l10n.hydrationStatus,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(color: _getStatusColor(status), borderRadius: BorderRadius.circular(20)),
-                child: Text(status, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: _getStatusColor(status),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  status,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ],
           ),
@@ -72,12 +90,16 @@ class HRIStatusCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: _getHRIColor(hriValue).withOpacity(0.1),
+                  color: _getHRIColor(hriValue).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   hri.hriZone.toUpperCase(),
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: _getHRIColor(hriValue)),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: _getHRIColor(hriValue),
+                  ),
                 ),
               ),
             ],
@@ -95,9 +117,23 @@ class HRIStatusCard extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              Text('$hriValue', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: _getHRIColor(hriValue))),
+              Text(
+                '$hriValue',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: _getHRIColor(hriValue),
+                ),
+              ),
               const SizedBox(width: 8),
-              Text(localizedHRIStatus, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: _getHRIColor(hriValue))),
+              Text(
+                localizedHRIStatus,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: _getHRIColor(hriValue),
+                ),
+              ),
             ],
           ),
           if (_hasActiveFactors(components, alcohol, weather, sugarGrams)) ...[
@@ -106,14 +142,32 @@ class HRIStatusCard extends StatelessWidget {
             const SizedBox(height: 12),
             Row(
               children: [
-                Icon(Icons.warning_amber_rounded, size: 16, color: Colors.orange[600]),
+                Icon(
+                  Icons.warning_amber_rounded,
+                  size: 16,
+                  color: Colors.orange[600],
+                ),
                 const SizedBox(width: 6),
-                Text(l10n.hriBreakdownTitle, style: TextStyle(fontSize: 14, color: Colors.grey[700], fontWeight: FontWeight.w700)),
+                Text(
+                  l10n.hriBreakdownTitle,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[700],
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 10),
             Column(
-              children: _buildEnhancedFactorCards(components, alcohol, weather, sugarGrams, sugarImpact, l10n),
+              children: _buildEnhancedFactorCards(
+                components,
+                alcohol,
+                weather,
+                sugarGrams,
+                sugarImpact,
+                l10n,
+              ),
             ),
           ],
           if (isFasting) ...[
@@ -121,17 +175,31 @@ class HRIStatusCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.purple.withOpacity(0.1),
+                color: Colors.purple.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.purple.withOpacity(0.3)),
+                border: Border.all(color: Colors.purple.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
                   const Icon(Icons.schedule, size: 16, color: Colors.purple),
                   const SizedBox(width: 8),
-                  Text(l10n.fastingModeActive, style: TextStyle(fontSize: 12, color: Colors.purple[700], fontWeight: FontWeight.w600)),
+                  Text(
+                    l10n.fastingModeActive,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.purple[700],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   const Spacer(),
-                  Text(fastingSchedule, style: TextStyle(fontSize: 12, color: Colors.purple[700], fontWeight: FontWeight.bold)),
+                  Text(
+                    fastingSchedule,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.purple[700],
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -142,7 +210,12 @@ class HRIStatusCard extends StatelessWidget {
   }
 
   // ИСПРАВЛЕНО: добавлена проверка всех компонентов
-  bool _hasActiveFactors(Map<String, double> components, AlcoholService alcohol, WeatherService weather, double sugarGrams) {
+  bool _hasActiveFactors(
+    Map<String, double> components,
+    AlcoholService alcohol,
+    WeatherService weather,
+    double sugarGrams,
+  ) {
     final hasWorkouts = (components['workouts'] ?? 0) > 0;
     final hasCaffeine = (components['caffeine'] ?? 0) > 0;
     final hasAlcohol = (components['alcohol'] ?? 0) > 0;
@@ -157,9 +230,19 @@ class HRIStatusCard extends StatelessWidget {
     final hasPotassium = (components['potassium'] ?? 0) > 2;
     final hasMagnesium = (components['magnesium'] ?? 0) > 2;
 
-    return hasWorkouts || hasCaffeine || hasAlcohol || hasWeather || hasSugar ||
-           hasDehydration || hasFood || hasTime || hasMorning || hasWater ||
-           hasSodium || hasPotassium || hasMagnesium;
+    return hasWorkouts ||
+        hasCaffeine ||
+        hasAlcohol ||
+        hasWeather ||
+        hasSugar ||
+        hasDehydration ||
+        hasFood ||
+        hasTime ||
+        hasMorning ||
+        hasWater ||
+        hasSodium ||
+        hasPotassium ||
+        hasMagnesium;
   }
 
   List<Widget> _buildEnhancedFactorCards(
@@ -168,125 +251,147 @@ class HRIStatusCard extends StatelessWidget {
     WeatherService weather,
     double sugarGrams,
     int sugarImpact,
-    AppLocalizations l10n
+    AppLocalizations l10n,
   ) {
     final cards = <Widget>[];
 
     // Water dehydration risk (highest priority)
     final waterImpact = components['water'] ?? 0;
     if (waterImpact > 2) {
-      cards.add(_buildEnhancedFactorCard(
-        'Water Shortage',
-        '+${waterImpact.toInt()} HRI',
-        waterImpact > 15 ? 'Severe dehydration risk detected' : 'Insufficient water intake today',
-        Icons.water_drop,
-        waterImpact > 15 ? Colors.red : Colors.orange,
-        waterImpact
-      ));
+      cards.add(
+        _buildEnhancedFactorCard(
+          'Water Shortage',
+          '+${waterImpact.toInt()} HRI',
+          waterImpact > 15
+              ? 'Severe dehydration risk detected'
+              : 'Insufficient water intake today',
+          Icons.water_drop,
+          waterImpact > 15 ? Colors.red : Colors.orange,
+          waterImpact,
+        ),
+      );
     }
 
     // Dehydration from workouts
     final dehydrationImpact = components['dehydration'] ?? 0;
     if (dehydrationImpact > 0) {
-      cards.add(_buildEnhancedFactorCard(
-        'Workout Dehydration',
-        '+${dehydrationImpact.toInt()} HRI',
-        'Fluid losses from physical activity not compensated',
-        Icons.fitness_center,
-        Colors.red,
-        dehydrationImpact
-      ));
+      cards.add(
+        _buildEnhancedFactorCard(
+          'Workout Dehydration',
+          '+${dehydrationImpact.toInt()} HRI',
+          'Fluid losses from physical activity not compensated',
+          Icons.fitness_center,
+          Colors.red,
+          dehydrationImpact,
+        ),
+      );
     }
 
     // Workouts (ongoing effect)
     final workoutImpact = components['workouts'] ?? 0;
     if (workoutImpact > 0) {
-      cards.add(_buildEnhancedFactorCard(
-        '${l10n.hriComponentWorkout}',
-        '+${workoutImpact.toInt()} HRI',
-        'Recent physical activity increases fluid needs',
-        Icons.fitness_center,
-        Colors.teal,
-        workoutImpact
-      ));
+      cards.add(
+        _buildEnhancedFactorCard(
+          '${l10n.hriComponentWorkout}',
+          '+${workoutImpact.toInt()} HRI',
+          'Recent physical activity increases fluid needs',
+          Icons.fitness_center,
+          Colors.teal,
+          workoutImpact,
+        ),
+      );
     }
 
     // Electrolyte imbalances
     final sodiumImpact = components['sodium'] ?? 0;
     if (sodiumImpact > 2) {
-      cards.add(_buildEnhancedFactorCard(
-        'Low Sodium',
-        '+${sodiumImpact.toInt()} HRI',
-        'Insufficient sodium intake disrupts fluid balance',
-        Icons.grain,
-        Colors.amber,
-        sodiumImpact
-      ));
+      cards.add(
+        _buildEnhancedFactorCard(
+          'Low Sodium',
+          '+${sodiumImpact.toInt()} HRI',
+          'Insufficient sodium intake disrupts fluid balance',
+          Icons.grain,
+          Colors.amber,
+          sodiumImpact,
+        ),
+      );
     }
 
     final potassiumImpact = components['potassium'] ?? 0;
     if (potassiumImpact > 2) {
-      cards.add(_buildEnhancedFactorCard(
-        'Low Potassium',
-        '+${potassiumImpact.toInt()} HRI',
-        'Low potassium affects cellular hydration',
-        Icons.eco,
-        Colors.green,
-        potassiumImpact
-      ));
+      cards.add(
+        _buildEnhancedFactorCard(
+          'Low Potassium',
+          '+${potassiumImpact.toInt()} HRI',
+          'Low potassium affects cellular hydration',
+          Icons.eco,
+          Colors.green,
+          potassiumImpact,
+        ),
+      );
     }
 
     final magnesiumImpact = components['magnesium'] ?? 0;
     if (magnesiumImpact > 2) {
-      cards.add(_buildEnhancedFactorCard(
-        'Low Magnesium',
-        '+${magnesiumImpact.toInt()} HRI',
-        'Magnesium deficiency impacts muscle function',
-        Icons.psychology,
-        Colors.purple,
-        magnesiumImpact
-      ));
+      cards.add(
+        _buildEnhancedFactorCard(
+          'Low Magnesium',
+          '+${magnesiumImpact.toInt()} HRI',
+          'Magnesium deficiency impacts muscle function',
+          Icons.psychology,
+          Colors.purple,
+          magnesiumImpact,
+        ),
+      );
     }
 
     // Environmental factors
     final heatImpact = components['heat'] ?? 0;
     if (heatImpact > 0) {
       final temp = weather.heatIndex?.round() ?? 30;
-      String description = temp < 32 ? 'Warm weather increases sweating' : 'High heat significantly increases fluid loss';
-      cards.add(_buildEnhancedFactorCard(
-        '${l10n.hriComponentHeat}',
-        '+${heatImpact.toInt()} HRI',
-        '$description (${temp}°C)',
-        temp < 32 ? Icons.wb_sunny : Icons.local_fire_department,
-        temp < 32 ? Colors.orange : Colors.red,
-        heatImpact
-      ));
+      String description = temp < 32
+          ? 'Warm weather increases sweating'
+          : 'High heat significantly increases fluid loss';
+      cards.add(
+        _buildEnhancedFactorCard(
+          '${l10n.hriComponentHeat}',
+          '+${heatImpact.toInt()} HRI',
+          '$description (${temp}°C)',
+          temp < 32 ? Icons.wb_sunny : Icons.local_fire_department,
+          temp < 32 ? Colors.orange : Colors.red,
+          heatImpact,
+        ),
+      );
     }
 
     // Dietary factors
     final alcoholImpact = components['alcohol'] ?? 0;
     if (alcoholImpact > 0) {
       final sd = alcohol.totalStandardDrinks;
-      cards.add(_buildEnhancedFactorCard(
-        '${l10n.alcohol}',
-        '+${alcoholImpact.toInt()} HRI',
-        '${sd.toStringAsFixed(1)} standard drinks consumed',
-        Icons.local_bar,
-        Colors.red,
-        alcoholImpact
-      ));
+      cards.add(
+        _buildEnhancedFactorCard(
+          '${l10n.alcohol}',
+          '+${alcoholImpact.toInt()} HRI',
+          '${sd.toStringAsFixed(1)} standard drinks consumed',
+          Icons.local_bar,
+          Colors.red,
+          alcoholImpact,
+        ),
+      );
     }
 
     final caffeineImpact = components['caffeine'] ?? 0;
     if (caffeineImpact > 0) {
-      cards.add(_buildEnhancedFactorCard(
-        '${l10n.hriComponentCaffeine}',
-        '+${caffeineImpact.toInt()} HRI',
-        'Caffeine has mild diuretic effects',
-        Icons.coffee,
-        Colors.brown,
-        caffeineImpact
-      ));
+      cards.add(
+        _buildEnhancedFactorCard(
+          '${l10n.hriComponentCaffeine}',
+          '+${caffeineImpact.toInt()} HRI',
+          'Caffeine has mild diuretic effects',
+          Icons.coffee,
+          Colors.brown,
+          caffeineImpact,
+        ),
+      );
     }
 
     final sugarImpactComponent = components['sugar'] ?? 0;
@@ -302,52 +407,60 @@ class HRIStatusCard extends StatelessWidget {
         level = 'Very High';
       }
 
-      cards.add(_buildEnhancedFactorCard(
-        '${l10n.sugarIntake}',
-        '+${sugarImpactComponent.toInt()} HRI',
-        '$level sugar intake increases fluid needs',
-        Icons.cake,
-        sugarColor,
-        sugarImpactComponent
-      ));
+      cards.add(
+        _buildEnhancedFactorCard(
+          '${l10n.sugarIntake}',
+          '+${sugarImpactComponent.toInt()} HRI',
+          '$level sugar intake increases fluid needs',
+          Icons.cake,
+          sugarColor,
+          sugarImpactComponent,
+        ),
+      );
     }
 
     final foodImpact = components['food'] ?? 0;
     if (foodImpact > 0) {
-      cards.add(_buildEnhancedFactorCard(
-        'Processed Food',
-        '+${foodImpact.toInt()} HRI',
-        'High sodium food reduces hydration efficiency',
-        Icons.restaurant,
-        Colors.orange,
-        foodImpact
-      ));
+      cards.add(
+        _buildEnhancedFactorCard(
+          'Processed Food',
+          '+${foodImpact.toInt()} HRI',
+          'High sodium food reduces hydration efficiency',
+          Icons.restaurant,
+          Colors.orange,
+          foodImpact,
+        ),
+      );
     }
 
     // Time-based factors
     final timeImpact = components['timeSinceIntake'] ?? 0;
     if (timeImpact > 0) {
       final hours = (timeImpact / 2).round();
-      cards.add(_buildEnhancedFactorCard(
-        'Long Gap',
-        '+${timeImpact.toInt()} HRI',
-        '${hours}h since last fluid intake',
-        Icons.schedule,
-        Colors.blue,
-        timeImpact
-      ));
+      cards.add(
+        _buildEnhancedFactorCard(
+          'Long Gap',
+          '+${timeImpact.toInt()} HRI',
+          '${hours}h since last fluid intake',
+          Icons.schedule,
+          Colors.blue,
+          timeImpact,
+        ),
+      );
     }
 
     final morningImpact = components['morning'] ?? 0;
     if (morningImpact > 0) {
-      cards.add(_buildEnhancedFactorCard(
-        'Morning Indicators',
-        '+${morningImpact.toInt()} HRI',
-        'Dark urine or weight loss detected this morning',
-        Icons.wb_twilight,
-        Colors.orange,
-        morningImpact
-      ));
+      cards.add(
+        _buildEnhancedFactorCard(
+          'Morning Indicators',
+          '+${morningImpact.toInt()} HRI',
+          'Dark urine or weight loss detected this morning',
+          Icons.wb_twilight,
+          Colors.orange,
+          morningImpact,
+        ),
+      );
     }
 
     return cards;
@@ -359,61 +472,71 @@ class HRIStatusCard extends StatelessWidget {
     WeatherService weather,
     double sugarGrams,
     int sugarImpact,
-    AppLocalizations l10n
+    AppLocalizations l10n,
   ) {
     final chips = <Widget>[];
-    
+
     // ИСПРАВЛЕНО: показываем спорт первым если есть активность
     final workoutImpact = components['workouts'] ?? 0;
     if (workoutImpact > 0) {
-      chips.add(_buildFactorChip(
-        '${l10n.hriComponentWorkout} +${workoutImpact.toInt()}', 
-        Icons.fitness_center, 
-        Colors.teal
-      ));
+      chips.add(
+        _buildFactorChip(
+          '${l10n.hriComponentWorkout} +${workoutImpact.toInt()}',
+          Icons.fitness_center,
+          Colors.teal,
+        ),
+      );
     }
-    
+
     // Показываем погоду/жару
     if (weather.heatIndex != null) {
       final heatImpact = components['heat'] ?? 0;
       if (heatImpact > 0) {
         if (weather.heatIndex! < 32) {
-          chips.add(_buildFactorChip(
-            '${l10n.hriComponentHeat} +${heatImpact.toInt()}', 
-            Icons.wb_sunny, 
-            Colors.orange
-          ));
+          chips.add(
+            _buildFactorChip(
+              '${l10n.hriComponentHeat} +${heatImpact.toInt()}',
+              Icons.wb_sunny,
+              Colors.orange,
+            ),
+          );
         } else {
-          chips.add(_buildFactorChip(
-            '${l10n.hriComponentHeat} +${heatImpact.toInt()}', 
-            Icons.local_fire_department, 
-            Colors.red
-          ));
+          chips.add(
+            _buildFactorChip(
+              '${l10n.hriComponentHeat} +${heatImpact.toInt()}',
+              Icons.local_fire_department,
+              Colors.red,
+            ),
+          );
         }
       }
     }
-    
+
     // Показываем кофеин
     final caffeineImpact = components['caffeine'] ?? 0;
     if (caffeineImpact > 0) {
-      chips.add(_buildFactorChip(
-        '${l10n.hriComponentCaffeine} +${caffeineImpact.toInt()}', 
-        Icons.coffee, 
-        Colors.brown
-      ));
+      chips.add(
+        _buildFactorChip(
+          '${l10n.hriComponentCaffeine} +${caffeineImpact.toInt()}',
+          Icons.coffee,
+          Colors.brown,
+        ),
+      );
     }
-    
+
     // Показываем алкоголь
     if (alcohol.totalStandardDrinks > 0) {
       final sd = alcohol.totalStandardDrinks;
       final alcoholImpact = components['alcohol'] ?? 0;
-      chips.add(_buildFactorChip(
-        '${l10n.alcohol} ${sd.toStringAsFixed(1)} SD +${alcoholImpact.toInt()}', 
-        Icons.local_bar, 
-        Colors.red
-      ));
+      chips.add(
+        _buildFactorChip(
+          '${l10n.alcohol} ${sd.toStringAsFixed(1)} SD +${alcoholImpact.toInt()}',
+          Icons.local_bar,
+          Colors.red,
+        ),
+      );
     }
-    
+
     // Показываем сахар
     if (sugarGrams > 50) {
       Color sugarColor = Colors.amber;
@@ -423,32 +546,41 @@ class HRIStatusCard extends StatelessWidget {
       if (sugarGrams > 100) {
         sugarColor = Colors.red;
       }
-      
-      chips.add(_buildFactorChip(
-        '${l10n.sugarIntake} ${sugarGrams.toStringAsFixed(0)}g +$sugarImpact', 
-        Icons.cake, 
-        sugarColor
-      ));
+
+      chips.add(
+        _buildFactorChip(
+          '${l10n.sugarIntake} ${sugarGrams.toStringAsFixed(0)}g +$sugarImpact',
+          Icons.cake,
+          sugarColor,
+        ),
+      );
     }
-    
+
     return chips;
   }
 
-  Widget _buildEnhancedFactorCard(String title, String impact, String description, IconData icon, Color color, double impactValue) {
+  Widget _buildEnhancedFactorCard(
+    String title,
+    String impact,
+    String description,
+    IconData icon,
+    Color color,
+    double impactValue,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, size: 20, color: color),
@@ -466,13 +598,16 @@ class HRIStatusCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: color.withOpacity(0.9),
+                        color: color.withValues(alpha: 0.9),
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
-                        color: color.withOpacity(0.2),
+                        color: color.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -507,16 +642,23 @@ class HRIStatusCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 12, color: color),
           const SizedBox(width: 4),
-          Text(label, style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );
@@ -529,12 +671,16 @@ class HRIStatusCard extends StatelessWidget {
   }
 
   Color _getStatusColor(String status) {
-    if (status.contains('Normal') || status.contains('Норма')) return Colors.green;
-    if (status.contains('Low salt') || status.contains('Мало соли') || 
-        status.contains('Diluting') || status.contains('Разбавляешь')) {
+    if (status.contains('Normal') || status.contains('Норма'))
+      return Colors.green;
+    if (status.contains('Low salt') ||
+        status.contains('Мало соли') ||
+        status.contains('Diluting') ||
+        status.contains('Разбавляешь')) {
       return Colors.orange;
     }
-    if (status.contains('Under-hydrated') || status.contains('Недобор воды')) return Colors.red;
+    if (status.contains('Under-hydrated') || status.contains('Недобор воды'))
+      return Colors.red;
     return Colors.grey;
   }
 

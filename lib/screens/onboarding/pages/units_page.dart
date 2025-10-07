@@ -64,14 +64,20 @@ class _UnitsPageState extends State<UnitsPage> {
               child: Column(
                 children: [
                   const SizedBox(height: 20),
-                  const IonCharacter(size: 100, mood: IonMood.happy, showGlow: false)
-                    .animate().fadeIn(),
+                  const IonCharacter(
+                    size: 100,
+                    mood: IonMood.happy,
+                    showGlow: false,
+                  ).animate().fadeIn(),
 
                   const SizedBox(height: 24),
 
                   Text(
                     l10n.onboardingUnitsTitle,
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
 
                   const SizedBox(height: 8),
@@ -103,7 +109,9 @@ class _UnitsPageState extends State<UnitsPage> {
               backgroundColor: const Color(0xFF2EC5FF),
               foregroundColor: Colors.white,
               minimumSize: const Size.fromHeight(56),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(28),
+              ),
               elevation: 0,
             ),
             child: Text(
@@ -140,18 +148,10 @@ class _UnitsPageState extends State<UnitsPage> {
 
     if (isEnglish) {
       // Для английского: Imperial первый, Metric второй
-      return [
-        imperialOption,
-        const SizedBox(height: 14),
-        metricOption,
-      ];
+      return [imperialOption, const SizedBox(height: 14), metricOption];
     } else {
       // Для остальных: Metric первый, Imperial второй
-      return [
-        metricOption,
-        const SizedBox(height: 14),
-        imperialOption,
-      ];
+      return [metricOption, const SizedBox(height: 14), imperialOption];
     }
   }
 
@@ -176,14 +176,12 @@ class _UnitsPageState extends State<UnitsPage> {
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: isSelected 
-            ? const Color(0xFF2EC5FF).withOpacity(0.1)
-            : Colors.white,
+          color: isSelected
+              ? const Color(0xFF2EC5FF).withValues(alpha: 0.1)
+              : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected 
-              ? const Color(0xFF2EC5FF)
-              : Colors.grey[300]!,
+            color: isSelected ? const Color(0xFF2EC5FF) : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -193,7 +191,7 @@ class _UnitsPageState extends State<UnitsPage> {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: const Color(0xFF2EC5FF).withOpacity(0.1),
+                color: const Color(0xFF2EC5FF).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
@@ -210,9 +208,9 @@ class _UnitsPageState extends State<UnitsPage> {
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w600,
-                      color: isSelected 
-                        ? const Color(0xFF2EC5FF)
-                        : Colors.black,
+                      color: isSelected
+                          ? const Color(0xFF2EC5FF)
+                          : Colors.black,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -224,7 +222,11 @@ class _UnitsPageState extends State<UnitsPage> {
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check_circle, color: Color(0xFF2EC5FF), size: 26),
+              const Icon(
+                Icons.check_circle,
+                color: Color(0xFF2EC5FF),
+                size: 26,
+              ),
           ],
         ),
       ),

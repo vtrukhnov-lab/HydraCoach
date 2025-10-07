@@ -65,7 +65,7 @@ class SportItems {
         isPro: false,
         color: Colors.blue,
       ),
-      
+
       // PRO cardio items
       CatalogItem(
         id: 'sport_swimming',
@@ -241,7 +241,7 @@ class SportItems {
         isPro: false,
         color: Colors.green,
       ),
-      
+
       // PRO strength items
       CatalogItem(
         id: 'sport_powerlifting',
@@ -417,7 +417,7 @@ class SportItems {
         isPro: false,
         color: Colors.red,
       ),
-      
+
       // PRO sports items
       CatalogItem(
         id: 'sport_tennis',
@@ -538,9 +538,9 @@ class SportItems {
 
   /// Get sports items by category
   static List<CatalogItem> getByCategory(String category) {
-    return getAllItems().where((item) => 
-      item.properties['category'] == category
-    ).toList();
+    return getAllItems()
+        .where((item) => item.properties['category'] == category)
+        .toList();
   }
 
   /// Get intensity label
@@ -553,7 +553,7 @@ class SportItems {
       case 'high':
         return l10n.highIntensity;
       case 'very_high':
-        return l10n.veryHighIntensity ?? 'Very High';
+        return l10n.veryHighIntensity;
       default:
         return intensity;
     }

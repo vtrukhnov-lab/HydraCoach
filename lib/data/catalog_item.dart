@@ -1,6 +1,8 @@
 // lib/data/catalog_item.dart
 import 'package:flutter/material.dart';
+import '../utils/app_logger.dart';
 import '../l10n/app_localizations.dart';
+import '../utils/app_logger.dart';
 
 /// Базовый класс для элемента каталога
 class CatalogItem {
@@ -24,7 +26,7 @@ class CatalogItem {
   int getDefaultVolume(String units) {
     final volumes = properties['defaultVolume'] as Map<String, dynamic>?;
     if (volumes == null) return 250;
-    
+
     final value = volumes[units] ?? volumes['metric'] ?? 250;
     return value is int ? value : (value as double).toInt();
   }

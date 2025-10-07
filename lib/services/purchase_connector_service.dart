@@ -1,15 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:appsflyer_sdk/appsflyer_sdk.dart';
+import 'package:hydracoach/utils/app_logger.dart';
 
 /// Сервис для работы с AppsFlyer Purchase Connector
 /// Автоматически отслеживает и валидирует IAP покупки через AppsFlyer
 class PurchaseConnectorService {
-  static final PurchaseConnectorService _instance = PurchaseConnectorService._internal();
+  static final PurchaseConnectorService _instance =
+      PurchaseConnectorService._internal();
   factory PurchaseConnectorService() => _instance;
   PurchaseConnectorService._internal();
 
-  static const MethodChannel _channel = MethodChannel('hydracoach.purchase_connector');
+  static const MethodChannel _channel = MethodChannel(
+    'hydracoach.purchase_connector',
+  );
 
   // AppsFlyer Purchase Connector instance
   PurchaseConnector? _purchaseConnector;
@@ -27,7 +31,7 @@ class PurchaseConnectorService {
 
     try {
       if (kDebugMode) {
-        print('🔗 Инициализируем AppsFlyer Purchase Connector...');
+        logger.i('🔗 Инициализируем AppsFlyer Purchase Connector...');
       }
 
       // Создаем конфигурацию Purchase Connector
@@ -46,14 +50,16 @@ class PurchaseConnectorService {
       _isInitialized = true;
 
       if (kDebugMode) {
-        print('✅ Purchase Connector инициализирован через Flutter SDK');
-        print('   - logSubscriptions: true');
-        print('   - logInApps: true');
-        print('   - sandbox: $kDebugMode (${kDebugMode ? 'test' : 'production'} mode)');
+        logger.i('✅ Purchase Connector инициализирован через Flutter SDK');
+        logger.i('   - logSubscriptions: true');
+        logger.i('   - logInApps: true');
+        logger.i(
+          '   - sandbox: $kDebugMode (${kDebugMode ? 'test' : 'production'} mode)',
+        );
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Ошибка инициализации Purchase Connector: $e');
+        logger.e('❌ Ошибка инициализации Purchase Connector: $e');
       }
       rethrow;
     }
@@ -63,19 +69,21 @@ class PurchaseConnectorService {
   /// Вызывается после инициализации AppsFlyer SDK (с задержкой в 1 секунду)
   Future<void> startObservingTransactions() async {
     if (!_isInitialized || _purchaseConnector == null) {
-      throw StateError('Purchase Connector не инициализирован. Вызовите initialize() сначала.');
+      throw StateError(
+        'Purchase Connector не инициализирован. Вызовите initialize() сначала.',
+      );
     }
 
     if (_isObserving) {
       if (kDebugMode) {
-        print('⚠️ Purchase Connector уже отслеживает транзакции');
+        logger.w('⚠️ Purchase Connector уже отслеживает транзакции');
       }
       return;
     }
 
     try {
       if (kDebugMode) {
-        print('🔍 Запускаем отслеживание транзакций Purchase Connector...');
+        logger.i('🔍 Запускаем отслеживание транзакций Purchase Connector...');
       }
 
       // Запускаем Purchase Connector через Flutter SDK
@@ -84,12 +92,14 @@ class PurchaseConnectorService {
       _isObserving = true;
 
       if (kDebugMode) {
-        print('✅ Purchase Connector начал отслеживание через Flutter SDK');
-        print('🎯 Теперь события будут автоматически отправляться с префиксом af_ars_');
+        logger.i('✅ Purchase Connector начал отслеживание через Flutter SDK');
+        logger.i(
+          '🎯 Теперь события будут автоматически отправляться с префиксом af_ars_',
+        );
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Ошибка запуска отслеживания: $e');
+        logger.e('❌ Ошибка запуска отслеживания: $e');
       }
       rethrow;
     }
@@ -99,14 +109,14 @@ class PurchaseConnectorService {
   Future<void> stopObservingTransactions() async {
     if (!_isObserving || _purchaseConnector == null) {
       if (kDebugMode) {
-        print('⚠️ Purchase Connector не отслеживает транзакции');
+        logger.w('⚠️ Purchase Connector не отслеживает транзакции');
       }
       return;
     }
 
     try {
       if (kDebugMode) {
-        print('🛑 Останавливаем отслеживание транзакций...');
+        logger.i('🛑 Останавливаем отслеживание транзакций...');
       }
 
       // Останавливаем Purchase Connector через Flutter SDK
@@ -115,11 +125,11 @@ class PurchaseConnectorService {
       _isObserving = false;
 
       if (kDebugMode) {
-        print('✅ Purchase Connector остановлен через Flutter SDK');
+        logger.i('✅ Purchase Connector остановлен через Flutter SDK');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Ошибка остановки отслеживания: $e');
+        logger.e('❌ Ошибка остановки отслеживания: $e');
       }
       rethrow;
     }
@@ -136,11 +146,11 @@ class PurchaseConnectorService {
       await startObservingTransactions();
 
       if (kDebugMode) {
-        print('🎯 Purchase Connector полностью настроен и работает');
+        logger.i('🎯 Purchase Connector полностью настроен и работает');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Ошибка полной инициализации Purchase Connector: $e');
+        logger.e('❌ Ошибка полной инициализации Purchase Connector: $e');
       }
       rethrow;
     }
@@ -148,9 +158,6 @@ class PurchaseConnectorService {
 
   /// Получение статуса Purchase Connector
   Map<String, dynamic> getStatus() {
-    return {
-      'isInitialized': _isInitialized,
-      'isObserving': _isObserving,
-    };
+    return {'isInitialized': _isInitialized, 'isObserving': _isObserving};
   }
 }

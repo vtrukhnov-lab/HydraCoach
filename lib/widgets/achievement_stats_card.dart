@@ -4,12 +4,9 @@ import '../models/achievement.dart';
 
 class AchievementStatsCard extends StatelessWidget {
   final Map<String, dynamic> statistics;
-  
-  const AchievementStatsCard({
-    super.key,
-    required this.statistics,
-  });
-  
+
+  const AchievementStatsCard({super.key, required this.statistics});
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -17,7 +14,7 @@ class AchievementStatsCard extends StatelessWidget {
     final totalCount = statistics['totalAchievements'] ?? 1;
     final unlockedPercent = statistics['unlockedPercent'] ?? 0;
     final totalPoints = statistics['totalPoints'] ?? 0;
-    
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -31,7 +28,7 @@ class AchievementStatsCard extends StatelessWidget {
               child: CircularProgressIndicator(
                 value: unlockedCount / totalCount,
                 strokeWidth: 8,
-                backgroundColor: theme.dividerColor.withOpacity(0.2),
+                backgroundColor: theme.dividerColor.withValues(alpha: 0.2),
                 valueColor: AlwaysStoppedAnimation<Color>(
                   theme.colorScheme.primary,
                 ),
@@ -52,31 +49,27 @@ class AchievementStatsCard extends StatelessWidget {
                   '$unlockedCount/$totalCount',
                   style: TextStyle(
                     fontSize: 12,
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
               ],
             ),
           ],
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Total points
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.amber.withOpacity(0.1),
+            color: Colors.amber.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.star,
-                size: 20,
-                color: Colors.amber,
-              ),
+              const Icon(Icons.star, size: 20, color: Colors.amber),
               const SizedBox(width: 4),
               Text(
                 '$totalPoints points',
@@ -89,36 +82,38 @@ class AchievementStatsCard extends StatelessWidget {
             ],
           ),
         ),
-        
+
         const SizedBox(height: 16),
-        
+
         // Category breakdown
         if (statistics['unlockedByCategory'] != null) ...[
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: AchievementCategory.values.map((category) {
-              final count = (statistics['unlockedByCategory'] 
-                  as Map<AchievementCategory, int>)[category] ?? 0;
-              
+              final count =
+                  (statistics['unlockedByCategory']
+                      as Map<AchievementCategory, int>)[category] ??
+                  0;
+
               if (count == 0) return const SizedBox.shrink();
-              
+
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
-                  color: category.color.withOpacity(0.1),
+                  color: category.color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: category.color.withOpacity(0.3),
+                    color: category.color.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      category.emoji,
-                      style: const TextStyle(fontSize: 12),
-                    ),
+                    Text(category.emoji, style: const TextStyle(fontSize: 12)),
                     const SizedBox(width: 4),
                     Text(
                       '$count',

@@ -69,11 +69,18 @@ class CompactElectrolyteDisplay extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
                 ),
                 Text(
                   '${(percent * 100).toInt()}%',
-                  style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 13),
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
                 ),
               ],
             ),
@@ -82,7 +89,7 @@ class CompactElectrolyteDisplay extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: percent,
-                backgroundColor: color.withOpacity(0.2),
+                backgroundColor: color.withValues(alpha: 0.2),
                 valueColor: AlwaysStoppedAnimation(color),
                 minHeight: 8,
               ),

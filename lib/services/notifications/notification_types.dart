@@ -3,21 +3,19 @@
 /// Типы уведомлений в приложении HydraCoach
 enum NotificationType {
   // FREE уведомления
-  waterReminder,        // Базовое напоминание о воде
-  postCoffee,          // После кофе (1 раз)
-  dailyReport,         // Вечерний отчет
-  alcoholCounter,      // Контр-пинг после алкоголя
-
+  waterReminder, // Базовое напоминание о воде
+  postCoffee, // После кофе (1 раз)
+  dailyReport, // Вечерний отчет
+  alcoholCounter, // Контр-пинг после алкоголя
   // PRO уведомления
-  smartReminder,       // Умное контекстное
-  heatWarning,         // Предупреждение о жаре
-  workoutReminder,     // Напоминание при тренировке (только POST-workout)
-  fastingElectrolyte,  // Электролиты в пост
-  alcoholRecovery,     // План восстановления
-  morningCheckIn,      // Утренний чек-ин
-
+  smartReminder, // Умное контекстное
+  heatWarning, // Предупреждение о жаре
+  workoutReminder, // Напоминание при тренировке (только POST-workout)
+  fastingElectrolyte, // Электролиты в пост
+  alcoholRecovery, // План восстановления
+  morningCheckIn, // Утренний чек-ин
   // SYSTEM
-  custom,              // Кастомные уведомления (FCM, тесты и т.д.)
+  custom, // Кастомные уведомления (FCM, тесты и т.д.)
 }
 
 /// Расширение для удобной работы с типами
@@ -80,8 +78,8 @@ extension NotificationTypeExtension on NotificationType {
 
 /// Приоритеты уведомлений
 enum NotificationPriority {
-  urgent,  // Максимальный приоритет
-  high,    // Высокий приоритет
-  normal,  // Обычный приоритет
-  low,     // Низкий приоритет (тихие)
+  urgent, // Максимальный приоритет
+  high, // Высокий приоритет
+  normal, // Обычный приоритет
+  low, // Низкий приоритет (тихие)
 }

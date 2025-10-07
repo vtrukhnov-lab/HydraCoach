@@ -21,6 +21,7 @@ import 'notification_texts.dart';
 
 // Старые импорты для совместимости
 import 'analytics_service.dart';
+import 'package:hydracoach/utils/app_logger.dart';
 
 /// Главный фасад системы уведомлений HydraCoach
 /// Координирует все компоненты и предоставляет единый API
@@ -30,7 +31,8 @@ class NotificationService {
   NotificationService._internal();
 
   // Основные компоненты системы
-  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseRemoteConfig _remoteConfig = FirebaseRemoteConfig.instance;
@@ -57,11 +59,11 @@ class NotificationService {
 
   Future<void> _initializeService() async {
     if (_isInitialized) {
-      print('NotificationService already initialized, skipping');
+      logger.i('NotificationService already initialized, skipping');
       return;
     }
 
-    print('🔥 [NotificationService] Starting initialization...');
+    logger.i('🔥 [NotificationService] Starting initialization...');
 
     try {
       // 1. Создание всех компонентов
@@ -78,31 +80,34 @@ class NotificationService {
       _sender.updatePendingIds(state['pendingIds']);
 
       _isInitialized = true;
-      print('✅ [NotificationService] Core initialization complete');
+      logger.i('✅ [NotificationService] Core initialization complete');
 
       // 5. КРИТИЧНО: Гарантированное планирование уведомлений
-      print('🔥 [NotificationService] Starting notification scheduling...');
-      
+      logger.i('🔥 [NotificationService] Starting notification scheduling...');
+
       // Небольшая задержка для гарантии полной инициализации
       await Future.delayed(Duration(milliseconds: 300));
-      
+
       // Проверяем текущие уведомления ПЕРЕД планированием
       await _checkExistingNotifications();
-      
+
       // Планируем уведомления
       final schedulingSuccess = await _scheduleNotificationsWithVerification();
-      
+
       if (!schedulingSuccess) {
-        print('⚠️ [NotificationService] First scheduling attempt failed, retrying...');
+        logger.w(
+          '⚠️ [NotificationService] First scheduling attempt failed, retrying...',
+        );
         await Future.delayed(Duration(seconds: 1));
         await _forceScheduleNotifications();
       }
-      
-      print('✅ [NotificationService] Full initialization complete');
-      
+
+      logger.i('✅ [NotificationService] Full initialization complete');
     } catch (e, stackTrace) {
-      print('❌ [NotificationService] Critical error during initialization: $e');
-      print('Stack trace: $stackTrace');
+      logger.e(
+        '❌ [NotificationService] Critical error during initialization: $e',
+      );
+      logger.e('Stack trace: $stackTrace');
       _isInitialized = false;
       rethrow;
     }
@@ -113,10 +118,10 @@ class NotificationService {
     final pending = await _localNotifications.pendingNotificationRequests();
     final now = DateTime.now();
     final todayDay = TimezoneHelper.dayOfYear(now);
-    
-    print('📋 [NotificationService] Checking existing notifications...');
-    print('  Total pending: ${pending.length}');
-    
+
+    logger.i('📋 [NotificationService] Checking existing notifications...');
+    logger.i('  Total pending: ${pending.length}');
+
     Map<int, int> byDay = {};
     for (final n in pending) {
       try {
@@ -126,32 +131,36 @@ class NotificationService {
         // Игнорируем ошибки декодирования старых ID
       }
     }
-    
-    print('  By day distribution:');
+
+    logger.i('  By day distribution:');
     byDay.forEach((day, count) {
-      final label = day == todayDay ? ' (TODAY)' : day == todayDay + 1 ? ' (TOMORROW)' : '';
-      print('    Day $day: $count notifications$label');
+      final label = day == todayDay
+          ? ' (TODAY)'
+          : day == todayDay + 1
+          ? ' (TOMORROW)'
+          : '';
+      logger.i('    Day $day: $count notifications$label');
     });
   }
 
   /// Планирование с проверкой результата
   Future<bool> _scheduleNotificationsWithVerification() async {
-    print('🔄 [NotificationService] Scheduling notifications...');
-    
+    logger.i('🔄 [NotificationService] Scheduling notifications...');
+
     // Вызываем планирование
     await _scheduler.scheduleInitialNotifications();
-    
+
     // Ждём немного для применения изменений
     await Future.delayed(Duration(milliseconds: 200));
-    
+
     // Проверяем результат
     final pending = await _localNotifications.pendingNotificationRequests();
     final now = DateTime.now();
     final todayDay = TimezoneHelper.dayOfYear(now);
-    
+
     int todayCount = 0;
     int tomorrowCount = 0;
-    
+
     for (final n in pending) {
       try {
         final decoded = NotificationSender.decodeNotificationId(n.id);
@@ -164,30 +173,31 @@ class NotificationService {
         // Игнорируем старые форматы ID
       }
     }
-    
-    print('📊 [NotificationService] Scheduling result:');
-    print('  Today (day $todayDay): $todayCount notifications');
-    print('  Tomorrow: $tomorrowCount notifications');
-    print('  Total: ${pending.length} notifications');
-    
+
+    logger.i('📊 [NotificationService] Scheduling result:');
+    logger.i('  Today (day $todayDay): $todayCount notifications');
+    logger.i('  Tomorrow: $tomorrowCount notifications');
+    logger.i('  Total: ${pending.length} notifications');
+
     // Возвращаем true если есть уведомления на сегодня
-    return todayCount > 0 || now.hour >= 21; // После 21:00 нормально не иметь уведомлений на сегодня
+    return todayCount > 0 ||
+        now.hour >= 21; // После 21:00 нормально не иметь уведомлений на сегодня
   }
 
   /// Принудительное создание уведомлений
   Future<void> _forceScheduleNotifications() async {
-    print('🚨 [NotificationService] FORCE SCHEDULING ACTIVATED');
-    
+    logger.w('🚨 [NotificationService] FORCE SCHEDULING ACTIVATED');
+
     final now = DateTime.now();
-    
+
     // Если ещё не поздно, создаём экстренные уведомления
     if (now.hour < 21) {
-      print('  Creating emergency notifications for today...');
-      
+      logger.i('  Creating emergency notifications for today...');
+
       // Отменяем существующие на сегодня
       final todayDay = TimezoneHelper.dayOfYear(now);
       final pending = await _localNotifications.pendingNotificationRequests();
-      
+
       for (final n in pending) {
         try {
           final decoded = NotificationSender.decodeNotificationId(n.id);
@@ -198,11 +208,11 @@ class NotificationService {
           // Игнорируем ошибки
         }
       }
-      
+
       // Создаём новые уведомления через прямой вызов
       await _createEmergencyNotifications();
     }
-    
+
     // Планируем будущие дни
     await _scheduler.scheduleFutureDaysOnly();
   }
@@ -210,27 +220,27 @@ class NotificationService {
   /// Создание экстренных уведомлений напрямую
   Future<void> _createEmergencyNotifications() async {
     final now = DateTime.now();
-    
+
     // Загружаем тексты
     await NotificationTexts.ensureLoaded();
-    
+
     // Времена для экстренных уведомлений
     final times = [
-      now.add(Duration(minutes: 5)),    // Через 5 минут
-      now.add(Duration(minutes: 60)),   // Через час
-      now.add(Duration(minutes: 120)),  // Через 2 часа
+      now.add(Duration(minutes: 5)), // Через 5 минут
+      now.add(Duration(minutes: 60)), // Через час
+      now.add(Duration(minutes: 120)), // Через 2 часа
     ];
-    
+
     int created = 0;
     for (final time in times) {
       if (time.hour >= 21) continue; // Не планируем после 21:00
-      
+
       try {
         final notificationId = _sender.generateNotificationId(
           NotificationType.waterReminder,
-          when: time
+          when: time,
         );
-        
+
         // Создаём детали уведомления
         final androidDetails = AndroidNotificationDetails(
           'hydracoach_default_${NotificationTexts.currentLocale}',
@@ -242,18 +252,18 @@ class NotificationService {
           enableVibration: true,
           playSound: true,
         );
-        
+
         final iosDetails = DarwinNotificationDetails(
           presentAlert: true,
           presentBadge: true,
           presentSound: true,
         );
-        
+
         final details = NotificationDetails(
           android: androidDetails,
           iOS: iosDetails,
         );
-        
+
         // Планируем уведомление с inexact scheduling для Google Play Store compliance
         await _localNotifications.zonedSchedule(
           notificationId,
@@ -263,27 +273,28 @@ class NotificationService {
           details,
           androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         );
-        
+
         created++;
-        print('  ✅ Emergency notification scheduled for ${time.hour}:${time.minute.toString().padLeft(2, '0')}');
-        
+        logger.i(
+          '  ✅ Emergency notification scheduled for ${time.hour}:${time.minute.toString().padLeft(2, '0')}',
+        );
       } catch (e) {
-        print('  ❌ Failed to create emergency notification: $e');
+        logger.e('  ❌ Failed to create emergency notification: $e');
       }
     }
-    
-    print('  Created $created emergency notifications');
+
+    logger.i('  Created $created emergency notifications');
   }
 
   /// Создание всех компонентов системы
   Future<void> _createComponents() async {
-    print('🔧 [NotificationService] Creating components...');
+    logger.i('🔧 [NotificationService] Creating components...');
 
     // Создание helpers - проверяем что компоненты еще не созданы
     if (!_areComponentsCreated()) {
       _limitsHelper = NotificationLimitsHelper(_remoteConfig);
     } else {
-      print('🔧 [NotificationService] Components already created, skipping');
+      logger.i('🔧 [NotificationService] Components already created, skipping');
       return;
     }
 
@@ -301,11 +312,7 @@ class NotificationService {
       _analytics,
     );
 
-    _scheduler = NotificationScheduler(
-      _sender,
-      _limitsHelper,
-      _remoteConfig,
-    );
+    _scheduler = NotificationScheduler(_sender, _limitsHelper, _remoteConfig);
 
     _specificNotifications = SpecificNotifications(
       _sender,
@@ -313,20 +320,11 @@ class NotificationService {
       _remoteConfig,
     );
 
-    _fcmHandler = FCMHandler(
-      _messaging,
-      _firestore,
-      _sender,
-      _analytics,
-    );
+    _fcmHandler = FCMHandler(_messaging, _firestore, _sender, _analytics);
 
-    _manager = NotificationManager(
-      _localNotifications,
-      _sender,
-      _analytics,
-    );
+    _manager = NotificationManager(_localNotifications, _sender, _analytics);
 
-    print('✅ [NotificationService] All components created');
+    logger.i('✅ [NotificationService] All components created');
   }
 
   // ==================== ПУБЛИЧНОЕ API - ОСНОВНЫЕ МЕТОДЫ ====================
@@ -342,7 +340,7 @@ class NotificationService {
     bool silentIfQuiet = false,
   }) async {
     await _ensureInitialized();
-    
+
     await _sender.sendNotification(
       type: type,
       title: title,
@@ -389,7 +387,9 @@ class NotificationService {
   /// Планирование напоминания после тренировки (PRO)
   Future<void> sendWorkoutReminder({DateTime? workoutEndTime}) async {
     await _ensureInitialized();
-    await _specificNotifications.sendWorkoutReminder(workoutEndTime: workoutEndTime);
+    await _specificNotifications.sendWorkoutReminder(
+      workoutEndTime: workoutEndTime,
+    );
   }
 
   /// Планирование вечернего отчета
@@ -409,23 +409,23 @@ class NotificationService {
   /// Принудительное перепланирование всех уведомлений
   Future<void> rescheduleAllNotifications() async {
     await _ensureInitialized();
-    
-    print('🔄 [NotificationService] Rescheduling all notifications...');
-    
+
+    logger.i('🔄 [NotificationService] Rescheduling all notifications...');
+
     // Отменяем все текущие
     await _manager.cancelAllNotifications();
-    
+
     // Ждём немного
     await Future.delayed(Duration(milliseconds: 200));
-    
+
     // Планируем заново с проверкой
     final success = await _scheduleNotificationsWithVerification();
-    
+
     if (!success) {
       await _forceScheduleNotifications();
     }
-    
-    print('✅ [NotificationService] Rescheduling complete');
+
+    logger.i('✅ [NotificationService] Rescheduling complete');
   }
 
   // ==================== УПРАВЛЕНИЕ РАЗРЕШЕНИЯМИ ====================
@@ -435,7 +435,7 @@ class NotificationService {
   Future<void> requestPermissions({bool exactAlarms = false}) async {
     await _ensureInitialized();
 
-    print('🔐 [NotificationService] Requesting notification permissions...');
+    logger.i('🔐 [NotificationService] Requesting notification permissions...');
 
     try {
       // ОТКЛЮЧАЕМ запрос EXACT_ALARM для Google Play Store compliance
@@ -443,25 +443,26 @@ class NotificationService {
       await _initializer.requestSystemNotificationPermissions(
         requestExactAlarms: false, // Принудительно отключаем
       );
-      
+
       // Логируем в аналитику
       await _analytics.logEvent(
         name: 'notification_permission_request',
         parameters: {'exact_alarms': false}, // Всегда false
       );
-      
+
       // Проверяем итоговый статус
       final status = await _initializer.checkPermissionStatus();
-      print('✅ [NotificationService] Permission status: $status');
-      
+      logger.i('✅ [NotificationService] Permission status: $status');
+
       // Если разрешения получены, планируем уведомления
       if (status['notifications'] == true) {
-        print('📅 [NotificationService] Permissions granted, scheduling notifications...');
+        logger.i(
+          '📅 [NotificationService] Permissions granted, scheduling notifications...',
+        );
         await rescheduleAllNotifications();
       }
-      
     } catch (e) {
-      print('❌ [NotificationService] Error requesting permissions: $e');
+      logger.e('❌ [NotificationService] Error requesting permissions: $e');
       await _analytics.logNotificationError(
         type: 'permission_request',
         error: e.toString(),
@@ -475,7 +476,7 @@ class NotificationService {
     await _ensureInitialized();
     return await _initializer.checkPermissionStatus();
   }
-  
+
   // ==================== УПРАВЛЕНИЕ УВЕДОМЛЕНИЯМИ ====================
 
   /// Отмена конкретного уведомления
@@ -533,8 +534,8 @@ class NotificationService {
   /// Обработка смены языка приложения
   /// Пересоздает Android каналы и перепланирует уведомления с новыми текстами
   Future<void> onLocaleChanged(String localeCode) async {
-    print('🌍 [NotificationService] Language change initiated: $localeCode');
-    
+    logger.i('🌍 [NotificationService] Language change initiated: $localeCode');
+
     try {
       await _ensureInitialized();
 
@@ -550,12 +551,11 @@ class NotificationService {
         value: localeCode,
       );
 
-      print('✅ [NotificationService] Language change completed');
-
+      logger.i('✅ [NotificationService] Language change completed');
     } catch (e, stackTrace) {
-      print('❌ Error changing notification locale: $e');
-      print('Stack trace: $stackTrace');
-      
+      logger.e('❌ Error changing notification locale: $e');
+      logger.e('Stack trace: $stackTrace');
+
       await _analytics.logNotificationError(
         type: 'locale_change',
         error: e.toString(),
@@ -579,31 +579,36 @@ class NotificationService {
 
   /// Получение компонента отправки (для продвинутого использования)
   NotificationSender get sender {
-    if (!_isInitialized) throw StateError('NotificationService not initialized');
+    if (!_isInitialized)
+      throw StateError('NotificationService not initialized');
     return _sender;
   }
 
   /// Получение планировщика (для продвинутого использования)
   NotificationScheduler get scheduler {
-    if (!_isInitialized) throw StateError('NotificationService not initialized');
+    if (!_isInitialized)
+      throw StateError('NotificationService not initialized');
     return _scheduler;
   }
 
   /// Получение менеджера (для продвинутого использования)
   NotificationManager get manager {
-    if (!_isInitialized) throw StateError('NotificationService not initialized');
+    if (!_isInitialized)
+      throw StateError('NotificationService not initialized');
     return _manager;
   }
 
   /// Получение FCM обработчика (для продвинутого использования)
   FCMHandler get fcmHandler {
-    if (!_isInitialized) throw StateError('NotificationService not initialized');
+    if (!_isInitialized)
+      throw StateError('NotificationService not initialized');
     return _fcmHandler;
   }
 
   /// Получение специфичных уведомлений (для продвинутого использования)
   SpecificNotifications get specificNotifications {
-    if (!_isInitialized) throw StateError('NotificationService not initialized');
+    if (!_isInitialized)
+      throw StateError('NotificationService not initialized');
     return _specificNotifications;
   }
 
@@ -626,10 +631,10 @@ class NotificationService {
   /// Экспорт конфигурации для отладки
   Future<String> exportDebugInfo() async {
     await _ensureInitialized();
-    
+
     final systemStatus = await getSystemStatus();
     final notificationsList = await _manager.exportNotificationsToJson();
-    
+
     return '''
 === HydraCoach Notification System Debug ===
 Time: ${DateTime.now().toIso8601String()}
@@ -646,21 +651,21 @@ $notificationsList
   Future<void> cleanup() async {
     if (!_isInitialized) return;
 
-    print('🧹 [NotificationService] Cleaning up...');
-    
+    logger.i('🧹 [NotificationService] Cleaning up...');
+
     try {
       // Отменяем все уведомления
       await _manager.cancelAllNotifications();
-      
+
       // Очищаем FCM
       await _fcmHandler.cleanup();
-      
+
       // Сбрасываем флаг инициализации
       _isInitialized = false;
-      
-      print('✅ [NotificationService] Cleanup completed');
+
+      logger.i('✅ [NotificationService] Cleanup completed');
     } catch (e) {
-      print('❌ Error during cleanup: $e');
+      logger.e('❌ Error during cleanup: $e');
     }
   }
 

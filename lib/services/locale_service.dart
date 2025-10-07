@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hydracoach/utils/app_logger.dart';
 
 import 'notification_texts.dart';
 import 'notification_service.dart';
@@ -28,42 +29,46 @@ class LocaleService extends ChangeNotifier {
 
   Future<void> initialize() async {
     if (kDebugMode) {
-      print('[LocaleService] Initializing...');
+      logger.d('[LocaleService] Initializing...');
     }
-    
+
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Try to load saved locale
     final saved = prefs.getString('locale');
-    
+
     if (saved != null && supportedLocales.any((l) => l.code == saved)) {
       _currentLocale = Locale(saved);
       if (kDebugMode) {
-        print('[LocaleService] Loaded saved locale: $saved');
+        logger.d('[LocaleService] Loaded saved locale: $saved');
       }
     } else {
       // Try to detect system locale
       final systemLocale = WidgetsBinding.instance.window.locale;
       final isSupported = supportedLocales.any(
-        (locale) => locale.code == systemLocale.languageCode
+        (locale) => locale.code == systemLocale.languageCode,
       );
-      
+
       if (isSupported) {
         _currentLocale = Locale(systemLocale.languageCode);
       } else {
         _currentLocale = const Locale('en');
       }
-      
+
       await prefs.setString('locale', _currentLocale.languageCode);
       if (kDebugMode) {
-        print('[LocaleService] Set initial locale: ${_currentLocale.languageCode}');
+        logger.d(
+          '[LocaleService] Set initial locale: ${_currentLocale.languageCode}',
+        );
       }
     }
 
     // Load notification texts for current locale
     await NotificationTexts.setLocale(_currentLocale.languageCode);
     if (kDebugMode) {
-      print('[LocaleService] NotificationTexts initialized with: ${_currentLocale.languageCode}');
+      logger.d(
+        '[LocaleService] NotificationTexts initialized with: ${_currentLocale.languageCode}',
+      );
     }
 
     notifyListeners();
@@ -75,9 +80,9 @@ class LocaleService extends ChangeNotifier {
 
     final oldLocale = _currentLocale.languageCode;
     _currentLocale = Locale(code);
-    
+
     if (kDebugMode) {
-      print('[LocaleService] Changing locale from $oldLocale to $code');
+      logger.d('[LocaleService] Changing locale from $oldLocale to $code');
     }
 
     final prefs = await SharedPreferences.getInstance();
@@ -88,23 +93,27 @@ class LocaleService extends ChangeNotifier {
     // Update notification texts and reschedule locale-dependent notifications
     await NotificationTexts.setLocale(code);
     if (kDebugMode) {
-      print('[LocaleService] ✅ NotificationTexts updated to $code');
+      logger.d('[LocaleService] ✅ NotificationTexts updated to $code');
     }
 
     try {
       await NotificationService().onLocaleChanged(code);
       if (kDebugMode) {
-        print('[LocaleService] ✅ NotificationService.onLocaleChanged($code) completed');
+        logger.d(
+          '[LocaleService] ✅ NotificationService.onLocaleChanged($code) completed',
+        );
       }
     } catch (e) {
       if (kDebugMode) {
-        print('[LocaleService] ❌ Error updating notifications: $e');
+        logger.d('[LocaleService] ❌ Error updating notifications: $e');
       }
     }
 
     notifyListeners();
     if (kDebugMode) {
-      print('[LocaleService] ✅ Language change complete: $oldLocale → $code');
+      logger.d(
+        '[LocaleService] ✅ Language change complete: $oldLocale → $code',
+      );
     }
   }
 
@@ -114,7 +123,7 @@ class LocaleService extends ChangeNotifier {
       orElse: () => supportedLocales.first,
     );
   }
-  
+
   String getLocaleName(String code) {
     final info = supportedLocales.firstWhere(
       (locale) => locale.code == code,
@@ -122,7 +131,7 @@ class LocaleService extends ChangeNotifier {
     );
     return info.name;
   }
-  
+
   String getLocaleFlag(String code) {
     final info = supportedLocales.firstWhere(
       (locale) => locale.code == code,
@@ -130,11 +139,11 @@ class LocaleService extends ChangeNotifier {
     );
     return info.flag;
   }
-  
+
   bool isSupported(String code) {
     return supportedLocales.any((locale) => locale.code == code);
   }
-  
+
   // Static method to read locale directly from SharedPreferences
   // (useful for background processes)
   static Future<String> getSavedLocale() async {

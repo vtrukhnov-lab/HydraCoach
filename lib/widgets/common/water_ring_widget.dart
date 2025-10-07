@@ -30,15 +30,17 @@ class WaterRingWithWave extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final percent = goal > 0 ? (consumed / goal * 100).clamp(0.0, 200.0).toDouble() : 0.0;
-    
+    final percent = goal > 0
+        ? (consumed / goal * 100).clamp(0.0, 200.0).toDouble()
+        : 0.0;
+
     final displayVolume = UnitsService.instance.formatVolume(consumed);
     final goalDisplay = UnitsService.instance.formatVolume(goal);
-    
+
     final bool useWhiteText = percent > 65;
-    final primaryTextColor = useWhiteText 
-      ? Colors.white 
-      : const Color(0xFF37474F);
+    final primaryTextColor = useWhiteText
+        ? Colors.white
+        : const Color(0xFF37474F);
 
     return SizedBox(
       width: size,
@@ -89,16 +91,19 @@ class WaterRingWithWave extends StatelessWidget {
                   if (showPercentBadge) ...[
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: useWhiteText
-                          ? Colors.white.withOpacity(0.2)
-                          : Colors.grey.withOpacity(0.1),
+                            ? Colors.white.withValues(alpha: 0.2)
+                            : Colors.grey.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
                           color: useWhiteText
-                            ? Colors.transparent
-                            : Colors.grey.withOpacity(0.3),
+                              ? Colors.transparent
+                              : Colors.grey.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -167,16 +172,17 @@ class _WaterRingBareState extends State<WaterRingBare>
       duration: const Duration(milliseconds: 2800),
     )..repeat();
 
-    _progressCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 550),
-    )..addListener(() {
-        setState(() {
-          final t = Curves.easeInOut.transform(_progressCtrl.value);
-          _animatedProgress =
-              (_animatedProgress * (1 - t)) + (_targetProgress * t);
+    _progressCtrl =
+        AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 550),
+        )..addListener(() {
+          setState(() {
+            final t = Curves.easeInOut.transform(_progressCtrl.value);
+            _animatedProgress =
+                (_animatedProgress * (1 - t)) + (_targetProgress * t);
+          });
         });
-      });
   }
 
   @override
@@ -257,15 +263,31 @@ class WaterPainter extends CustomPainter {
     canvas.clipPath(clip);
 
     final level = (1.0 - progress) * (h - 16) + 8;
-    _drawWave(canvas, size, level, t, waterColor.withOpacity(0.85), 5, 1.6);
-    _drawWave(canvas, size, level + 2, (t + 0.35) % 1.0, waterColor.withOpacity(0.6), 3, 2.3);
+    _drawWave(
+      canvas,
+      size,
+      level,
+      t,
+      waterColor.withValues(alpha: 0.85),
+      5,
+      1.6,
+    );
+    _drawWave(
+      canvas,
+      size,
+      level + 2,
+      (t + 0.35) % 1.0,
+      waterColor.withValues(alpha: 0.6),
+      3,
+      2.3,
+    );
 
     // Gloss on top
     final gloss = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [Colors.white.withOpacity(0.25), Colors.transparent],
+        colors: [Colors.white.withValues(alpha: 0.25), Colors.transparent],
         stops: const [0.0, 0.4],
       ).createShader(Rect.fromLTWH(0, 0, w, h));
     canvas.drawRect(Rect.fromLTWH(0, 0, w, h * 0.4), gloss);
@@ -276,7 +298,7 @@ class WaterPainter extends CustomPainter {
     final glass = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0
-      ..color = Colors.white.withOpacity(0.3);
+      ..color = Colors.white.withValues(alpha: 0.3);
     canvas.drawCircle(c, r - 8, glass);
 
     // Progress arc
@@ -298,27 +320,35 @@ class WaterPainter extends CustomPainter {
         c.dx + (r - 4) * math.cos(endAngle),
         c.dy + (r - 4) * math.sin(endAngle),
       );
-      
+
       // Glowing dot
       final glowPaint = Paint()
-        ..color = ringColor.withOpacity(0.3)
+        ..color = ringColor.withValues(alpha: 0.3)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
       canvas.drawCircle(end, 4, glowPaint);
-      
+
       final dotPaint = Paint()..color = ringColor;
       canvas.drawCircle(end, 3, dotPaint);
     }
   }
 
-  void _drawWave(Canvas canvas, Size size, double levelY, double t,
-      Color color, double amp, double freq) {
+  void _drawWave(
+    Canvas canvas,
+    Size size,
+    double levelY,
+    double t,
+    Color color,
+    double amp,
+    double freq,
+  ) {
     final path = Path();
     path.moveTo(0, size.height);
     path.lineTo(0, levelY);
 
     final width = size.width;
     for (double x = 0; x <= width; x += 2) {
-      final y = levelY +
+      final y =
+          levelY +
           math.sin((x / width * math.pi * 2 * freq) + t * math.pi * 2) * amp;
       path.lineTo(x, y);
     }

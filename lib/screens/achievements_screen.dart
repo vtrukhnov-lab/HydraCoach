@@ -16,34 +16,34 @@ class AchievementsScreen extends StatefulWidget {
   State<AchievementsScreen> createState() => _AchievementsScreenState();
 }
 
-class _AchievementsScreenState extends State<AchievementsScreen> 
+class _AchievementsScreenState extends State<AchievementsScreen>
     with TickerProviderStateMixin {
   final AchievementTracker _tracker = AchievementTracker();
   final AnalyticsService _analytics = AnalyticsService();
-  
+
   late TabController _tabController;
   AchievementCategory? _selectedCategory;
-  
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(
-      length: AchievementCategory.values.length + 1, 
-      vsync: this
+      length: AchievementCategory.values.length + 1,
+      vsync: this,
     );
     _tabController.addListener(_onTabChanged);
-    
+
     // Log screen view
     _analytics.logScreenView(
       screenName: 'achievements',
       screenClass: 'AchievementsScreen',
     );
-    
+
     // Initialize tracker
     _tracker.initialize();
     _tracker.addListener(_onTrackerUpdate);
   }
-  
+
   @override
   void dispose() {
     _tabController.removeListener(_onTabChanged);
@@ -51,11 +51,11 @@ class _AchievementsScreenState extends State<AchievementsScreen>
     _tracker.removeListener(_onTrackerUpdate);
     super.dispose();
   }
-  
+
   void _onTrackerUpdate() {
     if (mounted) setState(() {});
   }
-  
+
   void _onTabChanged() {
     if (!_tabController.indexIsChanging) {
       setState(() {
@@ -70,14 +70,17 @@ class _AchievementsScreenState extends State<AchievementsScreen>
           _tracker.markCategoryAsViewed(category);
         }
       });
-      
+
       // Haptic feedback
       HapticFeedback.selectionClick();
     }
   }
 
   // ✅ ДОБАВЛЕНО: Метод перевода категорий
-  String _getCategoryLocalizedTitle(AppLocalizations l10n, AchievementCategory category) {
+  String _getCategoryLocalizedTitle(
+    AppLocalizations l10n,
+    AchievementCategory category,
+  ) {
     switch (category) {
       case AchievementCategory.hydration:
         return l10n.achievementsTabHydration;
@@ -97,16 +100,16 @@ class _AchievementsScreenState extends State<AchievementsScreen>
         return l10n.achievementsTabSpecial;
     }
   }
-  
+
   List<Achievement> _getFilteredAchievements() {
     List<Achievement> achievements;
-    
+
     if (_selectedCategory == null) {
       achievements = _tracker.getAllAchievements();
     } else {
       achievements = _tracker.getAchievementsByCategory(_selectedCategory!);
     }
-    
+
     // ✅ ИСПРАВЛЕНО: Sort by localized progress (unlocked first, then by localized progress percentage)
     achievements.sort((a, b) {
       if (a.isUnlocked != b.isUnlocked) {
@@ -114,7 +117,7 @@ class _AchievementsScreenState extends State<AchievementsScreen>
       }
       return b.localizedProgressPercent.compareTo(a.localizedProgressPercent);
     });
-    
+
     return achievements;
   }
 
@@ -123,7 +126,7 @@ class _AchievementsScreenState extends State<AchievementsScreen>
       animation: _tracker,
       builder: (context, child) {
         final hasNew = category != null && _tracker.hasNewInCategory(category);
-        
+
         return Stack(
           clipBehavior: Clip.none,
           children: [
@@ -143,7 +146,7 @@ class _AchievementsScreenState extends State<AchievementsScreen>
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.red.withOpacity(0.3),
+                        color: Colors.red.withValues(alpha: 0.3),
                         blurRadius: 4,
                         spreadRadius: 1,
                       ),
@@ -157,12 +160,15 @@ class _AchievementsScreenState extends State<AchievementsScreen>
     );
   }
 
-  Widget _buildCategoryTabWithIndicator(AchievementCategory category, AppLocalizations l10n) {
+  Widget _buildCategoryTabWithIndicator(
+    AchievementCategory category,
+    AppLocalizations l10n,
+  ) {
     return AnimatedBuilder(
       animation: _tracker,
       builder: (context, child) {
         final hasNew = _tracker.hasNewInCategory(category);
-        
+
         return Stack(
           clipBehavior: Clip.none,
           children: [
@@ -190,7 +196,7 @@ class _AchievementsScreenState extends State<AchievementsScreen>
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.red.withOpacity(0.3),
+                        color: Colors.red.withValues(alpha: 0.3),
                         blurRadius: 4,
                         spreadRadius: 1,
                       ),
@@ -209,7 +215,7 @@ class _AchievementsScreenState extends State<AchievementsScreen>
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final stats = _tracker.getStatistics();
-    
+
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
@@ -224,7 +230,7 @@ class _AchievementsScreenState extends State<AchievementsScreen>
               color: theme.colorScheme.surface,
               border: Border(
                 bottom: BorderSide(
-                  color: theme.dividerColor.withOpacity(0.1),
+                  color: theme.dividerColor.withValues(alpha: 0.1),
                   width: 1,
                 ),
               ),
@@ -234,7 +240,9 @@ class _AchievementsScreenState extends State<AchievementsScreen>
               isScrollable: true,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               labelColor: theme.colorScheme.primary,
-              unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.6),
+              unselectedLabelColor: theme.colorScheme.onSurface.withValues(
+                alpha: 0.6,
+              ),
               indicatorColor: theme.colorScheme.primary,
               indicatorWeight: 2,
               labelStyle: const TextStyle(
@@ -247,10 +255,14 @@ class _AchievementsScreenState extends State<AchievementsScreen>
               ),
               tabs: [
                 // ✅ ИСПРАВЛЕНО: Используем локализованное "Все"
-                Tab(child: _buildTabWithIndicator(l10n.achievementsTabAll, null)),
-                ...AchievementCategory.values.map((category) => Tab(
-                  child: _buildCategoryTabWithIndicator(category, l10n),
-                )),
+                Tab(
+                  child: _buildTabWithIndicator(l10n.achievementsTabAll, null),
+                ),
+                ...AchievementCategory.values.map(
+                  (category) => Tab(
+                    child: _buildCategoryTabWithIndicator(category, l10n),
+                  ),
+                ),
               ],
             ),
           ),
@@ -269,9 +281,14 @@ class _AchievementsScreenState extends State<AchievementsScreen>
                   builder: (context, child) {
                     final totalNew = _tracker.unlockedQueue.length;
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withOpacity(0.08),
+                        color: theme.colorScheme.primary.withValues(
+                          alpha: 0.08,
+                        ),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
@@ -307,9 +324,9 @@ class _AchievementsScreenState extends State<AchievementsScreen>
                     );
                   },
                 ),
-                
+
                 const SizedBox(width: 16),
-                
+
                 // Thin progress bar with only percentage
                 Expanded(
                   child: Container(
@@ -320,7 +337,8 @@ class _AchievementsScreenState extends State<AchievementsScreen>
                         Container(
                           height: 18,
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                            color: theme.colorScheme.surfaceContainerHighest
+                                .withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(9),
                           ),
                         ),
@@ -329,14 +347,18 @@ class _AchievementsScreenState extends State<AchievementsScreen>
                           duration: const Duration(milliseconds: 1200),
                           curve: Curves.easeOutCubic,
                           alignment: Alignment.centerLeft,
-                          widthFactor: (stats['unlockedCount'] as int) / (stats['totalAchievements'] as int),
+                          widthFactor:
+                              (stats['unlockedCount'] as int) /
+                              (stats['totalAchievements'] as int),
                           child: Container(
                             height: 18,
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
                                   theme.colorScheme.primary,
-                                  theme.colorScheme.primary.withOpacity(0.8),
+                                  theme.colorScheme.primary.withValues(
+                                    alpha: 0.8,
+                                  ),
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(9),
@@ -350,7 +372,9 @@ class _AchievementsScreenState extends State<AchievementsScreen>
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: theme.colorScheme.onSurface.withOpacity(0.8),
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.8,
+                              ),
                             ),
                           ),
                         ),
@@ -361,14 +385,14 @@ class _AchievementsScreenState extends State<AchievementsScreen>
               ],
             ),
           ),
-          
+
           // Achievements list
           Expanded(
             child: AnimatedBuilder(
               animation: _tracker,
               builder: (context, child) {
                 final achievements = _getFilteredAchievements();
-                
+
                 if (achievements.isEmpty) {
                   return Center(
                     child: Column(
@@ -378,13 +402,17 @@ class _AchievementsScreenState extends State<AchievementsScreen>
                           width: 80,
                           height: 80,
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withOpacity(0.1),
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.1,
+                            ),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             Icons.emoji_events_outlined,
                             size: 40,
-                            color: theme.colorScheme.primary.withOpacity(0.6),
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.6,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -393,7 +421,9 @@ class _AchievementsScreenState extends State<AchievementsScreen>
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: theme.colorScheme.onSurface.withOpacity(0.7),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.7,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -401,14 +431,16 @@ class _AchievementsScreenState extends State<AchievementsScreen>
                           l10n.achievementKeepUsing,
                           style: TextStyle(
                             fontSize: 14,
-                            color: theme.colorScheme.onSurface.withOpacity(0.5),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.5,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   );
                 }
-                
+
                 return ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: achievements.length,
@@ -433,17 +465,17 @@ class _AchievementsScreenState extends State<AchievementsScreen>
       ),
     );
   }
-  
+
   void _showAchievementDetails(Achievement achievement) {
     HapticFeedback.lightImpact();
-    
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => AchievementDetailsSheet(achievement: achievement),
     );
-    
+
     _analytics.logAchievementViewed(
       achievementId: achievement.id,
       achievementName: achievement.name,
@@ -456,17 +488,14 @@ class _AchievementsScreenState extends State<AchievementsScreen>
 /// Bottom sheet for achievement details
 class AchievementDetailsSheet extends StatelessWidget {
   final Achievement achievement;
-  
-  const AchievementDetailsSheet({
-    super.key,
-    required this.achievement,
-  });
-  
+
+  const AchievementDetailsSheet({super.key, required this.achievement});
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    
+
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
@@ -484,12 +513,12 @@ class AchievementDetailsSheet extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: theme.dividerColor.withOpacity(0.3),
+                  color: theme.dividerColor.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Icon with rarity glow
               Container(
                 width: 80,
@@ -498,8 +527,8 @@ class AchievementDetailsSheet extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      achievement.rarity.color.withOpacity(0.3),
-                      achievement.rarity.color.withOpacity(0.0),
+                      achievement.rarity.color.withValues(alpha: 0.3),
+                      achievement.rarity.color.withValues(alpha: 0.0),
                     ],
                   ),
                 ),
@@ -511,7 +540,7 @@ class AchievementDetailsSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Name
               Text(
                 achievement.name,
@@ -523,26 +552,29 @@ class AchievementDetailsSheet extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              
+
               // ✅ ИСПРАВЛЕНО: Description with proper units
               Text(
                 achievement.getLocalizedDescription(),
                 style: TextStyle(
                   fontSize: 16,
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              
+
               // Category and rarity
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
-                      color: achievement.category.color.withOpacity(0.1),
+                      color: achievement.category.color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -552,7 +584,10 @@ class AchievementDetailsSheet extends StatelessWidget {
                         const SizedBox(width: 4),
                         // ✅ ИСПРАВЛЕНО: Используем локализованное название категории
                         Text(
-                          _getCategoryLocalizedTitle(AppLocalizations.of(context)!, achievement.category),
+                          _getCategoryLocalizedTitle(
+                            AppLocalizations.of(context)!,
+                            achievement.category,
+                          ),
                           style: TextStyle(
                             fontSize: 12,
                             color: achievement.category.color,
@@ -564,9 +599,12 @@ class AchievementDetailsSheet extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
-                      color: achievement.rarity.color.withOpacity(0.1),
+                      color: achievement.rarity.color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -581,13 +619,13 @@ class AchievementDetailsSheet extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              
+
               // Progress
               if (!achievement.isUnlocked) ...[
                 LinearProgressIndicator(
                   // ✅ ИСПРАВЛЕНО: Use localized progress percent
                   value: achievement.localizedProgressPercent / 100,
-                  backgroundColor: theme.dividerColor.withOpacity(0.2),
+                  backgroundColor: theme.dividerColor.withValues(alpha: 0.2),
                   valueColor: AlwaysStoppedAnimation<Color>(
                     achievement.category.color,
                   ),
@@ -599,42 +637,37 @@ class AchievementDetailsSheet extends StatelessWidget {
                   '${achievement.currentProgress} / ${achievement.getLocalizedMaxProgress()}',
                   style: TextStyle(
                     fontSize: 14,
-                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
               ] else ...[
-                Icon(
-                  Icons.check_circle,
-                  size: 48,
-                  color: Colors.green,
-                ),
+                Icon(Icons.check_circle, size: 48, color: Colors.green),
                 const SizedBox(height: 8),
                 Text(
                   '${l10n.achievementDetailsUnlockedOn} ${_formatDate(achievement.unlockedAt!)}',
                   style: TextStyle(
                     fontSize: 14,
-                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
               ],
-              
+
               const SizedBox(height: 16),
-              
+
               // Points
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withOpacity(0.1),
+                  color: Colors.amber.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
-                      Icons.star,
-                      size: 20,
-                      color: Colors.amber,
-                    ),
+                    const Icon(Icons.star, size: 20, color: Colors.amber),
                     const SizedBox(width: 4),
                     Text(
                       '${achievement.rewardPoints} ${l10n.points}',
@@ -655,7 +688,10 @@ class AchievementDetailsSheet extends StatelessWidget {
   }
 
   // ✅ ДОБАВЛЕНО: Метод для локализации категорий в деталях
-  String _getCategoryLocalizedTitle(AppLocalizations l10n, AchievementCategory category) {
+  String _getCategoryLocalizedTitle(
+    AppLocalizations l10n,
+    AchievementCategory category,
+  ) {
     switch (category) {
       case AchievementCategory.hydration:
         return l10n.achievementsTabHydration;
@@ -677,7 +713,10 @@ class AchievementDetailsSheet extends StatelessWidget {
   }
 
   // ✅ ДОБАВЛЕНО: Метод для локализации редкости
-  String _getRarityLocalizedLabel(AppLocalizations l10n, AchievementRarity rarity) {
+  String _getRarityLocalizedLabel(
+    AppLocalizations l10n,
+    AchievementRarity rarity,
+  ) {
     switch (rarity) {
       case AchievementRarity.common:
         return l10n.achievementRarityCommon;
@@ -691,11 +730,11 @@ class AchievementDetailsSheet extends StatelessWidget {
         return l10n.achievementRarityLegendary;
     }
   }
-  
+
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inDays == 0) {
       return 'Today';
     } else if (difference.inDays == 1) {

@@ -29,7 +29,7 @@ class CompletePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       body: SingleChildScrollView(
@@ -37,35 +37,36 @@ class CompletePage extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 30),
-            const IonCharacter(
-              size: 120,
-              mood: IonMood.proud,
-              showGlow: true,
-            ).animate()
-              .scale(duration: 500.ms, curve: Curves.elasticOut)
-              .then()
-              .shake(duration: 300.ms),
-            
+            const IonCharacter(size: 120, mood: IonMood.proud, showGlow: true)
+                .animate()
+                .scale(duration: 500.ms, curve: Curves.elasticOut)
+                .then()
+                .shake(duration: 300.ms),
+
             const SizedBox(height: 30),
-            
+
             Text(
               l10n.onboardingProfileReady,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
             ).animate().fadeIn(delay: 300.ms),
-            
+
             const SizedBox(height: 16),
-            
+
             _buildSummaryCard(l10n),
-            
+
             const SizedBox(height: 24),
-            
+
             Text(
               l10n.onboardingIonWillHelp,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 15, color: Colors.grey[600], height: 1.4),
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.grey[600],
+                height: 1.4,
+              ),
             ).animate().fadeIn(delay: 700.ms),
-            
+
             const SizedBox(height: 60),
           ],
         ),
@@ -84,15 +85,12 @@ class CompletePage extends StatelessWidget {
                   },
                   child: Text(
                     l10n.back,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                   ),
                 )
               else
                 const SizedBox(width: 80),
-              
+
               ElevatedButton(
                 onPressed: () {
                   HapticFeedback.lightImpact();
@@ -101,15 +99,21 @@ class CompletePage extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2EC5FF),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 14,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(25),
                   ),
                   elevation: 0,
                 ),
                 child: Text(
-                  l10n.onboardingContinue, 
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)
+                  l10n.onboardingContinue,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -123,7 +127,9 @@ class CompletePage extends StatelessWidget {
     // ИСПРАВЛЕНО: Правильный расчет и отображение с учетом выбранной системы мер
     // weight уже в правильных единицах (кг для metric, фунты для imperial)
     // Для расчета нормы всегда нужны кг
-    final weightInKg = units == 'imperial' ? weight / UnitsService.KG_TO_LB : weight;
+    final weightInKg = units == 'imperial'
+        ? weight / UnitsService.KG_TO_LB
+        : weight;
     final waterNormMl = (30 * weightInKg).toInt(); // Базовая норма в мл
 
     // Конвертируем объем в зависимости от выбранной системы мер
@@ -141,7 +147,7 @@ class CompletePage extends StatelessWidget {
     // Для отображения веса используем уже правильные единицы
     final weightUnit = units == 'imperial' ? 'lbs' : 'kg';
     final displayWeight = '${weight.round()} $weightUnit';
-    
+
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -149,7 +155,7 @@ class CompletePage extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF2EC5FF).withOpacity(0.1),
+            color: const Color(0xFF2EC5FF).withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -163,11 +169,7 @@ class CompletePage extends StatelessWidget {
             '$waterNorm $waterUnit',
           ),
           const SizedBox(height: 10),
-          _buildSummaryRow(
-            Icons.monitor_weight,
-            l10n.weight,
-            displayWeight,
-          ),
+          _buildSummaryRow(Icons.monitor_weight, l10n.weight, displayWeight),
           const SizedBox(height: 10),
           _buildSummaryRow(
             Icons.straighten,
@@ -199,7 +201,10 @@ class CompletePage extends StatelessWidget {
         Icon(icon, color: const Color(0xFF2EC5FF), size: 22),
         const SizedBox(width: 10),
         Expanded(
-          child: Text(label, style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+          child: Text(
+            label,
+            style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+          ),
         ),
         Text(
           value,

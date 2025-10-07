@@ -12,18 +12,19 @@ class NotificationSettingsScreen extends StatefulWidget {
   const NotificationSettingsScreen({super.key});
 
   @override
-  State<NotificationSettingsScreen> createState() => _NotificationSettingsScreenState();
+  State<NotificationSettingsScreen> createState() =>
+      _NotificationSettingsScreenState();
 }
 
-class _NotificationSettingsScreenState extends State<NotificationSettingsScreen> {
-  
+class _NotificationSettingsScreenState
+    extends State<NotificationSettingsScreen> {
   // Настройки уведомлений
   bool _postCoffeeReminders = true;
   bool _eveningReports = true;
   bool _heatWarnings = true;
   bool _postAlcoholReminders = true;
   bool _postWorkoutReminders = true;
-  
+
   // Время уведомлений
   TimeOfDay _morningTime = const TimeOfDay(hour: 8, minute: 0);
   TimeOfDay _eveningTime = const TimeOfDay(hour: 21, minute: 0);
@@ -35,10 +36,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   bool _quietHoursEnabled = false;
   TimeOfDay _quietStart = const TimeOfDay(hour: 22, minute: 0);
   TimeOfDay _quietEnd = const TimeOfDay(hour: 7, minute: 0);
-  
+
   // Статистика
   int _todayCount = 0;
-  
+
   // Debug режим
   bool _showDebugPanel = false;
 
@@ -51,10 +52,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   void _showPaywall() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const PaywallScreen(
-          showCloseButton: true,
-          source: 'notifications',
-        ),
+        builder: (context) =>
+            const PaywallScreen(showCloseButton: true, source: 'notifications'),
         fullscreenDialog: true,
       ),
     );
@@ -62,7 +61,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     setState(() {
       _postCoffeeReminders = prefs.getBool('post_coffee_reminders') ?? true;
       _eveningReports = prefs.getBool('evening_reports') ?? true;
@@ -80,25 +79,39 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       } else {
         _reminderFrequency = 4;
       }
-      
+
       // Загрузка времени
       final morningMinutes = prefs.getInt('morning_time') ?? 480; // 8:00
-      _morningTime = TimeOfDay(hour: morningMinutes ~/ 60, minute: morningMinutes % 60);
-      
-      final eveningMinutes = prefs.getInt('evening_report_time') ?? 1260; // 21:00
-      _eveningTime = TimeOfDay(hour: eveningMinutes ~/ 60, minute: eveningMinutes % 60);
-      
-      final quietStartMinutes = prefs.getInt('quiet_hours_start') ?? 1320; // 22:00
-      _quietStart = TimeOfDay(hour: quietStartMinutes ~/ 60, minute: quietStartMinutes % 60);
-      
+      _morningTime = TimeOfDay(
+        hour: morningMinutes ~/ 60,
+        minute: morningMinutes % 60,
+      );
+
+      final eveningMinutes =
+          prefs.getInt('evening_report_time') ?? 1260; // 21:00
+      _eveningTime = TimeOfDay(
+        hour: eveningMinutes ~/ 60,
+        minute: eveningMinutes % 60,
+      );
+
+      final quietStartMinutes =
+          prefs.getInt('quiet_hours_start') ?? 1320; // 22:00
+      _quietStart = TimeOfDay(
+        hour: quietStartMinutes ~/ 60,
+        minute: quietStartMinutes % 60,
+      );
+
       final quietEndMinutes = prefs.getInt('quiet_hours_end') ?? 420; // 7:00
-      _quietEnd = TimeOfDay(hour: quietEndMinutes ~/ 60, minute: quietEndMinutes % 60);
+      _quietEnd = TimeOfDay(
+        hour: quietEndMinutes ~/ 60,
+        minute: quietEndMinutes % 60,
+      );
     });
   }
 
   Future<void> _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Сохраняем основные настройки
     await prefs.setBool('notificationsEnabled', true); // Всегда включены
     await prefs.setBool('water_reminders', true); // Всегда включены
@@ -111,19 +124,37 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     await prefs.setInt('reminder_frequency', _reminderFrequency);
 
     // Сохраняем время в минутах
-    await prefs.setInt('morning_time', _morningTime.hour * 60 + _morningTime.minute);
-    await prefs.setInt('evening_report_time', _eveningTime.hour * 60 + _eveningTime.minute);
-    await prefs.setInt('quiet_hours_start', _quietStart.hour * 60 + _quietStart.minute);
-    await prefs.setInt('quiet_hours_end', _quietEnd.hour * 60 + _quietEnd.minute);
-    
+    await prefs.setInt(
+      'morning_time',
+      _morningTime.hour * 60 + _morningTime.minute,
+    );
+    await prefs.setInt(
+      'evening_report_time',
+      _eveningTime.hour * 60 + _eveningTime.minute,
+    );
+    await prefs.setInt(
+      'quiet_hours_start',
+      _quietStart.hour * 60 + _quietStart.minute,
+    );
+    await prefs.setInt(
+      'quiet_hours_end',
+      _quietEnd.hour * 60 + _quietEnd.minute,
+    );
+
     // Дублируем в строковом формате для NotificationService
-    await prefs.setString('evening_report_time', 
-      '${_eveningTime.hour.toString().padLeft(2, '0')}:${_eveningTime.minute.toString().padLeft(2, '0')}');
-    await prefs.setString('quiet_hours_start', 
-      '${_quietStart.hour.toString().padLeft(2, '0')}:${_quietStart.minute.toString().padLeft(2, '0')}');
-    await prefs.setString('quiet_hours_end', 
-      '${_quietEnd.hour.toString().padLeft(2, '0')}:${_quietEnd.minute.toString().padLeft(2, '0')}');
-    
+    await prefs.setString(
+      'evening_report_time',
+      '${_eveningTime.hour.toString().padLeft(2, '0')}:${_eveningTime.minute.toString().padLeft(2, '0')}',
+    );
+    await prefs.setString(
+      'quiet_hours_start',
+      '${_quietStart.hour.toString().padLeft(2, '0')}:${_quietStart.minute.toString().padLeft(2, '0')}',
+    );
+    await prefs.setString(
+      'quiet_hours_end',
+      '${_quietEnd.hour.toString().padLeft(2, '0')}:${_quietEnd.minute.toString().padLeft(2, '0')}',
+    );
+
     // Перепланируем уведомления
     await _rescheduleNotifications();
   }
@@ -131,14 +162,18 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   Future<void> _rescheduleNotifications() async {
     // Планируем умные напоминания (включая базовые о воде)
     await notif.NotificationService().scheduleSmartReminders();
-    
+
     // Если включен вечерний отчёт, планируем его отдельно
     if (_eveningReports) {
       await notif.NotificationService().scheduleEveningReport();
     }
   }
 
-  Future<void> _selectTime(BuildContext context, TimeOfDay initialTime, Function(TimeOfDay) onTimeSelected) async {
+  Future<void> _selectTime(
+    BuildContext context,
+    TimeOfDay initialTime,
+    Function(TimeOfDay) onTimeSelected,
+  ) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: initialTime,
@@ -160,7 +195,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     final subscription = context.watch<SubscriptionProvider>();
     final isPro = subscription.isPro;
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
@@ -170,8 +205,11 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         actions: [
           if (kDebugMode)
             IconButton(
-              icon: Icon(_showDebugPanel ? Icons.bug_report : Icons.bug_report_outlined),
-              onPressed: () => setState(() => _showDebugPanel = !_showDebugPanel),
+              icon: Icon(
+                _showDebugPanel ? Icons.bug_report : Icons.bug_report_outlined,
+              ),
+              onPressed: () =>
+                  setState(() => _showDebugPanel = !_showDebugPanel),
             ),
         ],
       ),
@@ -194,7 +232,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 ),
               ),
               _buildBasicReminders(theme, l10n),
-              
+
               // Секция: Частота напоминаний
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
@@ -222,7 +260,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 ),
               ),
               _buildAdditionalReminders(theme, l10n),
-              
+
               // PRO функции или их разблокировка
               if (isPro) ...[
                 Padding(
@@ -252,8 +290,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 ),
                 _buildProPreview(theme, l10n),
               ],
-              
-              
+
               // Debug панель
               if (_showDebugPanel && kDebugMode) _buildDebugPanel(theme, isPro),
             ],
@@ -271,7 +308,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -284,7 +321,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.1),
+                color: Colors.amber.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.wb_sunny, color: Colors.amber, size: 20),
@@ -316,10 +353,14 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.indigo.withOpacity(0.1),
+                color: Colors.indigo.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.nightlight_round, color: Colors.indigo, size: 20),
+              child: const Icon(
+                Icons.nightlight_round,
+                color: Colors.indigo,
+                size: 20,
+              ),
             ),
             title: Text(l10n.dailyReportTitle),
             subtitle: Text(l10n.dailyReportBody),
@@ -344,17 +385,16 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 ),
               ],
             ),
-            onTap: _eveningReports 
-              ? () => _selectTime(context, _eveningTime, (time) {
-                  setState(() => _eveningTime = time);
-                })
-              : null,
+            onTap: _eveningReports
+                ? () => _selectTime(context, _eveningTime, (time) {
+                    setState(() => _eveningTime = time);
+                  })
+                : null,
           ),
         ],
       ),
     ).animate().fadeIn(duration: 350.ms);
   }
-
 
   Widget _buildAdditionalReminders(ThemeData theme, AppLocalizations l10n) {
     return Container(
@@ -364,7 +404,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -376,7 +416,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
             secondary: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.brown.withOpacity(0.1),
+                color: Colors.brown.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(Icons.coffee, color: Colors.brown, size: 20),
@@ -402,7 +442,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -414,10 +454,14 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
             secondary: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
+                color: Colors.orange.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.thermostat, color: Colors.orange, size: 20),
+              child: const Icon(
+                Icons.thermostat,
+                color: Colors.orange,
+                size: 20,
+              ),
             ),
             title: Text(l10n.heatWarnings),
             subtitle: Text(l10n.heatWarningsDesc),
@@ -432,10 +476,14 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
             secondary: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.purple.withOpacity(0.1),
+                color: Colors.purple.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.local_bar, color: Colors.purple, size: 20),
+              child: const Icon(
+                Icons.local_bar,
+                color: Colors.purple,
+                size: 20,
+              ),
             ),
             title: Text(l10n.postAlcoholReminders),
             subtitle: Text(l10n.postAlcoholRemindersDesc),
@@ -450,10 +498,14 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
             secondary: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.1),
+                color: Colors.green.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.fitness_center, color: Colors.green, size: 20),
+              child: const Icon(
+                Icons.fitness_center,
+                color: Colors.green,
+                size: 20,
+              ),
             ),
             title: Text(l10n.notificationPostWorkoutTitle),
             subtitle: Text(l10n.notificationPostWorkoutBody),
@@ -477,7 +529,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -490,7 +542,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: (_quietHoursEnabled ? Colors.purple : Colors.grey).withOpacity(0.1),
+                  color: (_quietHoursEnabled ? Colors.purple : Colors.grey)
+                      .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -509,9 +562,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                       style: TextStyle(fontWeight: FontWeight.w500),
                     ),
                     Text(
-                      _quietHoursEnabled 
-                        ? '${_formatTime(_quietStart)} - ${_formatTime(_quietEnd)}'
-                        : 'No notifications during sleep',
+                      _quietHoursEnabled
+                          ? '${_formatTime(_quietStart)} - ${_formatTime(_quietEnd)}'
+                          : 'No notifications during sleep',
                       style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                   ],
@@ -545,8 +598,17 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('From', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-                          Text(_formatTime(_quietStart), style: const TextStyle(fontWeight: FontWeight.w500)),
+                          Text(
+                            'From',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          Text(
+                            _formatTime(_quietStart),
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
                         ],
                       ),
                     ),
@@ -568,8 +630,17 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('To', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-                          Text(_formatTime(_quietEnd), style: const TextStyle(fontWeight: FontWeight.w500)),
+                          Text(
+                            'To',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          Text(
+                            _formatTime(_quietEnd),
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
                         ],
                       ),
                     ),
@@ -589,15 +660,15 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFFFFD700).withOpacity(0.1),
-            const Color(0xFFFFA500).withOpacity(0.05),
+            const Color(0xFFFFD700).withValues(alpha: 0.1),
+            const Color(0xFFFFA500).withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFFFFD700).withOpacity(0.3),
+          color: const Color(0xFFFFD700).withValues(alpha: 0.3),
         ),
       ),
       child: InkWell(
@@ -657,11 +728,26 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               const SizedBox(height: 16),
               Column(
                 children: [
-                  _ProFeatureItem(icon: Icons.all_inclusive, text: l10n.noNotificationLimit),
-                  _ProFeatureItem(icon: Icons.coffee, text: l10n.postCoffeeReminders),
-                  _ProFeatureItem(icon: Icons.wb_sunny, text: l10n.heatWarnings),
-                  _ProFeatureItem(icon: Icons.local_bar, text: l10n.postAlcoholReminders),
-                  _ProFeatureItem(icon: Icons.fitness_center, text: l10n.notificationPostWorkoutTitle),
+                  _ProFeatureItem(
+                    icon: Icons.all_inclusive,
+                    text: l10n.noNotificationLimit,
+                  ),
+                  _ProFeatureItem(
+                    icon: Icons.coffee,
+                    text: l10n.postCoffeeReminders,
+                  ),
+                  _ProFeatureItem(
+                    icon: Icons.wb_sunny,
+                    text: l10n.heatWarnings,
+                  ),
+                  _ProFeatureItem(
+                    icon: Icons.local_bar,
+                    text: l10n.postAlcoholReminders,
+                  ),
+                  _ProFeatureItem(
+                    icon: Icons.fitness_center,
+                    text: l10n.notificationPostWorkoutTitle,
+                  ),
                 ],
               ),
             ],
@@ -671,7 +757,11 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     ).animate().fadeIn(delay: 150.ms);
   }
 
-  Widget _buildReminderFrequency(ThemeData theme, AppLocalizations l10n, bool isPro) {
+  Widget _buildReminderFrequency(
+    ThemeData theme,
+    AppLocalizations l10n,
+    bool isPro,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
@@ -683,7 +773,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.blue.withOpacity(0.1),
+            color: Colors.blue.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(Icons.schedule, color: Colors.blue),
@@ -714,7 +804,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               const SizedBox(width: 8),
               Text(
                 'Debug Panel (${isPro ? "PRO" : "FREE"})',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ],
           ),
@@ -727,15 +820,18 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 onPressed: () async {
                   await notif.NotificationService().sendTestNotification();
                   if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Test sent')),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('Test sent')));
                   }
                 },
                 icon: const Icon(Icons.send, size: 16),
                 label: const Text('Test', style: TextStyle(fontSize: 12)),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
                 ),
@@ -752,7 +848,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 icon: const Icon(Icons.schedule, size: 16),
                 label: const Text('1 min', style: TextStyle(fontSize: 12)),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
                 ),
@@ -764,7 +863,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 icon: const Icon(Icons.info, size: 16),
                 label: const Text('Status', style: TextStyle(fontSize: 12)),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
                 ),
@@ -776,9 +878,15 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   _loadSettings();
                 },
                 icon: const Icon(Icons.star, size: 16),
-                label: Text(isPro ? 'PRO Active' : 'FREE', style: const TextStyle(fontSize: 12)),
+                label: Text(
+                  isPro ? 'PRO Active' : 'FREE',
+                  style: const TextStyle(fontSize: 12),
+                ),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
                 ),
@@ -797,21 +905,30 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         title: Text(l10n.reminderFrequency),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: (isPro ? [2, 3, 4, 6, 8, 12] : [2, 3, 4]).map((freq) =>
-            RadioListTile<int>(
-              title: Text(l10n.timesPerDay(freq)),
-              subtitle: !isPro && freq > 4 ? const Text('PRO', style: TextStyle(color: Colors.orange)) : null,
-              value: freq,
-              groupValue: _reminderFrequency,
-              onChanged: (freq <= 4 || isPro) ? (value) {
-                setState(() {
-                  _reminderFrequency = value!;
-                });
-                _saveSettings();
-                Navigator.pop(context);
-              } : null,
-            ),
-          ).toList(),
+          children: (isPro ? [2, 3, 4, 6, 8, 12] : [2, 3, 4])
+              .map(
+                (freq) => RadioListTile<int>(
+                  title: Text(l10n.timesPerDay(freq)),
+                  subtitle: !isPro && freq > 4
+                      ? const Text(
+                          'PRO',
+                          style: TextStyle(color: Colors.orange),
+                        )
+                      : null,
+                  value: freq,
+                  groupValue: _reminderFrequency,
+                  onChanged: (freq <= 4 || isPro)
+                      ? (value) {
+                          setState(() {
+                            _reminderFrequency = value!;
+                          });
+                          _saveSettings();
+                          Navigator.pop(context);
+                        }
+                      : null,
+                ),
+              )
+              .toList(),
         ),
         actions: [
           TextButton(
@@ -828,10 +945,7 @@ class _ProFeatureItem extends StatelessWidget {
   final IconData icon;
   final String text;
 
-  const _ProFeatureItem({
-    required this.icon,
-    required this.text,
-  });
+  const _ProFeatureItem({required this.icon, required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -841,12 +955,7 @@ class _ProFeatureItem extends StatelessWidget {
         children: [
           Icon(icon, size: 18, color: const Color(0xFFFFD700)),
           const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 13),
-            ),
-          ),
+          Expanded(child: Text(text, style: const TextStyle(fontSize: 13))),
         ],
       ),
     );

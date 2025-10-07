@@ -3,13 +3,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class WaterProgressCache {
   // Ключи совместимы назад
-  static const _kProgress01 = 'water_progress';             // 0..1 (старый задуманный ключ)
-  static const _kProgressPct = 'water_progress_percent';    // 0..100 (удобно для UI)
+  static const _kProgress01 = 'water_progress'; // 0..1 (старый задуманный ключ)
+  static const _kProgressPct =
+      'water_progress_percent'; // 0..100 (удобно для UI)
   static const _kConsumed = 'water_today_ml';
   static const _kGoal = 'daily_water_goal_ml';
 
   /// Сохраняем исходные значения + кэшим прогресс
-  static Future<void> set({required int consumedMl, required int goalMl}) async {
+  static Future<void> set({
+    required int consumedMl,
+    required int goalMl,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
 
     final clampedGoal = goalMl < 0 ? 0 : goalMl;

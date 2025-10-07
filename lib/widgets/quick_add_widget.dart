@@ -10,10 +10,7 @@ import '../l10n/app_localizations.dart';
 class QuickAddWidget extends StatelessWidget {
   final Function() onUpdate;
 
-  const QuickAddWidget({
-    super.key,
-    required this.onUpdate,
-  });
+  const QuickAddWidget({super.key, required this.onUpdate});
 
   @override
   Widget build(BuildContext context) {
@@ -46,42 +43,47 @@ class QuickAddWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       children: [
         _buildCategoryTile(
-            context: context,
-            icon: Icons.water_drop,
-            label: l10n.water,
-            gradientColors: [Colors.blue.shade400, Colors.blue.shade600],
-            routeName: '/liquids'),
+          context: context,
+          icon: Icons.water_drop,
+          label: l10n.water,
+          gradientColors: [Colors.blue.shade400, Colors.blue.shade600],
+          routeName: '/liquids',
+        ),
         _buildCategoryTile(
-            context: context,
-            icon: Icons.bolt,
-            label: l10n.electrolyte,
-            gradientColors: [Colors.orange.shade400, Colors.orange.shade600],
-            routeName: '/electrolytes'),
+          context: context,
+          icon: Icons.bolt,
+          label: l10n.electrolyte,
+          gradientColors: [Colors.orange.shade400, Colors.orange.shade600],
+          routeName: '/electrolytes',
+        ),
         _buildCategoryTile(
-            context: context,
-            icon: Icons.coffee,
-            label: l10n.hotDrinks,
-            gradientColors: [Colors.brown.shade400, Colors.brown.shade600],
-            routeName: '/hot_drinks'),
+          context: context,
+          icon: Icons.coffee,
+          label: l10n.hotDrinks,
+          gradientColors: [Colors.brown.shade400, Colors.brown.shade600],
+          routeName: '/hot_drinks',
+        ),
         _buildCategoryTile(
-            context: context,
-            icon: Icons.medication,
-            label: l10n.supplements,
-            gradientColors: [Colors.purple.shade400, Colors.purple.shade600],
-            routeName: '/supplements'),
+          context: context,
+          icon: Icons.medication,
+          label: l10n.supplements,
+          gradientColors: [Colors.purple.shade400, Colors.purple.shade600],
+          routeName: '/supplements',
+        ),
         _buildCategoryTile(
-            context: context,
-            icon: Icons.sports_bar,
-            label: l10n.alcohol,
-            gradientColors: [Colors.red.shade500, Colors.red.shade700],
-            routeName: '/alcohol'),
+          context: context,
+          icon: Icons.sports_bar,
+          label: l10n.alcohol,
+          gradientColors: [Colors.red.shade500, Colors.red.shade700],
+          routeName: '/alcohol',
+        ),
         _buildCategoryTile(
-            context: context,
-            icon: Icons.fitness_center,
-            // ИСПРАВЛЕНО: Добавлена проверка на случай отсутствия ключа 'sports'
-            label: l10n.sports ?? 'Sports',
-            gradientColors: [Colors.teal.shade400, Colors.teal.shade600],
-            routeName: '/sports'),
+          context: context,
+          icon: Icons.fitness_center,
+          label: l10n.sports,
+          gradientColors: [Colors.teal.shade400, Colors.teal.shade600],
+          routeName: '/sports',
+        ),
       ],
     );
   }
@@ -113,7 +115,7 @@ class QuickAddWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: gradientColors.first.withOpacity(0.3),
+                color: gradientColors.first.withValues(alpha: 0.3),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -122,11 +124,7 @@ class QuickAddWidget extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                size: 42,
-                color: Colors.white,
-              ),
+              Icon(icon, size: 42, color: Colors.white),
               const SizedBox(height: 4),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),

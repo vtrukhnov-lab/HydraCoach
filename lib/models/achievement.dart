@@ -17,7 +17,7 @@ enum AchievementCategory {
   final String emoji;
   final String title;
   final Color color;
-  
+
   const AchievementCategory(this.emoji, this.title, this.color);
 }
 
@@ -28,11 +28,11 @@ enum AchievementRarity {
   rare(3, 'Rare', Colors.blue),
   epic(4, 'Epic', Colors.purple),
   legendary(5, 'Legendary', Colors.orange);
-  
+
   final int tier;
   final String label;
   final Color color;
-  
+
   const AchievementRarity(this.tier, this.label, this.color);
 }
 
@@ -46,7 +46,8 @@ class Achievement {
   final AchievementRarity rarity;
   int maxProgress;
   int currentProgress;
-  final String? descriptionTemplate; // Шаблон с плейсхолдерами {volume}, {weight}
+  final String?
+  descriptionTemplate; // Шаблон с плейсхолдерами {volume}, {weight}
   final Map<String, dynamic>? unitValues; // Значения для разных единиц
   bool isUnlocked;
   DateTime? unlockedAt;
@@ -97,12 +98,12 @@ class Achievement {
       maxProgress: json['maxProgress'] ?? 1,
       currentProgress: json['currentProgress'] ?? 0,
       isUnlocked: json['isUnlocked'] ?? false,
-      unlockedAt: json['unlockedAt'] != null 
+      unlockedAt: json['unlockedAt'] != null
           ? DateTime.parse(json['unlockedAt'])
           : null,
       rewardPoints: json['rewardPoints'] ?? 10,
       descriptionTemplate: json['descriptionTemplate'],
-      unitValues: json['unitValues'] != null 
+      unitValues: json['unitValues'] != null
           ? Map<String, dynamic>.from(json['unitValues'])
           : null,
       metadata: json['metadata'],
@@ -128,12 +129,12 @@ class Achievement {
       maxProgress: data['maxProgress'] ?? 1,
       currentProgress: data['currentProgress'] ?? 0,
       isUnlocked: data['isUnlocked'] ?? false,
-      unlockedAt: data['unlockedAt'] != null 
+      unlockedAt: data['unlockedAt'] != null
           ? (data['unlockedAt'] as Timestamp).toDate()
           : null,
       rewardPoints: data['rewardPoints'] ?? 10,
       descriptionTemplate: data['descriptionTemplate'],
-      unitValues: data['unitValues'] != null 
+      unitValues: data['unitValues'] != null
           ? Map<String, dynamic>.from(data['unitValues'])
           : null,
       metadata: data['metadata'],
@@ -185,29 +186,32 @@ class Achievement {
     if (descriptionTemplate == null || unitValues == null) {
       return description; // Возвращаем оригинальное описание
     }
-    
+
     String localizedDesc = descriptionTemplate!;
     final units = UnitsService.instance.units;
-    
+
     // Заменяем плейсхолдеры на значения для текущей системы единиц
     unitValues!.forEach((key, value) {
       if (value is Map && value.containsKey(units)) {
-        localizedDesc = localizedDesc.replaceAll('{$key}', value[units].toString());
+        localizedDesc = localizedDesc.replaceAll(
+          '{$key}',
+          value[units].toString(),
+        );
       }
     });
-    
+
     return localizedDesc;
   }
 
   /// Получить максимальный прогресс с учетом единиц измерения
   int getLocalizedMaxProgress() {
     if (unitValues == null) return maxProgress;
-    
+
     final units = UnitsService.instance.units;
     if (unitValues!.containsKey('maxProgress_$units')) {
       return unitValues!['maxProgress_$units'] as int;
     }
-    
+
     return maxProgress;
   }
 
@@ -217,7 +221,7 @@ class Achievement {
     if (localizedMax <= 0) return 100.0;
     return (currentProgress / localizedMax * 100).clamp(0.0, 100.0);
   }
-  
+
   /// Копирование с изменениями
   Achievement copyWith({
     String? id,

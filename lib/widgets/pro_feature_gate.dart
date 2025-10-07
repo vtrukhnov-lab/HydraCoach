@@ -11,7 +11,7 @@ class ProFeatureGate extends StatelessWidget {
   final bool showLockOverlay; // Показывать оверлей с замком
   final bool allowTap; // Разрешить тап для открытия пейвола
   final String? customMessage; // Кастомное сообщение
-  
+
   const ProFeatureGate({
     super.key,
     required this.feature,
@@ -20,19 +20,19 @@ class ProFeatureGate extends StatelessWidget {
     this.allowTap = true,
     this.customMessage,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Consumer<SubscriptionProvider>(
       builder: (context, subscriptionProvider, _) {
         final featureGate = FeatureGateService.instance;
         final isAvailable = featureGate.isFeatureAvailable(feature);
-        
+
         if (isAvailable) {
           // Функция доступна - показываем контент как есть
           return child;
         }
-        
+
         // Функция недоступна - показываем с блокировкой
         return GestureDetector(
           onTap: allowTap ? () => _showPaywall(context) : null,
@@ -46,7 +46,7 @@ class ProFeatureGate extends StatelessWidget {
                   child: child,
                 ),
               ),
-              
+
               // Оверлей с замком
               if (showLockOverlay)
                 Positioned.fill(
@@ -57,7 +57,7 @@ class ProFeatureGate extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.3),
+                          Colors.black.withValues(alpha: 0.3),
                         ],
                       ),
                     ),
@@ -78,7 +78,7 @@ class ProFeatureGate extends StatelessWidget {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.orange.withOpacity(0.3),
+                                  color: Colors.orange.withValues(alpha: 0.3),
                                   blurRadius: 20,
                                   spreadRadius: 5,
                                 ),
@@ -90,36 +90,40 @@ class ProFeatureGate extends StatelessWidget {
                               size: 30,
                             ),
                           ),
-                          
+
                           const SizedBox(height: 16),
-                          
+
                           // Название функции
                           Text(
                             'PRO функция',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                           ),
-                          
+
                           const SizedBox(height: 8),
-                          
+
                           // Описание функции
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 32),
                             child: Text(
-                              customMessage ?? 
-                              FeatureGateService.getFeatureDescription(feature),
+                              customMessage ??
+                                  FeatureGateService.getFeatureDescription(
+                                    feature,
+                                  ),
                               textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Colors.white.withOpacity(0.9),
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(
+                                    color: Colors.white.withValues(alpha: 0.9),
+                                  ),
                             ),
                           ),
-                          
+
                           if (allowTap) ...[
                             const SizedBox(height: 16),
-                            
+
                             // Кнопка разблокировки
                             ElevatedButton(
                               onPressed: () => _showPaywall(context),
@@ -148,7 +152,7 @@ class ProFeatureGate extends StatelessWidget {
       },
     );
   }
-  
+
   void _showPaywall(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -167,38 +171,33 @@ class ProFeatureTeaser extends StatelessWidget {
   final AppFeature feature;
   final Widget child;
   final bool showBadge;
-  
+
   const ProFeatureTeaser({
     super.key,
     required this.feature,
     required this.child,
     this.showBadge = true,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Consumer<SubscriptionProvider>(
       builder: (context, subscriptionProvider, _) {
         final featureGate = FeatureGateService.instance;
         final isAvailable = featureGate.isFeatureAvailable(feature);
-        
+
         if (isAvailable) {
           // PRO пользователь - показываем без badge
           return child;
         }
-        
+
         // FREE пользователь - показываем с PRO badge
         return Stack(
           clipBehavior: Clip.none,
           children: [
             child,
-            
-            if (showBadge)
-              Positioned(
-                top: -8,
-                right: -8,
-                child: _ProBadge(),
-              ),
+
+            if (showBadge) Positioned(top: -8, right: -8, child: _ProBadge()),
           ],
         );
       },
@@ -223,7 +222,7 @@ class _ProBadge extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.orange.withOpacity(0.3),
+              color: Colors.orange.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -241,14 +240,12 @@ class _ProBadge extends StatelessWidget {
       ),
     );
   }
-  
+
   void _showPaywall(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => PaywallScreen(
-          showCloseButton: true,
-          source: 'pro_badge',
-        ),
+        builder: (context) =>
+            PaywallScreen(showCloseButton: true, source: 'pro_badge'),
         fullscreenDialog: true,
       ),
     );
@@ -259,18 +256,14 @@ class _ProBadge extends StatelessWidget {
 class ProFeatureCard extends StatelessWidget {
   final AppFeature feature;
   final VoidCallback? onUnlock;
-  
-  const ProFeatureCard({
-    super.key,
-    required this.feature,
-    this.onUnlock,
-  });
-  
+
+  const ProFeatureCard({super.key, required this.feature, this.onUnlock});
+
   @override
   Widget build(BuildContext context) {
     final description = FeatureGateService.getFeatureDescription(feature);
     final icon = FeatureGateService.getFeatureIcon(feature);
-    
+
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -285,8 +278,8 @@ class ProFeatureCard extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                const Color(0xFFFFD700).withOpacity(0.1),
-                const Color(0xFFFFA500).withOpacity(0.05),
+                const Color(0xFFFFD700).withValues(alpha: 0.1),
+                const Color(0xFFFFA500).withValues(alpha: 0.05),
               ],
             ),
           ),
@@ -304,15 +297,11 @@ class ProFeatureCard extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 24,
-                ),
+                child: Icon(icon, color: Colors.white, size: 24),
               ),
-              
+
               const SizedBox(width: 16),
-              
+
               // Описание
               Expanded(
                 child: Column(
@@ -323,9 +312,8 @@ class ProFeatureCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             description,
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -355,18 +343,22 @@ class ProFeatureCard extends StatelessWidget {
                     Text(
                       'Нажмите для разблокировки',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.6),
+                        color: Theme.of(
+                          context,
+                        ).textTheme.bodySmall?.color?.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
                 ),
               ),
-              
+
               // Стрелка
               Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
-                color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.3),
+                color: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.color?.withValues(alpha: 0.3),
               ),
             ],
           ),
@@ -374,7 +366,7 @@ class ProFeatureCard extends StatelessWidget {
       ),
     );
   }
-  
+
   void _showPaywall(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -391,16 +383,13 @@ class ProFeatureCard extends StatelessWidget {
 /// Список PRO функций для отображения в настройках или пейволе
 class ProFeaturesList extends StatelessWidget {
   final String? highlightGroup;
-  
-  const ProFeaturesList({
-    super.key,
-    this.highlightGroup,
-  });
-  
+
+  const ProFeaturesList({super.key, this.highlightGroup});
+
   @override
   Widget build(BuildContext context) {
     final groups = FeatureGateService.getProFeatureGroups();
-    
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -409,7 +398,7 @@ class ProFeaturesList extends StatelessWidget {
         final groupName = groups.keys.elementAt(index);
         final features = groups[groupName]!;
         final isHighlighted = highlightGroup == groupName;
-        
+
         return Container(
           margin: const EdgeInsets.only(bottom: 24),
           child: Column(
@@ -417,7 +406,10 @@ class ProFeaturesList extends StatelessWidget {
             children: [
               // Заголовок группы
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Row(
                   children: [
                     Text(
@@ -430,7 +422,10 @@ class ProFeaturesList extends StatelessWidget {
                     if (isHighlighted) ...[
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFD700),
                           borderRadius: BorderRadius.circular(12),
@@ -448,12 +443,14 @@ class ProFeaturesList extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Список функций в группе
-              ...features.map((feature) => _FeatureListTile(
-                feature: feature,
-                isHighlighted: isHighlighted,
-              )),
+              ...features.map(
+                (feature) => _FeatureListTile(
+                  feature: feature,
+                  isHighlighted: isHighlighted,
+                ),
+              ),
             ],
           ),
         );
@@ -466,35 +463,32 @@ class ProFeaturesList extends StatelessWidget {
 class _FeatureListTile extends StatelessWidget {
   final AppFeature feature;
   final bool isHighlighted;
-  
-  const _FeatureListTile({
-    required this.feature,
-    this.isHighlighted = false,
-  });
-  
+
+  const _FeatureListTile({required this.feature, this.isHighlighted = false});
+
   @override
   Widget build(BuildContext context) {
     final description = FeatureGateService.getFeatureDescription(feature);
     final icon = FeatureGateService.getFeatureIcon(feature);
     final featureGate = FeatureGateService.instance;
     final isAvailable = featureGate.isFeatureAvailable(feature);
-    
+
     return ListTile(
       leading: Container(
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: isAvailable 
-            ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-            : Colors.grey.withOpacity(0.1),
+          color: isAvailable
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+              : Colors.grey.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(
           icon,
           size: 20,
           color: isAvailable
-            ? Theme.of(context).colorScheme.primary
-            : Colors.grey,
+              ? Theme.of(context).colorScheme.primary
+              : Colors.grey,
         ),
       ),
       title: Text(
@@ -506,16 +500,16 @@ class _FeatureListTile extends StatelessWidget {
         ),
       ),
       trailing: isAvailable
-        ? Icon(
-            Icons.check_circle,
-            color: Theme.of(context).colorScheme.primary,
-            size: 20,
-          )
-        : Icon(
-            Icons.lock,
-            color: Colors.grey.withOpacity(0.5),
-            size: 18,
-          ),
+          ? Icon(
+              Icons.check_circle,
+              color: Theme.of(context).colorScheme.primary,
+              size: 20,
+            )
+          : Icon(
+              Icons.lock,
+              color: Colors.grey.withValues(alpha: 0.5),
+              size: 18,
+            ),
       dense: true,
     );
   }

@@ -250,9 +250,6 @@ class ElectrolyteItems {
 
   // Получить все элементы
   static List<CatalogItem> getAllItems() {
-    return [
-      ...getBasicElectrolytes(),
-      ...getElectrolyteMixes(),
-    ];
+    return [...getBasicElectrolytes(), ...getElectrolyteMixes()];
   }
 }

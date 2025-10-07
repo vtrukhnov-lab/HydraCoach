@@ -29,8 +29,12 @@ class FastFoodItems {
       icon: '🍔',
       properties: {
         'type': 'fast_food',
-        'defaultWeight': {'metric': 150, 'imperial': 5.3}, // g/oz (medium burger)
-        'waterPercentage': 0.15, // 15% water - фастфуд обезвоживает, не увлажняет
+        'defaultWeight': {
+          'metric': 150,
+          'imperial': 5.3,
+        }, // g/oz (medium burger)
+        'waterPercentage':
+            0.15, // 15% water - фастфуд обезвоживает, не увлажняет
         'caloriesPer100g': 295,
         'sugarPer100g': 8.5, // Больше сахара из булочки и соуса Big Mac
         'sodium': 396, // Высокое содержание натрия
@@ -69,7 +73,10 @@ class FastFoodItems {
       icon: '🍟',
       properties: {
         'type': 'fast_food',
-        'defaultWeight': {'metric': 85, 'imperial': 3.0}, // g/oz (medium serving)
+        'defaultWeight': {
+          'metric': 85,
+          'imperial': 3.0,
+        }, // g/oz (medium serving)
         'waterPercentage': 0.35, // 35% water - низкое содержание
         'caloriesPer100g': 365, // Очень калорийные!
         'sugarPer100g': 0.3,
@@ -91,7 +98,10 @@ class FastFoodItems {
       icon: '🌭',
       properties: {
         'type': 'fast_food',
-        'defaultWeight': {'metric': 98, 'imperial': 3.5}, // g/oz (1 hot dog with bun)
+        'defaultWeight': {
+          'metric': 98,
+          'imperial': 3.5,
+        }, // g/oz (1 hot dog with bun)
         'waterPercentage': 0.53, // 53% water
         'caloriesPer100g': 290,
         'sugarPer100g': 4.0,
@@ -241,12 +251,12 @@ class FastFoodItems {
     return getAllItems().where((item) {
       final id = item.id;
       return id.contains('burger') ||
-             id.contains('pizza') ||
-             id.contains('hot_dog') ||
-             id.contains('taco') ||
-             id.contains('sandwich') ||
-             id.contains('doner') ||
-             id.contains('shawarma');
+          id.contains('pizza') ||
+          id.contains('hot_dog') ||
+          id.contains('taco') ||
+          id.contains('sandwich') ||
+          id.contains('doner') ||
+          id.contains('shawarma');
     }).toList();
   }
 
@@ -301,7 +311,9 @@ class FastFoodItems {
 
     // Расчет дополнительной воды на основе натрия и низкого содержания воды
     final sodiumFactor = (sodium / 100).round(); // мл на каждые 100мг натрия
-    final dehydrationFactor = waterPercentage < 0.5 ? 100 : 50; // мл за низкую гидратацию
+    final dehydrationFactor = waterPercentage < 0.5
+        ? 100
+        : 50; // мл за низкую гидратацию
 
     return (sodiumFactor + dehydrationFactor).round();
   }

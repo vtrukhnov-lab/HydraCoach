@@ -4,6 +4,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'dart:async';
 import 'analytics_service.dart';
 import 'devtodev_analytics_service.dart';
+import 'package:hydracoach/utils/app_logger.dart';
 
 /*
 🧪 НАСТРОЙКА ТЕСТОВЫХ ПОКУПОК В GOOGLE PLAY CONSOLE:
@@ -54,7 +55,7 @@ class StoreProduct {
   final String description;
   final double price;
   final String priceString;
-  
+
   StoreProduct({
     required this.identifier,
     required this.title,
@@ -66,7 +67,8 @@ class StoreProduct {
 
 class SubscriptionService extends ChangeNotifier {
   static SubscriptionService? _instance;
-  static SubscriptionService get instance => _instance ??= SubscriptionService._();
+  static SubscriptionService get instance =>
+      _instance ??= SubscriptionService._();
 
   SubscriptionService._();
 
@@ -77,7 +79,8 @@ class SubscriptionService extends ChangeNotifier {
 
   // Google Play subscription product IDs
   static const String _yearlyProductId = 'hydracoach_pro_yearly';
-  static const String _yearlyNoTrialProductId = 'hydracoach_pro_yearly_no_trial';
+  static const String _yearlyNoTrialProductId =
+      'hydracoach_pro_yearly_no_trial';
   static const String _monthlyProductId = 'hydracoach_pro_monthly';
 
   // Google Play one-time purchase (lifetime)
@@ -107,7 +110,8 @@ class SubscriptionService extends ChangeNotifier {
     SubscriptionProduct(
       identifier: 'hydracoach_pro_yearly',
       title: 'HydraCoach PRO — Годовая',
-      description: 'Все PRO функции, включая продвинутые напоминания и алкогольные протоколы',
+      description:
+          'Все PRO функции, включая продвинутые напоминания и алкогольные протоколы',
       priceText: '2 290 ₽ / год',
       billingPeriod: Duration(days: 365),
     ),
@@ -137,25 +141,49 @@ class SubscriptionService extends ChangeNotifier {
   ProductDetails? get yearlyProduct {
     final products = _products.where((p) => p.id == _yearlyProductId);
     // Prefer non-free products to handle Google Play test products
-    return products.where((p) => p.price != 'Free' && !p.price.toLowerCase().contains('free')).firstOrNull ?? products.firstOrNull;
+    return products
+            .where(
+              (p) =>
+                  p.price != 'Free' && !p.price.toLowerCase().contains('free'),
+            )
+            .firstOrNull ??
+        products.firstOrNull;
   }
 
   ProductDetails? get yearlyNoTrialProduct {
     final products = _products.where((p) => p.id == _yearlyNoTrialProductId);
     // Prefer non-free products to handle Google Play test products
-    return products.where((p) => p.price != 'Free' && !p.price.toLowerCase().contains('free')).firstOrNull ?? products.firstOrNull;
+    return products
+            .where(
+              (p) =>
+                  p.price != 'Free' && !p.price.toLowerCase().contains('free'),
+            )
+            .firstOrNull ??
+        products.firstOrNull;
   }
 
   ProductDetails? get monthlyProduct {
     final products = _products.where((p) => p.id == _monthlyProductId);
     // Prefer non-free products to handle Google Play test products
-    return products.where((p) => p.price != 'Free' && !p.price.toLowerCase().contains('free')).firstOrNull ?? products.firstOrNull;
+    return products
+            .where(
+              (p) =>
+                  p.price != 'Free' && !p.price.toLowerCase().contains('free'),
+            )
+            .firstOrNull ??
+        products.firstOrNull;
   }
 
   ProductDetails? get lifetimeProduct {
     final products = _products.where((p) => p.id == _lifetimeProductId);
     // Prefer non-free products to handle Google Play test products
-    return products.where((p) => p.price != 'Free' && !p.price.toLowerCase().contains('free')).firstOrNull ?? products.firstOrNull;
+    return products
+            .where(
+              (p) =>
+                  p.price != 'Free' && !p.price.toLowerCase().contains('free'),
+            )
+            .firstOrNull ??
+        products.firstOrNull;
   }
 
   /// Проверяет, является ли текущий пользователь тестовым
@@ -187,7 +215,7 @@ class SubscriptionService extends ChangeNotifier {
     if (!isAvailable) {
       // RELEASE: Debug mode disabled
       if (false) {
-        print('❌ In-app purchases not available');
+        logger.e('❌ In-app purchases not available');
       }
       _isInitialized = true;
       return;
@@ -199,8 +227,8 @@ class SubscriptionService extends ChangeNotifier {
       onDone: () => _subscription.cancel(),
       onError: (error) {
         // RELEASE: Debug mode disabled
-      if (false) {
-          print('❌ Purchase stream error: $error');
+        if (false) {
+          logger.e('❌ Purchase stream error: $error');
         }
       },
     );
@@ -212,9 +240,9 @@ class SubscriptionService extends ChangeNotifier {
 
     // RELEASE: Debug mode disabled
     if (false) {
-      print('✅ SubscriptionService initialized');
-      print('🔒 PRO status: $_isPro');
-      print('📦 Products loaded: ${_products.length}');
+      logger.i('✅ SubscriptionService initialized');
+      logger.i('🔒 PRO status: $_isPro');
+      logger.i('📦 Products loaded: ${_products.length}');
     }
   }
 
@@ -238,15 +266,17 @@ class SubscriptionService extends ChangeNotifier {
         _isPro = true;
         _isTrial = storedIsTrial;
         // RELEASE: Debug mode disabled
-      if (false) {
-          print('✅ Активная подписка найдена, истекает: ${expiry.toIso8601String()}');
+        if (false) {
+          logger.i(
+            '✅ Активная подписка найдена, истекает: ${expiry.toIso8601String()}',
+          );
         }
         return;
       } else if (expiry != null && DateTime.now().isAfter(expiry)) {
         // Подписка истекла — чистим флаги
         // RELEASE: Debug mode disabled
-      if (false) {
-          print('⏰ Подписка истекла: ${expiry.toIso8601String()}');
+        if (false) {
+          logger.i('⏰ Подписка истекла: ${expiry.toIso8601String()}');
         }
         await prefs.remove(_isProKey);
         await prefs.remove(_proExpiresAtKey);
@@ -259,8 +289,8 @@ class SubscriptionService extends ChangeNotifier {
         _isPro = true;
         _isTrial = false;
         // RELEASE: Debug mode disabled
-      if (false) {
-          print('✅ Legacy подписка без даты истечения');
+        if (false) {
+          logger.i('✅ Legacy подписка без даты истечения');
         }
         return;
       }
@@ -274,13 +304,19 @@ class SubscriptionService extends ChangeNotifier {
   /// Загрузка продуктов подписки из Google Play
   Future<void> _loadProducts() async {
     try {
-      final Set<String> productIds = {_yearlyProductId, _yearlyNoTrialProductId, _monthlyProductId, _lifetimeProductId};
-      final ProductDetailsResponse response = await _inAppPurchase.queryProductDetails(productIds);
+      final Set<String> productIds = {
+        _yearlyProductId,
+        _yearlyNoTrialProductId,
+        _monthlyProductId,
+        _lifetimeProductId,
+      };
+      final ProductDetailsResponse response = await _inAppPurchase
+          .queryProductDetails(productIds);
 
       if (response.error != null) {
         // RELEASE: Debug mode disabled
-      if (false) {
-          print('❌ Failed to load products: ${response.error}');
+        if (false) {
+          logger.e('❌ Failed to load products: ${response.error}');
         }
         return;
       }
@@ -289,15 +325,15 @@ class SubscriptionService extends ChangeNotifier {
 
       // RELEASE: Debug mode disabled
       if (false) {
-        print('📦 Loaded ${_products.length} products:');
+        logger.i('📦 Loaded ${_products.length} products:');
         for (final product in _products) {
-          print('   - ${product.id}: ${product.price}');
+          logger.i('   - ${product.id}: ${product.price}');
         }
       }
     } catch (e) {
       // RELEASE: Debug mode disabled
       if (false) {
-        print('❌ Error loading products: $e');
+        logger.e('❌ Error loading products: $e');
       }
     }
   }
@@ -311,7 +347,8 @@ class SubscriptionService extends ChangeNotifier {
 
   /// Обработка конкретной покупки
   Future<void> _handlePurchase(PurchaseDetails purchaseDetails) async {
-    if (purchaseDetails.status == PurchaseStatus.purchased || purchaseDetails.status == PurchaseStatus.restored) {
+    if (purchaseDetails.status == PurchaseStatus.purchased ||
+        purchaseDetails.status == PurchaseStatus.restored) {
       // Покупка успешна - активируем PRO
       final product = _products.firstWhere(
         (p) => p.id == purchaseDetails.productID,
@@ -322,7 +359,8 @@ class SubscriptionService extends ChangeNotifier {
       if (purchaseDetails.productID == _lifetimeProductId) {
         // Lifetime покупка - никогда не истекает (100 лет)
         billingPeriod = const Duration(days: 36500);
-      } else if (purchaseDetails.productID == _yearlyProductId || purchaseDetails.productID == _yearlyNoTrialProductId) {
+      } else if (purchaseDetails.productID == _yearlyProductId ||
+          purchaseDetails.productID == _yearlyNoTrialProductId) {
         billingPeriod = const Duration(days: 365);
       } else {
         billingPeriod = const Duration(days: 30);
@@ -368,34 +406,44 @@ class SubscriptionService extends ChangeNotifier {
 
           // 📊 Отправляем событие платежа в DevToDev
           await _devToDev.subscriptionPayment(
-            orderId: purchaseDetails.purchaseID ?? DateTime.now().millisecondsSinceEpoch.toString(),
+            orderId:
+                purchaseDetails.purchaseID ??
+                DateTime.now().millisecondsSinceEpoch.toString(),
             price: price,
             productId: purchaseDetails.productID,
             currencyCode: currency,
           );
 
           if (kDebugMode) {
-            print('💰 Subscription purchased: ${purchaseDetails.productID}');
-            print('   Purchase Connector отправит S2S событие: af_ars_sandbox_s2s');
-            print('   SDK событие af_subscribe НЕ отправляется (избегаем дублирования)');
-            print('📊 DevToDev: subscriptionPayment отправлено (${purchaseDetails.productID}, $price $currency)');
+            logger.i('💰 Subscription purchased: ${purchaseDetails.productID}');
+            logger.i(
+              '   Purchase Connector отправит S2S событие: af_ars_sandbox_s2s',
+            );
+            logger.i(
+              '   SDK событие af_subscribe НЕ отправляется (избегаем дублирования)',
+            );
+            logger.i(
+              '📊 DevToDev: subscriptionPayment отправлено (${purchaseDetails.productID}, $price $currency)',
+            );
           }
         } catch (e) {
           if (kDebugMode) {
-            print('⚠️ Ошибка отправки события подписки: $e');
+            logger.w('⚠️ Ошибка отправки события подписки: $e');
           }
         }
       }
 
       // RELEASE: Debug mode disabled
       if (true) {
-        final action = purchaseDetails.status == PurchaseStatus.restored ? 'restored' : 'completed';
-        print('✅ Purchase $action: ${purchaseDetails.productID}');
+        final action = purchaseDetails.status == PurchaseStatus.restored
+            ? 'restored'
+            : 'completed';
+        logger.i('✅ Purchase $action: ${purchaseDetails.productID}');
       }
     } else if (purchaseDetails.status == PurchaseStatus.error) {
       // RELEASE: Debug mode disabled
       if (false) {
-        print('❌ Purchase failed: ${purchaseDetails.error}');
+        logger.e('❌ Purchase failed: ${purchaseDetails.error}');
       }
     }
 
@@ -429,28 +477,34 @@ class SubscriptionService extends ChangeNotifier {
     }
 
     // Находим продукт
-    print('🔍 Looking for product: $productId');
-    print('🔍 Available products: ${_products.map((p) => p.id).join(', ')}');
-    final ProductDetails? product = _products.where((p) => p.id == productId).firstOrNull;
+    logger.d('🔍 Looking for product: $productId');
+    logger.d('🔍 Available products: ${_products.map((p) => p.id).join(', ')}');
+    final ProductDetails? product = _products
+        .where((p) => p.id == productId)
+        .firstOrNull;
     if (product == null) {
-      print('❌ Product not found: $productId');
+      logger.e('❌ Product not found: $productId');
       throw Exception('Product not found: $productId');
     }
 
     try {
       // Временно включаем логирование для отладки
-      print('🛍️ Starting purchase for: ${product.id}');
-      print('💰 Price: ${product.price}');
+      logger.i('🛍️ Starting purchase for: ${product.id}');
+      logger.i('💰 Price: ${product.price}');
 
       // Создаем параметры покупки
-      final PurchaseParam purchaseParam = PurchaseParam(productDetails: product);
+      final PurchaseParam purchaseParam = PurchaseParam(
+        productDetails: product,
+      );
 
       // Инициируем покупку
-      final bool purchaseResult = await _inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam);
+      final bool purchaseResult = await _inAppPurchase.buyNonConsumable(
+        purchaseParam: purchaseParam,
+      );
 
       // RELEASE: Debug mode disabled
       if (false) {
-        print('🔄 Purchase initiated: $purchaseResult');
+        logger.i('🔄 Purchase initiated: $purchaseResult');
       }
 
       // Возвращаем false - реальный результат придет через purchaseStream
@@ -459,7 +513,7 @@ class SubscriptionService extends ChangeNotifier {
     } catch (e) {
       // RELEASE: Debug mode disabled
       if (false) {
-        print('❌ Purchase error: $e');
+        logger.e('❌ Purchase error: $e');
       }
       rethrow;
     }
@@ -474,15 +528,16 @@ class SubscriptionService extends ChangeNotifier {
     try {
       // RELEASE: Debug mode disabled
       if (true) {
-        print('🔄 Starting restore purchases...');
-        print('🔄 Current PRO status before restore: $_isPro');
+        logger.i('🔄 Starting restore purchases...');
+        logger.i('🔄 Current PRO status before restore: $_isPro');
       }
 
       // DEBUG: Симуляция successful restore для тестирования без реальных покупок
-      if (kDebugMode && false) { // Включи `true` для тестирования
-        print('🧪 DEBUG: Simulating successful restore...');
+      if (kDebugMode && false) {
+        // Включи `true` для тестирования
+        logger.d('🧪 DEBUG: Simulating successful restore...');
         await _activatePro(const Duration(days: 365), isTrial: false);
-        print('✅ DEBUG: Simulated restore completed. PRO status: $_isPro');
+        logger.i('✅ DEBUG: Simulated restore completed. PRO status: $_isPro');
         return true;
       }
 
@@ -491,7 +546,9 @@ class SubscriptionService extends ChangeNotifier {
 
       // RELEASE: Debug mode disabled
       if (true) {
-        print('🔄 restorePurchases() called, waiting for purchaseStream updates...');
+        logger.i(
+          '🔄 restorePurchases() called, waiting for purchaseStream updates...',
+        );
       }
 
       // Ждем немного чтобы purchaseStream успел обработать восстановленные покупки
@@ -502,21 +559,24 @@ class SubscriptionService extends ChangeNotifier {
 
       // RELEASE: Debug mode disabled
       if (true) {
-        print('✅ Restore completed. PRO status: $_isPro');
+        logger.i('✅ Restore completed. PRO status: $_isPro');
       }
 
       return _isPro;
     } catch (e) {
       // RELEASE: Debug mode disabled
       if (false) {
-        print('❌ Restore error: $e');
+        logger.e('❌ Restore error: $e');
       }
       rethrow;
     }
   }
 
   /// Обновление статуса подписки
-  Future<void> _activatePro(Duration billingPeriod, {bool isTrial = false}) async {
+  Future<void> _activatePro(
+    Duration billingPeriod, {
+    bool isTrial = false,
+  }) async {
     _isPro = true;
     _isTrial = isTrial;
 
@@ -534,8 +594,8 @@ class SubscriptionService extends ChangeNotifier {
 
     // RELEASE: Debug mode disabled
     if (false) {
-      print('✅ PRO активирован до: ${expiryDate.toIso8601String()}');
-      print('   Trial: $isTrial');
+      logger.i('✅ PRO активирован до: ${expiryDate.toIso8601String()}');
+      logger.i('   Trial: $isTrial');
     }
 
     // Уведомляем слушателей об изменении статуса подписки
@@ -559,14 +619,14 @@ class SubscriptionService extends ChangeNotifier {
 
       // RELEASE: Debug mode disabled
       if (false) {
-        print('🎯 7-дневный пробный период начат!');
+        logger.i('🎯 7-дневный пробный период начат!');
       }
 
       return true;
     } catch (e) {
       // RELEASE: Debug mode disabled
       if (false) {
-        print('❌ Ошибка запуска пробного периода: $e');
+        logger.e('❌ Ошибка запуска пробного периода: $e');
       }
       return false;
     }
@@ -636,10 +696,7 @@ class SubscriptionService extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final expiryIso = prefs.getString(_proExpiresAtKey);
 
-    return {
-      'isPro': _isPro,
-      'expiresAt': expiryIso,
-    };
+    return {'isPro': _isPro, 'expiresAt': expiryIso};
   }
 
   /// Принудительное обнуление PRO статуса (удобно для тестов)
@@ -712,7 +769,7 @@ class SubscriptionProvider extends ChangeNotifier {
     } catch (e) {
       // RELEASE: Debug mode disabled
       if (false) {
-        print('❌ Ошибка загрузки продуктов: $e');
+        logger.e('❌ Ошибка загрузки продуктов: $e');
       }
     }
   }

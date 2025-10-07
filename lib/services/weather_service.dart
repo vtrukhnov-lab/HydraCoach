@@ -13,7 +13,8 @@ import 'package:hydracoach/services/remote_config_service.dart';
 
 class WeatherService extends ChangeNotifier {
   // OpenWeatherMap
-  static const String baseUrl = 'https://api.openweathermap.org/data/2.5/weather';
+  static const String baseUrl =
+      'https://api.openweathermap.org/data/2.5/weather';
 
   // 🔐 API ключ загружается из Firebase Remote Config для безопасности
   // Можно изменить без релиза через Firebase Console
@@ -46,7 +47,9 @@ class WeatherService extends ChangeNotifier {
         final cachedData = json.decode(cachedWeatherJson);
         _currentWeather = WeatherData.fromJson(cachedData);
         _heatIndex = _currentWeather?.heatIndex;
-        debugPrint('🌡️ Loaded cached weather: temp=${_currentWeather?.temperature}°C, heatIndex=${_heatIndex}');
+        debugPrint(
+          '🌡️ Loaded cached weather: temp=${_currentWeather?.temperature}°C, heatIndex=${_heatIndex}',
+        );
         notifyListeners();
       }
     } catch (e) {
@@ -73,7 +76,9 @@ class WeatherService extends ChangeNotifier {
         // Cache weather data for consistent HRI calculation
         await _cacheWeatherData(weather);
 
-        debugPrint('🌡️ Weather loaded: temp=${weather.temperature}°C, heatIndex=${weather.heatIndex}');
+        debugPrint(
+          '🌡️ Weather loaded: temp=${weather.temperature}°C, heatIndex=${weather.heatIndex}',
+        );
         notifyListeners();
       } else {
         debugPrint('🌡️ Weather failed to load');
@@ -118,17 +123,20 @@ class WeatherService extends ChangeNotifier {
       if (kDebugMode) debugPrint('Got location: $lat, $lon');
 
       // Получаем API ключ из Remote Config
-      final apiKeyValue = RemoteConfigService.instance.getOpenWeatherMapApiKey();
+      final apiKeyValue = RemoteConfigService.instance
+          .getOpenWeatherMapApiKey();
 
       // Берём язык "en", чтобы описания были предсказуемыми
       final url = Uri.parse(
         '$baseUrl?lat=$lat&lon=$lon&appid=$apiKeyValue&units=metric&lang=en',
       );
 
-      final response = await http.get(url).timeout(
-        const Duration(seconds: 12),
-        onTimeout: () => throw Exception('Timeout'),
-      );
+      final response = await http
+          .get(url)
+          .timeout(
+            const Duration(seconds: 12),
+            onTimeout: () => throw Exception('Timeout'),
+          );
 
       if (response.statusCode != 200) {
         if (kDebugMode) {
@@ -143,7 +151,9 @@ class WeatherService extends ChangeNotifier {
       final humidity = (data['main']?['humidity'] as num?)?.toDouble() ?? 0.0;
       final heatIndex = _calculateHeatIndex(temp, humidity);
 
-      final weatherList = (data['weather'] is List) ? data['weather'] as List : const [];
+      final weatherList = (data['weather'] is List)
+          ? data['weather'] as List
+          : const [];
       final mainWeather = weatherList.isNotEmpty
           ? (weatherList[0]['main']?.toString().toLowerCase() ?? 'clear')
           : 'clear';
@@ -192,7 +202,9 @@ class WeatherService extends ChangeNotifier {
             descKey = 'storm';
           } else if (apiDesc.contains('snow')) {
             descKey = 'snow';
-          } else if (apiDesc.contains('fog') || apiDesc.contains('mist') || apiDesc.contains('haze')) {
+          } else if (apiDesc.contains('fog') ||
+              apiDesc.contains('mist') ||
+              apiDesc.contains('haze')) {
             descKey = 'fog';
           } else {
             descKey = 'clear';
@@ -223,7 +235,10 @@ class WeatherService extends ChangeNotifier {
       await prefs.setDouble('lastHeatIndex', heatIndex);
       await prefs.setString('lastCity', weather.city);
       await prefs.setString('lastDescription', descKey);
-      await prefs.setString('lastWeatherTime', DateTime.now().toIso8601String());
+      await prefs.setString(
+        'lastWeatherTime',
+        DateTime.now().toIso8601String(),
+      );
 
       return weather;
     } catch (e) {
@@ -274,7 +289,9 @@ class WeatherService extends ChangeNotifier {
         timeLimit: const Duration(seconds: 10),
       );
       if (kDebugMode) {
-        debugPrint('Successfully got position: ${position.latitude}, ${position.longitude}');
+        debugPrint(
+          'Successfully got position: ${position.latitude}, ${position.longitude}',
+        );
       }
       return position;
     } catch (e) {
@@ -292,7 +309,8 @@ class WeatherService extends ChangeNotifier {
       return tempC;
     }
 
-    final hiF = -42.379 +
+    final hiF =
+        -42.379 +
         2.04901523 * tempF +
         10.14333127 * humidity -
         0.22475541 * tempF * humidity -
@@ -314,7 +332,8 @@ class WeatherService extends ChangeNotifier {
     final description = prefs.getString('lastDescription') ?? 'clear';
 
     if (temp != null && humidity != null && heatIndex != null) {
-      if (kDebugMode) debugPrint('Loading cached weather with description: $description');
+      if (kDebugMode)
+        debugPrint('Loading cached weather with description: $description');
       return WeatherData(
         temperature: temp,
         humidity: humidity,
@@ -405,6 +424,7 @@ class WeatherData {
   final double temperature;
   final double humidity;
   final double heatIndex;
+
   /// Короткий ключ: clear/cloudy/overcast/rain/drizzle/storm/snow/fog/sunny
   final String description;
   final String city;
@@ -450,13 +470,14 @@ class WeatherData {
     if (key.contains('drizzle')) return l10n.weatherDrizzle;
     if (key.contains('thunder')) return l10n.weatherStorm;
     if (key.contains('snow')) return l10n.weatherSnow;
-    if (key.contains('fog') || key.contains('mist') || key.contains('haze')) return l10n.weatherFog;
+    if (key.contains('fog') || key.contains('mist') || key.contains('haze'))
+      return l10n.weatherFog;
     if (key.contains('sun')) return l10n.weatherSunny;
 
     return description;
   }
 
-// Предупреждение по индексу жары (ключи как в твоём ARB)
+  // Предупреждение по индексу жары (ключи как в твоём ARB)
   String getLocalizedHeatWarning(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
@@ -464,9 +485,9 @@ class WeatherData {
     if (heatIndex <= 10) return l10n.heatWarningCold;
 
     if (heatIndex >= 39) {
-      return l10n.heatWarningVeryHot;   // было Danger/High → используем VeryHot
+      return l10n.heatWarningVeryHot; // было Danger/High → используем VeryHot
     } else if (heatIndex >= 32) {
-      return l10n.heatWarningHot;       // было High → используем Hot
+      return l10n.heatWarningHot; // было High → используем Hot
     } else if (heatIndex >= 27) {
       return l10n.heatWarningElevated;
     } else {

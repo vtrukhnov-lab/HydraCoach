@@ -35,7 +35,7 @@ class ItemsGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -106,24 +106,24 @@ class ItemGridTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         decoration: BoxDecoration(
-          color: isLocked 
-            ? theme.colorScheme.surface.withOpacity(0.5)
-            : theme.colorScheme.surface,
+          color: isLocked
+              ? theme.colorScheme.surface.withValues(alpha: 0.5)
+              : theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isLocked
-              ? theme.colorScheme.outline.withOpacity(0.1)
-              : theme.colorScheme.outline.withOpacity(0.2),
+                ? theme.colorScheme.outline.withValues(alpha: 0.1)
+                : theme.colorScheme.outline.withValues(alpha: 0.2),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isLocked ? 0.02 : 0.05),
+              color: Colors.black.withValues(alpha: isLocked ? 0.02 : 0.05),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -151,9 +151,9 @@ class ItemGridTile extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: isLocked 
-                          ? theme.colorScheme.onSurface.withOpacity(0.5)
-                          : theme.colorScheme.onSurface,
+                        color: isLocked
+                            ? theme.colorScheme.onSurface.withValues(alpha: 0.5)
+                            : theme.colorScheme.onSurface,
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 2,
@@ -179,11 +179,7 @@ class ItemGridTile extends StatelessWidget {
                     color: Colors.purple.shade600,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.star,
-                    size: 12,
-                    color: Colors.white,
-                  ),
+                  child: const Icon(Icons.star, size: 12, color: Colors.white),
                 ),
               ),
             // Gray overlay for locked items
@@ -191,7 +187,7 @@ class ItemGridTile extends StatelessWidget {
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
@@ -204,27 +200,27 @@ class ItemGridTile extends StatelessWidget {
 
   Widget _buildIndicators(BuildContext context) {
     // Priority order for indicators based on flags
-    
+
     // Alcohol indicators - now returns empty (no indicators for alcohol in grid)
     if (showAlcoholIndicators) {
       return _buildAlcoholIndicators(context);
     }
-    
+
     // Electrolyte indicators
     if (showElectrolyteIndicators) {
       return _buildElectrolyteIndicators();
     }
-    
+
     // Sugar indicator
     if (showSugarIndicators) {
       return _buildSugarIndicator();
     }
-    
+
     // Caffeine indicator
     if (showCaffeineIndicators) {
       return _buildCaffeineIndicator();
     }
-    
+
     // Default: smart detection
     return _buildDefaultInfo(context);
   }
@@ -238,7 +234,7 @@ class ItemGridTile extends StatelessWidget {
   Widget _buildElectrolyteIndicators() {
     final indicators = _getElectrolyteIndicators();
     if (indicators.isEmpty) return const SizedBox.shrink();
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
@@ -259,7 +255,7 @@ class ItemGridTile extends StatelessWidget {
   Widget _buildSugarIndicator() {
     final sugar = (item.properties['sugar'] ?? 0.0) as num;
     if (sugar <= 0.1) return const SizedBox.shrink();
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
@@ -280,16 +276,12 @@ class ItemGridTile extends StatelessWidget {
   Widget _buildCaffeineIndicator() {
     final caffeine = item.properties['caffeine'] as num? ?? 0;
     if (caffeine <= 0) return const SizedBox.shrink();
-    
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          Icons.bolt,
-          size: 10,
-          color: Colors.brown[700],
-        ),
+        Icon(Icons.bolt, size: 10, color: Colors.brown[700]),
         const SizedBox(width: 2),
         Text(
           '${caffeine}mg',
@@ -305,7 +297,7 @@ class ItemGridTile extends StatelessWidget {
 
   Widget _buildDefaultInfo(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     // Check for alcohol content first - but don't show it in grid
     if (item.properties.containsKey('abv')) {
       final abv = item.properties['abv'] as num? ?? 0;
@@ -314,7 +306,7 @@ class ItemGridTile extends StatelessWidget {
         return const SizedBox.shrink();
       }
     }
-    
+
     // Show hydration percentage if available and not 100%
     if (item.properties.containsKey('hydration')) {
       final hydration = (item.properties['hydration'] as num? ?? 1.0) * 100;
@@ -323,12 +315,12 @@ class ItemGridTile extends StatelessWidget {
           '${hydration.toInt()}%',
           style: TextStyle(
             fontSize: 9,
-            color: theme.colorScheme.onSurface.withOpacity(0.6),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         );
       }
     }
-    
+
     // Show caffeine if present
     if (item.properties.containsKey('caffeine')) {
       final caffeine = item.properties['caffeine'] as num? ?? 0;
@@ -336,7 +328,7 @@ class ItemGridTile extends StatelessWidget {
         return _buildCaffeineIndicator();
       }
     }
-    
+
     // Show sugar if significant
     if (item.properties.containsKey('sugar')) {
       final sugar = item.properties['sugar'] as num? ?? 0;
@@ -344,7 +336,7 @@ class ItemGridTile extends StatelessWidget {
         return _buildSugarIndicator();
       }
     }
-    
+
     // Show sodium if significant (for non-electrolyte items)
     if (item.properties.containsKey('sodium')) {
       final sodium = item.properties['sodium'] as num? ?? 0;
@@ -359,21 +351,21 @@ class ItemGridTile extends StatelessWidget {
         );
       }
     }
-    
+
     return const SizedBox.shrink();
   }
 
   String _getElectrolyteIndicators() {
     List<String> indicators = [];
-    
+
     final sodium = (item.properties['sodium'] ?? 0) as num;
     final potassium = (item.properties['potassium'] ?? 0) as num;
     final magnesium = (item.properties['magnesium'] ?? 0) as num;
-    
+
     if (sodium > 0) indicators.add('Na');
     if (potassium > 0) indicators.add('K');
     if (magnesium > 0) indicators.add('Mg');
-    
+
     return indicators.join(' • ');
   }
 

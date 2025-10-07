@@ -84,8 +84,10 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
 
     return CatalogItem(
       id: favorite.id,
-      getName: (l10n) => drinkName,  // Возвращаем сохраненное имя напитка
-      icon: favorite.emoji.isNotEmpty ? favorite.emoji : _getDefaultIcon(favorite.type),
+      getName: (l10n) => drinkName, // Возвращаем сохраненное имя напитка
+      icon: favorite.emoji.isNotEmpty
+          ? favorite.emoji
+          : _getDefaultIcon(favorite.type),
       properties: properties,
       isPro: false,
     );
@@ -94,18 +96,19 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
   // Обработка нажатия на избранное - открываем диалог выбора объема
   Future<void> _handleFavoriteTap(QuickFavorite favorite, int index) async {
     setState(() => _pressedIndex = index);
-    
+
     final units = UnitsService.instance.units;
-    
+
     // Создаем CatalogItem из избранного
     final item = _createCatalogItemFromFavorite(favorite);
-    
+
     // Определяем нужно ли показывать электролиты
-    final showElectrolytes = favorite.type == 'electrolyte' || 
-                            (favorite.sodiumMg != null && favorite.sodiumMg! > 0) ||
-                            (favorite.potassiumMg != null && favorite.potassiumMg! > 0) ||
-                            (favorite.magnesiumMg != null && favorite.magnesiumMg! > 0);
-    
+    final showElectrolytes =
+        favorite.type == 'electrolyte' ||
+        (favorite.sodiumMg != null && favorite.sodiumMg! > 0) ||
+        (favorite.potassiumMg != null && favorite.potassiumMg! > 0) ||
+        (favorite.magnesiumMg != null && favorite.magnesiumMg! > 0);
+
     // Показываем диалог выбора объема для ВСЕХ напитков
     await VolumeSelectionDialog.show(
       context: context,
@@ -124,12 +127,14 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
             content: Text(l10n.alreadyInFavorites),
             duration: const Duration(seconds: 1),
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       },
     );
-    
+
     if (mounted) {
       setState(() => _pressedIndex = null);
     }
@@ -137,13 +142,19 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
 
   // Применяем напиток с выбранным объемом
   Future<void> _applyDrink(QuickFavorite favorite, double volumeMl) async {
-    final hydrationProvider = Provider.of<HydrationProvider>(context, listen: false);
+    final hydrationProvider = Provider.of<HydrationProvider>(
+      context,
+      listen: false,
+    );
     final hriService = Provider.of<HRIService>(context, listen: false);
     final units = Provider.of<UnitsService>(context, listen: false);
 
     if (favorite.type == 'alcohol') {
       // Обработка алкоголя
-      final alcoholService = Provider.of<AlcoholService>(context, listen: false);
+      final alcoholService = Provider.of<AlcoholService>(
+        context,
+        listen: false,
+      );
       final alcoholTypeString = favorite.metadata?['alcoholType'] ?? 'beer';
       final alcoholType = AlcoholType.values.firstWhere(
         (type) => type.key == alcoholTypeString,
@@ -157,8 +168,9 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
         abv: (favorite.metadata?['abv'] ?? 5.0).toDouble(),
       );
       alcoholService.addIntake(intake);
-      
-    } else if (favorite.type == 'coffee' || favorite.type == 'tea' || favorite.type == 'hot') {
+    } else if (favorite.type == 'coffee' ||
+        favorite.type == 'tea' ||
+        favorite.type == 'hot') {
       // Горячие напитки - добавляем как воду
       hydrationProvider.addIntake(
         'water',
@@ -168,7 +180,7 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
         magnesium: 0,
         source: 'favorite_beverage_${favorite.type}',
       );
-      
+
       // Рассчитываем пропорциональный кофеин
       final baseCaffeine = favorite.metadata?['caffeine'] as int?;
       final baseVolume = favorite.volumeMl ?? 250;
@@ -176,15 +188,14 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
         final actualCaffeine = (baseCaffeine * volumeMl / baseVolume).round();
         await hriService.addCaffeineIntake(actualCaffeine.toDouble());
       }
-      
-    } else if (favorite.type == 'electrolyte' || 
-               favorite.sodiumMg != null || 
-               favorite.potassiumMg != null || 
-               favorite.magnesiumMg != null) {
+    } else if (favorite.type == 'electrolyte' ||
+        favorite.sodiumMg != null ||
+        favorite.potassiumMg != null ||
+        favorite.magnesiumMg != null) {
       // Напитки с электролитами - рассчитываем пропорциональные количества
       final baseVolume = favorite.volumeMl ?? 250;
       final multiplier = volumeMl / baseVolume;
-      
+
       hydrationProvider.addIntake(
         favorite.type == 'electrolyte' ? 'electrolyte' : 'water',
         volumeMl.round(),
@@ -212,12 +223,16 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
     final l10n = AppLocalizations.of(context);
     final displayVolume = units.formatVolume(volumeMl.round());
     final drinkName = favorite.metadata?['itemName'] ?? favorite.label;
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+            const Icon(
+              Icons.check_circle_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -251,15 +266,16 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
 
   Future<void> _handleProSlotTap() async {
     HapticFeedback.lightImpact();
-    
+
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (context) => const PaywallScreen(source: 'favorite_beverages_bar'),
-        fullscreenDialog: true
+        builder: (context) =>
+            const PaywallScreen(source: 'favorite_beverages_bar'),
+        fullscreenDialog: true,
       ),
     );
-    
+
     if (result == true && mounted) {
       final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -273,7 +289,9 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
           ),
           backgroundColor: Colors.purple.shade600,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -290,8 +308,10 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
     final isTablet = screenWidth > 600;
 
     // Слушаем изменения PRO статуса
-    final isPro = context.select<SubscriptionProvider, bool>((provider) => provider.isPro);
-    
+    final isPro = context.select<SubscriptionProvider, bool>(
+      (provider) => provider.isPro,
+    );
+
     // Переинициализируем менеджер избранного при изменении PRO статуса
     if (_lastKnownProStatus != isPro) {
       _lastKnownProStatus = isPro;
@@ -307,34 +327,58 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
         ? 120.0 // Фиксированная высота для планшетов
         : screenWidth * 0.28; // ~28% от ширины экрана для телефонов
     final horizontalPadding = isTablet
-        ? screenWidth * 0.05 // 5% от ширины на планшете
+        ? screenWidth *
+              0.05 // 5% от ширины на планшете
         : screenWidth * 0.01; // 1% от ширины на телефоне
     final cardSpacing = isTablet
-        ? screenWidth * 0.02 // 2% между карточками на планшете
+        ? screenWidth *
+              0.02 // 2% между карточками на планшете
         : screenWidth * 0.01; // 1% между карточками на телефоне
-    
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 3),
       child: SizedBox(
         height: cardHeight,
         child: isTablet
-            ? _buildTabletLayout(favorites, isPro, isDarkMode, l10n, cardHeight, cardSpacing)
-            : _buildPhoneLayout(favorites, isPro, isDarkMode, l10n, cardHeight, cardSpacing),
+            ? _buildTabletLayout(
+                favorites,
+                isPro,
+                isDarkMode,
+                l10n,
+                cardHeight,
+                cardSpacing,
+              )
+            : _buildPhoneLayout(
+                favorites,
+                isPro,
+                isDarkMode,
+                l10n,
+                cardHeight,
+                cardSpacing,
+              ),
       ),
     );
   }
 
-  Widget _buildFilledSlot(QuickFavorite favorite, int index, bool isDarkMode, double cardHeight) {
+  Widget _buildFilledSlot(
+    QuickFavorite favorite,
+    int index,
+    bool isDarkMode,
+    double cardHeight,
+  ) {
     final isPressed = _pressedIndex == index;
     final color = _getDrinkColor(favorite.type);
-    final icon = favorite.emoji.isNotEmpty ? favorite.emoji : _getDefaultIcon(favorite.type);
+    final icon = favorite.emoji.isNotEmpty
+        ? favorite.emoji
+        : _getDefaultIcon(favorite.type);
     final drinkName = favorite.metadata?['itemName'] ?? favorite.label;
-    
+
     // Адаптивные размеры на основе высоты карточки
     final iconSize = cardHeight * 0.25; // 25% от высоты карточки
     final textSize = cardHeight * 0.1; // 10% от высоты карточки
     final verticalSpacing = cardHeight * 0.08; // 8% для отступов
-    final horizontalPadding = cardHeight * 0.08; // 8% для горизонтальных отступов
+    final horizontalPadding =
+        cardHeight * 0.08; // 8% для горизонтальных отступов
 
     return AnimatedScale(
       scale: isPressed ? 0.95 : 1.0,
@@ -349,17 +393,24 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
+              colors: [
+                color.withValues(alpha: 0.1),
+                color.withValues(alpha: 0.05),
+              ],
             ),
-            borderRadius: BorderRadius.circular(cardHeight * 0.2), // 20% от высоты
-            border: Border.all(color: color.withOpacity(0.2), width: 1.5),
-            boxShadow: isPressed ? [] : [
-              BoxShadow(
-                color: color.withOpacity(0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
+            borderRadius: BorderRadius.circular(
+              cardHeight * 0.2,
+            ), // 20% от высоты
+            border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5),
+            boxShadow: isPressed
+                ? []
+                : [
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -375,7 +426,7 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
                   style: TextStyle(
                     fontSize: textSize,
                     fontWeight: FontWeight.w600,
-                    color: color.withOpacity(0.9),
+                    color: color.withValues(alpha: 0.9),
                     height: 1.15,
                   ),
                   maxLines: 2,
@@ -390,13 +441,17 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
     );
   }
 
-  Widget _buildEmptySlot(AppLocalizations l10n, bool isDarkMode, double cardHeight) {
+  Widget _buildEmptySlot(
+    AppLocalizations l10n,
+    bool isDarkMode,
+    double cardHeight,
+  ) {
     // Адаптивные размеры
     final iconSize = cardHeight * 0.28; // 28% от высоты карточки
     final textSize = cardHeight * 0.11; // 11% от высоты карточки
     final iconPadding = cardHeight * 0.1; // 10% для padding иконки
     final verticalSpacing = cardHeight * 0.08; // 8% для отступов
-    
+
     return Container(
       height: cardHeight,
       decoration: BoxDecoration(
@@ -404,14 +459,17 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: isDarkMode
-              ? [Colors.grey[850]!.withOpacity(0.5), Colors.grey[900]!.withOpacity(0.3)]
+              ? [
+                  Colors.grey[850]!.withValues(alpha: 0.5),
+                  Colors.grey[900]!.withValues(alpha: 0.3),
+                ]
               : [Colors.grey[50]!, Colors.white],
         ),
         borderRadius: BorderRadius.circular(cardHeight * 0.2),
         border: Border.all(
-          color: isDarkMode 
-              ? Colors.grey[700]!.withOpacity(0.5) 
-              : Colors.grey[300]!.withOpacity(0.8),
+          color: isDarkMode
+              ? Colors.grey[700]!.withValues(alpha: 0.5)
+              : Colors.grey[300]!.withValues(alpha: 0.8),
           width: 1.5,
         ),
       ),
@@ -424,7 +482,9 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
             Container(
               padding: EdgeInsets.all(iconPadding),
               decoration: BoxDecoration(
-                color: isDarkMode ? Colors.grey[800]!.withOpacity(0.5) : Colors.grey[100],
+                color: isDarkMode
+                    ? Colors.grey[800]!.withValues(alpha: 0.5)
+                    : Colors.grey[100],
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -448,15 +508,21 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
     );
   }
 
-  Widget _buildProLockedSlot(bool isDarkMode, AppLocalizations l10n, double cardHeight) {
+  Widget _buildProLockedSlot(
+    bool isDarkMode,
+    AppLocalizations l10n,
+    double cardHeight,
+  ) {
     // Адаптивные размеры
     final iconSize = cardHeight * 0.26; // 26% от высоты карточки
     final badgeTextSize = cardHeight * 0.11; // 11% от высоты карточки
     final iconPadding = cardHeight * 0.08; // 8% для padding иконки
     final verticalSpacing = cardHeight * 0.06; // 6% для отступов
-    final badgePaddingH = cardHeight * 0.12; // 12% горизонтальный padding бейджа
-    final badgePaddingV = cardHeight * 0.035; // 3.5% вертикальный padding бейджа
-    
+    final badgePaddingH =
+        cardHeight * 0.12; // 12% горизонтальный padding бейджа
+    final badgePaddingV =
+        cardHeight * 0.035; // 3.5% вертикальный padding бейджа
+
     return Container(
       height: cardHeight,
       decoration: BoxDecoration(
@@ -464,14 +530,14 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.purple.shade400.withOpacity(0.8),
-            Colors.purple.shade600.withOpacity(0.8),
+            Colors.purple.shade400.withValues(alpha: 0.8),
+            Colors.purple.shade600.withValues(alpha: 0.8),
           ],
         ),
         borderRadius: BorderRadius.circular(cardHeight * 0.2),
         boxShadow: [
           BoxShadow(
-            color: Colors.purple.withOpacity(0.3),
+            color: Colors.purple.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -488,7 +554,7 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
               Container(
                 padding: EdgeInsets.all(iconPadding),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -500,11 +566,11 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
               SizedBox(height: verticalSpacing),
               Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: badgePaddingH, 
-                  vertical: badgePaddingV
+                  horizontal: badgePaddingH,
+                  vertical: badgePaddingV,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(cardHeight * 0.15),
                 ),
                 child: Text(
@@ -528,39 +594,67 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
     if (type == 'alcohol') {
       return '🍺';
     }
-    
+
     switch (type) {
-      case 'water': return '💧';
-      case 'electrolyte': return '⚡';
-      case 'coffee': return '☕';
-      case 'tea': return '🍵';
-      case 'hot': return '☕';
-      case 'broth': return '🍲';
-      case 'juice': return '🧃';
-      case 'milk': return '🥛';
-      case 'soda': return '🥤';
-      default: return '🥤';
+      case 'water':
+        return '💧';
+      case 'electrolyte':
+        return '⚡';
+      case 'coffee':
+        return '☕';
+      case 'tea':
+        return '🍵';
+      case 'hot':
+        return '☕';
+      case 'broth':
+        return '🍲';
+      case 'juice':
+        return '🧃';
+      case 'milk':
+        return '🥛';
+      case 'soda':
+        return '🥤';
+      default:
+        return '🥤';
     }
   }
 
   Color _getDrinkColor(String type) {
     switch (type) {
-      case 'water': return const Color(0xFF4A90E2);
-      case 'electrolyte': return const Color(0xFFFFA502);
-      case 'coffee': return const Color(0xFF8B4513);
-      case 'tea': return const Color(0xFF4CAF50);
-      case 'hot': return const Color(0xFF8B4513);
-      case 'broth': return const Color(0xFFFF6B6B);
-      case 'alcohol': return const Color(0xFFFFB300);
-      case 'juice': return const Color(0xFFFF9800);
-      case 'milk': return const Color(0xFFF5F5DC);
-      case 'soda': return const Color(0xFF9C27B0);
-      default: return Colors.grey;
+      case 'water':
+        return const Color(0xFF4A90E2);
+      case 'electrolyte':
+        return const Color(0xFFFFA502);
+      case 'coffee':
+        return const Color(0xFF8B4513);
+      case 'tea':
+        return const Color(0xFF4CAF50);
+      case 'hot':
+        return const Color(0xFF8B4513);
+      case 'broth':
+        return const Color(0xFFFF6B6B);
+      case 'alcohol':
+        return const Color(0xFFFFB300);
+      case 'juice':
+        return const Color(0xFFFF9800);
+      case 'milk':
+        return const Color(0xFFF5F5DC);
+      case 'soda':
+        return const Color(0xFF9C27B0);
+      default:
+        return Colors.grey;
     }
   }
 
   // Компоновка для телефонов (как было раньше)
-  Widget _buildPhoneLayout(List<QuickFavorite?> favorites, bool isPro, bool isDarkMode, AppLocalizations l10n, double cardHeight, double cardSpacing) {
+  Widget _buildPhoneLayout(
+    List<QuickFavorite?> favorites,
+    bool isPro,
+    bool isDarkMode,
+    AppLocalizations l10n,
+    double cardHeight,
+    double cardSpacing,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: List.generate(3, (index) {
@@ -576,8 +670,8 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
             child: isLocked
                 ? _buildProLockedSlot(isDarkMode, l10n, cardHeight)
                 : favorite != null
-                    ? _buildFilledSlot(favorite, index, isDarkMode, cardHeight)
-                    : _buildEmptySlot(l10n, isDarkMode, cardHeight),
+                ? _buildFilledSlot(favorite, index, isDarkMode, cardHeight)
+                : _buildEmptySlot(l10n, isDarkMode, cardHeight),
           ),
         );
       }),
@@ -585,8 +679,14 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
   }
 
   // Компоновка для планшетов (адаптивная ширина карточек)
-  Widget _buildTabletLayout(List<QuickFavorite?> favorites, bool isPro, bool isDarkMode, AppLocalizations l10n, double cardHeight, double cardSpacing) {
-
+  Widget _buildTabletLayout(
+    List<QuickFavorite?> favorites,
+    bool isPro,
+    bool isDarkMode,
+    AppLocalizations l10n,
+    double cardHeight,
+    double cardSpacing,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: List.generate(3, (index) {
@@ -599,8 +699,8 @@ class _FavoriteBeveragesBarState extends State<FavoriteBeveragesBar> {
             child: isLocked
                 ? _buildProLockedSlot(isDarkMode, l10n, cardHeight)
                 : favorite != null
-                    ? _buildFilledSlot(favorite, index, isDarkMode, cardHeight)
-                    : _buildEmptySlot(l10n, isDarkMode, cardHeight),
+                ? _buildFilledSlot(favorite, index, isDarkMode, cardHeight)
+                : _buildEmptySlot(l10n, isDarkMode, cardHeight),
           ),
         );
       }),

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:hydracoach/utils/app_logger.dart';
 
 import 'appsflyer_config.dart';
 
@@ -29,7 +30,7 @@ class MaxSdkService {
 
     if (!_config!.isComplete) {
       if (kDebugMode) {
-        print('⚠️ MAX SDK ключ не настроен, пропускаем инициализацию');
+        logger.w('MAX SDK ключ не настроен, пропускаем инициализацию');
       }
       return;
     }
@@ -42,18 +43,18 @@ class MaxSdkService {
       _isInitialized = true;
 
       if (kDebugMode) {
-        print('✅ MAX SDK инициализирован');
-        print('   SDK Key: ${_config!.sdkKey}');
+        logger.d('✅ MAX SDK инициализирован');
+        logger.d('   SDK Key: ${_config!.sdkKey}');
       }
     } on MissingPluginException {
       if (kDebugMode) {
-        print('⚠️ MAX SDK нативная реализация не найдена');
-        print('   Убедитесь, что добавили AppLovin MAX SDK на Android/iOS');
+        logger.d('⚠️ MAX SDK нативная реализация не найдена');
+        logger.d('   Убедитесь, что добавили AppLovin MAX SDK на Android/iOS');
       }
     } catch (error, stackTrace) {
       if (kDebugMode) {
-        print('❌ Ошибка инициализации MAX SDK: $error');
-        print(stackTrace);
+        logger.d('❌ Ошибка инициализации MAX SDK: $error');
+        logger.d(stackTrace.toString());
       }
     }
   }
@@ -62,7 +63,7 @@ class MaxSdkService {
   Future<void> loadInterstitial() async {
     if (!_isInitialized) {
       if (kDebugMode) {
-        print('⚠️ MAX SDK не инициализирован');
+        logger.d('⚠️ MAX SDK не инициализирован');
       }
       return;
     }
@@ -74,11 +75,11 @@ class MaxSdkService {
       });
 
       if (kDebugMode) {
-        print('📱 MAX Interstitial загружается: $adUnitId');
+        logger.d('📱 MAX Interstitial загружается: $adUnitId');
       }
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Ошибка загрузки Interstitial: $error');
+        logger.d('❌ Ошибка загрузки Interstitial: $error');
       }
     }
   }
@@ -94,7 +95,7 @@ class MaxSdkService {
       return result ?? false;
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Ошибка показа Interstitial: $error');
+        logger.d('❌ Ошибка показа Interstitial: $error');
       }
       return false;
     }
@@ -108,16 +109,14 @@ class MaxSdkService {
 
     try {
       final adUnitId = _getRewardedAdUnitId();
-      await _channel.invokeMethod<void>('loadRewarded', {
-        'adUnitId': adUnitId,
-      });
+      await _channel.invokeMethod<void>('loadRewarded', {'adUnitId': adUnitId});
 
       if (kDebugMode) {
-        print('💰 MAX Rewarded загружается: $adUnitId');
+        logger.d('💰 MAX Rewarded загружается: $adUnitId');
       }
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Ошибка загрузки Rewarded: $error');
+        logger.d('❌ Ошибка загрузки Rewarded: $error');
       }
     }
   }
@@ -133,7 +132,7 @@ class MaxSdkService {
       return result ?? false;
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Ошибка показа Rewarded: $error');
+        logger.d('❌ Ошибка показа Rewarded: $error');
       }
       return false;
     }
@@ -147,16 +146,14 @@ class MaxSdkService {
 
     try {
       final adUnitId = _getBannerAdUnitId();
-      await _channel.invokeMethod<void>('createBanner', {
-        'adUnitId': adUnitId,
-      });
+      await _channel.invokeMethod<void>('createBanner', {'adUnitId': adUnitId});
 
       if (kDebugMode) {
-        print('📰 MAX Banner создается: $adUnitId');
+        logger.d('📰 MAX Banner создается: $adUnitId');
       }
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Ошибка создания Banner: $error');
+        logger.d('❌ Ошибка создания Banner: $error');
       }
     }
   }
@@ -171,7 +168,7 @@ class MaxSdkService {
       await _channel.invokeMethod<void>('showBanner');
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Ошибка показа Banner: $error');
+        logger.d('❌ Ошибка показа Banner: $error');
       }
     }
   }
@@ -186,7 +183,7 @@ class MaxSdkService {
       await _channel.invokeMethod<void>('hideBanner');
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Ошибка скрытия Banner: $error');
+        logger.d('❌ Ошибка скрытия Banner: $error');
       }
     }
   }

@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../services/weather_service.dart';
 import '../../services/units_service.dart';
+import '../../services/subscription_service.dart';
+import '../../screens/paywall_screen.dart';
 import '../../l10n/app_localizations.dart';
 
 class WeatherCard extends StatelessWidget {
@@ -11,14 +13,22 @@ class WeatherCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final subscription = context.watch<SubscriptionProvider>();
+    final l10n = AppLocalizations.of(context);
+
+    // Проверяем PRO статус
+    if (!subscription.isPro) {
+      return _buildProLockedCard(context, l10n);
+    }
+
+    // Остальной код для PRO пользователей
     final weather = Provider.of<WeatherService>(context);
     final units = Provider.of<UnitsService>(context);
-    final l10n = AppLocalizations.of(context);
 
     final weatherData = weather.currentWeather;
     final heatIndex = weather.heatIndex;
 
-    final displayTemp = weatherData != null 
+    final displayTemp = weatherData != null
         ? units.formatTemperature(weatherData.temperature)
         : '--°';
     final displayHeatIndex = heatIndex != null
@@ -26,208 +36,348 @@ class WeatherCard extends StatelessWidget {
         : null;
 
     // Вся карточка с градиентом
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: _getWeatherGradient(heatIndex),
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: _getShadowColor(heatIndex).withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+    return GestureDetector(
+      onTap: () {
+        // Запрашиваем данные о погоде при клике на карточку
+        weather.loadWeather();
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: _getWeatherGradient(heatIndex),
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // Верхняя секция с основной информацией
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(_getWeatherIcon(heatIndex), color: Colors.white, size: 36),
-                        const SizedBox(width: 12),
-                        Text(
-                          displayTemp,
-                          style: const TextStyle(
-                            color: Colors.white, 
-                            fontSize: 42, 
-                            fontWeight: FontWeight.bold
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      weatherData?.city ?? l10n.loading,
-                      style: const TextStyle(
-                        color: Colors.white, 
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    if (weatherData != null)
-                      Text(
-                        weatherData.getLocalizedDescription(context),
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.9), 
-                          fontSize: 14,
-                        ),
-                      ),
-                  ],
-                ),
-                // HRI Impact блок - используем hriRisk (уже есть в EN файле)
-                if (heatIndex != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.3),
-                        width: 1,
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          l10n.hriRisk,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.9), 
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          '+${_getHRIImpact(heatIndex)}',
-                          style: const TextStyle(
-                            color: Colors.white, 
-                            fontSize: 28, 
-                            fontWeight: FontWeight.bold
-                          ),
-                        ),
-                        Text(
-                          'pts',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8), 
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: _getShadowColor(heatIndex).withValues(alpha: 0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
             ),
-            
-            const SizedBox(height: 24),
-            
-            // Разделитель
-            Container(
-              height: 1,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.white.withOpacity(0),
-                    Colors.white.withOpacity(0.3),
-                    Colors.white.withOpacity(0),
-                  ],
-                ),
-              ),
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // Детальная информация - используем существующие ключи
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildDetailItem(
-                  icon: Icons.water_drop,
-                  label: l10n.humidityLabel,
-                  value: '${weatherData?.humidity.round() ?? '--'}%',
-                ),
-                _buildDetailItem(
-                  icon: Icons.thermostat,
-                  label: l10n.heatIndex,
-                  value: displayHeatIndex != null 
-                    ? '$displayHeatIndex${units.temperatureUnit.substring(1)}'
-                    : '--',
-                ),
-                _buildDetailItem(
-                  icon: Icons.wb_sunny,
-                  label: l10n.feelsLike,
-                  value: displayHeatIndex != null 
-                    ? '$displayHeatIndex${units.temperatureUnit.substring(1)}'
-                    : '--',
-                ),
-              ],
-            ),
-            
-            // Предупреждение или рекомендации
-            if (heatIndex != null) ...[
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.2),
-                    width: 1,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          _getWarningIcon(heatIndex),
-                          color: Colors.white,
-                          size: 22,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            _getHydrationAdvice(heatIndex, l10n),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              // Верхняя секция с основной информацией
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            _getWeatherIcon(heatIndex),
+                            color: Colors.white,
+                            size: 36,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            displayTemp,
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 14,
+                              fontSize: 42,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        weatherData?.city ?? l10n.loading,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      if (weatherData != null)
+                        Text(
+                          weatherData.getLocalizedDescription(context),
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            fontSize: 14,
+                          ),
+                        ),
+                    ],
+                  ),
+                  // HRI Impact блок - используем hriRisk (уже есть в EN файле)
+                  if (heatIndex != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            l10n.hriRisk,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.9),
+                              fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 6),
+                          Text(
+                            '+${_getHRIImpact(heatIndex)}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'pts',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 12),
-                    // Рекомендации по корректировкам - используем water и sodium (уже есть)
-                    _buildAdjustmentRow(
-                      icon: Icons.local_drink,
-                      label: l10n.water,
-                      value: _getWaterAdjustmentText(heatIndex),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              // Разделитель
+              Container(
+                height: 1,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.white.withValues(alpha: 0),
+                      Colors.white.withValues(alpha: 0.3),
+                      Colors.white.withValues(alpha: 0),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Детальная информация - используем существующие ключи
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildDetailItem(
+                    icon: Icons.water_drop,
+                    label: l10n.humidityLabel,
+                    value: '${weatherData?.humidity.round() ?? '--'}%',
+                  ),
+                  _buildDetailItem(
+                    icon: Icons.thermostat,
+                    label: l10n.heatIndex,
+                    value: displayHeatIndex != null
+                        ? '$displayHeatIndex${units.temperatureUnit.substring(1)}'
+                        : '--',
+                  ),
+                  _buildDetailItem(
+                    icon: Icons.wb_sunny,
+                    label: l10n.feelsLike,
+                    value: displayHeatIndex != null
+                        ? '$displayHeatIndex${units.temperatureUnit.substring(1)}'
+                        : '--',
+                  ),
+                ],
+              ),
+
+              // Предупреждение или рекомендации
+              if (heatIndex != null) ...[
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      width: 1,
                     ),
-                    const SizedBox(height: 6),
-                    _buildAdjustmentRow(
-                      icon: Icons.grain,
-                      label: l10n.sodium,
-                      value: _getSodiumAdjustmentText(heatIndex),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            _getWarningIcon(heatIndex),
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              _getHydrationAdvice(heatIndex, l10n),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      // Рекомендации по корректировкам - используем water и sodium (уже есть)
+                      _buildAdjustmentRow(
+                        icon: Icons.local_drink,
+                        label: l10n.water,
+                        value: _getWaterAdjustmentText(heatIndex),
+                      ),
+                      const SizedBox(height: 6),
+                      _buildAdjustmentRow(
+                        icon: Icons.grain,
+                        label: l10n.sodium,
+                        value: _getSodiumAdjustmentText(heatIndex),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ), // Закрытие child: Container
+    ).animate().fadeIn(delay: 200.ms); // Закрытие GestureDetector
+  }
+
+  // PRO-заблокированная карточка
+  Widget _buildProLockedCard(BuildContext context, AppLocalizations l10n) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                const PaywallScreen(source: 'home_weather_card'),
+            fullscreenDialog: true,
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.grey.shade700, Colors.grey.shade800],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withValues(alpha: 0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // PRO иконка
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.amber, width: 2),
+                ),
+                child: const Icon(Icons.cloud, color: Colors.amber, size: 32),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Заголовок PRO
+              Text(
+                'PRO',
+                style: TextStyle(
+                  color: Colors.amber.shade600,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              // Название функции
+              Text(
+                l10n.weather,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Описание
+              Text(
+                l10n.weatherTrackingPro,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.8),
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+
+              const SizedBox(height: 20),
+
+              // Кнопка разблокировки
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.amber.shade600, Colors.orange.shade600],
+                  ),
+                  borderRadius: BorderRadius.circular(25),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.amber.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.lock_open, color: Colors.white, size: 16),
+                    const SizedBox(width: 8),
+                    Text(
+                      l10n.unlock,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
               ),
             ],
-          ],
+          ),
         ),
       ),
     ).animate().fadeIn(delay: 200.ms);
@@ -243,7 +393,7 @@ class WeatherCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.15),
+            color: Colors.white.withValues(alpha: 0.15),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: Colors.white, size: 26),
@@ -252,7 +402,7 @@ class WeatherCard extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
             fontSize: 12,
           ),
         ),
@@ -276,12 +426,12 @@ class WeatherCard extends StatelessWidget {
   }) {
     return Row(
       children: [
-        Icon(icon, color: Colors.white.withOpacity(0.7), size: 16),
+        Icon(icon, color: Colors.white.withValues(alpha: 0.7), size: 16),
         const SizedBox(width: 8),
         Text(
           '$label: ',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
             fontSize: 13,
           ),
         ),
@@ -299,17 +449,17 @@ class WeatherCard extends StatelessWidget {
 
   int _getHRIImpact(double? heatIndex) {
     if (heatIndex == null) return 0;
-    
+
     // Точная формула из HRIService
-    if (heatIndex >= 39) return 15;  // Экстремальная жара
-    if (heatIndex >= 32) return 10;  // Высокая температура  
-    if (heatIndex >= 27) return 5;   // Умеренная температура
-    return 0;  // Комфортная температура
+    if (heatIndex >= 39) return 15; // Экстремальная жара
+    if (heatIndex >= 32) return 10; // Высокая температура
+    if (heatIndex >= 27) return 5; // Умеренная температура
+    return 0; // Комфортная температура
   }
 
   String _getWaterAdjustmentText(double heatIndex) {
-    // Упрощенный текст - только проценты или "Normal"
-    if (heatIndex < 27) return 'Normal';
+    // Упрощенный текст - только проценты или базовое значение
+    if (heatIndex < 27) return '✓'; // Галочка вместо текста
     if (heatIndex < 32) return '+5%';
     if (heatIndex < 39) return '+8%';
     if (heatIndex < 45) return '+12%';
@@ -318,7 +468,7 @@ class WeatherCard extends StatelessWidget {
 
   String _getSodiumAdjustmentText(double heatIndex) {
     // Упрощенный текст - только значения
-    if (heatIndex < 27) return 'Standard';
+    if (heatIndex < 27) return '✓'; // Галочка вместо текста
     if (heatIndex < 32) return '+300 mg';
     if (heatIndex < 39) return '+500 mg';
     return '+1000 mg';
@@ -346,7 +496,7 @@ class WeatherCard extends StatelessWidget {
       // Серый градиент для загрузки
       return [Colors.grey.shade500, Colors.grey.shade700];
     }
-    
+
     if (heatIndex < 10) {
       // Очень холодно - синий
       return [const Color(0xFF1E88E5), const Color(0xFF1565C0)];

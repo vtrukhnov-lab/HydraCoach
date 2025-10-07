@@ -1,6 +1,6 @@
 // ============================================================================
 // FILE: lib/models/daily_goals.dart
-// 
+//
 // PURPOSE: Data model for daily hydration and electrolyte goals
 // ============================================================================
 
@@ -63,29 +63,29 @@ class DailyGoals {
   @override
   String toString() {
     return 'DailyGoals(waterMin: $waterMin, waterOpt: $waterOpt, waterMax: $waterMax, '
-           'sodium: $sodium, potassium: $potassium, magnesium: $magnesium)';
+        'sodium: $sodium, potassium: $potassium, magnesium: $magnesium)';
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    
+
     return other is DailyGoals &&
-      other.waterMin == waterMin &&
-      other.waterOpt == waterOpt &&
-      other.waterMax == waterMax &&
-      other.sodium == sodium &&
-      other.potassium == potassium &&
-      other.magnesium == magnesium;
+        other.waterMin == waterMin &&
+        other.waterOpt == waterOpt &&
+        other.waterMax == waterMax &&
+        other.sodium == sodium &&
+        other.potassium == potassium &&
+        other.magnesium == magnesium;
   }
 
   @override
   int get hashCode {
     return waterMin.hashCode ^
-      waterOpt.hashCode ^
-      waterMax.hashCode ^
-      sodium.hashCode ^
-      potassium.hashCode ^
-      magnesium.hashCode;
+        waterOpt.hashCode ^
+        waterMax.hashCode ^
+        sodium.hashCode ^
+        potassium.hashCode ^
+        magnesium.hashCode;
   }
 }

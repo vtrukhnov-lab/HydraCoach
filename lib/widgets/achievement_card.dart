@@ -9,14 +9,14 @@ class AchievementCard extends StatelessWidget {
   final Achievement achievement;
   final VoidCallback? onTap;
   final bool compact;
-  
+
   const AchievementCard({
     Key? key,
     required this.achievement,
     this.onTap,
     this.compact = false,
   }) : super(key: key);
-  
+
   // ✅ ИСПРАВЛЕНО: Переводим ключи локализации в реальные тексты
   String _getLocalizedName(AppLocalizations l10n, Achievement achievement) {
     switch (achievement.name) {
@@ -37,7 +37,7 @@ class AchievementCard extends StatelessWidget {
         return l10n.achievementNightOwl;
       case 'achievementLiterLegend':
         return l10n.achievementLiterLegend;
-      
+
       // Electrolyte achievements
       case 'achievementSaltStarter':
         return l10n.achievementSaltStarter;
@@ -51,7 +51,7 @@ class AchievementCard extends StatelessWidget {
         return l10n.achievementMagnesiumMaven;
       case 'achievementElectrolyteExpert':
         return l10n.achievementElectrolyteExpert;
-      
+
       // Sugar achievements
       case 'achievementSugarAwareness':
         return l10n.achievementSugarAwareness;
@@ -71,7 +71,7 @@ class AchievementCard extends StatelessWidget {
         return l10n.achievementNoSodaMonth;
       case 'achievementSweetToothTamed':
         return l10n.achievementSweetToothTamed;
-      
+
       // Alcohol achievements
       case 'achievementAlcoholTracker':
         return l10n.achievementAlcoholTracker;
@@ -85,7 +85,7 @@ class AchievementCard extends StatelessWidget {
         return l10n.achievementSoberMonth;
       case 'achievementRecoveryProtocol':
         return l10n.achievementRecoveryProtocol;
-      
+
       // Workout achievements
       case 'achievementFirstWorkout':
         return l10n.achievementFirstWorkout;
@@ -97,7 +97,7 @@ class AchievementCard extends StatelessWidget {
         return l10n.achievementCardioKing;
       case 'achievementStrengthWarrior':
         return l10n.achievementStrengthWarrior;
-      
+
       // HRI achievements
       case 'achievementHRIGreen':
         return l10n.achievementHRIGreen;
@@ -109,7 +109,7 @@ class AchievementCard extends StatelessWidget {
         return l10n.achievementHRIRecovery;
       case 'achievementHRIMaster':
         return l10n.achievementHRIMaster;
-      
+
       // Streak achievements
       case 'achievementStreak3':
         return l10n.achievementStreak3;
@@ -119,7 +119,7 @@ class AchievementCard extends StatelessWidget {
         return l10n.achievementStreak30;
       case 'achievementStreak100':
         return l10n.achievementStreak100;
-      
+
       // Special achievements
       case 'achievementFirstWeek':
         return l10n.achievementFirstWeek;
@@ -131,14 +131,17 @@ class AchievementCard extends StatelessWidget {
         return l10n.achievementAllCategories;
       case 'achievementHunter':
         return l10n.achievementHunter;
-      
+
       default:
         return achievement.name; // fallback для неизвестных ключей
     }
   }
-  
+
   // ✅ ИСПРАВЛЕНО: Переводим ключи описаний в реальные тексты
-  String _getLocalizedDescription(AppLocalizations l10n, Achievement achievement) {
+  String _getLocalizedDescription(
+    AppLocalizations l10n,
+    Achievement achievement,
+  ) {
     switch (achievement.description) {
       // Hydration achievement descriptions
       case 'achievementFirstGlassDesc':
@@ -157,7 +160,7 @@ class AchievementCard extends StatelessWidget {
         return l10n.achievementNightOwlDesc;
       case 'achievementLiterLegendDesc':
         return l10n.achievementLiterLegendDesc;
-      
+
       // Electrolyte achievement descriptions
       case 'achievementSaltStarterDesc':
         return l10n.achievementSaltStarterDesc;
@@ -171,7 +174,7 @@ class AchievementCard extends StatelessWidget {
         return l10n.achievementMagnesiumMavenDesc;
       case 'achievementElectrolyteExpertDesc':
         return l10n.achievementElectrolyteExpertDesc;
-      
+
       // Sugar achievement descriptions
       case 'achievementSugarAwarenessDesc':
         return l10n.achievementSugarAwarenessDesc;
@@ -191,7 +194,7 @@ class AchievementCard extends StatelessWidget {
         return l10n.achievementNoSodaMonthDesc;
       case 'achievementSweetToothTamedDesc':
         return l10n.achievementSweetToothTamedDesc;
-      
+
       // Alcohol achievement descriptions
       case 'achievementAlcoholTrackerDesc':
         return l10n.achievementAlcoholTrackerDesc;
@@ -205,7 +208,7 @@ class AchievementCard extends StatelessWidget {
         return l10n.achievementSoberMonthDesc;
       case 'achievementRecoveryProtocolDesc':
         return l10n.achievementRecoveryProtocolDesc;
-      
+
       // Workout achievement descriptions
       case 'achievementFirstWorkoutDesc':
         return l10n.achievementFirstWorkoutDesc;
@@ -217,7 +220,7 @@ class AchievementCard extends StatelessWidget {
         return l10n.achievementCardioKingDesc;
       case 'achievementStrengthWarriorDesc':
         return l10n.achievementStrengthWarriorDesc;
-      
+
       // HRI achievement descriptions
       case 'achievementHRIGreenDesc':
         return l10n.achievementHRIGreenDesc;
@@ -229,7 +232,7 @@ class AchievementCard extends StatelessWidget {
         return l10n.achievementHRIRecoveryDesc;
       case 'achievementHRIMasterDesc':
         return l10n.achievementHRIMasterDesc;
-      
+
       // Streak achievement descriptions
       case 'achievementStreak3Desc':
         return l10n.achievementStreak3Desc;
@@ -239,7 +242,7 @@ class AchievementCard extends StatelessWidget {
         return l10n.achievementStreak30Desc;
       case 'achievementStreak100Desc':
         return l10n.achievementStreak100Desc;
-      
+
       // Special achievement descriptions
       case 'achievementFirstWeekDesc':
         return l10n.achievementFirstWeekDesc;
@@ -251,23 +254,23 @@ class AchievementCard extends StatelessWidget {
         return l10n.achievementAllCategoriesDesc;
       case 'achievementHunterDesc':
         return l10n.achievementHunterDesc;
-      
+
       default:
         // Если есть template, используем getLocalizedDescription из модели
         return achievement.getLocalizedDescription();
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final isUnlocked = achievement.isUnlocked;
-    
+
     // ✅ ИСПРАВЛЕНО: Используем новую систему локализации
     final localizedName = _getLocalizedName(l10n, achievement);
     final localizedDescription = _getLocalizedDescription(l10n, achievement);
-    
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -282,15 +285,15 @@ class AchievementCard extends StatelessWidget {
             color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isUnlocked 
-                  ? achievement.rarity.color.withOpacity(0.3)
-                  : theme.dividerColor.withOpacity(0.1),
+              color: isUnlocked
+                  ? achievement.rarity.color.withValues(alpha: 0.3)
+                  : theme.dividerColor.withValues(alpha: 0.1),
               width: isUnlocked ? 2 : 1,
             ),
             boxShadow: [
               if (isUnlocked)
                 BoxShadow(
-                  color: achievement.rarity.color.withOpacity(0.1),
+                  color: achievement.rarity.color.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -305,12 +308,12 @@ class AchievementCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: isUnlocked
-                      ? achievement.category.color.withOpacity(0.1)
-                      : theme.dividerColor.withOpacity(0.1),
+                      ? achievement.category.color.withValues(alpha: 0.1)
+                      : theme.dividerColor.withValues(alpha: 0.1),
                   border: Border.all(
                     color: isUnlocked
-                        ? achievement.category.color.withOpacity(0.3)
-                        : theme.dividerColor.withOpacity(0.2),
+                        ? achievement.category.color.withValues(alpha: 0.3)
+                        : theme.dividerColor.withValues(alpha: 0.2),
                     width: 2,
                   ),
                 ),
@@ -327,13 +330,15 @@ class AchievementCard extends StatelessWidget {
                             Icons.lock_outline,
                             key: ValueKey('locked'),
                             size: compact ? 20 : 24,
-                            color: theme.colorScheme.onSurface.withOpacity(0.3),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.3,
+                            ),
                           ),
                   ),
                 ),
               ),
               const SizedBox(width: 12),
-              
+
               // Content
               Expanded(
                 child: Column(
@@ -350,7 +355,9 @@ class AchievementCard extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                               color: isUnlocked
                                   ? theme.colorScheme.onSurface
-                                  : theme.colorScheme.onSurface.withOpacity(0.5),
+                                  : theme.colorScheme.onSurface.withValues(
+                                      alpha: 0.5,
+                                    ),
                             ),
                           ),
                         ),
@@ -363,7 +370,7 @@ class AchievementCard extends StatelessWidget {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.amber.withOpacity(0.1),
+                              color: Colors.amber.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(
@@ -374,7 +381,7 @@ class AchievementCard extends StatelessWidget {
                                   size: 14,
                                   color: isUnlocked
                                       ? Colors.amber
-                                      : Colors.amber.withOpacity(0.5),
+                                      : Colors.amber.withValues(alpha: 0.5),
                                 ),
                                 const SizedBox(width: 2),
                                 Text(
@@ -384,7 +391,7 @@ class AchievementCard extends StatelessWidget {
                                     fontWeight: FontWeight.bold,
                                     color: isUnlocked
                                         ? Colors.amber
-                                        : Colors.amber.withOpacity(0.5),
+                                        : Colors.amber.withValues(alpha: 0.5),
                                   ),
                                 ),
                               ],
@@ -393,7 +400,7 @@ class AchievementCard extends StatelessWidget {
                         ],
                       ],
                     ),
-                    
+
                     if (!compact) ...[
                       const SizedBox(height: 4),
                       // Description
@@ -401,15 +408,17 @@ class AchievementCard extends StatelessWidget {
                         localizedDescription, // ✅ Использует локализованное описание с единицами
                         style: TextStyle(
                           fontSize: 12,
-                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
+                          ),
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                    
+
                     const SizedBox(height: 8),
-                    
+
                     // Progress bar or unlock date
                     if (isUnlocked) ...[
                       Row(
@@ -436,7 +445,9 @@ class AchievementCard extends StatelessWidget {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: achievement.rarity.color.withOpacity(0.1),
+                              color: achievement.rarity.color.withValues(
+                                alpha: 0.1,
+                              ),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -461,10 +472,15 @@ class AchievementCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(4),
                                   child: LinearProgressIndicator(
                                     // ✅ ИСПРАВЛЕНО: Используем локализованный процент прогресса
-                                    value: achievement.localizedProgressPercent / 100,
-                                    backgroundColor: theme.dividerColor.withOpacity(0.2),
+                                    value:
+                                        achievement.localizedProgressPercent /
+                                        100,
+                                    backgroundColor: theme.dividerColor
+                                        .withValues(alpha: 0.2),
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                      achievement.category.color.withOpacity(0.8),
+                                      achievement.category.color.withValues(
+                                        alpha: 0.8,
+                                      ),
                                     ),
                                     minHeight: 6,
                                   ),
@@ -476,7 +492,9 @@ class AchievementCard extends StatelessWidget {
                                 '${achievement.currentProgress}/${achievement.getLocalizedMaxProgress()}',
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: theme.colorScheme.onSurface.withOpacity(0.5),
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.5,
+                                  ),
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -494,13 +512,14 @@ class AchievementCard extends StatelessWidget {
       ),
     );
   }
-  
+
   String _getLocalizedRarity(AppLocalizations l10n, AchievementRarity rarity) {
     switch (rarity) {
       case AchievementRarity.common:
         return l10n.achievementRarityCommon;
       case AchievementRarity.uncommon:
-        return l10n.achievementRarityUncommon; // ✅ ИСПРАВЛЕНО: Используем правильный ключ
+        return l10n
+            .achievementRarityUncommon; // ✅ ИСПРАВЛЕНО: Используем правильный ключ
       case AchievementRarity.rare:
         return l10n.achievementRarityRare;
       case AchievementRarity.epic:
@@ -515,28 +534,31 @@ class AchievementCard extends StatelessWidget {
 class AchievementMiniCard extends StatelessWidget {
   final Achievement achievement;
   final VoidCallback? onDismiss;
-  
+
   const AchievementMiniCard({
     Key? key,
     required this.achievement,
     this.onDismiss,
   }) : super(key: key);
-  
+
   // ✅ ИСПРАВЛЕНО: Упрощенные методы через AppLocalizations
   String _getLocalizedName(AppLocalizations l10n, Achievement achievement) {
     // Просто возвращаем название достижения как есть
     return achievement.name;
   }
-  
-  String _getLocalizedDescription(AppLocalizations l10n, Achievement achievement) {
+
+  String _getLocalizedDescription(
+    AppLocalizations l10n,
+    Achievement achievement,
+  ) {
     return achievement.getLocalizedDescription() ?? achievement.description;
   }
-  
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Material(
@@ -547,15 +569,15 @@ class AchievementMiniCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: achievement.rarity.color.withOpacity(0.5),
+              color: achievement.rarity.color.withValues(alpha: 0.5),
               width: 2,
             ),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                achievement.rarity.color.withOpacity(0.1),
-                achievement.rarity.color.withOpacity(0.05),
+                achievement.rarity.color.withValues(alpha: 0.1),
+                achievement.rarity.color.withValues(alpha: 0.05),
               ],
             ),
           ),
@@ -571,16 +593,16 @@ class AchievementMiniCard extends StatelessWidget {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Colors.white.withOpacity(0.0),
-                        Colors.white.withOpacity(0.1),
-                        Colors.white.withOpacity(0.0),
+                        Colors.white.withValues(alpha: 0.0),
+                        Colors.white.withValues(alpha: 0.1),
+                        Colors.white.withValues(alpha: 0.0),
                       ],
                       stops: const [0.0, 0.5, 1.0],
                     ),
                   ),
                 ),
               ),
-              
+
               // Content
               Padding(
                 padding: const EdgeInsets.all(12),
@@ -592,7 +614,9 @@ class AchievementMiniCard extends StatelessWidget {
                       height: 48,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: achievement.category.color.withOpacity(0.2),
+                        color: achievement.category.color.withValues(
+                          alpha: 0.2,
+                        ),
                         border: Border.all(
                           color: achievement.category.color,
                           width: 2,
@@ -606,7 +630,7 @@ class AchievementMiniCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    
+
                     // Text
                     Expanded(
                       child: Column(
@@ -624,7 +648,10 @@ class AchievementMiniCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            _getLocalizedName(l10n, achievement), // ✅ Локализованное название
+                            _getLocalizedName(
+                              l10n,
+                              achievement,
+                            ), // ✅ Локализованное название
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -633,10 +660,15 @@ class AchievementMiniCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            _getLocalizedDescription(l10n, achievement), // ✅ Локализованное описание с единицами
+                            _getLocalizedDescription(
+                              l10n,
+                              achievement,
+                            ), // ✅ Локализованное описание с единицами
                             style: TextStyle(
                               fontSize: 12,
-                              color: theme.colorScheme.onSurface.withOpacity(0.7),
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.7,
+                              ),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -644,14 +676,16 @@ class AchievementMiniCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    
+
                     // Close button
                     if (onDismiss != null)
                       IconButton(
                         icon: Icon(
                           Icons.close,
                           size: 20,
-                          color: theme.colorScheme.onSurface.withOpacity(0.5),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.5,
+                          ),
                         ),
                         onPressed: onDismiss,
                       ),

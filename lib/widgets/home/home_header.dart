@@ -20,14 +20,29 @@ class HomeHeader extends StatelessWidget {
   String _getFormattedDate(AppLocalizations l10n) {
     final now = DateTime.now();
     final weekDays = [
-      l10n.sunday, l10n.monday, l10n.tuesday, l10n.wednesday,
-      l10n.thursday, l10n.friday, l10n.saturday,
+      l10n.sunday,
+      l10n.monday,
+      l10n.tuesday,
+      l10n.wednesday,
+      l10n.thursday,
+      l10n.friday,
+      l10n.saturday,
     ];
     final months = [
-      l10n.january, l10n.february, l10n.march, l10n.april, l10n.may, l10n.june,
-      l10n.july, l10n.august, l10n.september, l10n.october, l10n.november, l10n.december,
+      l10n.january,
+      l10n.february,
+      l10n.march,
+      l10n.april,
+      l10n.may,
+      l10n.june,
+      l10n.july,
+      l10n.august,
+      l10n.september,
+      l10n.october,
+      l10n.november,
+      l10n.december,
     ];
-    
+
     return '${weekDays[now.weekday % 7]}, ${now.day} ${months[now.month - 1]}';
   }
 
@@ -70,10 +85,16 @@ class HomeHeader extends StatelessWidget {
                     if (sub.isPro) ...[
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [Colors.amber.shade400, Colors.amber.shade600],
+                            colors: [
+                              Colors.amber.shade400,
+                              Colors.amber.shade600,
+                            ],
                           ),
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -92,15 +113,12 @@ class HomeHeader extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   _getFormattedDate(l10n),
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                 ),
               ],
             ),
           ),
-          
+
           // Правая часть - только кнопка PRO (если пользователь не PRO)
           if (!sub.isPro)
             IconButton(
@@ -117,7 +135,7 @@ class HomeHeader extends StatelessWidget {
               onPressed: () => _showPaywall(context),
               tooltip: l10n.getPro,
             ),
-          
+
           // УБРАЛИ: IconButton для истории
           // УБРАЛИ: IconButton для настроек
         ],

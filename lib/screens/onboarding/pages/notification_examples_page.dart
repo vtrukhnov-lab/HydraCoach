@@ -43,23 +43,20 @@ class NotificationExamplesPage extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: theme.colorScheme.onSurface,
                 ),
-              ).animate()
-                .fadeIn(duration: 400.ms)
-                .slideY(begin: -0.2, end: 0),
-              
+              ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.2, end: 0),
+
               const SizedBox(height: 12),
-              
+
               // Подзаголовок
               Text(
                 l10n.onboardingNotificationExamplesSubtitle,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
-              ).animate()
-                .fadeIn(duration: 500.ms, delay: 100.ms),
-              
+              ).animate().fadeIn(duration: 500.ms, delay: 100.ms),
+
               const SizedBox(height: 32),
-              
+
               // Примеры уведомлений
               Expanded(
                 child: SingleChildScrollView(
@@ -76,7 +73,7 @@ class NotificationExamplesPage extends StatelessWidget {
                         theme: theme,
                         isLight: isLight,
                       ),
-                      
+
                       _buildNotificationExample(
                         context: context,
                         icon: Icons.coffee,
@@ -88,7 +85,7 @@ class NotificationExamplesPage extends StatelessWidget {
                         theme: theme,
                         isLight: isLight,
                       ),
-                      
+
                       _buildNotificationExample(
                         context: context,
                         icon: Icons.sunny,
@@ -100,7 +97,7 @@ class NotificationExamplesPage extends StatelessWidget {
                         theme: theme,
                         isLight: isLight,
                       ),
-                      
+
                       _buildNotificationExample(
                         context: context,
                         icon: Icons.nightlight_round,
@@ -116,74 +113,79 @@ class NotificationExamplesPage extends StatelessWidget {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Кнопки действий
               Row(
                 children: [
                   // Кнопка "Назад"
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        onBack();
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: BorderSide(
-                          color: theme.colorScheme.outline.withOpacity(0.5),
+                        child: OutlinedButton(
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            onBack();
+                          },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            side: BorderSide(
+                              color: theme.colorScheme.outline.withValues(
+                                alpha: 0.5,
+                              ),
+                            ),
+                          ),
+                          child: Text(
+                            l10n.back,
+                            style: TextStyle(
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        l10n.back,
-                        style: TextStyle(
-                          color: theme.colorScheme.onSurface,
-                        ),
-                      ),
-                    ),
-                  ).animate()
-                    .fadeIn(duration: 600.ms, delay: 500.ms)
-                    .slideX(begin: -0.2, end: 0),
-                  
+                      )
+                      .animate()
+                      .fadeIn(duration: 600.ms, delay: 500.ms)
+                      .slideX(begin: -0.2, end: 0),
+
                   const SizedBox(width: 16),
-                  
+
                   // Кнопка "Включить уведомления"
                   Expanded(
-                    flex: 2,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        HapticFeedback.lightImpact();
-                        _analytics.logPermissionPrompt(
-                          permission: 'notifications',
-                          context: 'onboarding',
-                        );
-                        final status =
-                            await _requestNotificationPermission(context);
-                        onPermissionResult(status);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: theme.colorScheme.primary,
-                        foregroundColor: theme.colorScheme.onPrimary,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.notifications_active, size: 20),
-                          const SizedBox(width: 8),
-                          Text(l10n.onboardingAllowNotifications),
-                        ],
-                      ),
-                    ),
-                  ).animate()
-                    .fadeIn(duration: 600.ms, delay: 600.ms)
-                    .slideX(begin: 0.2, end: 0),
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            HapticFeedback.lightImpact();
+                            _analytics.logPermissionPrompt(
+                              permission: 'notifications',
+                              context: 'onboarding',
+                            );
+                            final status = await _requestNotificationPermission(
+                              context,
+                            );
+                            onPermissionResult(status);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: theme.colorScheme.primary,
+                            foregroundColor: theme.colorScheme.onPrimary,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.notifications_active, size: 20),
+                              const SizedBox(width: 8),
+                              Text(l10n.onboardingAllowNotifications),
+                            ],
+                          ),
+                        ),
+                      )
+                      .animate()
+                      .fadeIn(duration: 600.ms, delay: 600.ms)
+                      .slideX(begin: 0.2, end: 0),
                 ],
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Кнопка "Пропустить"
               Center(
                 child: TextButton(
@@ -193,13 +195,10 @@ class NotificationExamplesPage extends StatelessWidget {
                   },
                   child: Text(
                     l10n.onboardingEnableLater,
-                    style: TextStyle(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
                   ),
                 ),
-              ).animate()
-                .fadeIn(duration: 600.ms, delay: 700.ms),
+              ).animate().fadeIn(duration: 600.ms, delay: 700.ms),
             ],
           ),
         ),
@@ -217,15 +216,13 @@ class NotificationExamplesPage extends StatelessWidget {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
     try {
       // 1. Сначала проверяем и запрашиваем системное разрешение через permission_handler
       debugPrint('📱 Step 1: Checking system notification permission...');
-      
+
       PermissionStatus status = finalStatus;
       debugPrint('Current permission status: $status');
 
@@ -249,7 +246,7 @@ class NotificationExamplesPage extends StatelessWidget {
         // Ждем завершения инициализации
         await Future.delayed(const Duration(milliseconds: 1000));
       }
-      
+
       // 3. Если разрешение получено, настраиваем уведомления
       if (status.isGranted) {
         debugPrint('✅ Permission granted, configuring notifications...');
@@ -260,7 +257,9 @@ class NotificationExamplesPage extends StatelessWidget {
 
         debugPrint('🎉 Notifications configured successfully!');
       } else if (status.isPermanentlyDenied) {
-        debugPrint('⚠️ Permission permanently denied, showing settings dialog...');
+        debugPrint(
+          '⚠️ Permission permanently denied, showing settings dialog...',
+        );
 
         // Закрываем индикатор загрузки
         if (context.mounted && overlayVisible && Navigator.canPop(context)) {
@@ -275,7 +274,6 @@ class NotificationExamplesPage extends StatelessWidget {
       } else {
         debugPrint('❌ Permission denied by user');
       }
-
     } catch (e, stackTrace) {
       debugPrint('❌ Error requesting permissions: $e');
       debugPrint('Stack trace: $stackTrace');
@@ -293,7 +291,7 @@ class NotificationExamplesPage extends StatelessWidget {
   /// Диалог для перехода в настройки
   Future<void> _showSettingsDialog(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
-    
+
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -332,83 +330,80 @@ class NotificationExamplesPage extends StatelessWidget {
     required bool isLight,
   }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isLight 
-            ? Colors.white 
-            : theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isLight ? 0.08 : 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: isLight
+                ? Colors.white
+                : theme.colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isLight ? 0.08 : 0.2),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Иконка
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 24,
-            ),
-          ),
-          
-          const SizedBox(width: 12),
-          
-          // Содержимое уведомления
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Иконка
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: iconColor, size: 24),
+              ),
+
+              const SizedBox(width: 12),
+
+              // Содержимое уведомления
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.onSurface,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                        Text(
+                          time,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 4),
                     Text(
-                      time,
-                      style: theme.textTheme.bodySmall?.copyWith(
+                      body,
+                      style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  body,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
-    ).animate()
-      .fadeIn(duration: 500.ms, delay: delay)
-      .slideX(begin: 0.1, end: 0);
+        )
+        .animate()
+        .fadeIn(duration: 500.ms, delay: delay)
+        .slideX(begin: 0.1, end: 0);
   }
 }

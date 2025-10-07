@@ -29,7 +29,10 @@ class FruitItems {
       icon: '🍎',
       properties: {
         'type': 'fruit',
-        'defaultWeight': {'metric': 182, 'imperial': 6.4}, // g/oz (medium apple)
+        'defaultWeight': {
+          'metric': 182,
+          'imperial': 6.4,
+        }, // g/oz (medium apple)
         'waterPercentage': 0.86, // 86% water
         'caloriesPer100g': 52,
         'sugarPer100g': 10.4,
@@ -49,7 +52,10 @@ class FruitItems {
       icon: '🍌',
       properties: {
         'type': 'fruit',
-        'defaultWeight': {'metric': 118, 'imperial': 4.2}, // g/oz (medium banana)
+        'defaultWeight': {
+          'metric': 118,
+          'imperial': 4.2,
+        }, // g/oz (medium banana)
         'waterPercentage': 0.74, // 74% water
         'caloriesPer100g': 89,
         'sugarPer100g': 12.2,
@@ -69,7 +75,10 @@ class FruitItems {
       icon: '🍊',
       properties: {
         'type': 'fruit',
-        'defaultWeight': {'metric': 154, 'imperial': 5.4}, // g/oz (medium orange)
+        'defaultWeight': {
+          'metric': 154,
+          'imperial': 5.4,
+        }, // g/oz (medium orange)
         'waterPercentage': 0.87, // 87% water
         'caloriesPer100g': 47,
         'sugarPer100g': 9.4,
@@ -111,7 +120,10 @@ class FruitItems {
       icon: '🍓',
       properties: {
         'type': 'fruit',
-        'defaultWeight': {'metric': 144, 'imperial': 5.1}, // g/oz (1 cup sliced)
+        'defaultWeight': {
+          'metric': 144,
+          'imperial': 5.1,
+        }, // g/oz (1 cup sliced)
         'waterPercentage': 0.91, // 91% water
         'caloriesPer100g': 32,
         'sugarPer100g': 4.9,
@@ -151,7 +163,10 @@ class FruitItems {
       icon: '🍍',
       properties: {
         'type': 'fruit',
-        'defaultWeight': {'metric': 165, 'imperial': 5.8}, // g/oz (1 cup chunks)
+        'defaultWeight': {
+          'metric': 165,
+          'imperial': 5.8,
+        }, // g/oz (1 cup chunks)
         'waterPercentage': 0.86, // 86% water
         'caloriesPer100g': 50,
         'sugarPer100g': 9.9,
@@ -171,7 +186,10 @@ class FruitItems {
       icon: '🥭',
       properties: {
         'type': 'fruit',
-        'defaultWeight': {'metric': 165, 'imperial': 5.8}, // g/oz (1 cup sliced)
+        'defaultWeight': {
+          'metric': 165,
+          'imperial': 5.8,
+        }, // g/oz (1 cup sliced)
         'waterPercentage': 0.84, // 84% water
         'caloriesPer100g': 60,
         'sugarPer100g': 13.7,

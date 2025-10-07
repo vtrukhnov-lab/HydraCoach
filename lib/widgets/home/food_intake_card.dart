@@ -36,7 +36,7 @@ class FoodIntakeCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: _getShadowColor(foodData).withOpacity(0.3),
+            color: _getShadowColor(foodData).withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -59,7 +59,7 @@ class FoodIntakeCard extends StatelessWidget {
                           Icon(
                             _getFoodIcon(foodData),
                             color: Colors.white,
-                            size: 36
+                            size: 36,
                           ),
                           const SizedBox(width: 12),
                           Column(
@@ -76,7 +76,7 @@ class FoodIntakeCard extends StatelessWidget {
                               Text(
                                 l10n.kcal,
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: Colors.white.withValues(alpha: 0.8),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                 ),
@@ -97,7 +97,7 @@ class FoodIntakeCard extends StatelessWidget {
                       Text(
                         _getStatusText(foodData, l10n),
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           fontSize: 14,
                         ),
                         maxLines: 2,
@@ -108,12 +108,15 @@ class FoodIntakeCard extends StatelessWidget {
                 ),
                 // HRI Impact блок - с уменьшенными отступами
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -122,7 +125,7 @@ class FoodIntakeCard extends StatelessWidget {
                       Text(
                         l10n.hriRisk,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
                         ),
@@ -141,7 +144,7 @@ class FoodIntakeCard extends StatelessWidget {
                       Text(
                         'pts',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 11,
                         ),
                       ),
@@ -159,9 +162,9 @@ class FoodIntakeCard extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Colors.white.withOpacity(0),
-                    Colors.white.withOpacity(0.3),
-                    Colors.white.withOpacity(0),
+                    Colors.white.withValues(alpha: 0),
+                    Colors.white.withValues(alpha: 0.3),
+                    Colors.white.withValues(alpha: 0),
                   ],
                 ),
               ),
@@ -199,10 +202,10 @@ class FoodIntakeCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   width: 1,
                 ),
               ),
@@ -262,15 +265,12 @@ class FoodIntakeCard extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Colors.grey.shade700,
-            Colors.grey.shade800,
-          ],
+          colors: [Colors.grey.shade700, Colors.grey.shade800],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -285,12 +285,9 @@ class FoodIntakeCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.amber.withOpacity(0.2),
+                color: Colors.amber.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.amber,
-                  width: 2,
-                ),
+                border: Border.all(color: Colors.amber, width: 2),
               ),
               child: const Icon(
                 Icons.restaurant_menu,
@@ -330,7 +327,7 @@ class FoodIntakeCard extends StatelessWidget {
             Text(
               l10n.foodTrackingPro,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
                 fontSize: 14,
               ),
               textAlign: TextAlign.center,
@@ -342,10 +339,7 @@ class FoodIntakeCard extends StatelessWidget {
 
             // Кнопка разблокировки
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 12,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Colors.amber.shade600, Colors.orange.shade600],
@@ -353,7 +347,7 @@ class FoodIntakeCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(25),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.amber.withOpacity(0.3),
+                    color: Colors.amber.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -362,11 +356,7 @@ class FoodIntakeCard extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
-                    Icons.lock_open,
-                    color: Colors.white,
-                    size: 16,
-                  ),
+                  const Icon(Icons.lock_open, color: Colors.white, size: 16),
                   const SizedBox(width: 8),
                   Text(
                     l10n.unlock,
@@ -398,7 +388,7 @@ class FoodIntakeCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
+              color: Colors.white.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: Colors.white, size: 24),
@@ -409,7 +399,7 @@ class FoodIntakeCard extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
                 fontSize: 10,
               ),
               maxLines: 2,
@@ -433,7 +423,7 @@ class FoodIntakeCard extends StatelessWidget {
                   TextSpan(
                     text: unit,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 11,
                     ),
                   ),
@@ -452,13 +442,13 @@ class FoodIntakeCard extends StatelessWidget {
   }) {
     return Row(
       children: [
-        Icon(icon, color: Colors.white.withOpacity(0.7), size: 16),
+        Icon(icon, color: Colors.white.withValues(alpha: 0.7), size: 16),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             '$label: ',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white.withValues(alpha: 0.8),
               fontSize: 13,
             ),
             overflow: TextOverflow.ellipsis,
@@ -480,10 +470,22 @@ class FoodIntakeCard extends StatelessWidget {
   Map<String, dynamic> _getFoodIntakeData(HydrationProvider provider) {
     final foodCount = provider.todayFoodIntakes.length;
     final waterContent = provider.totalWaterFromFoodToday;
-    final sodium = provider.todayFoodIntakes.fold(0.0, (sum, food) => sum + food.sodium);
-    final potassium = provider.todayFoodIntakes.fold(0.0, (sum, food) => sum + food.potassium);
-    final magnesium = provider.todayFoodIntakes.fold(0.0, (sum, food) => sum + food.magnesium);
-    final sugar = provider.todayFoodIntakes.fold(0.0, (sum, food) => sum + food.sugar);
+    final sodium = provider.todayFoodIntakes.fold(
+      0.0,
+      (sum, food) => sum + food.sodium,
+    );
+    final potassium = provider.todayFoodIntakes.fold(
+      0.0,
+      (sum, food) => sum + food.potassium,
+    );
+    final magnesium = provider.todayFoodIntakes.fold(
+      0.0,
+      (sum, food) => sum + food.magnesium,
+    );
+    final sugar = provider.todayFoodIntakes.fold(
+      0.0,
+      (sum, food) => sum + food.sugar,
+    );
     final calories = provider.totalCaloriesToday;
 
     return {
@@ -502,19 +504,25 @@ class FoodIntakeCard extends StatelessWidget {
 
     // Высокое содержание натрия увеличивает риск
     final sodium = foodData['sodium'] as double;
-    if (sodium > 1500) impact += 10;
-    else if (sodium > 1000) impact += 5;
+    if (sodium > 1500)
+      impact += 10;
+    else if (sodium > 1000)
+      impact += 5;
 
     // Низкое содержание воды увеличивает риск
     final waterContent = foodData['waterContent'] as double;
     final foodCount = foodData['foodCount'] as int;
-    if (foodCount > 2 && waterContent < 100) impact += 8;
-    else if (foodCount > 0 && waterContent < 200) impact += 3;
+    if (foodCount > 2 && waterContent < 100)
+      impact += 8;
+    else if (foodCount > 0 && waterContent < 200)
+      impact += 3;
 
     // Высокое содержание сахара увеличивает риск
     final sugar = foodData['sugar'] as double;
-    if (sugar > 50) impact += 5;
-    else if (sugar > 25) impact += 2;
+    if (sugar > 50)
+      impact += 5;
+    else if (sugar > 25)
+      impact += 2;
 
     // Положительный эффект от калия и магния
     final potassium = foodData['potassium'] as double;
@@ -562,7 +570,10 @@ class FoodIntakeCard extends StatelessWidget {
     }
   }
 
-  String _getWaterAdjustment(Map<String, dynamic> foodData, AppLocalizations l10n) {
+  String _getWaterAdjustment(
+    Map<String, dynamic> foodData,
+    AppLocalizations l10n,
+  ) {
     final sodium = foodData['sodium'] as double;
     final waterContent = foodData['waterContent'] as double;
     final foodCount = foodData['foodCount'] as int;

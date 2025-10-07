@@ -3,6 +3,8 @@
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:hydracoach/utils/app_logger.dart';
+
 import 'notification_types.dart';
 import 'notification_config.dart';
 import 'notification_sender.dart';
@@ -26,20 +28,22 @@ class SpecificNotifications {
   /// Планирование напоминания после кофе
   Future<void> schedulePostCoffeeReminder() async {
     await NotificationTexts.ensureLoaded();
-    
+
     // Проверка на дублирование
     if (await _limitsHelper.isDuplicateNotification(
       NotificationType.postCoffee,
       null,
       minInterval: const Duration(hours: 2),
     )) {
-      print('Post-coffee reminder already scheduled recently');
+      logger.i('Post-coffee reminder already scheduled recently');
       return;
     }
 
     // Получение задержки из Remote Config
     final delay = _remoteConfig.getInt(NotificationConfig.rcPostCoffeeDelay);
-    final delayMinutes = delay > 0 ? delay : NotificationConfig.postCoffeeDelayMinutes;
+    final delayMinutes = delay > 0
+        ? delay
+        : NotificationConfig.postCoffeeDelayMinutes;
 
     final scheduledTime = DateTime.now().add(Duration(minutes: delayMinutes));
 
@@ -58,7 +62,7 @@ class SpecificNotifications {
       DateTime.now().millisecondsSinceEpoch,
     );
 
-    print('Post-coffee reminder scheduled for ${delayMinutes}min');
+    logger.i('Post-coffee reminder scheduled for ${delayMinutes}min');
   }
 
   // ==================== АЛКОГОЛЬ ====================
@@ -66,14 +70,20 @@ class SpecificNotifications {
   /// Планирование контр-напоминания после алкоголя
   Future<void> scheduleAlcoholCounterReminder(int standardDrinks) async {
     await NotificationTexts.ensureLoaded();
-    
+
     final scheduledTime = DateTime.now().add(
-      Duration(minutes: NotificationConfig.alcoholCounterDelayMinutes)
+      Duration(minutes: NotificationConfig.alcoholCounterDelayMinutes),
     );
 
     // Расчет количества воды из Remote Config
-    final waterPerDrink = _remoteConfig.getInt(NotificationConfig.rcAlcoholDrinkBonus);
-    final waterAmount = standardDrinks * (waterPerDrink > 0 ? waterPerDrink : NotificationConfig.waterPerStandardDrink);
+    final waterPerDrink = _remoteConfig.getInt(
+      NotificationConfig.rcAlcoholDrinkBonus,
+    );
+    final waterAmount =
+        standardDrinks *
+        (waterPerDrink > 0
+            ? waterPerDrink
+            : NotificationConfig.waterPerStandardDrink);
 
     await _notificationSender.sendNotification(
       type: NotificationType.alcoholCounter,
@@ -81,7 +91,7 @@ class SpecificNotifications {
       body: NotificationTexts.alcoholCounterBody(waterAmount),
       scheduledTime: scheduledTime,
       payload: {
-        'action': 'alcohol_recovery', 
+        'action': 'alcohol_recovery',
         'water': waterAmount,
         'standard_drinks': standardDrinks,
       },
@@ -92,30 +102,33 @@ class SpecificNotifications {
       await scheduleAlcoholRecoveryPlan(standardDrinks);
     }
 
-    print('Alcohol counter reminder scheduled for ${NotificationConfig.alcoholCounterDelayMinutes}min');
+    logger.i(
+      'Alcohol counter reminder scheduled for ${NotificationConfig.alcoholCounterDelayMinutes}min',
+    );
   }
 
   /// Планирование плана восстановления после алкоголя (PRO)
   Future<void> scheduleAlcoholRecoveryPlan(int standardDrinks) async {
     if (!await _limitsHelper.isProUser()) {
-      print('Recovery plan requires PRO subscription');
+      logger.i('Recovery plan requires PRO subscription');
       return;
     }
 
     await NotificationTexts.ensureLoaded();
-    
+
     // Определение продолжительности восстановления
-    final recoveryHours = standardDrinks <= 2 
-        ? NotificationConfig.lightRecoveryHours 
+    final recoveryHours = standardDrinks <= 2
+        ? NotificationConfig.lightRecoveryHours
         : NotificationConfig.heavyRecoveryHours;
-    
+
     final now = DateTime.now();
 
     // Планирование шагов восстановления каждые 2 часа
-    for (int hour = NotificationConfig.recoveryStepInterval; 
-         hour <= recoveryHours; 
-         hour += NotificationConfig.recoveryStepInterval) {
-      
+    for (
+      int hour = NotificationConfig.recoveryStepInterval;
+      hour <= recoveryHours;
+      hour += NotificationConfig.recoveryStepInterval
+    ) {
       final scheduledTime = now.add(Duration(hours: hour));
       final waterAmount = 300 + (standardDrinks * 50);
 
@@ -125,10 +138,13 @@ class SpecificNotifications {
       await _notificationSender.sendNotification(
         type: NotificationType.alcoholRecovery,
         title: NotificationTexts.alcoholRecoveryStepTitle(hour),
-        body: NotificationTexts.alcoholRecoveryStepBody(waterAmount, withElectrolytes),
+        body: NotificationTexts.alcoholRecoveryStepBody(
+          waterAmount,
+          withElectrolytes,
+        ),
         scheduledTime: scheduledTime,
         payload: {
-          'action': 'recovery_step', 
+          'action': 'recovery_step',
           'hour': hour,
           'water': waterAmount,
           'electrolytes': withElectrolytes,
@@ -141,20 +157,20 @@ class SpecificNotifications {
     // Планирование утреннего чек-ина
     await scheduleMorningCheckIn();
 
-    print('Alcohol recovery plan scheduled for ${recoveryHours}h');
+    logger.i('Alcohol recovery plan scheduled for ${recoveryHours}h');
   }
 
   /// Планирование утреннего чек-ина после алкоголя
   Future<void> scheduleMorningCheckIn() async {
     await NotificationTexts.ensureLoaded();
-    
+
     final now = DateTime.now();
     var scheduledTime = DateTime(
-      now.year, 
-      now.month, 
-      now.day + 1, 
-      NotificationConfig.morningCheckInHour, 
-      NotificationConfig.morningCheckInMinute
+      now.year,
+      now.month,
+      now.day + 1,
+      NotificationConfig.morningCheckInHour,
+      NotificationConfig.morningCheckInMinute,
     );
 
     await _notificationSender.sendNotification(
@@ -165,7 +181,9 @@ class SpecificNotifications {
       payload: {'action': 'morning_checkin'},
     );
 
-    print('Morning check-in scheduled for ${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}');
+    logger.i(
+      'Morning check-in scheduled for ${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}',
+    );
   }
 
   // ==================== ЖАРА И ТРЕНИРОВКИ ====================
@@ -173,7 +191,7 @@ class SpecificNotifications {
   /// Отправка предупреждения о жаре (PRO)
   Future<void> sendHeatWarning(double heatIndex) async {
     if (!await _limitsHelper.isProUser()) {
-      print('Heat warnings require PRO subscription');
+      logger.i('Heat warnings require PRO subscription');
       return;
     }
 
@@ -184,36 +202,36 @@ class SpecificNotifications {
       title: NotificationTexts.heatWarningTitle,
       body: NotificationTexts.heatWarningBody(heatIndex),
       payload: {
-        'action': 'heat_warning', 
+        'action': 'heat_warning',
         'heat_index': heatIndex,
         'priority': 'high',
       },
       skipChecks: true, // Жара - критично, отправляем сразу
     );
 
-    print('Heat warning sent for HI: $heatIndex');
+    logger.i('Heat warning sent for HI: $heatIndex');
   }
 
   /// Планирование напоминания после тренировки (PRO)
   Future<void> sendWorkoutReminder({DateTime? workoutEndTime}) async {
     if (!await _limitsHelper.isProUser()) {
-      print('Workout reminders require PRO subscription');
+      logger.i('Workout reminders require PRO subscription');
       return;
     }
 
     if (workoutEndTime == null) {
-      print('No workout end time provided');
+      logger.i('No workout end time provided');
       return;
     }
 
     await NotificationTexts.ensureLoaded();
 
     final postWorkout = workoutEndTime.add(
-      Duration(minutes: NotificationConfig.postWorkoutDelayMinutes)
+      Duration(minutes: NotificationConfig.postWorkoutDelayMinutes),
     );
 
     if (postWorkout.isBefore(DateTime.now())) {
-      print('Post-workout time already passed');
+      logger.i('Post-workout time already passed');
       return;
     }
 
@@ -232,9 +250,14 @@ class SpecificNotifications {
     // Сохраняем информацию о тренировке
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(NotificationConfig.prefHasWorkoutToday, true);
-    await prefs.setString(NotificationConfig.prefWorkoutTime, workoutEndTime.toIso8601String());
+    await prefs.setString(
+      NotificationConfig.prefWorkoutTime,
+      workoutEndTime.toIso8601String(),
+    );
 
-    print('Post-workout reminder scheduled for ${postWorkout.hour}:${postWorkout.minute.toString().padLeft(2, '0')}');
+    logger.i(
+      'Post-workout reminder scheduled for ${postWorkout.hour}:${postWorkout.minute.toString().padLeft(2, '0')}',
+    );
   }
 
   // ==================== ВЕЧЕРНИЙ ОТЧЕТ ====================
@@ -242,12 +265,13 @@ class SpecificNotifications {
   /// Планирование вечернего отчета
   Future<void> scheduleEveningReport() async {
     await NotificationTexts.ensureLoaded();
-    
+
     final now = DateTime.now();
     final prefs = await SharedPreferences.getInstance();
 
-    final reportTime = prefs.getString(NotificationConfig.prefEveningReportTime) 
-        ?? NotificationConfig.defaultEveningReportTime;
+    final reportTime =
+        prefs.getString(NotificationConfig.prefEveningReportTime) ??
+        NotificationConfig.defaultEveningReportTime;
     final timeParts = reportTime.split(':');
 
     var scheduledTime = DateTime(
@@ -271,15 +295,17 @@ class SpecificNotifications {
       payload: {'action': 'show_report', 'report_type': 'evening'},
     );
 
-    print('Evening report scheduled for $reportTime');
+    logger.i('Evening report scheduled for $reportTime');
   }
 
   // ==================== ПОСТ И ЭЛЕКТРОЛИТЫ ====================
 
   /// Планирование напоминания об электролитах в пост (PRO)
-  Future<void> scheduleFastingElectrolyteReminder(DateTime scheduledTime) async {
+  Future<void> scheduleFastingElectrolyteReminder(
+    DateTime scheduledTime,
+  ) async {
     if (!await _limitsHelper.isProUser()) {
-      print('Fasting reminders require PRO subscription');
+      logger.i('Fasting reminders require PRO subscription');
       return;
     }
 
@@ -299,7 +325,9 @@ class SpecificNotifications {
       },
     );
 
-    print('Fasting electrolyte reminder scheduled for ${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}');
+    logger.i(
+      'Fasting electrolyte reminder scheduled for ${scheduledTime.hour}:${scheduledTime.minute.toString().padLeft(2, '0')}',
+    );
   }
 
   // ==================== УМНЫЕ НАПОМИНАНИЯ ====================
@@ -312,7 +340,7 @@ class SpecificNotifications {
     Map<String, dynamic>? additionalPayload,
   }) async {
     if (!await _limitsHelper.isProUser()) {
-      print('Smart reminders require PRO subscription');
+      logger.i('Smart reminders require PRO subscription');
       return;
     }
 
@@ -331,7 +359,7 @@ class SpecificNotifications {
       payload: payload,
     );
 
-    print('Smart reminder sent: $context');
+    logger.i('Smart reminder sent: $context');
   }
 
   // ==================== УТИЛИТЫ ====================
@@ -350,20 +378,32 @@ class SpecificNotifications {
       NotificationType.alcoholRecovery,
       NotificationType.morningCheckIn,
     };
-    
-    print('Cancelled alcohol-related notifications');
+
+    logger.i('Cancelled alcohol-related notifications');
   }
 
   /// Получение параметров алкоголя из Remote Config
   Map<String, dynamic> getAlcoholSettings() {
     return {
-      'standardDrinkGrams': _remoteConfig.getInt(NotificationConfig.rcStandardDrinkGrams),
-      'waterPerDrink': _remoteConfig.getInt(NotificationConfig.rcAlcoholDrinkBonus),
-      'sodiumPerDrink': _remoteConfig.getInt(NotificationConfig.rcSodiumPerDrink),
-      'magnesiumAfterAlc': _remoteConfig.getInt(NotificationConfig.rcMagnesiumAfterAlc),
-      'hriRiskPerDrink': _remoteConfig.getInt(NotificationConfig.rcAlcoholHriRisk),
+      'standardDrinkGrams': _remoteConfig.getInt(
+        NotificationConfig.rcStandardDrinkGrams,
+      ),
+      'waterPerDrink': _remoteConfig.getInt(
+        NotificationConfig.rcAlcoholDrinkBonus,
+      ),
+      'sodiumPerDrink': _remoteConfig.getInt(
+        NotificationConfig.rcSodiumPerDrink,
+      ),
+      'magnesiumAfterAlc': _remoteConfig.getInt(
+        NotificationConfig.rcMagnesiumAfterAlc,
+      ),
+      'hriRiskPerDrink': _remoteConfig.getInt(
+        NotificationConfig.rcAlcoholHriRisk,
+      ),
       'hriRiskCap': _remoteConfig.getInt(NotificationConfig.rcAlcoholHriCap),
-      'eveningCutoff': _remoteConfig.getString(NotificationConfig.rcAlcoholEveningCutoff),
+      'eveningCutoff': _remoteConfig.getString(
+        NotificationConfig.rcAlcoholEveningCutoff,
+      ),
     };
   }
 }

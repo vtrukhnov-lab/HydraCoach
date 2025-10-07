@@ -1,7 +1,9 @@
 import 'package:appsflyer_sdk/appsflyer_sdk.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hydracoach/utils/app_logger.dart';
 
 import 'appsflyer_config.dart';
+
 /// Сервис для работы с AppsFlyer SDK.
 /// Отслеживает атрибуцию, conversion события и интеграцию с кампаниями.
 class AppsFlyerService {
@@ -27,7 +29,9 @@ class AppsFlyerService {
 
       if (!config.isComplete) {
         if (kDebugMode) {
-          print('⚠️ AppsFlyer конфигурация неполная, пропускаем инициализацию');
+          logger.d(
+            '⚠️ AppsFlyer конфигурация неполная, пропускаем инициализацию',
+          );
         }
         return;
       }
@@ -36,7 +40,8 @@ class AppsFlyerService {
         afDevKey: config.devKey,
         appId: config.appId ?? '', // только для iOS, пустая строка для Android
         showDebug: kDebugMode,
-        timeToWaitForATTUserAuthorization: 60, // iOS 14.5+ ATT - увеличено до 60 сек
+        timeToWaitForATTUserAuthorization:
+            60, // iOS 14.5+ ATT - увеличено до 60 сек
         disableAdvertisingIdentifier: false,
         disableCollectASA: false, // Apple Search Ads
         manualStart: true, // 🔥 КРИТИЧНО для Purchase Connector!
@@ -47,20 +52,22 @@ class AppsFlyerService {
       // Настраиваем callbacks
       _appsflyerSdk!.onAppOpenAttribution((data) {
         if (kDebugMode) {
-          print('📱 AppsFlyer onAppOpenAttribution: $data');
+          logger.d('📱 AppsFlyer onAppOpenAttribution: $data');
         }
         _handleDeepLink(data);
       });
 
       _appsflyerSdk!.onInstallConversionData((data) {
         if (kDebugMode) {
-          print('📊 AppsFlyer onInstallConversionData: $data');
-          print('📊 Install Conversion Data:');
-          print('  status: ${data['status']}');
-          print('  payload: ${data['payload']}');
+          logger.d('📊 AppsFlyer onInstallConversionData: $data');
+          logger.d('📊 Install Conversion Data:');
+          logger.d('  status: ${data['status']}');
+          logger.d('  payload: ${data['payload']}');
           if (data['payload'] != null) {
             final payload = data['payload'] as Map<dynamic, dynamic>;
-            print('📊 User Type: ${payload['af_status'] == 'Organic' ? 'Organic' : 'Non-Organic'}');
+            logger.d(
+              '📊 User Type: ${payload['af_status'] == 'Organic' ? 'Organic' : 'Non-Organic'}',
+            );
           }
         }
         _handleInstallConversion(data);
@@ -68,7 +75,7 @@ class AppsFlyerService {
 
       _appsflyerSdk!.onDeepLinking((data) {
         if (kDebugMode) {
-          print('🔗 AppsFlyer onDeepLinking: $data');
+          logger.d('🔗 AppsFlyer onDeepLinking: $data');
         }
         _handleDeepLink(data.deepLink?.clickEvent);
       });
@@ -83,18 +90,22 @@ class AppsFlyerService {
       _isInitialized = true;
 
       if (kDebugMode) {
-        print('✅ AppsFlyer SDK инициализирован (но не запущен из-за manualStart: true)');
-        print('   Dev Key: ${config.devKey}');
-        print('   Bundle ID: ${config.bundleId}');
+        logger.d(
+          '✅ AppsFlyer SDK инициализирован (но не запущен из-за manualStart: true)',
+        );
+        logger.d('   Dev Key: ${config.devKey}');
+        logger.d('   Bundle ID: ${config.bundleId}');
         if (config.appId != null) {
-          print('   App ID: ${config.appId}');
+          logger.d('   App ID: ${config.appId}');
         }
-        print('ℹ️ Используйте startSDK() для запуска после настройки согласий');
+        logger.d(
+          'ℹ️ Используйте startSDK() для запуска после настройки согласий',
+        );
       }
     } catch (error, stackTrace) {
       if (kDebugMode) {
-        print('❌ Ошибка инициализации AppsFlyer: $error');
-        print(stackTrace);
+        logger.d('❌ Ошибка инициализации AppsFlyer: $error');
+        logger.d(stackTrace.toString());
       }
     }
   }
@@ -104,14 +115,14 @@ class AppsFlyerService {
   Future<void> startSDK() async {
     if (!_isInitialized || _appsflyerSdk == null) {
       if (kDebugMode) {
-        print('❌ AppsFlyer не инициализирован, невозможно запустить SDK');
+        logger.d('❌ AppsFlyer не инициализирован, невозможно запустить SDK');
       }
       return;
     }
 
     if (_isStarted) {
       if (kDebugMode) {
-        print('⚠️ AppsFlyer SDK уже запущен');
+        logger.d('⚠️ AppsFlyer SDK уже запущен');
       }
       return;
     }
@@ -121,13 +132,13 @@ class AppsFlyerService {
       _isStarted = true;
 
       if (kDebugMode) {
-        print('🚀 AppsFlyer SDK запущен успешно');
-        print('✅ Теперь можно инициализировать Purchase Connector');
+        logger.d('🚀 AppsFlyer SDK запущен успешно');
+        logger.d('✅ Теперь можно инициализировать Purchase Connector');
       }
     } catch (error, stackTrace) {
       if (kDebugMode) {
-        print('❌ Ошибка запуска AppsFlyer SDK: $error');
-        print(stackTrace);
+        logger.d('❌ Ошибка запуска AppsFlyer SDK: $error');
+        logger.d(stackTrace.toString());
       }
     }
   }
@@ -139,7 +150,9 @@ class AppsFlyerService {
   }) async {
     if (!_isInitialized || _appsflyerSdk == null) {
       if (kDebugMode) {
-        print('⚠️ AppsFlyer не инициализирован, событие пропущено: $eventName');
+        logger.d(
+          '⚠️ AppsFlyer не инициализирован, событие пропущено: $eventName',
+        );
       }
       return;
     }
@@ -148,14 +161,14 @@ class AppsFlyerService {
       await _appsflyerSdk!.logEvent(eventName, eventValues ?? {});
 
       if (kDebugMode) {
-        print('📊 AppsFlyer Event: $eventName');
+        logger.d('📊 AppsFlyer Event: $eventName');
         if (eventValues != null && eventValues.isNotEmpty) {
-          print('   Parameters: $eventValues');
+          logger.d('   Parameters: $eventValues');
         }
       }
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Ошибка отправки AppsFlyer события $eventName: $error');
+        logger.d('❌ Ошибка отправки AppsFlyer события $eventName: $error');
       }
     }
   }
@@ -170,7 +183,7 @@ class AppsFlyerService {
       return await _appsflyerSdk!.getAppsFlyerUID();
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Ошибка получения AppsFlyer UID: $error');
+        logger.d('❌ Ошибка получения AppsFlyer UID: $error');
       }
       return null;
     }
@@ -186,17 +199,16 @@ class AppsFlyerService {
       _appsflyerSdk!.setCustomerUserId(customerId);
 
       if (kDebugMode) {
-        print('👤 AppsFlyer Customer ID установлен: $customerId');
+        logger.d('👤 AppsFlyer Customer ID установлен: $customerId');
       }
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Ошибка установки Customer ID: $error');
+        logger.d('❌ Ошибка установки Customer ID: $error');
       }
     }
   }
 
   // ==================== CONVERSION EVENTS ====================
-
 
   /// Валидация покупки через AppsFlyer (Android) - LEGACY режим
   /// Используется когда Purchase Connector недоступен для Flutter
@@ -209,18 +221,24 @@ class AppsFlyerService {
   }) async {
     if (!_isInitialized || _appsflyerSdk == null) {
       if (kDebugMode) {
-        print('⚠️ AppsFlyer не инициализирован, пропускаем валидацию покупки');
+        logger.d(
+          '⚠️ AppsFlyer не инициализирован, пропускаем валидацию покупки',
+        );
       }
       return;
     }
 
     try {
       if (kDebugMode) {
-        print('🔥 AppsFlyer LEGACY валидация Android подписки:');
-        print('   Product: $productId');
-        print('   Token: ***${purchaseToken.length > 4 ? purchaseToken.substring(purchaseToken.length - 4) : purchaseToken}');
-        print('   Price: $price $currency');
-        print('   Event: ${productId.contains('trial') ? 'af_start_trial' : 'af_subscribe'}');
+        logger.d('🔥 AppsFlyer LEGACY валидация Android подписки:');
+        logger.d('   Product: $productId');
+        logger.d(
+          '   Token: ***${purchaseToken.length > 4 ? purchaseToken.substring(purchaseToken.length - 4) : purchaseToken}',
+        );
+        logger.d('   Price: $price $currency');
+        logger.d(
+          '   Event: ${productId.contains('trial') ? 'af_start_trial' : 'af_subscribe'}',
+        );
       }
 
       // Логируем событие подписки вручную через стандартный AppsFlyer event
@@ -228,7 +246,7 @@ class AppsFlyerService {
         'af_revenue': price,
         'af_currency': currency,
         'af_quantity': 1,
-        'af_content_id': productId,  // Для подписок используется af_content_id
+        'af_content_id': productId, // Для подписок используется af_content_id
         'af_purchase_token': purchaseToken,
         'af_validation_method': 'legacy_android',
         ...?additionalData,
@@ -238,23 +256,20 @@ class AppsFlyerService {
       String eventName = 'af_subscribe'; // По умолчанию для подписок
 
       // Если это триал, используем специальное событие
-      if (productId.contains('trial') || (additionalData?['subscription_type'] == 'trial')) {
+      if (productId.contains('trial') ||
+          (additionalData?['subscription_type'] == 'trial')) {
         eventName = 'af_start_trial';
       }
 
       // Отправляем событие подписки
-      await logEvent(
-        eventName: eventName,
-        eventValues: eventData,
-      );
+      await logEvent(eventName: eventName, eventValues: eventData);
 
       if (kDebugMode) {
-        print('✅ AppsFlyer Legacy Android валидация отправлена: $eventName');
+        logger.d('✅ AppsFlyer Legacy Android валидация отправлена: $eventName');
       }
-
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Ошибка AppsFlyer Legacy Android валидации: $error');
+        logger.d('❌ Ошибка AppsFlyer Legacy Android валидации: $error');
       }
     }
   }
@@ -269,8 +284,10 @@ class AppsFlyerService {
     Map<String, dynamic>? additionalData,
   }) async {
     if (kDebugMode) {
-      print('⚠️ validateAndLogIOSPurchase deprecated - используйте Purchase Connector');
-      print('   Product: $productId, Price: $price $currency');
+      logger.d(
+        '⚠️ validateAndLogIOSPurchase deprecated - используйте Purchase Connector',
+      );
+      logger.d('   Product: $productId, Price: $price $currency');
     }
 
     // Purchase Connector автоматически обрабатывает валидацию
@@ -278,14 +295,10 @@ class AppsFlyerService {
   }
 
   /// Завершенная регистрация
-  Future<void> logCompleteRegistration({
-    String? method,
-  }) async {
+  Future<void> logCompleteRegistration({String? method}) async {
     await logEvent(
       eventName: 'af_complete_registration',
-      eventValues: {
-        if (method != null) 'af_registration_method': method,
-      },
+      eventValues: {if (method != null) 'af_registration_method': method},
     );
   }
 
@@ -364,7 +377,9 @@ class AppsFlyerService {
   }) async {
     if (!_isInitialized || _appsflyerSdk == null) {
       if (kDebugMode) {
-        print('⚠️ AppsFlyer не инициализирован, Ad Revenue событие пропущено');
+        logger.d(
+          '⚠️ AppsFlyer не инициализирован, Ad Revenue событие пропущено',
+        );
       }
       return;
     }
@@ -378,20 +393,17 @@ class AppsFlyerService {
         ...additionalParams,
       };
 
-      await logEvent(
-        eventName: 'af_ad_revenue',
-        eventValues: adRevenueData,
-      );
+      await logEvent(eventName: 'af_ad_revenue', eventValues: adRevenueData);
 
       if (kDebugMode) {
-        print('💰 AppsFlyer Ad Revenue logged:');
-        print('   Network: $mediationNetwork');
-        print('   Revenue: $revenue $currencyCode');
-        print('   Additional params: $additionalParams');
+        logger.d('💰 AppsFlyer Ad Revenue logged:');
+        logger.d('   Network: $mediationNetwork');
+        logger.d('   Revenue: $revenue $currencyCode');
+        logger.d('   Additional params: $additionalParams');
       }
     } catch (error) {
       if (kDebugMode) {
-        print('❌ Ошибка отправки Ad Revenue: $error');
+        logger.d('❌ Ошибка отправки Ad Revenue: $error');
       }
     }
   }
@@ -412,19 +424,20 @@ class AppsFlyerService {
   void _handleInstallConversion(Map<dynamic, dynamic> data) {
     // Обработка данных о конверсии установки
     if (kDebugMode) {
-      print('📊 Install Conversion Data:');
-      print('  status: ${data['status']}');
-      print('  payload: ${data['payload']}');
+      logger.d('📊 Install Conversion Data:');
+      logger.d('  status: ${data['status']}');
+      logger.d('  payload: ${data['payload']}');
     }
 
     // Здесь можно добавить логику для обработки органического vs. неорганического трафика
     // и настройки персонализации в зависимости от источника
 
-    final isOrganic = data['is_first_launch'] == true &&
-                      (data['af_status'] == 'Organic' || data['media_source'] == null);
+    final isOrganic =
+        data['is_first_launch'] == true &&
+        (data['af_status'] == 'Organic' || data['media_source'] == null);
 
     if (kDebugMode) {
-      print('📊 User Type: ${isOrganic ? 'Organic' : 'Non-Organic'}');
+      logger.d('📊 User Type: ${isOrganic ? 'Organic' : 'Non-Organic'}');
     }
   }
 
@@ -432,9 +445,9 @@ class AppsFlyerService {
     if (data == null) return;
 
     if (kDebugMode) {
-      print('🔗 Deep Link Data:');
+      logger.d('🔗 Deep Link Data:');
       data.forEach((key, value) {
-        print('  $key: $value');
+        logger.d('  $key: $value');
       });
     }
 

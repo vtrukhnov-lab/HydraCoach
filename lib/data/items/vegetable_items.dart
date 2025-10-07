@@ -29,7 +29,10 @@ class VegetableItems {
       icon: '🥒',
       properties: {
         'type': 'vegetable',
-        'defaultWeight': {'metric': 119, 'imperial': 4.2}, // g/oz (1 cup sliced)
+        'defaultWeight': {
+          'metric': 119,
+          'imperial': 4.2,
+        }, // g/oz (1 cup sliced)
         'waterPercentage': 0.95, // 95% water - самое высокое!
         'caloriesPer100g': 16,
         'sugarPer100g': 1.7,
@@ -49,7 +52,10 @@ class VegetableItems {
       icon: '🍅',
       properties: {
         'type': 'vegetable',
-        'defaultWeight': {'metric': 149, 'imperial': 5.3}, // g/oz (1 cup chopped)
+        'defaultWeight': {
+          'metric': 149,
+          'imperial': 5.3,
+        }, // g/oz (1 cup chopped)
         'waterPercentage': 0.94, // 94% water
         'caloriesPer100g': 18,
         'sugarPer100g': 2.6,
@@ -69,7 +75,10 @@ class VegetableItems {
       icon: '🥕',
       properties: {
         'type': 'vegetable',
-        'defaultWeight': {'metric': 122, 'imperial': 4.3}, // g/oz (1 cup chopped)
+        'defaultWeight': {
+          'metric': 122,
+          'imperial': 4.3,
+        }, // g/oz (1 cup chopped)
         'waterPercentage': 0.88, // 88% water
         'caloriesPer100g': 41,
         'sugarPer100g': 4.7,
@@ -91,7 +100,10 @@ class VegetableItems {
       icon: '🥬',
       properties: {
         'type': 'vegetable',
-        'defaultWeight': {'metric': 89, 'imperial': 3.1}, // g/oz (1 cup chopped)
+        'defaultWeight': {
+          'metric': 89,
+          'imperial': 3.1,
+        }, // g/oz (1 cup chopped)
         'waterPercentage': 0.93, // 93% water
         'caloriesPer100g': 25,
         'sugarPer100g': 3.2,
@@ -111,7 +123,10 @@ class VegetableItems {
       icon: '🥦',
       properties: {
         'type': 'vegetable',
-        'defaultWeight': {'metric': 91, 'imperial': 3.2}, // g/oz (1 cup chopped)
+        'defaultWeight': {
+          'metric': 91,
+          'imperial': 3.2,
+        }, // g/oz (1 cup chopped)
         'waterPercentage': 0.89, // 89% water
         'caloriesPer100g': 34,
         'sugarPer100g': 1.5,
@@ -131,7 +146,10 @@ class VegetableItems {
       icon: '🥬',
       properties: {
         'type': 'vegetable',
-        'defaultWeight': {'metric': 36, 'imperial': 1.3}, // g/oz (1 cup shredded)
+        'defaultWeight': {
+          'metric': 36,
+          'imperial': 1.3,
+        }, // g/oz (1 cup shredded)
         'waterPercentage': 0.95, // 95% water
         'caloriesPer100g': 15,
         'sugarPer100g': 0.8,
@@ -151,7 +169,10 @@ class VegetableItems {
       icon: '🫑',
       properties: {
         'type': 'vegetable',
-        'defaultWeight': {'metric': 149, 'imperial': 5.3}, // g/oz (1 cup chopped)
+        'defaultWeight': {
+          'metric': 149,
+          'imperial': 5.3,
+        }, // g/oz (1 cup chopped)
         'waterPercentage': 0.92, // 92% water
         'caloriesPer100g': 31,
         'sugarPer100g': 4.2,
@@ -171,7 +192,10 @@ class VegetableItems {
       icon: '🧅',
       properties: {
         'type': 'vegetable',
-        'defaultWeight': {'metric': 160, 'imperial': 5.6}, // g/oz (1 cup chopped)
+        'defaultWeight': {
+          'metric': 160,
+          'imperial': 5.6,
+        }, // g/oz (1 cup chopped)
         'waterPercentage': 0.89, // 89% water
         'caloriesPer100g': 40,
         'sugarPer100g': 4.2,
@@ -191,7 +215,10 @@ class VegetableItems {
       icon: '🥔',
       properties: {
         'type': 'vegetable',
-        'defaultWeight': {'metric': 213, 'imperial': 7.5}, // g/oz (1 medium potato)
+        'defaultWeight': {
+          'metric': 213,
+          'imperial': 7.5,
+        }, // g/oz (1 medium potato)
         'waterPercentage': 0.79, // 79% water
         'caloriesPer100g': 77,
         'sugarPer100g': 0.8,
