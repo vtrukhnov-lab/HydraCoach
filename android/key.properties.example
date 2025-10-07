@@ -1,0 +1,15 @@
+# ⚠️  ВАЖНО: Этот файл - ТОЛЬКО ШАБЛОН!
+# НЕ коммитьте реальные пароли в git!
+
+# Скопируйте этот файл в key.properties и замените значения:
+# cp key.properties.example key.properties
+
+# Keystore configuration для подписи Android релизов
+storePassword=YOUR_STORE_PASSWORD_HERE
+keyPassword=YOUR_KEY_PASSWORD_HERE
+keyAlias=upload
+storeFile=C:/android/keys/upload-keystore.jks
+
+# Альтернативно, используйте переменные окружения:
+# storePassword=${KEYSTORE_PASSWORD}
+# keyPassword=${KEY_PASSWORD}

@@ -1,0 +1,163 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  analyze:
+    name: 🔬 Analyze & Format Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.3'
+          channel: 'stable'
+          cache: true
+
+      - name: 📦 Install dependencies
+        run: flutter pub get
+
+      - name: 📐 Check formatting
+        run: dart format --set-exit-if-changed lib/ test/
+
+      - name: 🔬 Flutter analyze
+        run: flutter analyze
+
+      - name: 🔍 Check for print() statements
+        run: |
+          if grep -r "print(" lib/ --include="*.dart" | grep -v "// print(" | grep -v "//print("; then
+            echo "❌ Found print() statements! Use logger instead."
+            exit 1
+          fi
+          echo "✅ No print() statements found"
+
+      - name: 📋 Validate version sync
+        run: |
+          # Check version synchronization
+          PUBSPEC_VERSION=$(grep "version:" pubspec.yaml | head -1 | sed 's/#.*//' | sed 's/.*version: *\([0-9.]*\)+.*/\1/' | tr -d ' ')
+          PUBSPEC_BUILD=$(grep "version:" pubspec.yaml | head -1 | sed 's/#.*//' | sed 's/.*+\([0-9]*\).*/\1/' | tr -d ' ')
+
+          GRADLE_VERSION=$(grep "versionName" android/app/build.gradle.kts | sed 's/.*versionName = "\([0-9.]*\)".*/\1/')
+          GRADLE_BUILD=$(grep "versionCode" android/app/build.gradle.kts | sed 's/.*versionCode = \([0-9]*\).*/\1/')
+
+          echo "📄 pubspec.yaml: $PUBSPEC_VERSION+$PUBSPEC_BUILD"
+          echo "🤖 build.gradle.kts: $GRADLE_VERSION (build $GRADLE_BUILD)"
+
+          if [ "$PUBSPEC_VERSION" != "$GRADLE_VERSION" ]; then
+            echo "❌ Version mismatch: pubspec ($PUBSPEC_VERSION) != gradle ($GRADLE_VERSION)"
+            exit 1
+          fi
+
+          if [ "$PUBSPEC_BUILD" != "$GRADLE_BUILD" ]; then
+            echo "❌ Build mismatch: pubspec ($PUBSPEC_BUILD) != gradle ($GRADLE_BUILD)"
+            exit 1
+          fi
+
+          echo "✅ Versions synchronized"
+
+  test:
+    name: 🧪 Run Tests
+    runs-on: ubuntu-latest
+    needs: analyze
+    timeout-minutes: 15
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.3'
+          channel: 'stable'
+          cache: true
+
+      - name: 📦 Install dependencies
+        run: flutter pub get
+
+      - name: 🧪 Run tests
+        run: flutter test --coverage
+
+      - name: 📊 Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+
+  build-apk:
+    name: 🔨 Build Debug APK
+    runs-on: ubuntu-latest
+    needs: analyze
+    timeout-minutes: 20
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.3'
+          channel: 'stable'
+          cache: true
+
+      - name: 📦 Install dependencies
+        run: flutter pub get
+
+      - name: 🔨 Build debug APK
+        run: flutter build apk --debug
+
+      - name: 📦 Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 7
+
+  security-check:
+    name: 🔐 Security Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Check for secrets
+        run: |
+          echo "🔍 Checking for potential secrets..."
+
+          # Check for common secret patterns
+          if grep -rE "(api[_-]?key|apikey|api[_-]?secret|password|secret[_-]?key)" lib/ --include="*.dart" | grep -vE "(//|#|/\*|\*/|TODO|FIXME|example|placeholder|your[_-]key[_-]here|RemoteConfig|Remote Config)"; then
+            echo "⚠️ Found potential secrets in code!"
+            echo "Please use Firebase Remote Config or environment variables"
+            exit 1
+          fi
+
+          echo "✅ No hardcoded secrets found"
+
+      - name: 🔐 Check key.properties
+        run: |
+          if [ -f "android/key.properties" ]; then
+            echo "❌ key.properties found in repository!"
+            echo "This file should be in .gitignore"
+            exit 1
+          fi
+          echo "✅ key.properties not in repository"

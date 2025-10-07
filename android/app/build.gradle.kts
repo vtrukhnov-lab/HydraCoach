@@ -48,8 +48,8 @@ android {
         applicationId = "com.playcus.hydracoach"
         minSdk = 28  // Android 9.0 (API 28)
         targetSdk = 35
-        versionCode = 34
-        versionName = "2.1.3"
+        versionCode = 35
+        versionName = "2.1.4"
         multiDexEnabled = true
     }
 
@@ -67,8 +67,10 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = false
-            isShrinkResources = false
+            // ✅ Включена обфускация для защиты от reverse engineering
+            isMinifyEnabled = true
+            // ✅ Удаление неиспользуемых ресурсов (меньше APK)
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

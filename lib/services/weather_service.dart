@@ -9,11 +9,15 @@ import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:hydracoach/l10n/app_localizations.dart';
+import 'package:hydracoach/services/remote_config_service.dart';
 
 class WeatherService extends ChangeNotifier {
   // OpenWeatherMap
-  static const String apiKey = 'c460f153f615a343e0fe5158eae73121';
   static const String baseUrl = 'https://api.openweathermap.org/data/2.5/weather';
+
+  // 🔐 API ключ загружается из Firebase Remote Config для безопасности
+  // Можно изменить без релиза через Firebase Console
+  String get apiKey => RemoteConfigService.instance.getOpenWeatherMapApiKey();
 
   // Демо-режим (оффлайн)
   static const bool useDemo = false;
@@ -113,9 +117,12 @@ class WeatherService extends ChangeNotifier {
 
       if (kDebugMode) debugPrint('Got location: $lat, $lon');
 
+      // Получаем API ключ из Remote Config
+      final apiKeyValue = RemoteConfigService.instance.getOpenWeatherMapApiKey();
+
       // Берём язык "en", чтобы описания были предсказуемыми
       final url = Uri.parse(
-        '$baseUrl?lat=$lat&lon=$lon&appid=$apiKey&units=metric&lang=en',
+        '$baseUrl?lat=$lat&lon=$lon&appid=$apiKeyValue&units=metric&lang=en',
       );
 
       final response = await http.get(url).timeout(

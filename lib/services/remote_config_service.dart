@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:hydracoach/utils/app_logger.dart';
 
 /// Результат расчета корректировок жары
 class HeatAdjustments {
@@ -44,12 +45,12 @@ class RemoteConfigService {
       _initialized = true;
       
       if (kDebugMode) {
-        print('✅ Remote Config инициализирован');
-        print('📊 Параметры загружены: ${_remoteConfig!.getAll().length}');
+        logger.i('✅ Remote Config инициализирован');
+        logger.i('📊 Параметры загружены: ${_remoteConfig!.getAll().length}');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Ошибка инициализации Remote Config: $e');
+        logger.e('❌ Ошибка инициализации Remote Config: $e');
       }
     }
   }
@@ -167,6 +168,9 @@ class RemoteConfigService {
       'feature_contextual_reminders': true,
       'feature_heat_protocols': true,
       
+      // 🔐 API Keys (безопасное хранение)
+      'openweathermap_api_key': 'c460f153f615a343e0fe5158eae73121',
+
       // 📊 SDK паблишера (Релиз 3)
       'publisher_sdk_enabled': false,
       'appsflyer_enabled': false,
@@ -240,11 +244,11 @@ class RemoteConfigService {
   T _getValue<T>(String key, T defaultValue) {
     if (!_initialized || _remoteConfig == null) {
       if (key == 'paywall_show_trial') {
-        print('🧪 RC DEBUG: _getValue($key) -> not initialized (_initialized: $_initialized, _remoteConfig: ${_remoteConfig != null}), returning default: $defaultValue');
+        logger.d('🧪 RC DEBUG: _getValue($key) -> not initialized (_initialized: $_initialized, _remoteConfig: ${_remoteConfig != null}), returning default: $defaultValue');
       }
       return defaultValue;
     }
-    
+
     try {
       if (T == String) {
         return _remoteConfig!.getString(key) as T;
@@ -254,14 +258,14 @@ class RemoteConfigService {
         return _remoteConfig!.getDouble(key) as T;
       } else if (T == bool) {
         final result = _remoteConfig!.getBool(key) as T;
-        print('🧪 RC DEBUG: _getValue($key) -> bool result: $result');
+        logger.d('🧪 RC DEBUG: _getValue($key) -> bool result: $result');
         return result;
       } else {
-        print('🧪 RC DEBUG: _getValue($key) -> unsupported type ${T.toString()}, returning default: $defaultValue');
+        logger.d('🧪 RC DEBUG: _getValue($key) -> unsupported type ${T.toString()}, returning default: $defaultValue');
         return defaultValue;
       }
     } catch (e) {
-      print('🧪 RC DEBUG: _getValue($key) -> error: $e, returning default: $defaultValue');
+      logger.d('🧪 RC DEBUG: _getValue($key) -> error: $e, returning default: $defaultValue');
     }
 
     return defaultValue;
@@ -377,19 +381,19 @@ class RemoteConfigService {
     try {
       // Если Remote Config не инициализирован - используем default true
       if (!_initialized || _remoteConfig == null) {
-        print('🧪 RC DEBUG: paywallShowTrial not initialized, returning true');
+        logger.d('🧪 RC DEBUG: paywallShowTrial not initialized, returning true');
         return true;
       }
 
       // Получаем значение из Remote Config
       final value = _remoteConfig!.getBool('paywall_show_trial');
-      print('🧪 RC DEBUG: paywallShowTrial remote value: $value');
+      logger.d('🧪 RC DEBUG: paywallShowTrial remote value: $value');
 
       // В production хотим чтобы trial был включен - возвращаем true независимо от Remote Config
       // TODO: После настройки Remote Config в Firebase можно убрать это и вернуть просто value
       return true;
     } catch (e) {
-      print('🧪 RC DEBUG: paywallShowTrial error: $e, returning true');
+      logger.d('🧪 RC DEBUG: paywallShowTrial error: $e, returning true');
       return true;
     }
   }
@@ -457,13 +461,13 @@ class RemoteConfigService {
       await _remoteConfig!.fetchAndActivate();
       
       if (kDebugMode) {
-        print('🔄 Remote Config обновлен принудительно');
+        logger.i('🔄 Remote Config обновлен принудительно');
       }
-      
+
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Ошибка принудительного обновления: $e');
+        logger.e('❌ Ошибка принудительного обновления: $e');
       }
       return false;
     }
@@ -489,5 +493,29 @@ class RemoteConfigService {
     } else {
       return HeatAdjustments(heatWaterAdjustmentHigh, heatSodiumAdjustmentHigh);
     }
+  }
+
+  /// 🔐 Получить OpenWeatherMap API ключ
+  /// Использует Firebase Remote Config для безопасного хранения
+  String getOpenWeatherMapApiKey() {
+    if (_remoteConfig == null) {
+      // Fallback если Remote Config не инициализирован
+      logger.w('⚠️ Remote Config не инициализирован, используется fallback API ключ');
+      return 'c460f153f615a343e0fe5158eae73121';
+    }
+
+    final apiKey = _remoteConfig!.getString('openweathermap_api_key');
+
+    if (apiKey.isEmpty) {
+      logger.w('⚠️ API ключ не найден в Remote Config, используется fallback');
+      return 'c460f153f615a343e0fe5158eae73121';
+    }
+
+    // В production НЕ логируем полный ключ для безопасности
+    if (kDebugMode) {
+      logger.i('🔑 Загружен API ключ: ${apiKey.substring(0, 8)}...');
+    }
+
+    return apiKey;
   }
 }
