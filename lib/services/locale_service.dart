@@ -17,15 +17,55 @@ class LocaleService extends ChangeNotifier {
     LocaleInfo('en', 'English', '🇬🇧'),
     LocaleInfo('es', 'Español', '🇪🇸'),
     LocaleInfo('ru', 'Русский', '🇷🇺'),
+    LocaleInfo('de', 'Deutsch', '🇩🇪'),
+    LocaleInfo('ja', '日本語', '🇯🇵'),
+    LocaleInfo('ko', '한국어', '🇰🇷'),
+    LocaleInfo('zh', '简体中文', '🇨🇳'),
+    LocaleInfo('zh_TW', '繁體中文', '🇹🇼'),
+    LocaleInfo('nl', 'Nederlands', '🇳🇱'),
+    LocaleInfo('pt', 'Português', '🇵🇹'),
   ];
 
   Locale _currentLocale = const Locale('en');
 
   Locale get currentLocale => _currentLocale;
-  String get currentCode => _currentLocale.languageCode;
+  String get currentCode => _getFullLocaleCode(_currentLocale);
+
+  /// Helper method to parse locale code like 'zh_TW' into Locale('zh', 'TW')
+  static Locale _parseLocaleCode(String code) {
+    if (code.contains('_')) {
+      final parts = code.split('_');
+      return Locale(parts[0], parts[1]);
+    }
+    return Locale(code);
+  }
+
+  /// Helper method to get full locale code like 'zh_TW' from Locale
+  static String _getFullLocaleCode(Locale locale) {
+    if (locale.countryCode != null && locale.countryCode!.isNotEmpty) {
+      return '${locale.languageCode}_${locale.countryCode}';
+    }
+    return locale.languageCode;
+  }
+
+  /// Check if system locale matches any of our supported locales
+  static String? _findMatchingLocaleCode(Locale systemLocale) {
+    // First try exact match with country code (e.g., zh_TW)
+    final fullCode = _getFullLocaleCode(systemLocale);
+    if (supportedLocales.any((l) => l.code == fullCode)) {
+      return fullCode;
+    }
+
+    // Then try language code only (e.g., zh)
+    if (supportedLocales.any((l) => l.code == systemLocale.languageCode)) {
+      return systemLocale.languageCode;
+    }
+
+    return null;
+  }
 
   List<Locale> get flutterSupportedLocales =>
-      supportedLocales.map((e) => Locale(e.code)).toList();
+      supportedLocales.map((e) => _parseLocaleCode(e.code)).toList();
 
   Future<void> initialize() async {
     if (kDebugMode) {
@@ -38,36 +78,44 @@ class LocaleService extends ChangeNotifier {
     final saved = prefs.getString('locale');
 
     if (saved != null && supportedLocales.any((l) => l.code == saved)) {
-      _currentLocale = Locale(saved);
+      _currentLocale = _parseLocaleCode(saved);
       if (kDebugMode) {
         logger.d('[LocaleService] Loaded saved locale: $saved');
       }
     } else {
       // Try to detect system locale
-      final systemLocale = WidgetsBinding.instance.window.locale;
-      final isSupported = supportedLocales.any(
-        (locale) => locale.code == systemLocale.languageCode,
-      );
+      final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
+      final matchingCode = _findMatchingLocaleCode(systemLocale);
 
-      if (isSupported) {
-        _currentLocale = Locale(systemLocale.languageCode);
+      if (matchingCode != null) {
+        _currentLocale = _parseLocaleCode(matchingCode);
+        if (kDebugMode) {
+          logger.d(
+            '[LocaleService] Detected system locale: ${systemLocale.toLanguageTag()} → matched to $matchingCode',
+          );
+        }
       } else {
         _currentLocale = const Locale('en');
+        if (kDebugMode) {
+          logger.d(
+            '[LocaleService] System locale ${systemLocale.toLanguageTag()} not supported, using English',
+          );
+        }
       }
 
-      await prefs.setString('locale', _currentLocale.languageCode);
+      final codeToSave = _getFullLocaleCode(_currentLocale);
+      await prefs.setString('locale', codeToSave);
       if (kDebugMode) {
-        logger.d(
-          '[LocaleService] Set initial locale: ${_currentLocale.languageCode}',
-        );
+        logger.d('[LocaleService] Set initial locale: $codeToSave');
       }
     }
 
     // Load notification texts for current locale
-    await NotificationTexts.setLocale(_currentLocale.languageCode);
+    final localeCodeForNotifications = _getFullLocaleCode(_currentLocale);
+    await NotificationTexts.setLocale(localeCodeForNotifications);
     if (kDebugMode) {
       logger.d(
-        '[LocaleService] NotificationTexts initialized with: ${_currentLocale.languageCode}',
+        '[LocaleService] NotificationTexts initialized with: $localeCodeForNotifications',
       );
     }
 
@@ -76,10 +124,12 @@ class LocaleService extends ChangeNotifier {
 
   Future<void> setLocale(String code) async {
     if (!supportedLocales.any((l) => l.code == code)) return;
-    if (_currentLocale.languageCode == code) return;
 
-    final oldLocale = _currentLocale.languageCode;
-    _currentLocale = Locale(code);
+    final currentCode = _getFullLocaleCode(_currentLocale);
+    if (currentCode == code) return;
+
+    final oldLocale = currentCode;
+    _currentLocale = _parseLocaleCode(code);
 
     if (kDebugMode) {
       logger.d('[LocaleService] Changing locale from $oldLocale to $code');
