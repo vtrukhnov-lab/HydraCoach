@@ -235,6 +235,10 @@ Future<bool> initializeNotificationsFromOnboarding() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  // Static navigator key for app restart
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
+
   @override
   Widget build(BuildContext context) {
     return Consumer<LocaleService>(
@@ -242,6 +246,12 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: 'HydroCoach',
           debugShowCheckedModeBanner: false,
+
+          // Key for full MaterialApp rebuild on locale change
+          key: ValueKey(localeService.currentCode),
+
+          // Navigator key for programmatic navigation
+          navigatorKey: navigatorKey,
 
           // Localization
           locale: localeService.currentLocale,

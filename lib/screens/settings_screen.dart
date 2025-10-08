@@ -8,6 +8,8 @@ import '../services/subscription_service.dart';
 import '../services/units_service.dart';
 import '../services/consent_service.dart';
 import '../services/url_launcher_service.dart';
+import '../services/locale_service.dart';
+import '../widgets/language_selector_bottom_sheet.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -128,6 +130,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ],
                     ),
                   ).animate().fadeIn(),
+
+                  // Language Section
+                  _buildSectionTitle(l10n.languageSection),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Consumer<LocaleService>(
+                      builder: (context, localeService, _) {
+                        final currentLocale = localeService
+                            .getCurrentLocaleInfo();
+
+                        return ListTile(
+                          leading: const Icon(
+                            Icons.language,
+                            color: Colors.blue,
+                          ),
+                          title: Text(l10n.languageSettings),
+                          subtitle: Row(
+                            children: [
+                              Text(
+                                currentLocale.flag,
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                currentLocale.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () =>
+                              LanguageSelectorBottomSheet.show(context),
+                        );
+                      },
+                    ),
+                  ).animate().fadeIn(delay: 150.ms),
 
                   // About Section
                   _buildSectionTitle(l10n.aboutSection),

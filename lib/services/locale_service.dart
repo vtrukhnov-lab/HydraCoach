@@ -168,8 +168,9 @@ class LocaleService extends ChangeNotifier {
   }
 
   LocaleInfo getCurrentLocaleInfo() {
+    final currentCode = _getFullLocaleCode(_currentLocale);
     return supportedLocales.firstWhere(
-      (locale) => locale.code == _currentLocale.languageCode,
+      (locale) => locale.code == currentCode,
       orElse: () => supportedLocales.first,
     );
   }
