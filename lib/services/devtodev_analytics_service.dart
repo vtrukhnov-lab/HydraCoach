@@ -1,8 +1,23 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:hydracoach/utils/app_logger.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import 'devtodev_config.dart';
+
+/// Типы событий подписки для DevToDev Subscription API
+enum SubscriptionEventType {
+  purchase('PURCHASE'),
+  trialPurchase('TRIAL_PURCHASE'),
+  trialCancellation('TRIAL_CANCELLATION'),
+  renewal('RENEWAL'),
+  cancellation('CANCELLATION'),
+  refund('REFUND');
+
+  const SubscriptionEventType(this.value);
+  final String value;
+}
 
 /// Обертка над нативной интеграцией DevToDev Analytics.
 ///
@@ -242,6 +257,144 @@ class DevToDevAnalyticsService {
       await _channel.invokeMethod<void>('currentBalance', {'balance': balance});
     } catch (error) {
       _logError('currentBalance', error);
+    }
+  }
+
+  /// Отправка ad impression (рекламный показ с доходом)
+  ///
+  /// ВАЖНО: Не используйте этот метод, если у вас настроена S2S интеграция
+  /// с ad networks (AppLovin MAX, ironSource, Fyber), чтобы избежать дублирования данных.
+  ///
+  /// [network] - название рекламной сети (например, "AppLovin", "AdMob")
+  /// [revenue] - доход за показ в USD
+  /// [placement] - место размещения баннера (например, "MainScreen", "RewardedVideo")
+  /// [unit] - название рекламного блока (ad unit ID)
+  Future<void> adImpression({
+    required String network,
+    required double revenue,
+    required String placement,
+    required String unit,
+  }) async {
+    if (!_isInitialized) {
+      return;
+    }
+
+    try {
+      await _channel.invokeMethod<void>('adImpression', {
+        'network': network,
+        'revenue': revenue,
+        'placement': placement,
+        'unit': unit,
+      });
+
+      if (kDebugMode) {
+        logger.d(
+          '📺 DevToDev Ad Impression: $network, \$$revenue, $placement, $unit',
+        );
+      }
+    } catch (error) {
+      _logError('adImpression', error);
+    }
+  }
+
+  /// Получить DevToDev ID пользователя из нативного SDK
+  Future<String?> getDevToDevId() async {
+    if (!_isInitialized) {
+      return null;
+    }
+
+    try {
+      final result = await _channel.invokeMethod<String>('getDevToDevId');
+      return result;
+    } catch (error) {
+      _logError('getDevToDevId', error);
+      return null;
+    }
+  }
+
+  /// Отправка события подписки через Server API
+  /// https://docs.devtodev.com/integration/server-api/subscription-api
+  Future<void> sendSubscriptionEvent({
+    required SubscriptionEventType eventType,
+    required String transactionId,
+    required String originalTransactionId,
+    required int startDateMs,
+    required int expiresDateMs,
+    required String productId,
+    required double price,
+    required String currency,
+    required bool isTrial,
+  }) async {
+    if (!_isInitialized || !_credentials.isComplete) {
+      if (kDebugMode) {
+        logger.d('⚠️ DevToDev не инициализирован или ключи не заполнены');
+      }
+      return;
+    }
+
+    try {
+      // Получаем DevToDev ID пользователя
+      final devtodevId = await getDevToDevId();
+      if (devtodevId == null) {
+        if (kDebugMode) {
+          logger.w(
+            '⚠️ DevToDev ID не получен, пропускаем отправку события подписки',
+          );
+        }
+        return;
+      }
+
+      // Формируем URL с API ключом
+      final url = Uri.parse(
+        'https://statgw.devtodev.com/subscriptions/api?apikey=${_credentials.apiKey}',
+      );
+
+      // Формируем тело запроса
+      final body = {
+        'notificationType': eventType.value,
+        'transactionId': transactionId,
+        'originalTransactionId': originalTransactionId,
+        'startDateMs': startDateMs,
+        'expiresDateMs': expiresDateMs,
+        'product': productId,
+        'price': price,
+        'currency': currency,
+        'isTrial': isTrial,
+        'devtodevId': int.tryParse(devtodevId) ?? 0,
+      };
+
+      if (kDebugMode) {
+        logger.i('📤 Отправка события подписки в DevToDev:');
+        logger.i('   Type: ${eventType.value}');
+        logger.i('   Product: $productId');
+        logger.i('   Price: $price $currency');
+        logger.i('   Trial: $isTrial');
+        logger.i('   DevToDev ID: $devtodevId');
+      }
+
+      // Отправляем POST запрос
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          logger.i('✅ Событие подписки успешно отправлено в DevToDev');
+        }
+      } else {
+        if (kDebugMode) {
+          logger.e(
+            '❌ Ошибка отправки события подписки: ${response.statusCode} - ${response.body}',
+          );
+        }
+      }
+    } catch (error, stackTrace) {
+      if (kDebugMode) {
+        logger.e('❌ Ошибка отправки события подписки в DevToDev: $error');
+        logger.d(stackTrace);
+      }
     }
   }
 

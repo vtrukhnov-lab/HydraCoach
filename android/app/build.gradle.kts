@@ -48,8 +48,8 @@ android {
         applicationId = "com.playcus.hydracoach"
         minSdk = 28  // Android 9.0 (API 28)
         targetSdk = 35
-        versionCode = 35
-        versionName = "2.1.4"
+        versionCode = 36
+        versionName = "2.1.5"
         multiDexEnabled = true
     }
 

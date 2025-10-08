@@ -76,7 +76,6 @@ class RemoteConfigService {
       'heat_index_low': 27.0, // HI < 27°C: без корректировок
       'heat_index_medium': 32.0, // HI 27-32°C: +5% воды, +500мг натрия
       'heat_index_high': 39.0, // HI 32-39°C: +8% воды, +1000мг натрия
-
       // HI > 39°C: +12% воды, +1500мг натрия
       'heat_water_adjustment_low': 0.05, // 5%
       'heat_water_adjustment_medium': 0.08, // 8%

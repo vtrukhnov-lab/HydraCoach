@@ -3,7 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'dart:async';
 import 'analytics_service.dart';
-import 'devtodev_analytics_service.dart';
+import 'devtodev_analytics_service.dart'
+    show DevToDevAnalyticsService, SubscriptionEventType;
 import 'package:hydracoach/utils/app_logger.dart';
 
 /*
@@ -404,7 +405,7 @@ class SubscriptionService extends ChangeNotifier {
           //   transactionId: purchaseDetails.purchaseID ?? '',
           // );
 
-          // 📊 Отправляем событие платежа в DevToDev
+          // 📊 Отправляем событие платежа в DevToDev (legacy метод)
           await _devToDev.subscriptionPayment(
             orderId:
                 purchaseDetails.purchaseID ??
@@ -412,6 +413,29 @@ class SubscriptionService extends ChangeNotifier {
             price: price,
             productId: purchaseDetails.productID,
             currencyCode: currency,
+          );
+
+          // 📊 Отправляем событие подписки через DevToDev Subscription API
+          final now = DateTime.now();
+          final expiryDate = now.add(billingPeriod);
+          final isTrial = purchaseDetails.productID == _yearlyProductId;
+
+          await _devToDev.sendSubscriptionEvent(
+            eventType: isTrial
+                ? SubscriptionEventType.trialPurchase
+                : SubscriptionEventType.purchase,
+            transactionId:
+                purchaseDetails.purchaseID ??
+                DateTime.now().millisecondsSinceEpoch.toString(),
+            originalTransactionId:
+                purchaseDetails.purchaseID ??
+                DateTime.now().millisecondsSinceEpoch.toString(),
+            startDateMs: now.millisecondsSinceEpoch,
+            expiresDateMs: expiryDate.millisecondsSinceEpoch,
+            productId: purchaseDetails.productID,
+            price: price,
+            currency: currency,
+            isTrial: isTrial,
           );
 
           if (kDebugMode) {
@@ -424,6 +448,9 @@ class SubscriptionService extends ChangeNotifier {
             );
             logger.i(
               '📊 DevToDev: subscriptionPayment отправлено (${purchaseDetails.productID}, $price $currency)',
+            );
+            logger.i(
+              '📊 DevToDev Subscription API: ${isTrial ? "TRIAL_PURCHASE" : "PURCHASE"} событие отправлено',
             );
           }
         } catch (e) {

@@ -31,6 +31,8 @@ class DevToDevMethodHandler(private val context: Context) {
                 "setUserProperty" -> setUserProperty(call, result)
                 "setTrackingEnabled" -> setTrackingEnabled(call, result)
                 "logScreenView" -> logScreenView(call, result)
+                "getDevToDevId" -> getDevToDevId(result)
+                "adImpression" -> adImpression(call, result)
                 else -> {
                     Log.w(TAG, "Unknown method: ${call.method}")
                     result.notImplemented()
@@ -276,6 +278,79 @@ class DevToDevMethodHandler(private val context: Context) {
             Log.d(TAG, "DevToDev screen view logged successfully: $screenName")
         } catch (e: Exception) {
             Log.w(TAG, "Failed to log DevToDev screen view: ${e.message}")
+        }
+
+        result.success(null)
+    }
+
+    private fun getDevToDevId(result: MethodChannel.Result) {
+        Log.d(TAG, "Getting DevToDev ID")
+
+        // Use the correct class directly
+        try {
+            val clazz = Class.forName("com.devtodev.analytics.external.analytics.DTDAnalytics")
+            val instance = clazz.getDeclaredField("INSTANCE").get(null)
+
+            // Try getUserId first (returns custom user ID if set)
+            try {
+                val method = clazz.getDeclaredMethod("getUserId")
+                val userId = method.invoke(instance) as? String
+                if (userId != null && userId.isNotEmpty()) {
+                    Log.d(TAG, "DevToDev User ID retrieved: $userId")
+                    result.success(userId)
+                    return
+                }
+            } catch (e: Exception) {
+                Log.v(TAG, "getUserId not available: ${e.message}")
+            }
+
+            // Try getDeviceId as fallback (returns internal DevToDev ID)
+            try {
+                val method = clazz.getDeclaredMethod("getDeviceId")
+                val deviceId = method.invoke(instance) as? String
+                if (deviceId != null && deviceId.isNotEmpty()) {
+                    Log.d(TAG, "DevToDev Device ID retrieved: $deviceId")
+                    result.success(deviceId)
+                    return
+                }
+            } catch (e: Exception) {
+                Log.v(TAG, "getDeviceId not available: ${e.message}")
+            }
+
+            // If nothing works, return null
+            Log.w(TAG, "Could not retrieve DevToDev ID")
+            result.success(null)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to get DevToDev ID: ${e.message}")
+            result.success(null)
+        }
+    }
+
+    private fun adImpression(call: MethodCall, result: MethodChannel.Result) {
+        val network = call.argument<String>("network") ?: ""
+        val revenue = call.argument<Double>("revenue") ?: 0.0
+        val placement = call.argument<String>("placement") ?: ""
+        val unit = call.argument<String>("unit") ?: ""
+
+        Log.d(TAG, "Logging ad impression: network=$network, revenue=$revenue, placement=$placement, unit=$unit")
+
+        // Use the correct class directly
+        try {
+            val clazz = Class.forName("com.devtodev.analytics.external.analytics.DTDAnalytics")
+            val instance = clazz.getDeclaredField("INSTANCE").get(null)
+
+            // Call adImpression method: adImpression(network: String, revenue: Double, placement: String, unit: String)
+            val method = clazz.getDeclaredMethod(
+                "adImpression",
+                String::class.java,
+                Double::class.java,
+                String::class.java,
+                String::class.java
+            )
+            method.invoke(instance, network, revenue, placement, unit)
+            Log.d(TAG, "DevToDev ad impression logged successfully")
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to log DevToDev ad impression: ${e.message}")
         }
 
         result.success(null)

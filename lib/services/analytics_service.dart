@@ -708,6 +708,10 @@ class AnalyticsService {
   /// Onboarding start
   Future<void> logOnboardingStart() async {
     await logEvent(name: 'onboarding_start');
+
+    // Отправляем событие старта туториала в DevToDev
+    // -1 означает начало туториала/онбординга
+    await _devToDev.tutorial(-1);
   }
 
   /// Просмотр шага онбординга
@@ -740,6 +744,14 @@ class AnalyticsService {
       name: 'onboarding_step_completed',
       parameters: {'step_id': stepId, 'step_index': stepIndex},
     );
+
+    // Отправляем прогресс туториала в DevToDev
+    // Значения 1..n означают завершенные этапы туториала
+    // stepIndex 0 = welcome (не считаем как шаг туториала)
+    // stepIndex 1+ = реальные шаги настройки
+    if (stepIndex > 0) {
+      await _devToDev.tutorial(stepIndex);
+    }
   }
 
   /// Выбор опции на онбординге
@@ -811,6 +823,18 @@ class AnalyticsService {
         'context': context,
       },
     );
+  }
+
+  // ==================== TUTORIAL EVENTS ====================
+
+  /// Показ туториала первого добавления воды
+  Future<void> logFirstIntakeTutorialShown() async {
+    await logEvent(name: 'first_intake_tutorial_shown');
+  }
+
+  /// Завершение туториала первого добавления воды
+  Future<void> logFirstIntakeTutorialCompleted() async {
+    await logEvent(name: 'first_intake_tutorial_completed');
   }
 
   // ==================== APP LIFECYCLE ====================

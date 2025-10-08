@@ -2,8 +2,8 @@ name: hydracoach
 description: "Smart hydration tracking with electrolyte balance"
 publish_to: 'none'
 
-# Версия приложения: 2.1.4 (Critical updates: Firebase 4.x-6.x + Code quality) + номер сборки 35
-version: 2.1.4+35 # версия+номер_сборки
+# Версия приложения: 2.1.5 (DevToDev Analytics Integration: Subscriptions, Ad Revenue, Funnels) + номер сборки 36
+version: 2.1.5+36 # версия+номер_сборки
 
 environment:
   sdk: ^3.9.0

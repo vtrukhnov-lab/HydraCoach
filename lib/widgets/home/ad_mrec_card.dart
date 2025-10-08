@@ -8,6 +8,7 @@ import 'package:applovin_max/applovin_max.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/subscription_service.dart';
 import '../../services/analytics_service.dart';
+import '../../services/devtodev_analytics_service.dart';
 import '../../screens/paywall_screen.dart';
 
 /// MREC реклама карточка для free пользователей
@@ -68,6 +69,7 @@ class _AdMrecCardState extends State<AdMrecCard> {
   void _onAdRevenuePaid(MaxAd ad) {
     try {
       final analytics = AnalyticsService();
+      final devToDev = DevToDevAnalyticsService();
 
       // Создаем дополнительные параметры согласно инструкции AppLovin MAX
       Map<String, dynamic> additionalParams = {
@@ -88,6 +90,16 @@ class _AdMrecCardState extends State<AdMrecCard> {
         'placement': ad.placement ?? '',
         'network_name': ad.networkName,
       });
+
+      // Логируем Ad Revenue в DevToDev
+      // ВАЖНО: Используйте этот метод только если НЕ настроена S2S интеграция
+      // между AppLovin MAX и DevToDev!
+      devToDev.adImpression(
+        network: ad.networkName,
+        revenue: ad.revenue,
+        placement: ad.placement ?? 'mrec_default',
+        unit: ad.adUnitId,
+      );
 
       if (mounted) {
         debugPrint(

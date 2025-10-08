@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../providers/hydration_provider.dart';
 import '../../../services/units_service.dart';
+import '../../../services/analytics_service.dart';
 import '../../../widgets/ion_character.dart';
 
 class FirstIntakeTutorial extends StatefulWidget {
@@ -19,6 +20,9 @@ class FirstIntakeTutorial extends StatefulWidget {
 
 class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
     with TickerProviderStateMixin {
+  // Analytics
+  final AnalyticsService _analytics = AnalyticsService();
+
   // Текущий шаг туториала
   int _currentStep = 0;
 
@@ -48,6 +52,9 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
   void initState() {
     super.initState();
     _initAnimations();
+
+    // Логируем показ туториала
+    Future.microtask(() => _analytics.logFirstIntakeTutorialShown());
 
     // Запускаем анимации после построения виджета
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -222,6 +229,10 @@ class _FirstIntakeTutorialState extends State<FirstIntakeTutorial>
   void _completeTutorial() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('tutorialCompleted', true);
+
+    // Логируем завершение туториала
+    await _analytics.logFirstIntakeTutorialCompleted();
+
     widget.onComplete();
   }
 
